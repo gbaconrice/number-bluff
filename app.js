@@ -78,7 +78,12 @@
     if (card.kind !== 'number') node.classList.add('special');
     if (card.value < 0) node.classList.add('negative');
     node.append(el('span', 'card-value', card.kind === 'reset' ? 'リセット' : card.label));
-    if (card.kind === 'number') node.classList.add(card.value < 0 || card.value === 0 ? 'skin-ice' : card.value === 5 || card.value === 15 ? 'skin-gold' : card.value === 1 || card.value === 2 ? 'skin-pink' : 'skin-cream');
+    const motion = el('span', 'card-art-motion'); motion.setAttribute('aria-hidden', 'true'); node.append(motion);
+    if (card.kind === 'number') {
+      node.classList.add(card.value < 0 || card.value === 0 ? 'skin-ice' : card.value === 5 || card.value === 15 ? 'skin-gold' : card.value === 1 || card.value === 2 ? 'skin-pink' : 'skin-cream');
+      // Artwork follows the public numeric value, never seat, random state or a hidden card ID.
+      node.dataset.artValue = String(card.value);
+    }
     return node;
   }
   function clearError() { $('inputError').textContent = ''; $('number').removeAttribute('aria-invalid'); }
@@ -191,7 +196,7 @@
     $('next').textContent = '結果を見る'; $('next').disabled = connectionBlocked;
   }
   function renderResult() {
-    const r = view.result; $('resultCards').replaceChildren(); $('calculationSteps').replaceChildren();
+    const r = view.result; $('calculationSteps').replaceChildren();
     if (!r) { $('resultText').textContent = ''; $('finalTotal').textContent = ''; return; }
     if (presentationFrame && !presentationFrame.complete) { renderStagedResult(); return; }
     $('result').dataset.presentationPhase = 'complete'; $('calculationHeading').textContent = '計算の流れ'; $('totalLabel').textContent = '最終合計';

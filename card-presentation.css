@@ -71,3 +71,36 @@
  .player-card::after,.presentation-card,.presentation-vortex,.presentation-bid-pulse,.presentation-bid-pulse::after,#result .calculation,#result .result-message,#result .result-message::after,#result #resultAvatar {animation:none!important;transition:none!important}
  .player-card::after,.presentation-vortex,#result .result-message::after {display:none!important}
 }
+
+/* Illustration-local light: the printed frame and numeric label never rotate.
+   This bounded, non-interactive layer is emitted only for disclosed faces. */
+.player-card .card-art-motion { position:absolute; inset:40% 5% 5%; z-index:1; overflow:hidden; border-radius:8%; pointer-events:none; contain:paint; }
+.player-card.hidden .card-art-motion,.player-card.out .card-art-motion { display:none; }
+.card-art-motion::before,.card-art-motion::after { content:''; position:absolute; pointer-events:none; }
+/* Normal illustrations: drifting cloud-light and a slow constellation breath. */
+.kind-number .card-art-motion::before { inset:40% -20% -20%; background:radial-gradient(ellipse at 25% 75%,#f5e6ff80,transparent 45%),radial-gradient(ellipse at 80% 90%,#d1f5ff80,transparent 42%); animation:art-cloud-drift 7s ease-in-out -2s infinite alternate; }
+.kind-number .card-art-motion::after { inset:10%; background:radial-gradient(ellipse at 20% 30%,#fff8cf 0 1px,transparent 2px),radial-gradient(ellipse at 80% 60%,#fff8cf 0 1px,transparent 2px),radial-gradient(ellipse at 45% 90%,#d4faff 0 1px,transparent 2px); animation:art-star-breath 4.8s ease-in-out -1s infinite; }
+/* x2: an oblique luminous spiral follows the existing galaxy's tilt. */
+.kind-double .card-art-motion::before { inset:10% -4% 6%; border-radius:50%; background:conic-gradient(from 0deg,transparent 0deg,#d8baff77 65deg,transparent 110deg,#84edff88 220deg,transparent 270deg); -webkit-mask:radial-gradient(ellipse,transparent 26%,#000 34%,#000 55%,transparent 70%); mask:radial-gradient(ellipse,transparent 26%,#000 34%,#000 55%,transparent 70%); animation:art-galaxy-orbit 9s linear -2s infinite; }
+.kind-double .card-art-motion::after { inset:24% 14% 20%; border:1px solid #a7f0ff99; border-radius:50%; transform:rotate(-30deg) scaleY(.55); box-shadow:0 0 6px #b3b1ff88,inset 0 0 5px #b3b1ff88; animation:art-galaxy-breath 3.8s ease-in-out -1s infinite; }
+/* MAX=0: the crown and its surrounding stars catch golden light, not the face. */
+.kind-max0 .card-art-motion::before { left:43%; top:0; width:30%; height:25%; background:radial-gradient(ellipse,#fff5b5aa,transparent 68%); animation:art-crown-glow 3.6s ease-in-out -.8s infinite; }
+.kind-max0 .card-art-motion::after { left:55%; top:3%; width:14%; aspect-ratio:1; background:#fff5bd; clip-path:polygon(50% 0,59% 40%,100% 50%,59% 60%,50% 100%,41% 60%,0 50%,41% 40%); animation:art-crown-star 4.6s ease-in-out -1s infinite; }
+/* ?: a breathing aurora at the centre of the crystal, with a tiny orbiting glint. */
+.kind-extra .card-art-motion::before { inset:13% 15% 12%; border-radius:50%; background:radial-gradient(ellipse,#d2ffff66,transparent 65%); border:1px solid #c3f4ff66; box-shadow:inset 0 0 9px #b7c8ff66; animation:art-orb-pulse 4s ease-in-out -1s infinite; }
+.kind-extra .card-art-motion::after { inset:15% 17%; border-radius:50%; background:radial-gradient(circle at 50% 4%,#f2ffff 0 1px,#a9eaff88 2px,transparent 4px); animation:art-reset-orbit 10s linear -3s infinite; }
+/* Reset: one satellite travels around the printed arrow; the arrow stays legible. */
+.kind-reset .card-art-motion::before { inset:8% 8% 6%; border-radius:50%; border:1px solid #c7faff66; background:radial-gradient(circle at 50% 2%,#fffada 0 2px,#bdeeff66 3px,transparent 5px); animation:art-reset-orbit 7s linear -1s infinite; }
+.kind-reset .card-art-motion::after { inset:14% 14% 12%; border-radius:50%; background:conic-gradient(transparent 60%,#d2f9ff88 80%,transparent 98%); -webkit-mask:radial-gradient(ellipse,transparent 62%,#000 67%,transparent 72%); mask:radial-gradient(ellipse,transparent 62%,#000 67%,transparent 72%); animation:art-reset-orbit 7s linear -1s infinite; }
+@keyframes art-cloud-drift { from {opacity:.28;transform:translateX(-8%)} to {opacity:.6;transform:translateX(8%)} }
+@keyframes art-star-breath { 0%,100% {opacity:.22;transform:scale(.94)} 50% {opacity:.85;transform:scale(1.03)} }
+@keyframes art-galaxy-orbit { from {transform:rotate(-30deg) scaleY(.64) rotate(0deg)} to {transform:rotate(-30deg) scaleY(.64) rotate(360deg)} }
+@keyframes art-galaxy-breath { 0%,100% {opacity:.3} 50% {opacity:.8} }
+@keyframes art-crown-glow { 0%,100% {opacity:.25;transform:scale(.9)} 50% {opacity:.85;transform:scale(1.08)} }
+@keyframes art-crown-star { 0%,100% {opacity:.25;transform:scale(.65) rotate(-12deg)} 50% {opacity:.95;transform:scale(1.15) rotate(12deg)} }
+@keyframes art-orb-pulse { 0%,100% {opacity:.25;transform:scale(.9)} 50% {opacity:.75;transform:scale(1.07)} }
+@keyframes art-reset-orbit { from {transform:rotate(0deg)} to {transform:rotate(360deg)} }
+@media (prefers-reduced-motion:reduce) {
+ .card-art-motion {display:none!important}
+ .card-art-motion::before,.card-art-motion::after {animation:none!important}
+}

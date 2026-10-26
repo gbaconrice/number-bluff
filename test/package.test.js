@@ -33,3 +33,27 @@ test('final audit rejects unresolved and unowned runtime assets', async t => {
   const {auditHTML} = await fixture(t, {});
   for (const html of ['<img src="a.png">','<script src="app.js"></script>',"const x='assets/a.png'",'<style>a{background:url(https://cdn.example/a.png)}</style>']) assert.throws(() => auditHTML(html));
 });
+
+test('release asset manifest contains only available, hash-verified runtime artwork', () => {
+  const crypto = require('node:crypto');
+  const root = path.resolve(__dirname, '..');
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, 'assets/provenance.json'), 'utf8'));
+  assert.equal(new Set(manifest.assets.map(a => a.file)).size, manifest.assets.length);
+  for (const asset of manifest.assets) {
+    assert.match(asset.file, /^[a-z0-9-]+\.webp$/);
+    const bytes = fs.readFileSync(path.join(root, 'assets', asset.file));
+    assert.equal(bytes.length, asset.bytes, asset.file + ' byte count');
+    assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'), asset.sha256, asset.file + ' hash');
+  }
+  const publicMetadata = JSON.stringify(manifest);
+  assert.doesNotMatch(publicMetadata, /CalpicoFile_|libfile_|\/workspace\/|\/tmp\/|sediment:\/\//);
+  assert.equal(manifest.font, undefined, 'system fonts need no obsolete font bundle');
+});
+
+test('release sources do not retain removed UI hooks or obsolete asset references', () => {
+  const root = path.resolve(__dirname, '..');
+  const source = ['index.html','app.js','styles.css','background-motion.css','card-presentation.css']
+    .map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
+  assert.doesNotMatch(source, /resultCards|hanging-stars|TitleMochiy|title-mochiy\.ttf|hero-platform\.webp|celestial-background\.webp/);
+  assert.doesNotMatch(source, /\.(?:home-logo|hero-main|hero-friend|galaxy-pool|entry-row)(?![\w-])/);
+});

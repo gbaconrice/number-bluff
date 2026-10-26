@@ -91,15 +91,6 @@
       "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
     },
     {
-      "file": "celestial-background.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 131894,
-      "sha256": "5ebd6ec51eae7ba640099e823372b28cacf7822af5d4d7ea23da228e28be0caf",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
       "file": "cloud-bunny.webp",
       "width": 1254,
       "height": 1254,
@@ -114,15 +105,6 @@
       "height": 724,
       "bytes": 254496,
       "sha256": "0ead95e62ffee85d50c70034b6d9bc65f1ae6e392789db49a54fc926ee32eece",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
-      "file": "hero-platform.webp",
-      "width": 2172,
-      "height": 724,
-      "bytes": 158860,
-      "sha256": "949aa32e071adc24a5a6c058b5dd333eeeb09ad5030da3cf8939813a9dabf388",
       "source": "Built-in image generation/editing; reference-guided original artwork",
       "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
     },
@@ -161,16 +143,97 @@
       "sha256": "4bc18283591f9e7abbb934456644266dd0210eb7f1806fb5d6e0c401fea0877b",
       "source": "Built-in image generation/editing; reference-guided original artwork",
       "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-pink-bunny-2.webp",
+      "value": 2,
+      "reference": "card-pink-bunny.webp",
+      "width": 1061,
+      "height": 1482,
+      "bytes": 328534,
+      "sha256": "9b8142a9488bfdc8e00d07d9baca866501788a2f951de5a16f5aa73394254c22",
+      "method": "Built-in image_gen image edit of existing matching character card",
+      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Two friendly bunny companions",
+      "postprocessing": "WebP conversion only, quality90/method6, original dimensions and alpha retained"
+    },
+    {
+      "file": "card-cream-star-4.webp",
+      "value": 4,
+      "reference": "card-cream-star.webp",
+      "width": 1051,
+      "height": 1496,
+      "bytes": 258970,
+      "sha256": "3acf35eb864400594c15b165f864114f915307df7e615747deae3a1f004dfe67",
+      "method": "Built-in image_gen image edit of existing matching character card",
+      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Four cream creatures holding stars",
+      "postprocessing": "WebP conversion only, quality90/method6, original dimensions and alpha retained"
+    },
+    {
+      "file": "card-cream-star-10.webp",
+      "value": 10,
+      "reference": "card-cream-star.webp",
+      "width": 1051,
+      "height": 1497,
+      "bytes": 274670,
+      "sha256": "515c3ba64259fbf407c9b13a9495dae0508078ebc6003b8ab30b9523d85ab2c7",
+      "method": "Built-in image_gen image edit of existing matching character card",
+      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Constellation-ring celebration",
+      "postprocessing": "WebP conversion only, quality90/method6, original dimensions and alpha retained"
+    },
+    {
+      "file": "card-cream-star-20.webp",
+      "value": 20,
+      "reference": "card-cream-star.webp",
+      "width": 1051,
+      "height": 1497,
+      "bytes": 325196,
+      "sha256": "ed268347cc4bb257ce80a59df623a19a220e1474a9f052f9e1aa066d3a91e5d3",
+      "method": "Built-in image_gen image edit of existing matching character card",
+      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Grand festival with star wand and garland",
+      "postprocessing": "WebP conversion only, quality90/method6, original dimensions and alpha retained"
+    },
+    {
+      "file": "card-gold-cat-15.webp",
+      "value": 15,
+      "reference": "card-gold-cat.webp",
+      "width": 1061,
+      "height": 1482,
+      "bytes": 335826,
+      "sha256": "249d5fbf8ae295c03f5753f726105b601a5715393c66fec2e006445b1c7f5dc4",
+      "method": "Built-in image_gen image edit of existing matching character card",
+      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Royal constellation court and cat companions",
+      "postprocessing": "WebP conversion only, quality82, original dimensions and alpha retained"
+    },
+    {
+      "file": "card-ice-cloud-minus5.webp",
+      "value": -5,
+      "reference": "card-ice-cloud.webp",
+      "width": 1060,
+      "height": 1484,
+      "bytes": 222030,
+      "sha256": "5339aba0dc8ee196bb590cbe75f71f0705a6b187f03f13211c6393285e6e40d1",
+      "method": "Built-in image_gen image edit of existing matching character card",
+      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Chilly cloud blowing wind",
+      "postprocessing": "WebP conversion only, quality82, original dimensions and alpha retained"
+    },
+    {
+      "file": "card-ice-cloud-minus10.webp",
+      "value": -10,
+      "reference": "card-ice-cloud.webp",
+      "width": 1060,
+      "height": 1484,
+      "bytes": 240634,
+      "sha256": "33e7bc115b28bd032b498ce2998d464b14cf6640a7d44d70a219875b6d76e4b0",
+      "method": "Built-in image_gen image edit of existing matching character card",
+      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Determined cloud in an icy whirlwind",
+      "postprocessing": "WebP conversion only, quality82, original dimensions and alpha retained"
     }
   ],
-  "font": {
-    "file": "title-mochiy.ttf",
-    "license": "OFL-MochiyPopOne.txt"
-  },
   "notes": [
     "Reference screenshots and personal profile images are not distributed.",
     "Human profile images/names are supplied by the platform; generated character avatars are for BOTs.",
     "Card numerals and UI instructions remain DOM text; home logo is decorative artwork with accessible title.",
-    "Background movement is automatic and has no in-game motion setting."
+    "Background movement is automatic and has no in-game motion setting.",
+    "Normal-card variants follow public numeric value; duplicate copies of the same number use the same illustration."
   ]
 }
