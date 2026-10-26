@@ -26,6 +26,28 @@ test('envelope sender is authoritative; spoofed actor, unauthenticated host and 
  assert.equal(t.guest.receive('intruder',packet),false);assert.equal(t.guest.receive('host','{'),false);assert.equal(t.guest.receive('host','x'.repeat(48001)),false);
  assert.equal(t.view(t.host).revision,revision);
 });
+test('room transport rejects a zero opening declaration and accepts the official minimum one',async()=>{
+ const t=setup();await act(t.host,t.view(t.host),'startGame');t.flush();
+ const before=t.view(t.host),randomCalls=t.randomCalls();
+ await act(t.host,before,'declare',{value:0});t.flush();
+ assert.equal(t.view(t.host).revision,before.revision);assert.equal(t.view(t.host).bid,null);assert.equal(t.view(t.guest).bid,null);assert.equal(t.view(t.host).turn,'p1');assert.equal(t.randomCalls(),randomCalls);
+ await act(t.host,t.view(t.host),'declare',{value:1});t.flush();
+ assert.equal(t.view(t.host).bid,1);assert.equal(t.view(t.guest).bid,1);assert.equal(t.view(t.host).turn,'p2');
+ await act(t.guest,t.view(t.guest),'declare',{value:1});t.flush();assert.equal(t.view(t.host).bid,1);assert.equal(t.view(t.host).turn,'p2','equal bid must still be rejected');
+ await act(t.guest,t.view(t.guest),'challenge');t.flush();assert.equal(t.view(t.host).phase,'reveal');assert.equal(t.view(t.guest).phase,'reveal');
+});
+test('guest rejects zero bids in snapshots, declaration history and results without rejecting card totals',async()=>{
+ const t=setup();await act(t.host,t.view(t.host),'startGame');await act(t.host,t.view(t.host),'declare',{value:1});t.flush();
+ const packet=JSON.parse(t.sent.findLast(x=>JSON.parse(x.message).type==='snapshot').message),before=t.view(t.guest);
+ for(const mutate of [v=>{v.bid=0;},v=>{v.history.find(a=>a.type==='declare').value=0;}]){
+  const invalid=structuredClone(packet);invalid.sequence+=10;invalid.view.revision++;mutate(invalid.view);
+  assert.equal(t.guest.receive('host',JSON.stringify(invalid)),false);assert.deepEqual(t.view(t.guest),before);
+ }
+ await act(t.guest,t.view(t.guest),'challenge');t.flush();const revealed=JSON.parse(t.sent.findLast(x=>JSON.parse(x.message).type==='snapshot').message);revealed.sequence+=10;revealed.view.revision++;revealed.view.result.bid=0;
+ assert.equal(t.guest.receive('host',JSON.stringify(revealed)),false);
+ // Totals are not declarations: zero/negative totals remain schema-valid.
+ for(const total of [0,-10]){const valid=structuredClone(revealed);valid.sequence+=total===0?1:2;valid.view.result.bid=1;valid.view.result.sum=total;valid.view.result.baseSum=total;assert.equal(t.guest.receive('host',JSON.stringify(valid)),true);}
+});
 test('duplicate and stale actions, out-of-order snapshots cannot advance or rewind a game',async()=>{
  const t=setup();await act(t.host,t.view(t.host),'startGame');t.flush();await act(t.host,t.view(t.host),'declare',{value:1});t.flush();
  const old=t.sent.findLast(x=>JSON.parse(x.message).type==='snapshot').message;
@@ -128,4 +150,25 @@ test('challenge, round progression, winner and rematch synchronize without dupli
  }
  assert.equal(t.view(t.guest).players[1].wins,1);await t.guest.resync();t.flush();assert.equal(t.view(t.guest).players[1].wins,1);
  await act(t.guest,t.view(t.guest),'rematch');t.flush();assert.equal(t.view(t.host).phase,'finished');await act(t.host,t.view(t.host),'rematch');t.flush();assert.equal(t.view(t.guest).phase,'play');assert.equal(t.view(t.guest).players[1].wins,1);assert.equal(t.view(t.guest).players[0].life,3);
+});
+
+test('snapshot streak counters are bounded integers and best cannot be below current',async()=>{
+ const t=setup();const packet=JSON.parse(t.sent.findLast(x=>JSON.parse(x.message).type==='snapshot').message);
+ const before=t.view(t.guest);
+ for(const patch of [{currentStreak:-1,bestStreak:0},{currentStreak:1.5,bestStreak:2},{currentStreak:2,bestStreak:1},{currentStreak:0,bestStreak:Number.MAX_SAFE_INTEGER+1}]){
+  const invalid=structuredClone(packet);invalid.sequence+=100;invalid.view.revision++;Object.assign(invalid.view.players[0],patch);
+  assert.equal(t.guest.receive('host',JSON.stringify(invalid)),false);assert.deepEqual(t.view(t.guest),before);
+ }
+ const valid=structuredClone(packet);valid.sequence+=100;valid.view.revision++;Object.assign(valid.view.players[0],{currentStreak:2,bestStreak:5});
+ assert.equal(t.guest.receive('host',JSON.stringify(valid)),true);assert.equal(t.view(t.guest).players[0].bestStreak,5);
+});
+
+test('snapshot ranking eligibility is an explicit boolean',()=>{
+ const t=setup();const packet=JSON.parse(t.sent.findLast(x=>JSON.parse(x.message).type==='snapshot').message);
+ const before=t.view(t.guest);
+ for(const value of [undefined,null,0,1,'true',{}]){
+  const invalid=structuredClone(packet);invalid.sequence+=100;invalid.view.revision++;invalid.view.rankingEligible=value;
+  assert.equal(t.guest.receive('host',JSON.stringify(invalid)),false);assert.deepEqual(t.view(t.guest),before);
+ }
+ assert.equal(before.rankingEligible,false);
 });

@@ -1,0 +1,11 @@
+# Local test dependencies and evidence
+node_modules/
+artifacts/
+playwright-report/
+test-results/
+# Private generation originals and working metadata; publish WebP + sanitized provenance only.
+assets/*.png
+assets/mascot-provenance.json
+assets/numeric-card-provenance.json
+special-card-generation.json
+.DS_Store

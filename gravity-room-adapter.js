@@ -104,21 +104,23 @@
     }
     function validSnapshot(v){
       if(!v||!['lobby','play','reveal','finished'].includes(v.phase)||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.players)||v.players.length<1||v.players.length>8)return false;
+      if(typeof v.rankingEligible!=='boolean')return false;
       if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;
       if(new Set(v.players.map(p=>p?.id)).size!==v.players.length)return false;
       if(v.players.some(p=>!p||typeof p!=='object'||!/^p[1-8]$/.test(p.id)||!['human','bot'].includes(p.kind)||typeof p.name!=='string'||p.name.length>24||!Number.isInteger(p.life)||p.life<0||p.life>3||!Number.isSafeInteger(p.wins)||p.wins<0))return false;
+      if(v.players.some(p=>['currentStreak','bestStreak'].some(key=>p[key]!==undefined&&(!Number.isSafeInteger(p[key])||p[key]<0))||(p.currentStreak||0)>(p.bestStreak||0)))return false;
       if(!v.hands||typeof v.hands!=='object'||!Array.isArray(v.discard)||v.discard.length>36||!Array.isArray(v.history)||v.history.length>1000)return false;
       const validCard=c=>c===null||(typeof c==='object'&&G.FULL_DECK.some(x=>x.id===c?.id&&x.kind===c.kind&&x.value===c.value&&x.label===c.label));
       const seat=x=>v.players.some(p=>p.id===x),optionalSeat=x=>x===null||seat(x);
       if(!Number.isSafeInteger(v.game)||v.game<0||!Number.isSafeInteger(v.round)||v.round<0||!Number.isInteger(v.deckCount)||v.deckCount<0||v.deckCount>36)return false;
-      if(v.bid!==null&&(!Number.isSafeInteger(v.bid)||v.bid<0))return false;
+      if(v.bid!==null&&(!Number.isSafeInteger(v.bid)||v.bid<1))return false;
       if(!optionalSeat(v.turn)||!optionalSeat(v.last)||!optionalSeat(v.starter))return false;
       if(v.players.some(p=>p.kind==='human'&&!id(p.userId)))return false;
       if(!Object.entries(v.hands).every(([key,c])=>seat(key)&&validCard(c))||!v.discard.every(c=>c!==null&&validCard(c)))return false;
-      if(!v.history.every(a=>a&&typeof a==='object'&&seat(a.player)&&(['declare','challenge'].includes(a.type))&&(a.type!=='declare'||Number.isSafeInteger(a.value)&&a.value>=0)))return false;
+      if(!v.history.every(a=>a&&typeof a==='object'&&seat(a.player)&&(['declare','challenge'].includes(a.type))&&(a.type!=='declare'||Number.isSafeInteger(a.value)&&a.value>=1)))return false;
       if(v.phase==='reveal'||v.phase==='finished'){
         const r=v.result;if(!r||typeof r!=='object'||!r.cards||typeof r.cards!=='object'||!Object.entries(r.cards).every(([key,c])=>seat(key)&&c!==null&&validCard(c)))return false;
-        if(!validCard(r.extraCard)||!validCard(r.removedCard)||![r.sum,r.baseSum,r.bid].every(Number.isSafeInteger)||![1,2].includes(r.multiplier)||typeof r.reset!=='boolean')return false;
+        if(!validCard(r.extraCard)||!validCard(r.removedCard)||![r.sum,r.baseSum,r.bid].every(Number.isSafeInteger)||r.bid<1||![1,2].includes(r.multiplier)||typeof r.reset!=='boolean')return false;
         if(![r.loser,r.challenger,r.bidder].every(seat)||!optionalSeat(r.winner))return false;
       }else if(v.result!==null)return false;
       return true;

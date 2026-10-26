@@ -33,11 +33,17 @@
       star.className = 'nb-background__star';
       star.style.setProperty('--star-x', (4 + ((i * 37) % 92)) + '%');
       star.style.setProperty('--star-y', (3 + ((i * 23) % 82)) + '%');
-      star.style.setProperty('--star-size', (i % 4 === 0 ? 4 : 2) + 'px');
-      star.style.setProperty('--star-cycle', (8 + (i % 8)) + 's');
-      star.style.setProperty('--star-delay', (-i * 1.7) + 's');
+      star.style.setProperty('--star-size', (i % 4 === 0 ? 5 : 3) + 'px');
+      star.style.setProperty('--star-cycle', (4 + (i % 5)) + 's');
+      star.style.setProperty('--star-delay', (-i * .9) + 's');
       layer.appendChild(star);
     }
+    var nebula = document.createElement('div');
+    nebula.className = 'nb-background__nebula';
+    layer.appendChild(nebula);
+    var distantClouds = document.createElement('div');
+    distantClouds.className = 'nb-background__clouds-back';
+    layer.appendChild(distantClouds);
     var shooting = document.createElement('i');
     shooting.className = 'nb-background__shooting-star';
     layer.appendChild(shooting);

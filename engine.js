@@ -19,12 +19,12 @@
   function updated(s,patch) { return {...s,...patch,revision:s.revision+1}; }
   function createLobby({name='YOU',botCount=1,difficulty='normal'}={}) {
     if(!Number.isInteger(botCount)||botCount<0||botCount>7||!difficulties.includes(difficulty)) throw new RangeError('Use 0–7 bots and easy/normal/hard.');
-    return {phase:'lobby',revision:0,game:0,round:0,players:[{id:'p1',name:String(name).slice(0,24)||'YOU',kind:'human',difficulty:null,life:3,wins:0,eliminated:false},...Array.from({length:botCount},(_,i)=>({id:`p${i+2}`,name:`BOT ${i+1}`,kind:'bot',difficulty,life:3,wins:0,eliminated:false}))],deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,starter:'p1',result:null,history:[]};
+    return {phase:'lobby',revision:0,game:0,round:0,rankingEligible:false,players:[{id:'p1',name:String(name).slice(0,24)||'YOU',kind:'human',difficulty:null,life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false},...Array.from({length:botCount},(_,i)=>({id:`p${i+2}`,name:`BOT ${i+1}`,kind:'bot',difficulty,life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false}))],deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,starter:'p1',result:null,history:[]};
   }
   function addBot(s,difficulty='normal') {
     if(s.phase!=='lobby'||s.players.length>=8||!difficulties.includes(difficulty))return s;
     const seat=Array.from({length:7},(_,i)=>i+2).find(n=>!s.players.some(p=>p.id===`p${n}`));
-    return updated(s,{players:[...s.players,{id:`p${seat}`,name:`BOT ${seat-1}`,kind:'bot',difficulty,life:3,wins:0,eliminated:false}]});
+    return updated(s,{players:[...s.players,{id:`p${seat}`,name:`BOT ${seat-1}`,kind:'bot',difficulty,life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false}]});
   }
   function removeBot(s,id) {if(s.phase!=='lobby'||s.players.length<=1||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;return updated(s,{players:s.players.filter(p=>p.id!==id)});}
   function setDifficulty(s,id,difficulty) {if(s.phase!=='lobby'||!difficulties.includes(difficulty)||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;return updated(s,{players:s.players.map(p=>p.id===id?{...p,difficulty}:p)});}
@@ -34,19 +34,19 @@
     for(const p of alive(s)) hands[p.id]=draw(pool,rng);
     return updated(s,{...pool,hands,phase:'play',round:s.round+1,bid:null,last:null,turn:s.starter,result:null,history:[]});
   }
-  function startGame(s,rng) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;return deal({...s,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,starter:s.players[0].id},rng);}
+  function startGame(s,rng) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;return deal({...s,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:s.players.filter(p=>p.kind==='human').length>=2,starter:s.players[0].id},rng);}
   function rematch(s,rng) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:s.players.map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng);}
   // A room survives leaving a match. The UI must confirm abandoning active play;
   // no winner is awarded here. createLobby is reserved for a genuinely new room.
   function returnToLobby(s) {
     if(!['play','reveal','finished'].includes(s.phase))return s;
-    return updated(s,{phase:'lobby',round:0,players:s.players.map(p=>({...p,life:3,eliminated:false})),
+    return updated(s,{phase:'lobby',round:0,rankingEligible:false,players:s.players.map(p=>({...p,life:3,eliminated:false})),
       deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,
       starter:s.players[0].id,result:null,history:[]});
   }
   function nextRound(s,rng) {if(s.phase!=='reveal')return s;return deal(s,rng);}
   function declare(s,who,value) {
-    if(s.phase!=='play'||s.turn!==who||!Number.isSafeInteger(value)||value<0||(s.bid!==null&&value<=s.bid))return s;
+    if(s.phase!=='play'||s.turn!==who||!Number.isSafeInteger(value)||value<1||(s.bid!==null&&value<=s.bid))return s;
     return updated(s,{bid:value,last:who,turn:nextSeat(s,who),history:[...s.history,{type:'declare',player:who,value}]});
   }
   // Extra is supplied separately: it is one physical card, never recursively drawn.
@@ -66,17 +66,25 @@
     const outcome=evaluateCards(handCards,extraCard),loser=s.bid>outcome.sum?s.last:who;
     let players=s.players.map(p=>p.id===loser?{...p,life:Math.max(0,p.life-1),eliminated:p.life<=1}:p);
     const survivors=players.filter(p=>p.life>0),winner=survivors.length===1?survivors[0].id:null;
-    if(winner)players=players.map(p=>p.id===winner?{...p,wins:p.wins+1}:p);
+    // Eligibility is captured at match start: at least two humans, BOTs allowed.
+    // Only eligible completed matches affect streaks; practice/abandonment do not. These
+    // transient counters are not a leaderboard or a platform submission.
+    if(winner)players=players.map(p=>{
+      if(s.rankingEligible!==true)return {...p,wins:p.wins+(p.id===winner?1:0)};
+      const currentStreak=p.kind==='human'&&p.id===winner?(p.currentStreak||0)+1:0;
+      return {...p,wins:p.wins+(p.id===winner?1:0),currentStreak,
+        bestStreak:p.kind==='human'?Math.max(p.bestStreak||0,currentStreak):0};
+    });
     pool.discard.push(...handCards,...(extraCard?[extraCard]:[]));
     if(outcome.reset){pool.deck=shuffle(FULL_DECK,rng);pool.discard=[];}
-    const starter=players.find(p=>p.id===loser).life>0?loser:nextSeat({...s,players},loser);
+    const starter=players.find(p=>p.id===loser).life>0?loser:(loser===s.last?who:s.last);
     return updated(s,{...pool,players,hands:{},phase:winner?'finished':'reveal',turn:null,starter,
       result:{...outcome,cards:{...s.hands},extraCard,loser,challenger:who,bidder:s.last,bid:s.bid,winner},history:[...s.history,{type:'challenge',player:who}]});
   }
   function publicView(s,viewerId) {
     const reveal=s.phase==='reveal'||s.phase==='finished';
     const hands=reveal?{...s.result.cards}:Object.fromEntries(Object.entries(s.hands).map(([id,c])=>[id,id===viewerId?null:c]));
-    return {phase:s.phase,revision:s.revision,game:s.game,round:s.round,players:s.players.map(p=>({...p})),hands,discard:s.discard.slice(),deckCount:s.deck.length,bid:s.bid,last:s.last,turn:s.turn,starter:s.starter,result:reveal?{...s.result,cards:{...s.result.cards}}:null,history:s.history.map(a=>({...a})),viewerId};
+    return {phase:s.phase,revision:s.revision,game:s.game,round:s.round,rankingEligible:s.rankingEligible===true,players:s.players.map(p=>({...p})),hands,discard:s.discard.slice(),deckCount:s.deck.length,bid:s.bid,last:s.last,turn:s.turn,starter:s.starter,result:reveal?{...s.result,cards:{...s.result.cards}}:null,history:s.history.map(a=>({...a})),viewerId};
   }
   function botView(s,id) {return publicView(s,id);}
   // This function accepts ONLY a sanitized public view. It enumerates legal own-card
@@ -99,14 +107,14 @@
     if(view.phase!=='play'||view.turn!==view.viewerId||!bot||bot.kind!=='bot')return null;
     const totals=possibleTotals(view).sort((a,b)=>a-b),difficulty=bot.difficulty||'normal';
     const noise=random(rng),quantile=difficulty==='easy'?.25+noise*.5:difficulty==='hard'?.55:.4+noise*.2;
-    const target=Math.max(0,Math.floor(totals[Math.min(totals.length-1,Math.floor(quantile*totals.length))]));
+    const target=Math.max(1,Math.floor(totals[Math.min(totals.length-1,Math.floor(quantile*totals.length))]));
     const safe=view.bid===null?1:totals.filter(sum=>sum>=view.bid).length/totals.length;
     const threshold=difficulty==='hard'?.48:difficulty==='normal'?.35+noise*.2:.15+noise*.6;
     if(view.bid!==null&&(safe<threshold||view.bid===Number.MAX_SAFE_INTEGER))return {type:'challenge'};
-    const minimum=view.bid===null?0:view.bid+1;
+    const minimum=view.bid===null?1:view.bid+1;
     return {type:'declare',value:Math.max(minimum,Math.min(target,minimum+(difficulty==='hard'?3:difficulty==='normal'?5:8)))};
   }
-  function parseBid(raw) { const n=String(raw).replace(/[０-９]/g,c=>String(c.charCodeAt(0)-65296)).trim();if(!/^\d+$/.test(n))return null;const value=Number(n);return Number.isSafeInteger(value)?value:null; }
+  function parseBid(raw) { const n=String(raw).replace(/[０-９]/g,c=>String(c.charCodeAt(0)-65296)).trim();if(!/^\d+$/.test(n))return null;const value=Number(n);return Number.isSafeInteger(value)&&value>=1?value:null; }
   // Future authoritative adapter: send expected revision with each action to reject
   // stale/replayed commands; authenticate actor outside this pure engine.
   function dispatch(s,action,rng) {
