@@ -1,35 +1,79 @@
 (() => {
   'use strict';
   const G = window.NumberBluff, timer = window.NumberBluffScheduler(), $ = id => document.getElementById(id);
-  let human = 'p1';
+  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
+  const matchListeners = new Set();
+  let connectionBlocked = false, connectionMessage = '';
+  const screenListeners = new Set(), screenNames = { homeScreen: 'home', lobbyScreen: 'lobby', battleScreen: 'battle', guidePanel: 'guide', settingsPanel: 'settings', joinPanel: 'join' };
+  const updateViewport = () => document.documentElement.style.setProperty('--nb-viewport-height', (window.visualViewport?.height || window.innerHeight) + 'px');
+  window.addEventListener('resize', updateViewport); window.visualViewport?.addEventListener('resize', updateViewport); updateViewport();
+  let human = 'p1', localProfile = { name: 'プレイヤー', avatarUrl: null };
+  const safeAvatar = value => { try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password ? u.href : null; } catch { return null; } };
   const difficultyNames = { easy: 'やさしい', normal: '普通', hard: '強い' };
   const avatars = ['assets/star-sprite.webp', 'assets/moon-cat.webp', 'assets/cloud-bunny.webp', 'assets/blue-cloud.webp'];
   const avatarNames = ['ほしもち', 'ほしねこ', 'もふうさ', 'くもまる'];
   let state = null, view = null, screen = 'homeScreen', selectedBot = 'p2', nextDifficulty = 'normal';
   let avatarChoice = {}, suggested = true, overlayReturn = null, confirmIntent = 'home';
-  let transport = null, unsubscribe = null, settings = { sound: false, motion: false }, audioContext;
-  try { settings = { ...settings, ...JSON.parse(localStorage.getItem('number-bluff-settings') || '{}') }; } catch {}
+  let presentationFrame = null, presentationPrevious = null, presentationKey = null, roomEpoch = 0, nextReadyAt = 0;
+  let transport = null, unsubscribe = null, settings = { sound: false }, audioContext;
+  try { settings.sound = !!JSON.parse(localStorage.getItem('number-bluff-visual-v3-settings') || '{}').sound; } catch {}
   const el = (tag, cls, text) => { const node = document.createElement(tag); if (cls) node.className = cls; if (text !== undefined) node.textContent = text; return node; };
   const image = (src, cls = '') => { const node = el('img', cls); node.src = src; node.alt = ''; return node; };
-  const avatarIndex = id => avatarChoice[id] ?? ((Number(id.slice(1)) - 1) % 4);
-  const avatar = id => avatars[avatarIndex(id)];
+  const avatarIndex = id => { const p = view?.players.find(p => p.id === id); const value = p?.botAvatar ?? avatarChoice[id]; return Number.isInteger(value) && value >= 0 && value < 4 ? value : (Math.max(0, Number(String(id).replace(/\D/g, '')) - 1) % 4); };
+  function playerAvatar(id) {
+    const p = view?.players.find(p => p.id === id);
+    if (p?.kind !== 'human') return image(avatars[avatarIndex(id)], 'avatar');
+    const url = safeAvatar(p.avatarUrl ?? (p.id === human ? localProfile.avatarUrl : null));
+    const placeholder = () => { const n = el('span', 'avatar person-placeholder'); n.setAttribute('aria-hidden', 'true'); return n; };
+    if (!url) return placeholder();
+    const n = image(url, 'avatar profile-avatar'); n.referrerPolicy = 'no-referrer'; n.addEventListener('error', () => n.replaceWith(placeholder()), { once: true }); return n;
+  }
   const name = id => {
     const player = view?.players.find(p => p.id === id);
     if (!player) return '';
-    if (player.id === human) return 'あなた';
-    if (player.kind === 'human') return player.name;
+    if (player.kind === 'human') return player.name || (player.id === human ? localProfile.name : 'プレイヤー');
     const duplicate = view.players.filter(p => p.kind === 'bot' && avatarIndex(p.id) === avatarIndex(id)).length > 1;
     return avatarNames[avatarIndex(id)] + (duplicate ? ' ' + id.slice(1) : '');
   };
+  const presenter = window.NumberBluffPresentation.createPresenter({
+    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    onPhase: paintPresentationFrame
+  });
+  function cancelPresentation(settle = false) {
+    presenter.cancel(); presentationFrame = null; presentationPrevious = null;
+    if (settle && view?.result && view.phase !== 'play' && view.phase !== 'lobby') { renderPlayers(); renderResult(); }
+  }
+  function paintPresentationFrame(frame, key) {
+    if (key !== presentationKey || !view?.result || view.phase === 'play' || view.phase === 'lobby') return;
+    const hadOutcome = presentationFrame?.outcomeVisible;
+    presentationFrame = frame;
+    if (frame.outcomeVisible && !hadOutcome) renderPlayers();
+    for (const p of view.players) {
+      const card = view.result.cards[p.id]; if (!card) continue;
+      const block = [...$('playerGrid').children].find(n => n.dataset.player === p.id); if (!block) continue;
+      let node = block.querySelector('.player-card');
+      if (frame.revealedIds.includes(card.id) && node.classList.contains('hidden')) {
+        const face = cardNode(card); face.classList.add('presentation-card', 'is-revealing'); face.dataset.cardId = card.id; face.dataset.revealed = 'true';
+        if (p.id === human) face.id = 'humanCard'; face.setAttribute('aria-label', name(p.id) + 'のカード ' + card.label); node.replaceWith(face); node = face;
+      }
+      node.classList.toggle('is-adding', frame.phase === 'sum' && frame.cardId === card.id);
+      node.classList.toggle('is-zeroed', frame.removedCardId === card.id);
+      if (frame.removedCardId === card.id && !node.querySelector('.presentation-zero-stamp')) node.append(el('span', 'presentation-zero-stamp', '0'));
+      if (frame.phase === 'multiply' && card.kind === 'double' && !node.querySelector('.presentation-vortex')) node.append(el('span', 'presentation-vortex'));
+    }
+    renderResult();
+    if (frame.outcomeVisible && !hadOutcome) $('resultAnnouncement').textContent = '最終合計 ' + view.result.sum + '。' + $('resultText').textContent;
+  }
   function show(id, focus = null) {
+    if (screen === 'battleScreen' && id !== screen) cancelPresentation(true);
     for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
     screen = id; window.scrollTo(0, 0);
+    for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
     if (focus) $(focus).focus({ preventScroll: true });
   }
   function saveSettings() {
-    document.body.dataset.motion = settings.motion ? 'on' : 'off';
-    $('soundToggle').checked = !!settings.sound; $('motionToggle').checked = !!settings.motion;
-    try { localStorage.setItem('number-bluff-settings', JSON.stringify(settings)); } catch {}
+    $('soundToggle').checked = !!settings.sound;
+    try { localStorage.setItem('number-bluff-visual-v3-settings', JSON.stringify(settings)); } catch {}
   }
   function sound(reveal = false) {
     if (!settings.sound) return;
@@ -50,66 +94,115 @@
     if (card.kind !== 'number') node.classList.add('special');
     if (card.value < 0) node.classList.add('negative');
     node.append(el('span', 'card-value', card.kind === 'reset' ? 'リセット' : card.label));
-    const art = image(card.kind === 'max0' || card.value === 5 || card.value === 15 ? avatars[1] : card.value < 0 || card.value === 0 ? avatars[3] : card.value === 1 || card.value === 2 ? avatars[2] : avatars[0], 'card-art');
-    node.append(art);
-    if (card.kind === 'double') node.classList.add('orbit-card');
+    if (card.kind === 'number') node.classList.add(card.value < 0 || card.value === 0 ? 'skin-ice' : card.value === 5 || card.value === 15 ? 'skin-gold' : card.value === 1 || card.value === 2 ? 'skin-pink' : 'skin-cream');
     return node;
   }
   function clearError() { $('inputError').textContent = ''; $('number').removeAttribute('aria-invalid'); }
   function fail(message) { $('inputError').textContent = message; $('number').setAttribute('aria-invalid', 'true'); }
   function detachTransport() {
+    cancelPresentation(); presentationKey = null; roomEpoch++;
     if (typeof unsubscribe === 'function') unsubscribe();
-    unsubscribe = null; transport = null;
+    unsubscribe = null; const old = transport; transport = null; connectionBlocked = false; connectionMessage = '';
+    if (typeof old?.close === 'function') old.close();
+    paintConnectionStatus();
   }
-  function newLobby() {
-    detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: 'あなた', botCount: 3 }); avatarChoice = {}; selectedBot = 'p2';
-    view = G.publicView(state, human); renderLobby(); show('lobbyScreen', 'beginGame');
+  async function requestRoom(kind, roomId) {
+    const status = $(kind === 'create' ? 'roomCreateStatus' : 'roomJoinStatus');
+    const button = $(kind === 'create' ? 'startGame' : 'joinRoom');
+    if (typeof roomActions[kind] !== 'function') { if (kind === 'create' && !roomAdapterExpected) { createLocalHostRoom(); return; } status.textContent = '接続待ち'; return; }
+    const request = ++roomRequest; button.disabled = true; status.textContent = '接続中…';
+    try {
+      const adapter = await roomActions[kind](...(kind === 'join' ? [roomId] : []));
+      if (request !== roomRequest) { adapter?.close?.(); return; }
+      if (adapter) window.NumberBluffClient.connect(adapter);
+      status.textContent = view ? '' : connectionMessage || 'ホストからの情報を待っています…';
+    } catch { if (request === roomRequest) status.textContent = '接続できませんでした。もう一度お試しください。'; }
+    finally { if (request === roomRequest) button.disabled = false; }
+  }
+  function cancelRoomRequest() { ++roomRequest; if (cancelRoomOperation) cancelRoomOperation(); $('startGame').disabled = false; $('joinRoom').disabled = false; $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = ''; }
+  function createLocalHostRoom() {
+    detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: localProfile.name, botCount: 0 }); state.players[0].avatarUrl = localProfile.avatarUrl; avatarChoice = {}; selectedBot = null;
+    view = G.publicView(state, human); renderLobby(); show('lobbyScreen');
+  }
+  const canManageLobby = () => !connectionBlocked && (!transport || (typeof view?.hostId === 'string' && view.hostId === human));
+  function lobbyAction(type, details = {}) {
+    if (!transport || !canManageLobby()) return;
+    $('lobbyError').textContent = '';
+    Promise.resolve(transport.send({ type, player: human, revision: view.revision, ...details })).catch(() => { $('lobbyError').textContent = '接続を確認して、もう一度お試しください。'; });
   }
   function renderLobby() {
     $('playerCount').textContent = view.players.length + '/8';
+    const manage = canManageLobby(), hostId = transport ? view.hostId : 'p1';
+    $('roomIdentity').classList.toggle('hide', !view.roomId); $('roomIdentity').textContent = view.roomId ? 'ルームID ' + String(view.roomId) : '';
+    $('lobbyError').textContent = '';
     const selected = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
     if (!selected) selectedBot = view.players.find(p => p.kind === 'bot')?.id;
     const grid = $('lobbyPlayers'); grid.replaceChildren();
     for (let i = 0; i < 8; i++) {
       const p = view.players[i];
-      if (!p) { const slot = el('button', 'lobby-seat empty'); slot.type = 'button'; slot.setAttribute('aria-label', 'BOTを追加'); slot.append(el('b', '', '+'), el('small', '', 'BOTを追加')); slot.onclick = addBot; grid.append(slot); continue; }
+      if (!p) { const slot = el('button', 'lobby-seat empty'); slot.type = 'button'; slot.setAttribute('aria-label', 'BOTを追加'); slot.append(el('b', '', '+'), el('small', '', '参加待ち')); slot.onclick = addBot; slot.disabled = !manage; grid.append(slot); continue; }
       const slot = el(p.kind === 'bot' ? 'button' : 'div', 'lobby-seat' + (p.id === selectedBot ? ' selected' : ''));
       slot.dataset.seat = p.id;
-      if (p.id === 'p1') slot.append(el('span', 'crown', '♛'));
-      slot.append(image(avatar(p.id)), el('strong', '', name(p.id)), el('small', '', p.kind === 'human' ? 'ホスト · ' + p.wins + '勝' : 'BOT · ' + difficultyNames[p.difficulty] + (p.wins > 0 ? ' · ' + p.wins + '勝' : '')));
+      if (p.id === hostId) slot.append(el('span', 'crown', '♛'));
+      slot.append(playerAvatar(p.id), el('strong', '', name(p.id)), el('small', '', p.kind === 'human' ? (p.id === hostId ? 'ホスト' : '参加中') + (p.wins ? ' · ' + p.wins + '勝' : '') : 'BOT · ' + difficultyNames[p.difficulty] + (p.wins > 0 ? ' · ' + p.wins + '勝' : '')));
       if (p.kind === 'bot') { slot.type = 'button'; slot.setAttribute('aria-pressed', String(p.id === selectedBot)); slot.onclick = () => { selectedBot = p.id; renderLobby(); }; }
       grid.append(slot);
     }
     const bot = view.players.find(p => p.id === selectedBot);
     $('selectedBotLabel').textContent = bot ? ' — ' + name(bot.id) : '';
-    $('addBot').disabled = view.players.length >= 8; $('removeBot').disabled = view.players.length <= 1;
-    $('beginGame').disabled = view.players.length < 2;
-    document.querySelectorAll('[data-avatar]').forEach(button => { button.disabled = !bot; });
-    document.querySelectorAll('[data-difficulty]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.difficulty === (bot?.difficulty || nextDifficulty))));
+    $('addBot').disabled = !manage || view.players.length >= 8; $('removeBot').disabled = !manage || !bot;
+    $('beginGame').disabled = !manage || view.players.length < 2;
+    document.querySelectorAll('[data-avatar]').forEach(button => { button.disabled = !manage || !bot; });
+    document.querySelectorAll('[data-difficulty]').forEach(button => { button.disabled = !manage || !bot; button.setAttribute('aria-pressed', String(button.dataset.difficulty === (bot?.difficulty || nextDifficulty))); });
     document.querySelectorAll('[data-avatar]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.avatar) === avatarIndex(selectedBot || 'p2'))));
   }
-  function addBot() { if (transport || !state) return; const next = G.addBot(state, nextDifficulty); if (next === state) return; selectedBot = next.players.find(p => !state.players.some(old => old.id === p.id)).id; state = next; view = G.publicView(state, human); renderLobby(); }
+  function addBot() { if (transport) { lobbyAction('addBot', { difficulty: nextDifficulty }); return; } if (!state) return; const next = G.addBot(state, nextDifficulty); if (next === state) return; selectedBot = next.players.find(p => !state.players.some(old => old.id === p.id)).id; state = next; view = G.publicView(state, human); renderLobby(); }
   function renderPlayers() {
-    const grid = $('playerGrid'); grid.replaceChildren(); grid.classList.toggle('many', view.players.length > 4);
-    for (const p of view.players) {
+    const grid = $('playerGrid'), scrollTop = grid.scrollTop; grid.replaceChildren(); grid.classList.toggle('many', view.players.length > 4); grid.dataset.count = view.players.length;
+    const held = presentationFrame && !presentationFrame.outcomeVisible;
+    for (const player of view.players) {
+      const p = held ? presentationPrevious?.find(old => old.id === player.id) || player : player;
       const block = el('div', 'battle-player' + (p.id === human ? ' self' : '') + (p.id === view.turn ? ' active' : '') + (p.eliminated ? ' eliminated' : ''));
       block.dataset.player = p.id;
-      const info = el('div', 'player-info'); info.append(el('div', 'player-name', name(p.id)), image(avatar(p.id)));
+      const info = el('div', 'player-info'); info.append(el('div', 'player-name', name(p.id)), playerAvatar(p.id));
       const hearts = el('div', 'hearts', '♥'.repeat(p.life) + '♡'.repeat(3 - p.life)); hearts.setAttribute('aria-label', name(p.id) + 'のライフ ' + p.life + ' / 3'); info.append(hearts);
-      const card = view.hands[p.id];
-      const out = !Object.prototype.hasOwnProperty.call(view.hands, p.id) && p.eliminated;
-      const node = cardNode(card, view.phase === 'play' && p.id === human && !out, out);
+      const card = view.hands[p.id], out = !Object.prototype.hasOwnProperty.call(view.hands, p.id) && p.eliminated;
+      const hidden = !out && ((view.phase === 'play' && p.id === human) || (presentationFrame && !presentationFrame.revealedIds.includes(card?.id)));
+      const node = cardNode(card, hidden, out);
       if (p.id === human) node.id = 'humanCard';
-      node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : view.phase === 'play' && p.id === human ? 'あなたの非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
+      node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : hidden ? name(p.id) + 'の非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
+      if (view.phase !== 'play' && card) { node.classList.add('presentation-card'); node.dataset.cardId = card.id; node.dataset.revealed = hidden ? 'back' : 'true'; }
       block.append(info, node);
       if (p.wins > 0) block.append(el('span', 'wins-badge', p.wins + '勝'));
       grid.append(block);
     }
+    grid.scrollTop = scrollTop;
+  }
+  function renderStagedResult() {
+    const r = view.result, f = presentationFrame;
+    $('result').dataset.presentationPhase = f.phase;
+    $('battleTitle').textContent = f.outcomeVisible && r.winner ? '対戦結果' : 'ラウンド結果';
+    $('resultTitle').textContent = $('battleTitle').textContent;
+    $('calculationHeading').textContent = ({hold:'グラビティ！',reveal:'カードを公開',extra:'もう1枚、公開',max:'最大の1枚を0に',sum:'数字を足して…',multiply:'合計を2倍！',compare:'宣言と比べる',outcome:'判定結果'})[f.phase] || '計算の流れ';
+    const line = (label, expression) => { const row = el('div', 'calc-line'); if (label) row.append(el('div', '', label)); row.append(el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
+    if (f.extraVisible && r.extraCard) { const extra = el('div', 'extra-reveal'); const card = cardNode(r.extraCard); if (f.phase === 'extra') card.classList.add('presentation-extra'); if (f.removedCardId === r.extraCard.id) { card.classList.add('is-zeroed'); card.append(el('span', 'presentation-zero-stamp', '0')); } extra.append(el('span', '', '「?」で追加公開'), card); $('calculationSteps').append(extra); }
+    if (f.removedCardId && r.removedCard) line('MAX→0', r.removedCard.label + ' → 0');
+    if (f.terms.length) line('', f.terms.map(t => t.value < 0 ? '(' + t.value + ')' : String(t.value)).join(' + ') + ' = ' + (f.multiplierApplied ? r.baseSum : f.runningTotal));
+    if (f.multiplierApplied) line('×2', r.baseSum + ' × 2 = ' + r.sum);
+    if (f.compareVisible) line(name(r.bidder) + 'の宣言', r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum);
+    $('totalLabel').textContent = f.compareVisible ? '最終合計' : '計算中'; $('finalTotal').textContent = f.compareVisible ? r.sum : '…';
+    $('resultAvatar').replaceChildren(playerAvatar(f.outcomeVisible ? r.winner || r.loser : r.challenger));
+    const loser = view.players.find(p => p.id === r.loser);
+    $('resultText').textContent = f.outcomeVisible ? r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') : name(r.challenger) + '「グラビティ！」';
+    $('next').textContent = '結果を見る'; $('next').disabled = connectionBlocked;
   }
   function renderResult() {
     const r = view.result; $('resultCards').replaceChildren(); $('calculationSteps').replaceChildren();
     if (!r) { $('resultText').textContent = ''; $('finalTotal').textContent = ''; return; }
-    $('resultTitle').textContent = r.winner ? '対戦終了！' : '全カード公開！';
+    if (presentationFrame && !presentationFrame.complete) { renderStagedResult(); return; }
+    $('result').dataset.presentationPhase = 'complete'; $('calculationHeading').textContent = '計算の流れ'; $('totalLabel').textContent = '最終合計';
+    $('battleTitle').textContent = r.winner ? '対戦結果' : 'ラウンド結果';
+    $('resultTitle').textContent = r.winner ? '対戦結果' : 'ラウンド結果';
     const numeric = [...Object.values(r.cards), ...(r.extraCard ? [r.extraCard] : [])].filter(c => c.kind === 'number');
     const line = (label, expression) => { const row = el('div', 'calc-line'); row.append(el('div', '', label), el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
     if (r.extraCard) {
@@ -123,13 +216,27 @@
     if (r.reset) $('calculationSteps').append(el('div', 'calc-line', 'リセット：この判定後、全36枚を混ぜ直します。'));
     $('finalTotal').textContent = r.sum;
     const loser = view.players.find(p => p.id === r.loser);
-    $('resultText').textContent = r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.bidder) + 'の宣言 ' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum + '。' + name(r.loser) + 'の負け！' + (loser.eliminated ? ' 脱落しました。' : ' ライフが1減りました。');
-    $('next').textContent = r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›';
+    $('resultAvatar').replaceChildren(playerAvatar(r.winner || r.loser));
+    $('resultText').textContent = r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') + '　' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum;
+    $('next').textContent = canManageLobby() ? (r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›') : 'ホストの操作を待っています';
+    $('next').disabled = !canManageLobby();
+    if (transport && view.phase === 'finished' && r.winner) for (const listener of matchListeners) { try { listener({ roomId: view.roomId, game: view.game, winner: r.winner, viewerId: human }); } catch {} }
   }
   function renderBattle(previous = null) {
+    const active = view.phase === 'play', yourTurn = active && view.turn === human && !connectionBlocked;
+    $('restartBtn').disabled = !canManageLobby();
+    let startPresentation = false;
+    if (active) { cancelPresentation(); presentationKey = null; $('resultAnnouncement').textContent = ''; }
+    else if (view.result) {
+      const key = roomEpoch + ':' + view.game + ':' + view.round;
+      if (key !== presentationKey) {
+        cancelPresentation(); presentationKey = key;
+        if (previous?.phase === 'play' && screen === 'battleScreen') { presentationPrevious = previous.players; presentationFrame = window.NumberBluffPresentation.plan(view.result, view.players)[0]; startPresentation = true; }
+      }
+    }
     renderPlayers(); $('roundLabel').textContent = 'ラウンド ' + view.round; $('survivorCount').textContent = '生存者 ' + view.players.filter(p => !p.eliminated).length + '/' + view.players.length;
-    $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : '最初の宣言をどうぞ';
-    const active = view.phase === 'play', yourTurn = active && view.turn === human;
+    $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : name(view.turn) + ' の番'; $('bidActor').replaceChildren(playerAvatar(view.last || view.turn));
+    $('battleScreen').classList.toggle('is-result', !active); $('battleTitle').textContent = active ? 'ナンバーブラフ' : view.phase === 'finished' ? '対戦結果' : 'ラウンド結果';
     $('gamePanel').classList.toggle('hide', !active); $('result').classList.toggle('hide', active); $('result').classList.toggle('open', !active);
     const alive = !view.players.find(p => p.id === human)?.eliminated;
     $('status').textContent = active ? yourTurn ? 'あなたの手番です' : alive ? name(view.turn) + ' が考えています…' : 'あなたは脱落しました。残りの対戦を見届けよう。' : '';
@@ -139,6 +246,12 @@
     document.querySelectorAll('#keypad button').forEach(button => { button.disabled = !yourTurn; });
     if (yourTurn) { $('number').value = view.bid === null ? '0' : view.bid === Number.MAX_SAFE_INTEGER ? '' : String(view.bid + 1); suggested = true; }
     $('next').disabled = active; renderResult();
+    if (active && previous && (previous.phase !== 'play' || previous.round !== view.round || previous.game !== view.game)) {
+      $('playerGrid').querySelectorAll('.player-card').forEach((node, i) => { node.classList.add('presentation-card', 'is-dealing'); node.style.animationDelay = (i * 30) + 'ms'; });
+    } else if (active && previous && previous.bid !== view.bid) {
+      const panel = document.querySelector('.bid-panel'); panel.classList.remove('presentation-bid-pulse'); void panel.offsetWidth; panel.classList.add('presentation-bid-pulse');
+    }
+    if (startPresentation) { presenter.play(presentationKey, view.result, view.players); if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) presenter.skip(); }
     if (screen === 'battleScreen' && $('restartConfirm').classList.contains('hide')) {
       if (!active && previous?.phase === 'play') $('resultTitle').focus();
       else if (yourTurn && previous) $('status').focus({ preventScroll: true });
@@ -146,7 +259,8 @@
   }
   function receive(next) {
     const previous = view; view = next; clearError();
-    if (view.phase === 'lobby') renderLobby(); else renderBattle(previous);
+    if (connectionMessage === 'ホストからの情報を待っています…') { connectionMessage = ''; paintConnectionStatus(); }
+    if (view.phase === 'lobby') { cancelPresentation(); presentationKey = null; renderLobby(); } else renderBattle(previous);
   }
   function apply(next) {
     if (next === state) return false;
@@ -164,24 +278,26 @@
     return true;
   }
   function action(type, value) {
-    if (!view) return false;
+    if (!view || connectionBlocked) return false;
+    if (transport && ['nextRound', 'rematch', 'returnToLobby'].includes(type) && !canManageLobby()) return false;
     if (transport) { Promise.resolve(transport.send({ type, player: human, value, revision: view.revision })).catch(() => fail('接続を確認して、もう一度お試しください。')); return true; }
     const next = G.dispatch(state, { type, player: human, value, revision: view.revision }, Math.random);
     const changed = apply(next); if (changed) sound(type === 'challenge'); return changed;
   }
-  $('startGame').onclick = newLobby; $('joinLocal').onclick = newLobby; $('lobbyBack').onclick = () => show('homeScreen', 'startGame');
-  $('joinGame').onclick = () => show('joinPanel', 'closeJoin'); $('closeJoin').onclick = () => show('homeScreen', 'joinGame');
+  $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = () => { cancelRoomRequest(); detachTransport(); show('homeScreen', 'startGame'); };
+  $('joinForm').onsubmit = event => { event.preventDefault(); const id = $('roomId').value.trim(); if (id) requestRoom('join', id); };
+  $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
   $('addBot').onclick = addBot;
-  $('removeBot').onclick = () => { if (transport) return; state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
-  document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
-  document.querySelectorAll('[data-difficulty]').forEach(button => { button.onclick = () => { nextDifficulty = button.dataset.difficulty; if (!transport) { state = G.setDifficulty(state, selectedBot, nextDifficulty); view = G.publicView(state, human); renderLobby(); } }; });
-  $('beginGame').onclick = () => { if (transport) return; show('battleScreen'); apply(G.startGame(state, Math.random)); window.scrollTo(0, 0); $('status').focus({ preventScroll: true }); };
+  $('removeBot').onclick = () => { if (transport) { lobbyAction('removeBot', { target: selectedBot }); return; } state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
+  document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { if (transport) { lobbyAction('setBotAvatar', { target: selectedBot, avatar: Number(button.dataset.avatar) }); return; } avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
+  document.querySelectorAll('[data-difficulty]').forEach(button => { button.onclick = () => { nextDifficulty = button.dataset.difficulty; if (transport) lobbyAction('setDifficulty', { target: selectedBot, difficulty: nextDifficulty }); if (!transport) { state = G.setDifficulty(state, selectedBot, nextDifficulty); view = G.publicView(state, human); renderLobby(); } }; });
+  $('beginGame').onclick = () => { if (transport) { lobbyAction('startGame'); return; } show('battleScreen'); apply(G.startGame(state, Math.random)); window.scrollTo(0, 0); $('status').focus({ preventScroll: true }); };
   $('declare').onclick = () => {
     const value = G.parseBid($('number').value);
     if (value === null || !action('declare', value)) { fail('前より大きな0以上の整数を入力してください（最大9007199254740991）。'); $('number').focus(); }
   };
   $('challenge').onclick = () => action('challenge');
-  $('next').onclick = () => action(view.phase === 'finished' ? 'rematch' : 'nextRound');
+  $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
   document.querySelectorAll('[data-digit]').forEach(button => { button.onclick = () => {
     if ($('number').disabled) return;
     const prior = suggested ? '' : $('number').value, next = prior === '0' ? button.dataset.digit : prior + button.dataset.digit;
@@ -191,28 +307,26 @@
   $('backspace').onclick = () => { if (!$('number').disabled) { $('number').value = $('number').value.slice(0, -1); suggested = false; clearError(); } };
   $('number').addEventListener('input', () => { suggested = false; clearError(); });
   $('number').addEventListener('keydown', event => { if (event.key === 'Enter' && !$('declare').disabled) { event.preventDefault(); $('declare').click(); } });
-  function confirm(intent) { confirmIntent = intent; $('restartTitle').textContent = intent === 'home' ? '対戦を終了してホームへ？' : '対戦を終了してロビーへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = intent === 'home' ? '終了して戻る' : 'ロビーへ戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
+  function confirm(intent) { if (intent === 'lobby' && !canManageLobby()) return; confirmIntent = intent; $('restartTitle').textContent = intent === 'home' ? '対戦を終了してホームへ？' : '対戦を終了してロビーへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = intent === 'home' ? '終了して戻る' : 'ロビーへ戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
   function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); (confirmIntent === 'home' ? $('homeBtn') : $('restartBtn')).focus(); }
   $('homeBtn').onclick = () => confirm('home'); $('restartBtn').onclick = () => confirm('lobby'); $('cancelRestart').onclick = closeConfirm;
   $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); if (confirmIntent === 'home') { detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); } else if (transport) { action('returnToLobby'); } else { apply(G.returnToLobby(state)); show('lobbyScreen', 'beginGame'); } };
-  function overlay(id, trigger) { overlayReturn = { screen, trigger }; show(id); }
+  function overlay(id, trigger) { if (screen === 'homeScreen' || screen === 'joinPanel') cancelRoomRequest(); overlayReturn = { screen, trigger }; show(id); }
   function closeOverlay() { const back = overlayReturn || { screen: 'homeScreen', trigger: $('startGame') }; show(back.screen); back.trigger?.focus(); overlayReturn = null; }
   $('homeRules').onclick = () => { overlay('guidePanel', $('homeRules')); guide('rules'); };
   $('homeCards').onclick = () => { overlay('guidePanel', $('homeCards')); guide('cards'); };
   $('rulesBtn').onclick = () => { overlay('guidePanel', $('rulesBtn')); guide('rules'); };
   $('closeGuide').onclick = closeOverlay;
   const openSettings = trigger => { overlay('settingsPanel', trigger); $('soundToggle').focus(); };
-  $('homeSettings').onclick = () => openSettings($('homeSettings'));
   document.querySelectorAll('.settings-open').forEach(button => { button.onclick = () => openSettings(button); });
   $('closeSettings').onclick = closeOverlay;
   $('soundToggle').onchange = () => { settings.sound = $('soundToggle').checked; saveSettings(); sound(); };
-  $('motionToggle').onchange = () => { settings.motion = $('motionToggle').checked; saveSettings(); };
-  document.querySelectorAll('[data-tab]').forEach(button => { button.onclick = () => guide(button.dataset.tab); });
+  document.querySelectorAll('.guide-tabs button[data-tab]').forEach(button => { button.onclick = () => guide(button.dataset.tab); });
   function guide(tab) {
-    const container = $('guideContent'); container.replaceChildren();
-    document.querySelectorAll('[data-tab]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.tab === tab)));
+    const container = $('guideContent'); container.replaceChildren(); container.dataset.tab = tab; $('guideTitle').textContent = ({rules:'遊び方',cards:'カード図鑑',bots:'BOTについて',examples:'計算例'})[tab];
+    document.querySelectorAll('.guide-tabs button[data-tab]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.tab === tab)));
     if (tab === 'rules') {
-      container.append(el('h2', '', '遊び方'));
+
       const steps = [['カードを配る','自分のカードだけ見えません。他の人のカードを見て、全員の合計を予想しよう。'],['数字を宣言','最初は0以上の整数。次の人は、前の宣言より大きな数を宣言します。'],['グラビティ！','直前の宣言が合計を超えていると思ったら、グラビティ！で挑戦。'],['勝敗判定','全カードを公開し、特殊効果を含めて合計。宣言が合計より大きければ宣言者の負け。合計以下なら、疑った側の負け。'],['最後まで生き残ろう','負けるとライフが1減り、0で脱落。最後の1人が優勝！次のラウンドは負けた人から（脱落時は次の生存者）。']];
       steps.forEach(([title, text], index) => {
         const section = el('section', 'guide-step');
@@ -226,28 +340,26 @@
         }
         section.append(illustration); container.append(section);
       });
-      container.append(el('p', '', '1人 + BOT 1〜7体、最大8人。ライフ3。再戦しても通算勝利数は引き継ぎます。'));
+
     } else if (tab === 'cards') {
-      container.append(el('h2', '', 'カード図鑑（全36枚）'), el('h3', '', '数字カード 32枚'));
+      container.append(el('h3', 'catalogue-label', '数字カード 32枚 · 全36枚'));
       const grouped = new Map(); for (const c of G.FULL_DECK) { const key = c.kind + ':' + c.value; if (!grouped.has(key)) grouped.set(key, { card: c, count: 0 }); grouped.get(key).count++; }
       const catalogue = el('div', 'catalogue');
-      [...grouped.values()].filter(x => x.card.kind === 'number').sort((a, b) => a.card.value - b.card.value).forEach(({ card, count }) => { const item = el('div'); item.append(cardNode(card), el('small', '', '×' + count)); catalogue.append(item); });
+      [...grouped.values()].filter(x => x.card.kind === 'number').sort((a, b) => a.card.value - b.card.value).forEach(({ card, count }) => { const item = el('button', 'catalogue-item'); item.type = 'button'; item.setAttribute('aria-label', card.label + ' の効果・' + count + '枚'); item.onclick = () => cardDetail(card, count); item.append(cardNode(card), el('small', '', '×' + count)); catalogue.append(item); });
       container.append(catalogue, el('h3', '', '特殊カード 4枚（各1枚）'));
-      const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
-      [...grouped.values()].filter(x => x.card.kind !== 'number').forEach(({ card }) => { const row = el('div', 'special-rule'), copy = el('p'); copy.append(el('strong', '', card.kind === 'reset' ? 'リセット' : card.label), el('br'), document.createTextNode(descriptions[card.kind])); row.append(cardNode(card), copy); container.append(row); });
+      const specials = el('div', 'catalogue special-catalogue');
+      [...grouped.values()].filter(x => x.card.kind !== 'number').forEach(({ card, count }) => { const item = el('button', 'catalogue-item'); item.type = 'button'; item.setAttribute('aria-label', card.label + ' の効果'); item.onclick = () => cardDetail(card, count); item.append(cardNode(card), el('small', '', '×1')); specials.append(item); }); container.append(specials);
     } else if (tab === 'bots') {
-      container.append(el('h2', '', 'BOTについて'), el('p', '', '一緒に遊べる3段階のBOT。ロビーで1体ずつ難易度を選べます。'));
+
       const descriptions = ['判断にゆらぎが多め。まずはのんびり練習したい人に。','見えているカードと公開済みの情報からバランスよく判断。','公開情報から合計の可能性を比較し、慎重に挑戦します。'];
       ['easy','normal','hard'].forEach((d, i) => { const row = el('div', 'guide-bot'), copy = el('div'); copy.append(el('h3', '', difficultyNames[d]), el('p', '', descriptions[i])); row.append(image(avatars[i]), copy); container.append(row); });
       container.append(el('p', '', 'BOTも自分のカードや山札の中身は見ていません。難易度を変えても、見える情報は同じです。'));
     } else {
-      container.append(el('h2', '', '計算例'));
+
       const samples = [
         ['通常の合計','3、5、−5 の場合','3 + 5 − 5 = 3',[3,5,-5],3],
-        ['×2 の効果','数字を合計してから2倍','(3 + 5 − 5) × 2 = 6',[3,5,-5,'double'],6],
         ['MAX→0','10、5、3 なら、10を1枚だけ0に','0 + 5 + 3 = 8',[10,5,3,'max0'],8],
         ['「?」の追加公開','追加で10が出た場合','5 + 4 + 10 = 19',[5,4,'extra'],19,10],
-        ['マイナスとリセット','判定後、全36枚を混ぜ直します。合計は0になりません。','−5 − 10 + 0 = −15',[-5,-10,'reset'],-15]
       ];
       for (const [title, text, expression, values, total, extra] of samples) {
         const row = el('section', 'example'), visual = el('div', 'example-visual'), cards = el('div', 'example-cards');
@@ -255,29 +367,73 @@
         for (const value of values) cards.append(cardNode(find(value)));
         if (extra !== undefined) { const additional = el('div', 'example-extra'); additional.append(el('small', '', '追加'), cardNode(find(extra))); cards.append(additional); }
         const result = el('div', 'example-total'); result.append(el('span', '', '最終合計'), el('strong', '', total));
-        visual.append(cards, result); row.append(el('h3', '', title), visual, el('p', '', text), el('div', 'example-expression', expression)); container.append(row);
+        visual.append(cards, result); row.append(el('h3', '', title), visual, el('div', 'example-expression', expression)); container.append(row);
       }
     }
     container.focus({ preventScroll: true });
   }
-  document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel' || screen === 'settingsPanel') closeOverlay(); else if (screen === 'joinPanel') show('homeScreen', 'joinGame'); });
-  window.addEventListener('pagehide', () => timer.cancel());
+  function cardDetail(card, count) {
+    const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。例：(3 + 5 − 5) × 2 = 6。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
+    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); $('cardDetail').showModal(); $('closeCardDetail').focus();
+  }
+  $('closeCardDetail').onclick = () => $('cardDetail').close();
+  document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel' || screen === 'settingsPanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
+  window.addEventListener('pagehide', () => { timer.cancel(); cancelPresentation(true); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });
-  // Transport-neutral seam. The caller must provide an authenticated, sanitized public
-  // view stream; no network SDK, room backend, or pretend remote users are included.
+  // The SDK bridge provides the normalized stream; the UI never runs remote authority.
+  function paintConnectionStatus() {
+    for (const id of ['onlineLobbyStatus', 'onlineBattleStatus']) { $(id).textContent = connectionMessage; $(id).classList.toggle('hide', !connectionMessage); }
+  }
   window.NumberBluffClient = Object.freeze({
+    onMatchComplete(listener) {
+      if (typeof listener !== 'function') throw new TypeError('Match listener must be a function.');
+      matchListeners.add(listener); return () => matchListeners.delete(listener);
+    },
+    reportConnectionStatus(event) {
+      const messages = { 'host-lost': 'ホストが退出しました。ホームに戻って参加し直してください。', 'host-timeout': 'ホストとの接続が切れました。ホームに戻って参加し直してください。', 'send-error': '送信できませんでした。接続を確認してください。', 'participant-timeout': '参加者との接続が切れました。', 'player-left-match-abandoned': '参加者が退出したため、対戦を中止してロビーに戻りました。', 'host-session-changed': 'ホストの接続が変わりました。ホームに戻って参加し直してください。', 'session-ended': '接続を終了しました。ホームに戻って参加し直してください。', 'join-waiting': 'ホストからの情報を待っています…', 'room-full': 'このルームは満員です。', 'profile-error': 'GRAVITYのプロフィールを取得できません。再読み込みしてください。' };
+      if (!event || !messages[event.kind]) return;
+      connectionMessage = messages[event.kind];
+      if (['host-lost', 'host-timeout', 'host-session-changed', 'session-ended'].includes(event.kind)) connectionBlocked = true;
+      paintConnectionStatus();
+      if (screen === 'homeScreen' || screen === 'joinPanel' || !transport) { $('roomCreateStatus').textContent = connectionMessage; $('roomJoinStatus').textContent = connectionMessage; }
+      if (view) { if (view.phase === 'lobby') renderLobby(); else renderBattle(); }
+    },
+    setViewportInsets(insets) {
+      if (!insets || !['top', 'bottom'].every(key => typeof (insets[key] ?? 0) === 'number' && Number.isFinite(insets[key] ?? 0) && (insets[key] ?? 0) >= 0)) throw new TypeError('Insets require finite, nonnegative top/bottom pixel values.');
+      for (const key of ['top', 'bottom']) document.documentElement.style.setProperty('--nb-host-' + key, (insets[key] ?? 0) + 'px');
+      updateViewport();
+    },
+    onScreenChange(listener) {
+      if (typeof listener !== 'function') throw new TypeError('Screen listener must be a function.');
+      screenListeners.add(listener); listener(screenNames[screen]); return () => screenListeners.delete(listener);
+    },
+    setRoomRequestCanceler(cancel) { if (cancel !== null && typeof cancel !== 'function') throw new TypeError('Canceler must be a function.'); cancelRoomOperation = cancel; },
+    setRoomAdapterExpected(required = true) { roomAdapterExpected = !!required; },
+    configureRoomActions(actions) {
+      if (!actions || typeof actions.create !== 'function' || typeof actions.join !== 'function') throw new TypeError('Room actions require create() and join(roomId).');
+      roomAdapterExpected = true; roomActions = { create: actions.create, join: actions.join };
+    },
+    configureLocalProfile(profile) {
+      if (!profile || typeof profile.name !== 'string' || !profile.name.trim()) throw new TypeError('Normalized profile requires name.');
+      if (transport || (state && state.phase !== 'lobby')) throw new Error('Configure profile before starting a game.');
+      localProfile = { name: profile.name.trim().slice(0, 24), avatarUrl: safeAvatar(profile.avatarUrl) };
+      if (state) { state = { ...state, players: state.players.map(p => p.id === human ? { ...p, ...localProfile } : p) }; view = G.publicView(state, human); renderLobby(); }
+    },
     connect(adapter) {
       if (!adapter || typeof adapter.subscribe !== 'function' || typeof adapter.send !== 'function') throw new TypeError('Adapter requires subscribe(onPublicView) and send(action).');
-      timer.cancel(); detachTransport(); transport = adapter; state = null;
+      timer.cancel(); detachTransport(); transport = adapter; state = null; view = null;
       let first = true;
       unsubscribe = adapter.subscribe(publicState => {
+        if (transport !== adapter) return;
         if (!publicState || typeof publicState.viewerId !== 'string' || !Array.isArray(publicState.players) || !publicState.players.some(player => player.id === publicState.viewerId && player.kind === 'human')) {
           throw new TypeError('Adapter public view must identify its authenticated human viewer.');
         }
         human = publicState.viewerId;
+        $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = '';
         receive(publicState);
         if (first || screen === 'lobbyScreen' || (publicState.phase === 'lobby' && screen === 'battleScreen')) { show(publicState.phase === 'lobby' ? 'lobbyScreen' : 'battleScreen'); first = false; }
       });
+      const connection = adapter.getStatus?.(); if (connection?.kind) window.NumberBluffClient.reportConnectionStatus(connection);
     },
     disconnect() { timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); }
   });

@@ -24,13 +24,187 @@
 /* Keep turn announcements legible over the bright decorative cloud bank. */
 #status{background:#102449f2;border-radius:8px;color:#fff7e6;text-shadow:0 1px 2px #050e26}
 
+/* Visual v3 — screen-specific composition, readable portrait cards, real profile identity. */
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+main{max-width:440px;padding:7px max(7px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left))}
+.topbar{height:44px;min-height:44px;margin:0 0 4px}.topbar h1{font-size:clamp(21px,6.4vw,29px)}
+.home{min-height:calc(100dvh - 15px);max-height:880px;padding:clamp(25px,8dvh,72px) 10px 25px;justify-content:flex-start}
+.home-logo{width:100%;font-size:clamp(34px,10vw,46px);margin:0;letter-spacing:-.075em}.home-logo small{font-size:13px}
+.home-art{height:clamp(215px,36dvh,325px);flex:1;max-height:350px;min-height:215px}.hero-main{width:65%;height:78%;bottom:12%;left:19%}.hero-friend{height:42%;width:34%}.hero-copy{top:5%;font-size:12px}.home-actions{gap:11px}.home-icons{justify-content:center;gap:64px;margin:18px 0 0}.home-icons .icon-caption{background:none;text-shadow:0 2px 3px #06112e}.home-icons button{font-size:12px}.home-icons b{height:44px;width:44px}
+.pill{font-size:clamp(18px,5.3vw,24px);min-height:52px;font-weight:900}
+.room-line{justify-content:center;margin:3px 0 9px;font-size:21px;min-height:30px}.lobby-box{padding:10px}.lobby-grid{gap:6px}.lobby-seat{min-height:105px}.lobby-seat strong{font-size:11px}.lobby-seat img.avatar,.lobby-seat .person-placeholder{height:49px;width:49px;margin:0 auto 3px}.lobby-seat .profile-avatar{object-fit:cover;border-radius:50%;border:1px solid #eedab1}.bot-config{padding:10px;margin:9px 0 12px}.bot-footer{justify-content:flex-end;margin-top:5px}.bot-footer button{background:none;box-shadow:none;border:0;color:#e6e6ff;font-size:11px;padding:0 5px}.bot-choices{gap:8px}.bot-config h2{font-size:13px}.bot-config h2 small{display:none}.difficulty{margin-top:8px}
+.avatar{flex-shrink:0}.person-placeholder{display:block;position:relative;background:#677ca2;border:1px solid #bfcce9;border-radius:50%;overflow:hidden;width:32px;height:32px;margin:auto}.person-placeholder:before{content:'';position:absolute;top:18%;left:35%;width:30%;height:30%;border-radius:50%;background:#e7ecf8}.person-placeholder:after{content:'';position:absolute;bottom:8%;left:19%;width:62%;height:36%;border-radius:60% 60% 15% 15%;background:#e7ecf8}.profile-avatar{object-fit:cover!important;border-radius:50%}
+.battle-meta{min-height:18px;font-size:11px;margin-bottom:5px;gap:12px}.battle-grid{gap:5px;margin:0 0 5px;grid-template-columns:repeat(4,minmax(0,1fr))}.battle-grid[data-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr));width:54%;margin-left:auto;margin-right:auto}.battle-grid[data-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr));width:78%;margin-left:auto;margin-right:auto}
+.player-info{height:75px;margin-bottom:5px;border-radius:9px;padding:4px 2px}.player-name{font-size:11px;line-height:15px;font-weight:800}.player-info img.avatar,.player-info .person-placeholder{width:35px;height:35px;margin:0 auto 3px}.hearts{font-size:12px;letter-spacing:0;line-height:14px}.player-card,.battle-grid.many .player-card{height:auto;aspect-ratio:.70;border-radius:8px;font-size:clamp(30px,8vw,41px);padding-top:13px;box-shadow:inset 0 0 0 2px #fff8e1aa,0 0 8px #cbb3ff55}.player-card .card-art{height:61%;width:98%;left:1%;bottom:-2%}.player-card.hidden,.battle-grid.many .player-card.hidden{padding-top:25%;font-size:40px}.player-card.special{background:radial-gradient(ellipse at 50% 80%,#8991ed,#13265e 68%)}.player-card.kind-max0,.battle-grid.many .player-card.kind-max0{font-size:clamp(12px,3.2vw,17px);padding-top:15px}.player-card.kind-reset,.battle-grid.many .player-card.kind-reset{font-size:clamp(12px,3.2vw,17px);padding-top:15px}
+.battle-grid.many{row-gap:6px}.battle-grid.many .player-info{height:42px;display:grid;grid-template-columns:26px 1fr;grid-template-rows:13px 24px;align-items:center;padding:2px;margin-bottom:3px}.battle-grid.many .player-name{font-size:10px;line-height:12px;grid-column:1/-1}.battle-grid.many .player-info img.avatar,.battle-grid.many .person-placeholder{height:24px;width:24px;margin:0 auto}.battle-grid.many .hearts{font-size:10px;line-height:12px;letter-spacing:0}
+.bid-panel{min-height:58px;height:58px;margin:6px auto;max-width:88%;padding:4px;border-radius:14px}.bid-panel>span{font-size:10px;line-height:12px}.bid-panel strong{font-size:27px;line-height:27px}.bid-panel #lastBidder{font-size:10px;line-height:11px}.input-console{padding:7px;border-radius:17px}.controls{grid-template-columns:1.25fr 1fr;gap:8px}.keypad{gap:4px}.keypad button{height:44px;min-height:44px;border-radius:10px;font-size:22px}.decisions{grid-template-rows:1fr 1fr;gap:8px}.declare-region{display:flex;flex-direction:column;min-width:0;border-radius:14px;overflow:hidden;border:1px solid #fff0bd}.declare-region input{background:transparent;border:0;border-bottom:1px solid #b3956260;border-radius:0;text-align:center;color:#172950;width:100%;min-width:0;height:44px;min-height:44px;padding:0 4px;font-size:20px;font-weight:850}.declare-region button{flex:1;min-height:44px;background:transparent;color:#192c58;border:0;box-shadow:none;border-radius:0;font-size:24px;line-height:1;padding:0}.declare-region:has(button:disabled){background:linear-gradient(#bcb9aa,#aca991);box-shadow:none}.declare-region button:disabled,.declare-region input:disabled{color:#354467}.decisions #challenge{font-size:clamp(14px,4.1vw,18px);padding:0 0 15px;min-height:88px;border-radius:13px;text-shadow:0 1px 1px #fff8}.decisions #challenge img{width:53px;height:48px;bottom:-10px;right:-3px}.decisions #challenge:disabled{background:linear-gradient(130deg,#565780,#333f69);color:#d8daef;text-shadow:none}
+.is-result .battle-meta{display:none}.is-result .topbar{margin-bottom:10px}.is-result .battle-grid{margin-bottom:12px}.calculation{margin:8px 0;grid-template-columns:minmax(0,1fr) 78px;padding:10px;gap:8px}.calc-expression{font-size:16px;line-height:1.6}.calc-line{margin-bottom:3px}.final-total{padding:6px 3px}.final-total strong{font-size:38px}.result-message{margin:8px 0 12px;min-height:60px;padding:7px}.result-message img{width:48px;height:48px}.result-message p{font-size:12px;line-height:1.6}.subtle{margin-top:8px;background:none;border:0;box-shadow:none}.extra-reveal{margin-bottom:6px}.extra-reveal .player-card{width:43px;height:auto;aspect-ratio:.70;font-size:21px}.extra-reveal>span{font-size:10px}
+#guideContent{padding:6px 3px 12px;background:none;border:0;box-shadow:none;color:#172c59;min-height:0}.guide-tabs{margin:5px 0 3px;gap:4px}.guide-tabs button{border-radius:9px;min-height:44px;font-size:11px}.guide-step{margin:6px 0;padding:10px 70px 10px 43px;min-height:88px;background:linear-gradient(120deg,#fff5d7,#fce8d7);border:1px solid #ffe7bd;border-radius:15px;box-shadow:0 2px 4px #0a163a55}.guide-step h3{font-size:13px;line-height:1.3;margin:0 0 4px}.guide-step p{font-size:11px;line-height:1.55}.guide-step b.step-number{width:29px;height:29px;left:8px;top:11px;font-size:19px}.step-art{top:16px;right:5px;width:59px;height:60px}.step-art img{width:59px;height:63px}.step-art .player-card{width:39px;height:56px}.catalogue-label,#guideContent>h3{color:#fff4d5;font-size:12px;margin:8px 2px}.catalogue{gap:7px 6px;margin:6px 0 10px}.catalogue-item{background:none;border:0;box-shadow:none;padding:0;min-width:0;min-height:44px}.catalogue .player-card{height:auto;aspect-ratio:.70;font-size:29px}.catalogue .kind-max0,.catalogue .kind-reset{font-size:12px}.catalogue small{color:#fff5e4;font-size:10px;margin-top:3px}.guide-bot{background:linear-gradient(120deg,#fff5d7,#fce8d7);padding:12px;margin:8px 0;align-items:center}.guide-bot img{width:68px;height:68px}.guide-bot h3{font-size:17px;margin-bottom:4px}.guide-bot p{font-size:11px;line-height:1.6}#guideContent>p{color:#fff0de;font-size:11px;line-height:1.7;margin:12px 6px}.example{background:linear-gradient(120deg,#fff5d7,#fce8d7);padding:11px;margin:7px 0}.example h3{font-size:14px;margin-bottom:8px}.example-visual{margin:6px 0;gap:8px}.example-cards{gap:4px}.example-cards .player-card{height:auto;aspect-ratio:.70;padding-top:8px;font-size:23px}.example-cards .kind-max0,.example-cards .kind-reset{font-size:10px}.example-expression{font-size:13px;margin-top:5px}.example-total{width:58px}.example-total strong{font-size:29px}.example-extra>small{font-size:8px;top:-10px}
+#cardDetail{border:1px solid #ffe6b4;border-radius:18px;background:#fff0d0;color:#182b59;max-width:330px;width:90%;padding:22px;box-shadow:0 10px 70px #060b24}#cardDetail::backdrop{background:#050e2bbf;backdrop-filter:blur(5px)}#closeCardDetail{float:right;color:#263b66;background:none;border-color:#a99cb7}#cardDetailContent{clear:both;padding-top:7px}#cardDetailContent>.player-card{width:100px;margin:0 auto 15px}#cardDetailContent h2{text-align:center;font-size:18px}#cardDetailContent p{font-size:13px;line-height:1.8;margin-bottom:0}
+@media(max-width:350px){.home{padding:30px 7px 14px}.home-art{min-height:205px;height:220px}.home-logo{font-size:34px}.home-icons{margin-top:15px}.pill{min-height:49px}.lobby-seat{min-height:95px}.lobby-seat img.avatar,.lobby-seat .person-placeholder{width:42px;height:42px}.lobby-seat strong{font-size:10px}.lobby-seat small{font-size:8px}.bot-config{margin:7px 0 9px}.bot-choices{gap:6px}.bot-choices button{width:45px}.topbar{margin-bottom:2px}.battle-meta{min-height:17px;margin-bottom:3px;font-size:10px}.battle-grid.many .player-info{height:39px;grid-template-rows:11px 24px;padding:1px 2px}.battle-grid.many{row-gap:5px}.battle-grid.many .player-card{padding-top:10px;font-size:29px}.battle-grid.many .player-card.hidden{padding-top:26%;font-size:38px}.bid-panel{height:52px;min-height:52px;margin:0 auto}.bid-panel strong{font-size:24px;line-height:22px}.input-console{padding:6px}.controls{gap:7px}.guide-step{padding:9px 61px 9px 42px;min-height:87px}.guide-step p{font-size:10.5px;line-height:1.5}.guide-step h3{font-size:12px}.step-art{width:50px}.step-art img{width:50px}.catalogue .player-card{font-size:27px}.catalogue .kind-max0,.catalogue .kind-reset{font-size:10px}.example{padding:10px}.example-cards .player-card{font-size:20px}.example-cards .kind-max0{font-size:8px}}
+
+main{position:relative;z-index:1}#resultAvatar{width:48px;flex-shrink:0}#resultAvatar .avatar{width:48px;height:48px;margin:0}#resultAvatar .profile-avatar{object-fit:cover}
+
+body[data-motion="on"] .hero-main{animation:none}
+
+.topbar{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:7px}.topbar h1{grid-column:2;text-align:center;width:100%;min-width:0}.topbar>button:first-child{grid-column:1}.topbar>button:last-child:not(:first-child),.topbar>.decorative{grid-column:3}.room-status{font-size:12px;line-height:1.5;margin:5px 0 0;text-align:center;color:#fff2d6}.room-status:empty{display:none}.join-form{margin-top:22px;display:grid;gap:13px;padding:20px}.join-form input{width:100%;height:54px;border:1px solid #a9b9e6;border-radius:12px;background:#112449;color:#fff4d7;text-align:center;font-size:20px}.join-form input::placeholder{color:#becbe7}
+
+.room-identity{text-align:center;font-size:13px;font-weight:800;margin:0 0 9px;color:#fff0ce}
+
+body{background-image:url("https://tanabe0422.github.io/number-bluff/assets/celestial-background-v3.webp")}
+.home-brand{display:block;width:92%;height:auto;margin:0 auto;object-fit:contain;flex-shrink:0}.home-scene{position:absolute;left:-10%;bottom:-8%;width:120%;height:115%;object-fit:contain}.home-art{min-height:220px;max-height:none;flex:1}.hero-copy{right:2%;top:3%;font-size:12px;line-height:1.45}.home{padding-top:clamp(45px,10dvh,85px);padding-bottom:25px;max-height:none}.home-actions,.home-icons{position:relative;z-index:1;flex-shrink:0}
+.player-card:not(.hidden):not(.out){background-color:transparent;background-size:100% 100%;background-repeat:no-repeat;border:0;box-shadow:0 2px 5px #08132e44;overflow:hidden}.player-card:not(.hidden):not(.out):before{display:none}.skin-cream{background-image:url("https://tanabe0422.github.io/number-bluff/assets/card-cream-star.webp")!important}.skin-pink{background-image:url("https://tanabe0422.github.io/number-bluff/assets/card-pink-bunny.webp")!important}.skin-gold{background-image:url("https://tanabe0422.github.io/number-bluff/assets/card-gold-cat.webp")!important}.skin-ice{background-image:url("https://tanabe0422.github.io/number-bluff/assets/card-ice-cloud.webp")!important}.player-card.kind-double{background-image:url("https://tanabe0422.github.io/number-bluff/assets/card-double.webp")}.player-card.kind-max0{background-image:url("https://tanabe0422.github.io/number-bluff/assets/card-max0.webp")}.player-card.kind-reset{background-image:url("https://tanabe0422.github.io/number-bluff/assets/card-reset.webp")}.card-value{position:relative;z-index:1;display:block;text-align:center;font-weight:900;text-shadow:0 1px 0 #ffffff70}.player-card.special .card-value{text-shadow:0 2px 4px #0a1949}.player-card.kind-max0,.battle-grid.many .player-card.kind-max0,.player-card.kind-reset,.battle-grid.many .player-card.kind-reset{padding-top:20%}.player-card.kind-extra .card-value{font-size:1.25em}
+@media(max-width:350px){.home{padding-top:40px;padding-bottom:18px}.home-art{min-height:205px}.home-brand{width:92%}.hero-copy{font-size:11px}.home-scene{width:122%;left:-11%;bottom:-8%}.home-icons{margin-top:14px}}
+.player-card.kind-extra{background-image:url("https://tanabe0422.github.io/number-bluff/assets/card-extra.webp")}
+/* One bounded label slot: never share the frame edge or the illustration field. */
+.player-card:not(.hidden):not(.out) .card-value{position:absolute;top:12%;left:7%;right:7%;height:26%;display:flex;align-items:center;justify-content:center;line-height:1;font-size:inherit;white-space:nowrap}
+.player-card.kind-number,.battle-grid.many .player-card.kind-number{font-size:clamp(26px,7.3vw,34px)}
+.catalogue .player-card.kind-number{font-size:clamp(25px,7vw,31px)}
+.example-cards .player-card.kind-number{font-size:clamp(19px,5.7vw,23px)}
+.player-card.kind-extra .card-value{font-size:1.1em}
+.step-number{padding:0;line-height:1;text-align:center;font-variant-numeric:lining-nums}
+.home-art{width:calc(100% + 20px);margin-left:-10px;margin-right:-10px}.home-scene{left:0;bottom:0;width:100%;height:100%;object-fit:contain}
+
+main{padding-top:max(7px,env(safe-area-inset-top))}
+/* Host supplies confirmed overlay insets; OS and host exclusions are combined once. */
+:root{--nb-top-gap:max(7px,env(safe-area-inset-top),var(--nb-host-top,0px));--nb-bottom-gap:max(8px,env(safe-area-inset-bottom),var(--nb-host-bottom,0px));--nb-usable-height:max(1px,calc(var(--nb-viewport-height,100dvh) - var(--nb-top-gap) - var(--nb-bottom-gap)))}
+main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
+.home{min-height:var(--nb-usable-height)}
+#battleScreen:not(.is-result){height:var(--nb-usable-height);display:flex;flex-direction:column;min-height:0}
+#battleScreen>.topbar,#battleScreen>.battle-meta,#battleScreen>#gamePanel{flex:0 0 auto}
+#battleScreen:not(.is-result)>.battle-grid{flex:0 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;grid-auto-rows:max-content;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#d1c6ff #16264a}
+#battleScreen:not(.is-result)>.battle-grid:focus-visible{outline-offset:-3px}
+
+/* The current declaration belongs to a person, not to an anonymous input form. */
+.bid-panel{display:grid;grid-template-columns:36px minmax(0,1fr);grid-template-rows:11px 27px 11px;column-gap:7px;align-content:center;padding:4px 9px}.bid-panel>#bidActor{grid-column:1;grid-row:1/4;align-self:center}.bid-panel>span,.bid-panel>strong{grid-column:2}.bid-panel #bidActor .avatar{width:34px;height:34px;margin:0;display:block}.bid-panel #bidActor img{object-fit:contain}.bid-panel #lastBidder{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bid-panel>strong{min-width:0}
+#result:not([data-presentation-phase="complete"]) .calculation{min-height:108px}#result[data-presentation-phase="hold"] .calculation,#result[data-presentation-phase="reveal"] .calculation{background:linear-gradient(130deg,#182f61,#142247)}
+@media(max-width:350px){.bid-panel{grid-template-rows:10px 22px 10px;grid-template-columns:32px minmax(0,1fr);column-gap:6px}.bid-panel #bidActor .avatar{width:30px;height:30px}}
+/* Keep catalogue counts readable where the cloud artwork is brightest. */
+#guideContent[data-tab="cards"]{background:#0b1c40d9;border-radius:12px}
+/* BOT information stays legible above the bright lower cloud bank. */
+#guideContent[data-tab="bots"]>p{background:#0b1c40e8;border-radius:10px;padding:9px 10px;color:#fff4e2}
+/* Landscape keeps the table beside the controls instead of squeezing it above them. */
+@media(min-width:650px) and (max-height:500px){
+ main{max-width:850px}
+ #battleScreen:not(.is-result){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:44px 18px minmax(0,1fr);column-gap:12px;row-gap:4px;min-height:300px}
+ #battleScreen:not(.is-result)>.topbar{grid-column:1;grid-row:1;margin:0}
+ #battleScreen:not(.is-result)>.battle-meta{grid-column:1;grid-row:2;margin:0;min-height:18px}
+ #battleScreen:not(.is-result)>.battle-grid{grid-column:1;grid-row:3;align-self:stretch;margin-bottom:0;height:100%;max-height:100%}
+ #battleScreen:not(.is-result)>#gamePanel{grid-column:2;grid-row:1/4;align-self:center;min-width:0}
+ #battleScreen:not(.is-result) .bid-panel{height:48px;min-height:48px;margin:0 auto 6px;grid-template-rows:10px 22px 10px;padding:2px 9px}
+ #battleScreen:not(.is-result) .bid-panel strong{font-size:24px;line-height:22px}
+ #battleScreen:not(.is-result) .input-console{padding:6px}
+ #battleScreen:not(.is-result) .keypad{gap:3px}
+}
+
+</style><style>
+/* This layer sits above the static sky, below main (position:relative; z-index:1).
+   Only its own transform/opacity animate; foreground layout is never affected. */
+.nb-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  contain: strict;
+}
+.nb-background * { pointer-events: none; }
+.nb-background__star {
+  position: absolute;
+  left: var(--star-x);
+  top: var(--star-y);
+  width: var(--star-size);
+  height: var(--star-size);
+  border-radius: 50%;
+  background: #fff2cb;
+  box-shadow: 0 0 5px 1px #c9ceff66;
+  opacity: .27;
+  animation: nb-star-breathe var(--star-cycle) ease-in-out var(--star-delay) infinite;
+}
+.nb-background__clouds {
+  position: absolute;
+  left: -6vw;
+  right: -6vw;
+  bottom: -2vh;
+  /* 112vw overscan / 3:1 source ratio; crop, never stretch, on wide screens. */
+  height: min(37.333333vw, 320px);
+  background: url("https://tanabe0422.github.io/number-bluff/assets/cloud-foreground.webp") center bottom / cover no-repeat;
+  opacity: .45;
+  animation: nb-cloud-drift 46s ease-in-out infinite alternate;
+}
+.nb-background__shooting-star {
+  position: absolute;
+  left: 62%;
+  top: 12%;
+  width: 70px;
+  height: 2px;
+  border-radius: 100%;
+  background: linear-gradient(90deg, transparent, #d0dbffb3);
+  opacity: 0;
+  transform: rotate(145deg);
+  animation: nb-shooting-star 44s linear infinite;
+}
+@keyframes nb-star-breathe {
+  0%, 100% { opacity: .19; }
+  50% { opacity: .49; }
+}
+@keyframes nb-cloud-drift {
+  from { transform: translate3d(-2vw, .6vh, 0); }
+  to { transform: translate3d(2vw, -.6vh, 0); }
+}
+/* One restrained pass, then ~42 seconds of rest. No sudden white flash. */
+@keyframes nb-shooting-star {
+  0%, 86% { opacity: 0; transform: translate3d(0, 0, 0) rotate(145deg); }
+  87% { opacity: .38; }
+  90% { opacity: 0; transform: translate3d(-170px, 110px, 0) rotate(145deg); }
+  100% { opacity: 0; transform: translate3d(-170px, 110px, 0) rotate(145deg); }
+}
+.nb-background[data-motion="paused"] * { animation-play-state: paused; }
+.nb-background[data-static="true"] * { animation: none; }
+.nb-background[data-static="true"] .nb-background__shooting-star { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .nb-background * { animation: none !important; }
+  .nb-background__shooting-star { display: none !important; }
+}
+
+</style><style>
+/* Finite, purposeful card gestures. No motion preference control in the app. */
+.presentation-card { position:relative; isolation:isolate; perspective:700px; transform-origin:50% 65%; }
+.presentation-card[data-revealed="false"] { visibility:hidden; }
+.presentation-card.is-revealing { animation:card-reveal 340ms cubic-bezier(.2,.72,.2,1) both; }
+.presentation-card.is-dealing { animation:card-deal 300ms cubic-bezier(.2,.72,.2,1) both; }
+.presentation-card.is-adding { animation:card-contribute 300ms ease-out both; }
+.presentation-card.is-zeroed .card-value { opacity:.28; text-decoration:line-through; }
+.presentation-zero-stamp { position:absolute; z-index:4; right:6%; bottom:12%; padding:3px 9px; border:2px solid #c4fbff; border-radius:8px; background:#133c4e; color:#e6ffff; font-weight:900; transform:rotate(-9deg); animation:zero-stamp 260ms ease-out both; }
+.presentation-extra { animation:extra-draw 340ms ease-out both; }
+.presentation-vortex { pointer-events:none; position:absolute; inset:9%; z-index:-1; border-radius:50%; background:conic-gradient(from 30deg,transparent,#a98cff88,transparent,#74efff77,transparent); filter:blur(7px); animation:galaxy-reveal 650ms ease-out both; }
+#result[data-presentation-phase="multiply"] .final-total,
+#result[data-presentation-phase="multiply"] #finalTotal { animation:total-emphasis 430ms ease-out both; }
+#result[data-presentation-phase="compare"] #finalTotal { animation:total-lock 260ms ease-out both; }
+.presentation-bid-pulse { animation:bid-pulse 380ms ease-out both; }
+.presentation-refresh { animation:deck-refresh 380ms ease-out both; }
+@keyframes card-deal { from {opacity:0;transform:translateY(-12px) rotate(-3deg) scale(.96)} to {opacity:1;transform:none} }
+@keyframes card-reveal { 0% {opacity:.2;transform:rotateY(-85deg) translateY(7px)} 65% {opacity:1;transform:rotateY(7deg) translateY(-3px)} 100% {opacity:1;transform:none} }
+@keyframes card-contribute { 40% {transform:translateY(-7px) scale(1.045);filter:brightness(1.16)} 100% {transform:none;filter:none} }
+@keyframes zero-stamp { from {opacity:0;transform:rotate(-9deg) scale(1.6)} to {opacity:1;transform:rotate(-9deg) scale(1)} }
+@keyframes extra-draw { from {opacity:0;transform:translate(24px,-18px) rotate(8deg) scale(.85)} to {opacity:1;transform:none} }
+@keyframes galaxy-reveal { from {opacity:0;transform:rotate(-120deg) scale(.7)} 40% {opacity:1} to {opacity:.7;transform:rotate(90deg) scale(1.15)} }
+@keyframes total-emphasis { 45% {transform:scale(1.15);text-shadow:0 0 22px #b4a0ff} to {transform:none} }
+@keyframes total-lock { from {opacity:.5;transform:translateY(4px)} to {opacity:1;transform:none} }
+@keyframes bid-pulse { 45% {transform:scale(1.035)} to {transform:none} }
+@keyframes deck-refresh { 45% {opacity:.65;transform:translateY(-4px)} to {opacity:1;transform:none} }
+@media (prefers-reduced-motion:reduce) {
+ .presentation-card,.presentation-zero-stamp,.presentation-extra,.presentation-vortex,.presentation-bid-pulse,.presentation-refresh,#result #finalTotal { animation:none!important;transition:none!important; }
+}
+
 </style></head><body><main>
-<section id="homeScreen" class="screen home"><div class="hanging-stars" aria-hidden="true">✦　　　　　✧　　　　　✦</div><h1 class="home-logo">ナンバーブラフ<small>NUMBER BLUFF</small></h1><div class="home-art" aria-hidden="true"><div class="galaxy-pool"></div><img class="hero-main" src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""><img class="hero-friend left" src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""><img class="hero-friend right" src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""><span class="hero-copy">数字で<br>だませる？<br>それとも<br>見抜ける？</span></div><div class="home-actions"><button id="startGame" class="pill gold">ゲームをはじめる <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button><button id="homeCards"><b aria-hidden="true">▤</b><span class="icon-caption">カード図鑑</span></button><button id="homeSettings"><b aria-hidden="true">⚙</b><span class="icon-caption">設定</span></button></nav></section>
-<section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><button id="lobbyBack" class="circle" aria-label="ホームへ戻る">‹</button><h1>ナンバーブラフ<small>NUMBER BLUFF</small></h1><button class="circle settings-open" aria-label="設定">⚙</button></header><div class="room-line">ローカルルーム <span>あなた + BOT</span></div><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><span>BOTを選んで、見た目と難易度を変更</span><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" class="pill lavender">ゲームを開始する <span>›</span></button><p class="quiet">数字32枚 + 特殊4枚 · 全36枚 / ライフ3</p></section>
-<section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">‹</button><h1>ナンバーブラフ<small>NUMBER BLUFF</small></h1><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><div class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></div><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" aria-label="プレイヤーとカード"></div><section id="gamePanel"><div class="bid-panel glass"><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="entry-row"><label for="number">宣言する数字</label><input id="number" type="text" inputmode="none" autocomplete="off" spellcheck="false" aria-describedby="inputHint inputError"></div><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><button id="declare" class="gold">宣言</button><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="hint">前より大きな0以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><section id="result" class="hide"><h2 id="resultTitle" tabindex="-1">全カード公開！</h2><div id="resultCards" class="hide" aria-hidden="true"></div><section class="calculation glass"><div><h3>計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span>最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button><button id="restartBtn" class="subtle">ロビーで設定を変更</button></section></section>
-<section id="guidePanel" class="screen hide" aria-label="ゲームガイド"><header class="topbar"><button id="closeGuide" class="circle" aria-label="ガイドを閉じる">‹</button><h1>ナンバーブラフ<small>GUIDE BOOK</small></h1><span class="circle decorative" aria-hidden="true">✦</span></header><div class="guide-tabs" role="tablist" aria-label="ガイド"><button data-tab="rules" role="tab">遊び方</button><button data-tab="cards" role="tab">カード図鑑</button><button data-tab="bots" role="tab">BOT</button><button data-tab="examples" role="tab">計算例</button></div><article id="guideContent" class="cream" tabindex="-1"></article></section>
-<section id="settingsPanel" class="screen hide" aria-labelledby="settingsTitle"><header class="topbar"><button id="closeSettings" class="circle" aria-label="設定を閉じる">‹</button><h1 id="settingsTitle">設定</h1></header><div class="cream settings"><label><span>効果音<small>宣言・判定時の短い音</small></span><input id="soundToggle" type="checkbox"></label><label><span>ゆったりした動き<small>ホームのキャラクター演出</small></span><input id="motionToggle" type="checkbox"></label><p>端末の「視差効果を減らす」設定も尊重します。音は初期状態でオフです。</p></div></section>
-<section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><button id="closeJoin" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="joinTitle">ルームに参加</h1></header><div class="cream"><h2>オンライン接続は準備中です</h2><p>ルーム参加はAI Studioで接続するマルチプレイ機能です。現在はまだ接続されていないため、ルームへの参加はできません。</p><p>「ゲームをはじめる」から、1人と最大7体のBOTで全36枚のルールを遊べます。</p><button id="joinLocal" class="gold">BOTと遊ぶ</button></div></section>
+<section id="homeScreen" class="screen home"><div class="hanging-stars" aria-hidden="true">✦　　　　　✧　　　　　✦</div><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""><span class="hero-copy">数字で<br>だませる？<br>それとも<br>見抜ける？</span></div><div class="home-actions"><button id="startGame" data-intent="createRoom" class="pill gold">ゲームをはじめる <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button><button id="homeCards"><b aria-hidden="true">▤</b><span class="icon-caption">カード図鑑</span></button></nav></section>
+<section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><button id="lobbyBack" class="circle" aria-label="ホームへ戻る">‹</button><h1>ナンバーブラフ<small>NUMBER BLUFF</small></h1><button class="circle settings-open" aria-label="設定">⚙</button></header><h2 class="room-line">ルームロビー</h2><p id="roomIdentity" class="room-identity hide"></p><p id="onlineLobbyStatus" class="room-status hide" role="status" aria-live="polite"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button></section>
+<section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">‹</button><h1 id="battleTitle">ナンバーブラフ<small>NUMBER BLUFF</small></h1><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><div class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></div><p id="onlineBattleStatus" class="room-status hide" role="status" aria-live="polite"></p><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" tabindex="0" aria-label="プレイヤーとカード（上下にスクロール）"></div><section id="gamePanel"><div class="bid-panel glass"><div id="bidActor" aria-hidden="true"></div><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" class="sr-only" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><div class="declare-region gold"><label class="sr-only" for="number">宣言する数字</label><input id="number" type="text" inputmode="none" autocomplete="off" spellcheck="false" aria-describedby="inputHint inputError"><button id="declare">宣言</button></div><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="sr-only">前より大きな0以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><div id="resultAnnouncement" class="sr-only" role="status" aria-live="polite"></div><section id="result" class="hide"><h2 id="resultTitle" class="sr-only" tabindex="-1">ラウンド結果</h2><div id="resultCards" class="hide" aria-hidden="true"></div><section class="calculation glass" aria-live="off"><div><h3 id="calculationHeading">計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span id="totalLabel">最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><div id="resultAvatar" aria-hidden="true"></div><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button><button id="restartBtn" class="subtle">ロビーで設定を変更</button></section></section>
+<section id="guidePanel" class="screen hide" aria-label="ゲームガイド"><header class="topbar"><button id="closeGuide" class="circle" aria-label="ガイドを閉じる">‹</button><h1 id="guideTitle">遊び方</h1><span class="circle decorative" aria-hidden="true">✦</span></header><div class="guide-tabs" role="tablist" aria-label="ガイド"><button data-tab="rules" role="tab">遊び方</button><button data-tab="cards" role="tab">カード図鑑</button><button data-tab="bots" role="tab">BOT</button><button data-tab="examples" role="tab">計算例</button></div><article id="guideContent" tabindex="-1"></article><dialog id="cardDetail"><button id="closeCardDetail" class="circle" aria-label="カード詳細を閉じる">×</button><div id="cardDetailContent"></div></dialog></section>
+<section id="settingsPanel" class="screen hide" aria-labelledby="settingsTitle"><header class="topbar"><button id="closeSettings" class="circle" aria-label="設定を閉じる">‹</button><h1 id="settingsTitle">設定</h1></header><div class="cream settings"><label><span>効果音<small>宣言・判定時の短い音</small></span><input id="soundToggle" type="checkbox"></label></div></section>
+<section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><button id="closeJoin" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="joinTitle">ルームに参加</h1></header><form id="joinForm" class="join-form glass"><label class="sr-only" for="roomId">ルームID</label><input id="roomId" name="roomId" placeholder="ルームID" autocomplete="off" maxlength="64" required><button id="joinRoom" data-intent="joinRoom" class="pill blue" type="submit">参加する</button><p id="roomJoinStatus" class="room-status" role="status" aria-live="polite"></p></form></section>
 </main><script>
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -192,38 +366,253 @@
 
 
 </script><script>
+/* Decorative only: no game state, random source, network, timers or RAF. */
+(function () {
+  'use strict';
+  if (window.NumberBluffBackground) window.NumberBluffBackground.destroy();
+  var enabled = true;
+  var destroyed = false;
+  var layer = null;
+  var media = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function snapshot() {
+    return Object.freeze({
+      enabled: enabled,
+      reducedMotion: media.matches,
+      hidden: document.hidden,
+      running: Boolean(layer && enabled && !media.matches && !document.hidden && !destroyed),
+      mounted: Boolean(layer),
+      destroyed: destroyed
+    });
+  }
+  function sync() {
+    if (!layer) return;
+    var state = snapshot();
+    layer.dataset.motion = state.running ? 'running' : 'paused';
+    layer.dataset.static = (!enabled || media.matches) ? 'true' : 'false';
+  }
+  function mount() {
+    if (destroyed || layer || !document.body) return;
+    layer = document.createElement('div');
+    layer.className = 'nb-background';
+    layer.setAttribute('aria-hidden', 'true');
+    // Positions are a fixed decorative pattern, never the game's random stream.
+    for (var i = 0; i < 16; i += 1) {
+      var star = document.createElement('i');
+      star.className = 'nb-background__star';
+      star.style.setProperty('--star-x', (4 + ((i * 37) % 92)) + '%');
+      star.style.setProperty('--star-y', (3 + ((i * 23) % 82)) + '%');
+      star.style.setProperty('--star-size', (i % 4 === 0 ? 4 : 2) + 'px');
+      star.style.setProperty('--star-cycle', (8 + (i % 8)) + 's');
+      star.style.setProperty('--star-delay', (-i * 1.7) + 's');
+      layer.appendChild(star);
+    }
+    var shooting = document.createElement('i');
+    shooting.className = 'nb-background__shooting-star';
+    layer.appendChild(shooting);
+    var clouds = document.createElement('div');
+    clouds.className = 'nb-background__clouds';
+    layer.appendChild(clouds);
+    document.body.insertBefore(layer, document.body.firstChild);
+    sync();
+  }
+  function destroy() {
+    if (destroyed) return;
+    destroyed = true;
+    document.removeEventListener('DOMContentLoaded', mount);
+    document.removeEventListener('visibilitychange', sync);
+    if (media.removeEventListener) media.removeEventListener('change', sync);
+    else if (media.removeListener) media.removeListener(sync);
+    if (layer) layer.remove();
+    layer = null;
+  }
+  var api = {
+    setEnabled: function (value) {
+      if (!destroyed) { enabled = Boolean(value); sync(); }
+      return snapshot();
+    },
+    destroy: destroy
+  };
+  Object.defineProperty(api, 'state', { enumerable: true, get: snapshot });
+  window.NumberBluffBackground = Object.freeze(api);
+  document.addEventListener('visibilitychange', sync);
+  if (media.addEventListener) media.addEventListener('change', sync);
+  else if (media.addListener) media.addListener(sync);
+  if (document.body) mount();
+  else document.addEventListener('DOMContentLoaded', mount, { once: true });
+}());
+
+</script><script>
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.NumberBluffPresentation = factory();
+})(typeof globalThis === 'object' ? globalThis : this, function () {
+  'use strict';
+  // Presentation reads an already-authorized core result. It never draws cards,
+  // decides a loser, changes game state, or publishes private hands.
+  // Future room adapters should pass their stable result ID as key, not a local
+  // render count. Synchronizing server time is adapter work (not implemented here).
+  function plan(result, players = []) {
+    if (!result || !result.cards) throw new TypeError('An authorized reveal result is required');
+    const seats = [...players.map(p => p.id), ...Object.keys(result.cards)];
+    const ids = [...new Set(seats)].filter(id => result.cards[id]);
+    const cards = ids.map(id => result.cards[id]);
+    const hasExtra = cards.some(c => c.kind === 'extra') && !!result.extraCard;
+    const all = [...cards, ...(hasExtra ? [result.extraCard] : [])];
+    const steps = [];
+    let at = 0;
+    let state = {phase:'hold', revealedIds:[], cardId:null, extraVisible:false,
+      removedCardId:null, terms:[], runningTotal:null, multiplierApplied:false,
+      compareVisible:false, outcomeVisible:false, complete:false};
+    function add(phase, patch = {}) {
+      state = {...state, ...patch, phase};
+      steps.push(Object.freeze({at, ...state,
+        revealedIds:Object.freeze(state.revealedIds.slice()),
+        terms:Object.freeze(state.terms.map(term => Object.freeze({...term})))}));
+    }
+    add('hold'); at = 300;
+    for (const card of cards) {
+      add('reveal', {cardId:card.id, revealedIds:[...state.revealedIds,card.id]}); at += 80;
+    }
+    at += 200;
+    if (hasExtra) { add('extra', {cardId:result.extraCard.id,extraVisible:true}); at += 200; }
+    if (all.some(c => c.kind === 'max0')) {
+      add('max', {cardId:result.removedCard?.id || null,removedCardId:result.removedCard?.id || null}); at += 200;
+    }
+    const numeric = all.filter(c => c.kind === 'number');
+    let subtotal = 0;
+    for (const card of numeric) {
+      const value = card.id === result.removedCard?.id ? 0 : card.value;
+      subtotal += value;
+      add('sum', {cardId:card.id, runningTotal:subtotal,terms:[...state.terms,{cardId:card.id,value}]});
+      at += numeric.length <= 3 ? 220 : 110;
+    }
+    if (!numeric.length) { add('sum',{cardId:null,runningTotal:result.baseSum}); at += 220; }
+    if (result.multiplier === 2) {
+      add('multiply',{cardId:null,multiplierApplied:true,runningTotal:result.sum}); at += 280;
+    }
+    // The authoritative total wins; the arithmetic above only stages its terms.
+    add('compare', {cardId:null,runningTotal:result.sum,compareVisible:true}); at += 350;
+    add('outcome', {outcomeVisible:true}); at += 180;
+    add('complete', {complete:true});
+    return Object.freeze(steps);
+  }
+
+  function createPresenter({clock = {}, onPhase = () => {}, onComplete = () => {}, reducedMotion = false} = {}) {
+    const set = clock.setTimeout ? clock.setTimeout.bind(clock) : setTimeout;
+    const clear = clock.clearTimeout ? clock.clearTimeout.bind(clock) : clearTimeout;
+    let token = 0, pending = [], destroyed = false, key = null, frames = null, current = null, active = false;
+    const seen = new Set();
+    function cancel() {
+      token++; pending.forEach(clear); pending = []; active = false; frames = null; current = null; key = null;
+    }
+    function emit(frame, ticket) {
+      if (destroyed || ticket !== token || !active) return;
+      current = frame;
+      onPhase(frame, key);
+      // A callback may synchronously cancel, destroy, or start another result.
+      if (destroyed || ticket !== token || !active) return;
+      if (frame.complete) { active = false; pending.forEach(clear); pending = []; onComplete(frame, key); }
+    }
+    function play(nextKey, result, players = []) {
+      if (destroyed || seen.has(nextKey)) return false;
+      const nextFrames = plan(result, players);
+      cancel(); key = nextKey; seen.add(nextKey); frames = nextFrames; active = true;
+      const ticket = token;
+      if (reducedMotion) { emit(frames[frames.length - 1], ticket); return true; }
+      emit(frames[0],ticket);
+      if (destroyed || ticket !== token || !active) return true;
+      for (const frame of frames.slice(1)) pending.push(set(() => emit(frame,ticket),frame.at));
+      return true;
+    }
+    function skip() {
+      if (destroyed || !active || !frames) return false;
+      const final = frames[frames.length - 1];
+      token++; pending.forEach(clear); pending = [];
+      emit(final, token); return true;
+    }
+    function destroy() { if (destroyed) return; cancel(); destroyed = true; seen.clear(); }
+    return {play, skip, cancel, destroy, get active(){return active;}, get state(){return current;}};
+  }
+  return {plan, createPresenter};
+});
+
+</script><script>
 (() => {
   'use strict';
   const G = window.NumberBluff, timer = window.NumberBluffScheduler(), $ = id => document.getElementById(id);
-  let human = 'p1';
+  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
+  const matchListeners = new Set();
+  let connectionBlocked = false, connectionMessage = '';
+  const screenListeners = new Set(), screenNames = { homeScreen: 'home', lobbyScreen: 'lobby', battleScreen: 'battle', guidePanel: 'guide', settingsPanel: 'settings', joinPanel: 'join' };
+  const updateViewport = () => document.documentElement.style.setProperty('--nb-viewport-height', (window.visualViewport?.height || window.innerHeight) + 'px');
+  window.addEventListener('resize', updateViewport); window.visualViewport?.addEventListener('resize', updateViewport); updateViewport();
+  let human = 'p1', localProfile = { name: 'プレイヤー', avatarUrl: null };
+  const safeAvatar = value => { try { const u = new url("https://tanabe0422.github.io/number-bluff/value"); return u.protocol === 'https:' && !u.username && !u.password ? u.href : null; } catch { return null; } };
   const difficultyNames = { easy: 'やさしい', normal: '普通', hard: '強い' };
   const avatars = ['https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp', 'https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp', 'https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp', 'https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp'];
   const avatarNames = ['ほしもち', 'ほしねこ', 'もふうさ', 'くもまる'];
   let state = null, view = null, screen = 'homeScreen', selectedBot = 'p2', nextDifficulty = 'normal';
   let avatarChoice = {}, suggested = true, overlayReturn = null, confirmIntent = 'home';
-  let transport = null, unsubscribe = null, settings = { sound: false, motion: false }, audioContext;
-  try { settings = { ...settings, ...JSON.parse(localStorage.getItem('number-bluff-settings') || '{}') }; } catch {}
+  let presentationFrame = null, presentationPrevious = null, presentationKey = null, roomEpoch = 0, nextReadyAt = 0;
+  let transport = null, unsubscribe = null, settings = { sound: false }, audioContext;
+  try { settings.sound = !!JSON.parse(localStorage.getItem('number-bluff-visual-v3-settings') || '{}').sound; } catch {}
   const el = (tag, cls, text) => { const node = document.createElement(tag); if (cls) node.className = cls; if (text !== undefined) node.textContent = text; return node; };
   const image = (src, cls = '') => { const node = el('img', cls); node.src = src; node.alt = ''; return node; };
-  const avatarIndex = id => avatarChoice[id] ?? ((Number(id.slice(1)) - 1) % 4);
-  const avatar = id => avatars[avatarIndex(id)];
+  const avatarIndex = id => { const p = view?.players.find(p => p.id === id); const value = p?.botAvatar ?? avatarChoice[id]; return Number.isInteger(value) && value >= 0 && value < 4 ? value : (Math.max(0, Number(String(id).replace(/\D/g, '')) - 1) % 4); };
+  function playerAvatar(id) {
+    const p = view?.players.find(p => p.id === id);
+    if (p?.kind !== 'human') return image(avatars[avatarIndex(id)], 'avatar');
+    const url = safeAvatar(p.avatarUrl ?? (p.id === human ? localProfile.avatarUrl : null));
+    const placeholder = () => { const n = el('span', 'avatar person-placeholder'); n.setAttribute('aria-hidden', 'true'); return n; };
+    if (!url) return placeholder();
+    const n = image(url, 'avatar profile-avatar'); n.referrerPolicy = 'no-referrer'; n.addEventListener('error', () => n.replaceWith(placeholder()), { once: true }); return n;
+  }
   const name = id => {
     const player = view?.players.find(p => p.id === id);
     if (!player) return '';
-    if (player.id === human) return 'あなた';
-    if (player.kind === 'human') return player.name;
+    if (player.kind === 'human') return player.name || (player.id === human ? localProfile.name : 'プレイヤー');
     const duplicate = view.players.filter(p => p.kind === 'bot' && avatarIndex(p.id) === avatarIndex(id)).length > 1;
     return avatarNames[avatarIndex(id)] + (duplicate ? ' ' + id.slice(1) : '');
   };
+  const presenter = window.NumberBluffPresentation.createPresenter({
+    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    onPhase: paintPresentationFrame
+  });
+  function cancelPresentation(settle = false) {
+    presenter.cancel(); presentationFrame = null; presentationPrevious = null;
+    if (settle && view?.result && view.phase !== 'play' && view.phase !== 'lobby') { renderPlayers(); renderResult(); }
+  }
+  function paintPresentationFrame(frame, key) {
+    if (key !== presentationKey || !view?.result || view.phase === 'play' || view.phase === 'lobby') return;
+    const hadOutcome = presentationFrame?.outcomeVisible;
+    presentationFrame = frame;
+    if (frame.outcomeVisible && !hadOutcome) renderPlayers();
+    for (const p of view.players) {
+      const card = view.result.cards[p.id]; if (!card) continue;
+      const block = [...$('playerGrid').children].find(n => n.dataset.player === p.id); if (!block) continue;
+      let node = block.querySelector('.player-card');
+      if (frame.revealedIds.includes(card.id) && node.classList.contains('hidden')) {
+        const face = cardNode(card); face.classList.add('presentation-card', 'is-revealing'); face.dataset.cardId = card.id; face.dataset.revealed = 'true';
+        if (p.id === human) face.id = 'humanCard'; face.setAttribute('aria-label', name(p.id) + 'のカード ' + card.label); node.replaceWith(face); node = face;
+      }
+      node.classList.toggle('is-adding', frame.phase === 'sum' && frame.cardId === card.id);
+      node.classList.toggle('is-zeroed', frame.removedCardId === card.id);
+      if (frame.removedCardId === card.id && !node.querySelector('.presentation-zero-stamp')) node.append(el('span', 'presentation-zero-stamp', '0'));
+      if (frame.phase === 'multiply' && card.kind === 'double' && !node.querySelector('.presentation-vortex')) node.append(el('span', 'presentation-vortex'));
+    }
+    renderResult();
+    if (frame.outcomeVisible && !hadOutcome) $('resultAnnouncement').textContent = '最終合計 ' + view.result.sum + '。' + $('resultText').textContent;
+  }
   function show(id, focus = null) {
+    if (screen === 'battleScreen' && id !== screen) cancelPresentation(true);
     for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
     screen = id; window.scrollTo(0, 0);
+    for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
     if (focus) $(focus).focus({ preventScroll: true });
   }
   function saveSettings() {
-    document.body.dataset.motion = settings.motion ? 'on' : 'off';
-    $('soundToggle').checked = !!settings.sound; $('motionToggle').checked = !!settings.motion;
-    try { localStorage.setItem('number-bluff-settings', JSON.stringify(settings)); } catch {}
+    $('soundToggle').checked = !!settings.sound;
+    try { localStorage.setItem('number-bluff-visual-v3-settings', JSON.stringify(settings)); } catch {}
   }
   function sound(reveal = false) {
     if (!settings.sound) return;
@@ -244,66 +633,115 @@
     if (card.kind !== 'number') node.classList.add('special');
     if (card.value < 0) node.classList.add('negative');
     node.append(el('span', 'card-value', card.kind === 'reset' ? 'リセット' : card.label));
-    const art = image(card.kind === 'max0' || card.value === 5 || card.value === 15 ? avatars[1] : card.value < 0 || card.value === 0 ? avatars[3] : card.value === 1 || card.value === 2 ? avatars[2] : avatars[0], 'card-art');
-    node.append(art);
-    if (card.kind === 'double') node.classList.add('orbit-card');
+    if (card.kind === 'number') node.classList.add(card.value < 0 || card.value === 0 ? 'skin-ice' : card.value === 5 || card.value === 15 ? 'skin-gold' : card.value === 1 || card.value === 2 ? 'skin-pink' : 'skin-cream');
     return node;
   }
   function clearError() { $('inputError').textContent = ''; $('number').removeAttribute('aria-invalid'); }
   function fail(message) { $('inputError').textContent = message; $('number').setAttribute('aria-invalid', 'true'); }
   function detachTransport() {
+    cancelPresentation(); presentationKey = null; roomEpoch++;
     if (typeof unsubscribe === 'function') unsubscribe();
-    unsubscribe = null; transport = null;
+    unsubscribe = null; const old = transport; transport = null; connectionBlocked = false; connectionMessage = '';
+    if (typeof old?.close === 'function') old.close();
+    paintConnectionStatus();
   }
-  function newLobby() {
-    detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: 'あなた', botCount: 3 }); avatarChoice = {}; selectedBot = 'p2';
-    view = G.publicView(state, human); renderLobby(); show('lobbyScreen', 'beginGame');
+  async function requestRoom(kind, roomId) {
+    const status = $(kind === 'create' ? 'roomCreateStatus' : 'roomJoinStatus');
+    const button = $(kind === 'create' ? 'startGame' : 'joinRoom');
+    if (typeof roomActions[kind] !== 'function') { if (kind === 'create' && !roomAdapterExpected) { createLocalHostRoom(); return; } status.textContent = '接続待ち'; return; }
+    const request = ++roomRequest; button.disabled = true; status.textContent = '接続中…';
+    try {
+      const adapter = await roomActions[kind](...(kind === 'join' ? [roomId] : []));
+      if (request !== roomRequest) { adapter?.close?.(); return; }
+      if (adapter) window.NumberBluffClient.connect(adapter);
+      status.textContent = view ? '' : connectionMessage || 'ホストからの情報を待っています…';
+    } catch { if (request === roomRequest) status.textContent = '接続できませんでした。もう一度お試しください。'; }
+    finally { if (request === roomRequest) button.disabled = false; }
+  }
+  function cancelRoomRequest() { ++roomRequest; if (cancelRoomOperation) cancelRoomOperation(); $('startGame').disabled = false; $('joinRoom').disabled = false; $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = ''; }
+  function createLocalHostRoom() {
+    detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: localProfile.name, botCount: 0 }); state.players[0].avatarUrl = localProfile.avatarUrl; avatarChoice = {}; selectedBot = null;
+    view = G.publicView(state, human); renderLobby(); show('lobbyScreen');
+  }
+  const canManageLobby = () => !connectionBlocked && (!transport || (typeof view?.hostId === 'string' && view.hostId === human));
+  function lobbyAction(type, details = {}) {
+    if (!transport || !canManageLobby()) return;
+    $('lobbyError').textContent = '';
+    Promise.resolve(transport.send({ type, player: human, revision: view.revision, ...details })).catch(() => { $('lobbyError').textContent = '接続を確認して、もう一度お試しください。'; });
   }
   function renderLobby() {
     $('playerCount').textContent = view.players.length + '/8';
+    const manage = canManageLobby(), hostId = transport ? view.hostId : 'p1';
+    $('roomIdentity').classList.toggle('hide', !view.roomId); $('roomIdentity').textContent = view.roomId ? 'ルームID ' + String(view.roomId) : '';
+    $('lobbyError').textContent = '';
     const selected = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
     if (!selected) selectedBot = view.players.find(p => p.kind === 'bot')?.id;
     const grid = $('lobbyPlayers'); grid.replaceChildren();
     for (let i = 0; i < 8; i++) {
       const p = view.players[i];
-      if (!p) { const slot = el('button', 'lobby-seat empty'); slot.type = 'button'; slot.setAttribute('aria-label', 'BOTを追加'); slot.append(el('b', '', '+'), el('small', '', 'BOTを追加')); slot.onclick = addBot; grid.append(slot); continue; }
+      if (!p) { const slot = el('button', 'lobby-seat empty'); slot.type = 'button'; slot.setAttribute('aria-label', 'BOTを追加'); slot.append(el('b', '', '+'), el('small', '', '参加待ち')); slot.onclick = addBot; slot.disabled = !manage; grid.append(slot); continue; }
       const slot = el(p.kind === 'bot' ? 'button' : 'div', 'lobby-seat' + (p.id === selectedBot ? ' selected' : ''));
       slot.dataset.seat = p.id;
-      if (p.id === 'p1') slot.append(el('span', 'crown', '♛'));
-      slot.append(image(avatar(p.id)), el('strong', '', name(p.id)), el('small', '', p.kind === 'human' ? 'ホスト · ' + p.wins + '勝' : 'BOT · ' + difficultyNames[p.difficulty] + (p.wins > 0 ? ' · ' + p.wins + '勝' : '')));
+      if (p.id === hostId) slot.append(el('span', 'crown', '♛'));
+      slot.append(playerAvatar(p.id), el('strong', '', name(p.id)), el('small', '', p.kind === 'human' ? (p.id === hostId ? 'ホスト' : '参加中') + (p.wins ? ' · ' + p.wins + '勝' : '') : 'BOT · ' + difficultyNames[p.difficulty] + (p.wins > 0 ? ' · ' + p.wins + '勝' : '')));
       if (p.kind === 'bot') { slot.type = 'button'; slot.setAttribute('aria-pressed', String(p.id === selectedBot)); slot.onclick = () => { selectedBot = p.id; renderLobby(); }; }
       grid.append(slot);
     }
     const bot = view.players.find(p => p.id === selectedBot);
     $('selectedBotLabel').textContent = bot ? ' — ' + name(bot.id) : '';
-    $('addBot').disabled = view.players.length >= 8; $('removeBot').disabled = view.players.length <= 1;
-    $('beginGame').disabled = view.players.length < 2;
-    document.querySelectorAll('[data-avatar]').forEach(button => { button.disabled = !bot; });
-    document.querySelectorAll('[data-difficulty]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.difficulty === (bot?.difficulty || nextDifficulty))));
+    $('addBot').disabled = !manage || view.players.length >= 8; $('removeBot').disabled = !manage || !bot;
+    $('beginGame').disabled = !manage || view.players.length < 2;
+    document.querySelectorAll('[data-avatar]').forEach(button => { button.disabled = !manage || !bot; });
+    document.querySelectorAll('[data-difficulty]').forEach(button => { button.disabled = !manage || !bot; button.setAttribute('aria-pressed', String(button.dataset.difficulty === (bot?.difficulty || nextDifficulty))); });
     document.querySelectorAll('[data-avatar]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.avatar) === avatarIndex(selectedBot || 'p2'))));
   }
-  function addBot() { if (transport || !state) return; const next = G.addBot(state, nextDifficulty); if (next === state) return; selectedBot = next.players.find(p => !state.players.some(old => old.id === p.id)).id; state = next; view = G.publicView(state, human); renderLobby(); }
+  function addBot() { if (transport) { lobbyAction('addBot', { difficulty: nextDifficulty }); return; } if (!state) return; const next = G.addBot(state, nextDifficulty); if (next === state) return; selectedBot = next.players.find(p => !state.players.some(old => old.id === p.id)).id; state = next; view = G.publicView(state, human); renderLobby(); }
   function renderPlayers() {
-    const grid = $('playerGrid'); grid.replaceChildren(); grid.classList.toggle('many', view.players.length > 4);
-    for (const p of view.players) {
+    const grid = $('playerGrid'), scrollTop = grid.scrollTop; grid.replaceChildren(); grid.classList.toggle('many', view.players.length > 4); grid.dataset.count = view.players.length;
+    const held = presentationFrame && !presentationFrame.outcomeVisible;
+    for (const player of view.players) {
+      const p = held ? presentationPrevious?.find(old => old.id === player.id) || player : player;
       const block = el('div', 'battle-player' + (p.id === human ? ' self' : '') + (p.id === view.turn ? ' active' : '') + (p.eliminated ? ' eliminated' : ''));
       block.dataset.player = p.id;
-      const info = el('div', 'player-info'); info.append(el('div', 'player-name', name(p.id)), image(avatar(p.id)));
+      const info = el('div', 'player-info'); info.append(el('div', 'player-name', name(p.id)), playerAvatar(p.id));
       const hearts = el('div', 'hearts', '♥'.repeat(p.life) + '♡'.repeat(3 - p.life)); hearts.setAttribute('aria-label', name(p.id) + 'のライフ ' + p.life + ' / 3'); info.append(hearts);
-      const card = view.hands[p.id];
-      const out = !Object.prototype.hasOwnProperty.call(view.hands, p.id) && p.eliminated;
-      const node = cardNode(card, view.phase === 'play' && p.id === human && !out, out);
+      const card = view.hands[p.id], out = !Object.prototype.hasOwnProperty.call(view.hands, p.id) && p.eliminated;
+      const hidden = !out && ((view.phase === 'play' && p.id === human) || (presentationFrame && !presentationFrame.revealedIds.includes(card?.id)));
+      const node = cardNode(card, hidden, out);
       if (p.id === human) node.id = 'humanCard';
-      node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : view.phase === 'play' && p.id === human ? 'あなたの非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
+      node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : hidden ? name(p.id) + 'の非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
+      if (view.phase !== 'play' && card) { node.classList.add('presentation-card'); node.dataset.cardId = card.id; node.dataset.revealed = hidden ? 'back' : 'true'; }
       block.append(info, node);
       if (p.wins > 0) block.append(el('span', 'wins-badge', p.wins + '勝'));
       grid.append(block);
     }
+    grid.scrollTop = scrollTop;
+  }
+  function renderStagedResult() {
+    const r = view.result, f = presentationFrame;
+    $('result').dataset.presentationPhase = f.phase;
+    $('battleTitle').textContent = f.outcomeVisible && r.winner ? '対戦結果' : 'ラウンド結果';
+    $('resultTitle').textContent = $('battleTitle').textContent;
+    $('calculationHeading').textContent = ({hold:'グラビティ！',reveal:'カードを公開',extra:'もう1枚、公開',max:'最大の1枚を0に',sum:'数字を足して…',multiply:'合計を2倍！',compare:'宣言と比べる',outcome:'判定結果'})[f.phase] || '計算の流れ';
+    const line = (label, expression) => { const row = el('div', 'calc-line'); if (label) row.append(el('div', '', label)); row.append(el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
+    if (f.extraVisible && r.extraCard) { const extra = el('div', 'extra-reveal'); const card = cardNode(r.extraCard); if (f.phase === 'extra') card.classList.add('presentation-extra'); if (f.removedCardId === r.extraCard.id) { card.classList.add('is-zeroed'); card.append(el('span', 'presentation-zero-stamp', '0')); } extra.append(el('span', '', '「?」で追加公開'), card); $('calculationSteps').append(extra); }
+    if (f.removedCardId && r.removedCard) line('MAX→0', r.removedCard.label + ' → 0');
+    if (f.terms.length) line('', f.terms.map(t => t.value < 0 ? '(' + t.value + ')' : String(t.value)).join(' + ') + ' = ' + (f.multiplierApplied ? r.baseSum : f.runningTotal));
+    if (f.multiplierApplied) line('×2', r.baseSum + ' × 2 = ' + r.sum);
+    if (f.compareVisible) line(name(r.bidder) + 'の宣言', r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum);
+    $('totalLabel').textContent = f.compareVisible ? '最終合計' : '計算中'; $('finalTotal').textContent = f.compareVisible ? r.sum : '…';
+    $('resultAvatar').replaceChildren(playerAvatar(f.outcomeVisible ? r.winner || r.loser : r.challenger));
+    const loser = view.players.find(p => p.id === r.loser);
+    $('resultText').textContent = f.outcomeVisible ? r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') : name(r.challenger) + '「グラビティ！」';
+    $('next').textContent = '結果を見る'; $('next').disabled = connectionBlocked;
   }
   function renderResult() {
     const r = view.result; $('resultCards').replaceChildren(); $('calculationSteps').replaceChildren();
     if (!r) { $('resultText').textContent = ''; $('finalTotal').textContent = ''; return; }
-    $('resultTitle').textContent = r.winner ? '対戦終了！' : '全カード公開！';
+    if (presentationFrame && !presentationFrame.complete) { renderStagedResult(); return; }
+    $('result').dataset.presentationPhase = 'complete'; $('calculationHeading').textContent = '計算の流れ'; $('totalLabel').textContent = '最終合計';
+    $('battleTitle').textContent = r.winner ? '対戦結果' : 'ラウンド結果';
+    $('resultTitle').textContent = r.winner ? '対戦結果' : 'ラウンド結果';
     const numeric = [...Object.values(r.cards), ...(r.extraCard ? [r.extraCard] : [])].filter(c => c.kind === 'number');
     const line = (label, expression) => { const row = el('div', 'calc-line'); row.append(el('div', '', label), el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
     if (r.extraCard) {
@@ -317,13 +755,27 @@
     if (r.reset) $('calculationSteps').append(el('div', 'calc-line', 'リセット：この判定後、全36枚を混ぜ直します。'));
     $('finalTotal').textContent = r.sum;
     const loser = view.players.find(p => p.id === r.loser);
-    $('resultText').textContent = r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.bidder) + 'の宣言 ' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum + '。' + name(r.loser) + 'の負け！' + (loser.eliminated ? ' 脱落しました。' : ' ライフが1減りました。');
-    $('next').textContent = r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›';
+    $('resultAvatar').replaceChildren(playerAvatar(r.winner || r.loser));
+    $('resultText').textContent = r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') + '　' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum;
+    $('next').textContent = canManageLobby() ? (r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›') : 'ホストの操作を待っています';
+    $('next').disabled = !canManageLobby();
+    if (transport && view.phase === 'finished' && r.winner) for (const listener of matchListeners) { try { listener({ roomId: view.roomId, game: view.game, winner: r.winner, viewerId: human }); } catch {} }
   }
   function renderBattle(previous = null) {
+    const active = view.phase === 'play', yourTurn = active && view.turn === human && !connectionBlocked;
+    $('restartBtn').disabled = !canManageLobby();
+    let startPresentation = false;
+    if (active) { cancelPresentation(); presentationKey = null; $('resultAnnouncement').textContent = ''; }
+    else if (view.result) {
+      const key = roomEpoch + ':' + view.game + ':' + view.round;
+      if (key !== presentationKey) {
+        cancelPresentation(); presentationKey = key;
+        if (previous?.phase === 'play' && screen === 'battleScreen') { presentationPrevious = previous.players; presentationFrame = window.NumberBluffPresentation.plan(view.result, view.players)[0]; startPresentation = true; }
+      }
+    }
     renderPlayers(); $('roundLabel').textContent = 'ラウンド ' + view.round; $('survivorCount').textContent = '生存者 ' + view.players.filter(p => !p.eliminated).length + '/' + view.players.length;
-    $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : '最初の宣言をどうぞ';
-    const active = view.phase === 'play', yourTurn = active && view.turn === human;
+    $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : name(view.turn) + ' の番'; $('bidActor').replaceChildren(playerAvatar(view.last || view.turn));
+    $('battleScreen').classList.toggle('is-result', !active); $('battleTitle').textContent = active ? 'ナンバーブラフ' : view.phase === 'finished' ? '対戦結果' : 'ラウンド結果';
     $('gamePanel').classList.toggle('hide', !active); $('result').classList.toggle('hide', active); $('result').classList.toggle('open', !active);
     const alive = !view.players.find(p => p.id === human)?.eliminated;
     $('status').textContent = active ? yourTurn ? 'あなたの手番です' : alive ? name(view.turn) + ' が考えています…' : 'あなたは脱落しました。残りの対戦を見届けよう。' : '';
@@ -333,6 +785,12 @@
     document.querySelectorAll('#keypad button').forEach(button => { button.disabled = !yourTurn; });
     if (yourTurn) { $('number').value = view.bid === null ? '0' : view.bid === Number.MAX_SAFE_INTEGER ? '' : String(view.bid + 1); suggested = true; }
     $('next').disabled = active; renderResult();
+    if (active && previous && (previous.phase !== 'play' || previous.round !== view.round || previous.game !== view.game)) {
+      $('playerGrid').querySelectorAll('.player-card').forEach((node, i) => { node.classList.add('presentation-card', 'is-dealing'); node.style.animationDelay = (i * 30) + 'ms'; });
+    } else if (active && previous && previous.bid !== view.bid) {
+      const panel = document.querySelector('.bid-panel'); panel.classList.remove('presentation-bid-pulse'); void panel.offsetWidth; panel.classList.add('presentation-bid-pulse');
+    }
+    if (startPresentation) { presenter.play(presentationKey, view.result, view.players); if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) presenter.skip(); }
     if (screen === 'battleScreen' && $('restartConfirm').classList.contains('hide')) {
       if (!active && previous?.phase === 'play') $('resultTitle').focus();
       else if (yourTurn && previous) $('status').focus({ preventScroll: true });
@@ -340,7 +798,8 @@
   }
   function receive(next) {
     const previous = view; view = next; clearError();
-    if (view.phase === 'lobby') renderLobby(); else renderBattle(previous);
+    if (connectionMessage === 'ホストからの情報を待っています…') { connectionMessage = ''; paintConnectionStatus(); }
+    if (view.phase === 'lobby') { cancelPresentation(); presentationKey = null; renderLobby(); } else renderBattle(previous);
   }
   function apply(next) {
     if (next === state) return false;
@@ -358,24 +817,26 @@
     return true;
   }
   function action(type, value) {
-    if (!view) return false;
+    if (!view || connectionBlocked) return false;
+    if (transport && ['nextRound', 'rematch', 'returnToLobby'].includes(type) && !canManageLobby()) return false;
     if (transport) { Promise.resolve(transport.send({ type, player: human, value, revision: view.revision })).catch(() => fail('接続を確認して、もう一度お試しください。')); return true; }
     const next = G.dispatch(state, { type, player: human, value, revision: view.revision }, Math.random);
     const changed = apply(next); if (changed) sound(type === 'challenge'); return changed;
   }
-  $('startGame').onclick = newLobby; $('joinLocal').onclick = newLobby; $('lobbyBack').onclick = () => show('homeScreen', 'startGame');
-  $('joinGame').onclick = () => show('joinPanel', 'closeJoin'); $('closeJoin').onclick = () => show('homeScreen', 'joinGame');
+  $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = () => { cancelRoomRequest(); detachTransport(); show('homeScreen', 'startGame'); };
+  $('joinForm').onsubmit = event => { event.preventDefault(); const id = $('roomId').value.trim(); if (id) requestRoom('join', id); };
+  $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
   $('addBot').onclick = addBot;
-  $('removeBot').onclick = () => { if (transport) return; state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
-  document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
-  document.querySelectorAll('[data-difficulty]').forEach(button => { button.onclick = () => { nextDifficulty = button.dataset.difficulty; if (!transport) { state = G.setDifficulty(state, selectedBot, nextDifficulty); view = G.publicView(state, human); renderLobby(); } }; });
-  $('beginGame').onclick = () => { if (transport) return; show('battleScreen'); apply(G.startGame(state, Math.random)); window.scrollTo(0, 0); $('status').focus({ preventScroll: true }); };
+  $('removeBot').onclick = () => { if (transport) { lobbyAction('removeBot', { target: selectedBot }); return; } state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
+  document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { if (transport) { lobbyAction('setBotAvatar', { target: selectedBot, avatar: Number(button.dataset.avatar) }); return; } avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
+  document.querySelectorAll('[data-difficulty]').forEach(button => { button.onclick = () => { nextDifficulty = button.dataset.difficulty; if (transport) lobbyAction('setDifficulty', { target: selectedBot, difficulty: nextDifficulty }); if (!transport) { state = G.setDifficulty(state, selectedBot, nextDifficulty); view = G.publicView(state, human); renderLobby(); } }; });
+  $('beginGame').onclick = () => { if (transport) { lobbyAction('startGame'); return; } show('battleScreen'); apply(G.startGame(state, Math.random)); window.scrollTo(0, 0); $('status').focus({ preventScroll: true }); };
   $('declare').onclick = () => {
     const value = G.parseBid($('number').value);
     if (value === null || !action('declare', value)) { fail('前より大きな0以上の整数を入力してください（最大9007199254740991）。'); $('number').focus(); }
   };
   $('challenge').onclick = () => action('challenge');
-  $('next').onclick = () => action(view.phase === 'finished' ? 'rematch' : 'nextRound');
+  $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
   document.querySelectorAll('[data-digit]').forEach(button => { button.onclick = () => {
     if ($('number').disabled) return;
     const prior = suggested ? '' : $('number').value, next = prior === '0' ? button.dataset.digit : prior + button.dataset.digit;
@@ -385,28 +846,26 @@
   $('backspace').onclick = () => { if (!$('number').disabled) { $('number').value = $('number').value.slice(0, -1); suggested = false; clearError(); } };
   $('number').addEventListener('input', () => { suggested = false; clearError(); });
   $('number').addEventListener('keydown', event => { if (event.key === 'Enter' && !$('declare').disabled) { event.preventDefault(); $('declare').click(); } });
-  function confirm(intent) { confirmIntent = intent; $('restartTitle').textContent = intent === 'home' ? '対戦を終了してホームへ？' : '対戦を終了してロビーへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = intent === 'home' ? '終了して戻る' : 'ロビーへ戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
+  function confirm(intent) { if (intent === 'lobby' && !canManageLobby()) return; confirmIntent = intent; $('restartTitle').textContent = intent === 'home' ? '対戦を終了してホームへ？' : '対戦を終了してロビーへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = intent === 'home' ? '終了して戻る' : 'ロビーへ戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
   function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); (confirmIntent === 'home' ? $('homeBtn') : $('restartBtn')).focus(); }
   $('homeBtn').onclick = () => confirm('home'); $('restartBtn').onclick = () => confirm('lobby'); $('cancelRestart').onclick = closeConfirm;
   $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); if (confirmIntent === 'home') { detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); } else if (transport) { action('returnToLobby'); } else { apply(G.returnToLobby(state)); show('lobbyScreen', 'beginGame'); } };
-  function overlay(id, trigger) { overlayReturn = { screen, trigger }; show(id); }
+  function overlay(id, trigger) { if (screen === 'homeScreen' || screen === 'joinPanel') cancelRoomRequest(); overlayReturn = { screen, trigger }; show(id); }
   function closeOverlay() { const back = overlayReturn || { screen: 'homeScreen', trigger: $('startGame') }; show(back.screen); back.trigger?.focus(); overlayReturn = null; }
   $('homeRules').onclick = () => { overlay('guidePanel', $('homeRules')); guide('rules'); };
   $('homeCards').onclick = () => { overlay('guidePanel', $('homeCards')); guide('cards'); };
   $('rulesBtn').onclick = () => { overlay('guidePanel', $('rulesBtn')); guide('rules'); };
   $('closeGuide').onclick = closeOverlay;
   const openSettings = trigger => { overlay('settingsPanel', trigger); $('soundToggle').focus(); };
-  $('homeSettings').onclick = () => openSettings($('homeSettings'));
   document.querySelectorAll('.settings-open').forEach(button => { button.onclick = () => openSettings(button); });
   $('closeSettings').onclick = closeOverlay;
   $('soundToggle').onchange = () => { settings.sound = $('soundToggle').checked; saveSettings(); sound(); };
-  $('motionToggle').onchange = () => { settings.motion = $('motionToggle').checked; saveSettings(); };
-  document.querySelectorAll('[data-tab]').forEach(button => { button.onclick = () => guide(button.dataset.tab); });
+  document.querySelectorAll('.guide-tabs button[data-tab]').forEach(button => { button.onclick = () => guide(button.dataset.tab); });
   function guide(tab) {
-    const container = $('guideContent'); container.replaceChildren();
-    document.querySelectorAll('[data-tab]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.tab === tab)));
+    const container = $('guideContent'); container.replaceChildren(); container.dataset.tab = tab; $('guideTitle').textContent = ({rules:'遊び方',cards:'カード図鑑',bots:'BOTについて',examples:'計算例'})[tab];
+    document.querySelectorAll('.guide-tabs button[data-tab]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.tab === tab)));
     if (tab === 'rules') {
-      container.append(el('h2', '', '遊び方'));
+
       const steps = [['カードを配る','自分のカードだけ見えません。他の人のカードを見て、全員の合計を予想しよう。'],['数字を宣言','最初は0以上の整数。次の人は、前の宣言より大きな数を宣言します。'],['グラビティ！','直前の宣言が合計を超えていると思ったら、グラビティ！で挑戦。'],['勝敗判定','全カードを公開し、特殊効果を含めて合計。宣言が合計より大きければ宣言者の負け。合計以下なら、疑った側の負け。'],['最後まで生き残ろう','負けるとライフが1減り、0で脱落。最後の1人が優勝！次のラウンドは負けた人から（脱落時は次の生存者）。']];
       steps.forEach(([title, text], index) => {
         const section = el('section', 'guide-step');
@@ -420,28 +879,26 @@
         }
         section.append(illustration); container.append(section);
       });
-      container.append(el('p', '', '1人 + BOT 1〜7体、最大8人。ライフ3。再戦しても通算勝利数は引き継ぎます。'));
+
     } else if (tab === 'cards') {
-      container.append(el('h2', '', 'カード図鑑（全36枚）'), el('h3', '', '数字カード 32枚'));
+      container.append(el('h3', 'catalogue-label', '数字カード 32枚 · 全36枚'));
       const grouped = new Map(); for (const c of G.FULL_DECK) { const key = c.kind + ':' + c.value; if (!grouped.has(key)) grouped.set(key, { card: c, count: 0 }); grouped.get(key).count++; }
       const catalogue = el('div', 'catalogue');
-      [...grouped.values()].filter(x => x.card.kind === 'number').sort((a, b) => a.card.value - b.card.value).forEach(({ card, count }) => { const item = el('div'); item.append(cardNode(card), el('small', '', '×' + count)); catalogue.append(item); });
+      [...grouped.values()].filter(x => x.card.kind === 'number').sort((a, b) => a.card.value - b.card.value).forEach(({ card, count }) => { const item = el('button', 'catalogue-item'); item.type = 'button'; item.setAttribute('aria-label', card.label + ' の効果・' + count + '枚'); item.onclick = () => cardDetail(card, count); item.append(cardNode(card), el('small', '', '×' + count)); catalogue.append(item); });
       container.append(catalogue, el('h3', '', '特殊カード 4枚（各1枚）'));
-      const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
-      [...grouped.values()].filter(x => x.card.kind !== 'number').forEach(({ card }) => { const row = el('div', 'special-rule'), copy = el('p'); copy.append(el('strong', '', card.kind === 'reset' ? 'リセット' : card.label), el('br'), document.createTextNode(descriptions[card.kind])); row.append(cardNode(card), copy); container.append(row); });
+      const specials = el('div', 'catalogue special-catalogue');
+      [...grouped.values()].filter(x => x.card.kind !== 'number').forEach(({ card, count }) => { const item = el('button', 'catalogue-item'); item.type = 'button'; item.setAttribute('aria-label', card.label + ' の効果'); item.onclick = () => cardDetail(card, count); item.append(cardNode(card), el('small', '', '×1')); specials.append(item); }); container.append(specials);
     } else if (tab === 'bots') {
-      container.append(el('h2', '', 'BOTについて'), el('p', '', '一緒に遊べる3段階のBOT。ロビーで1体ずつ難易度を選べます。'));
+
       const descriptions = ['判断にゆらぎが多め。まずはのんびり練習したい人に。','見えているカードと公開済みの情報からバランスよく判断。','公開情報から合計の可能性を比較し、慎重に挑戦します。'];
       ['easy','normal','hard'].forEach((d, i) => { const row = el('div', 'guide-bot'), copy = el('div'); copy.append(el('h3', '', difficultyNames[d]), el('p', '', descriptions[i])); row.append(image(avatars[i]), copy); container.append(row); });
       container.append(el('p', '', 'BOTも自分のカードや山札の中身は見ていません。難易度を変えても、見える情報は同じです。'));
     } else {
-      container.append(el('h2', '', '計算例'));
+
       const samples = [
         ['通常の合計','3、5、−5 の場合','3 + 5 − 5 = 3',[3,5,-5],3],
-        ['×2 の効果','数字を合計してから2倍','(3 + 5 − 5) × 2 = 6',[3,5,-5,'double'],6],
         ['MAX→0','10、5、3 なら、10を1枚だけ0に','0 + 5 + 3 = 8',[10,5,3,'max0'],8],
         ['「?」の追加公開','追加で10が出た場合','5 + 4 + 10 = 19',[5,4,'extra'],19,10],
-        ['マイナスとリセット','判定後、全36枚を混ぜ直します。合計は0になりません。','−5 − 10 + 0 = −15',[-5,-10,'reset'],-15]
       ];
       for (const [title, text, expression, values, total, extra] of samples) {
         const row = el('section', 'example'), visual = el('div', 'example-visual'), cards = el('div', 'example-cards');
@@ -449,33 +906,375 @@
         for (const value of values) cards.append(cardNode(find(value)));
         if (extra !== undefined) { const additional = el('div', 'example-extra'); additional.append(el('small', '', '追加'), cardNode(find(extra))); cards.append(additional); }
         const result = el('div', 'example-total'); result.append(el('span', '', '最終合計'), el('strong', '', total));
-        visual.append(cards, result); row.append(el('h3', '', title), visual, el('p', '', text), el('div', 'example-expression', expression)); container.append(row);
+        visual.append(cards, result); row.append(el('h3', '', title), visual, el('div', 'example-expression', expression)); container.append(row);
       }
     }
     container.focus({ preventScroll: true });
   }
-  document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel' || screen === 'settingsPanel') closeOverlay(); else if (screen === 'joinPanel') show('homeScreen', 'joinGame'); });
-  window.addEventListener('pagehide', () => timer.cancel());
+  function cardDetail(card, count) {
+    const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。例：(3 + 5 − 5) × 2 = 6。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
+    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); $('cardDetail').showModal(); $('closeCardDetail').focus();
+  }
+  $('closeCardDetail').onclick = () => $('cardDetail').close();
+  document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel' || screen === 'settingsPanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
+  window.addEventListener('pagehide', () => { timer.cancel(); cancelPresentation(true); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });
-  // Transport-neutral seam. The caller must provide an authenticated, sanitized public
-  // view stream; no network SDK, room backend, or pretend remote users are included.
+  // The SDK bridge provides the normalized stream; the UI never runs remote authority.
+  function paintConnectionStatus() {
+    for (const id of ['onlineLobbyStatus', 'onlineBattleStatus']) { $(id).textContent = connectionMessage; $(id).classList.toggle('hide', !connectionMessage); }
+  }
   window.NumberBluffClient = Object.freeze({
+    onMatchComplete(listener) {
+      if (typeof listener !== 'function') throw new TypeError('Match listener must be a function.');
+      matchListeners.add(listener); return () => matchListeners.delete(listener);
+    },
+    reportConnectionStatus(event) {
+      const messages = { 'host-lost': 'ホストが退出しました。ホームに戻って参加し直してください。', 'host-timeout': 'ホストとの接続が切れました。ホームに戻って参加し直してください。', 'send-error': '送信できませんでした。接続を確認してください。', 'participant-timeout': '参加者との接続が切れました。', 'player-left-match-abandoned': '参加者が退出したため、対戦を中止してロビーに戻りました。', 'host-session-changed': 'ホストの接続が変わりました。ホームに戻って参加し直してください。', 'session-ended': '接続を終了しました。ホームに戻って参加し直してください。', 'join-waiting': 'ホストからの情報を待っています…', 'room-full': 'このルームは満員です。', 'profile-error': 'GRAVITYのプロフィールを取得できません。再読み込みしてください。' };
+      if (!event || !messages[event.kind]) return;
+      connectionMessage = messages[event.kind];
+      if (['host-lost', 'host-timeout', 'host-session-changed', 'session-ended'].includes(event.kind)) connectionBlocked = true;
+      paintConnectionStatus();
+      if (screen === 'homeScreen' || screen === 'joinPanel' || !transport) { $('roomCreateStatus').textContent = connectionMessage; $('roomJoinStatus').textContent = connectionMessage; }
+      if (view) { if (view.phase === 'lobby') renderLobby(); else renderBattle(); }
+    },
+    setViewportInsets(insets) {
+      if (!insets || !['top', 'bottom'].every(key => typeof (insets[key] ?? 0) === 'number' && Number.isFinite(insets[key] ?? 0) && (insets[key] ?? 0) >= 0)) throw new TypeError('Insets require finite, nonnegative top/bottom pixel values.');
+      for (const key of ['top', 'bottom']) document.documentElement.style.setProperty('--nb-host-' + key, (insets[key] ?? 0) + 'px');
+      updateViewport();
+    },
+    onScreenChange(listener) {
+      if (typeof listener !== 'function') throw new TypeError('Screen listener must be a function.');
+      screenListeners.add(listener); listener(screenNames[screen]); return () => screenListeners.delete(listener);
+    },
+    setRoomRequestCanceler(cancel) { if (cancel !== null && typeof cancel !== 'function') throw new TypeError('Canceler must be a function.'); cancelRoomOperation = cancel; },
+    setRoomAdapterExpected(required = true) { roomAdapterExpected = !!required; },
+    configureRoomActions(actions) {
+      if (!actions || typeof actions.create !== 'function' || typeof actions.join !== 'function') throw new TypeError('Room actions require create() and join(roomId).');
+      roomAdapterExpected = true; roomActions = { create: actions.create, join: actions.join };
+    },
+    configureLocalProfile(profile) {
+      if (!profile || typeof profile.name !== 'string' || !profile.name.trim()) throw new TypeError('Normalized profile requires name.');
+      if (transport || (state && state.phase !== 'lobby')) throw new Error('Configure profile before starting a game.');
+      localProfile = { name: profile.name.trim().slice(0, 24), avatarUrl: safeAvatar(profile.avatarUrl) };
+      if (state) { state = { ...state, players: state.players.map(p => p.id === human ? { ...p, ...localProfile } : p) }; view = G.publicView(state, human); renderLobby(); }
+    },
     connect(adapter) {
       if (!adapter || typeof adapter.subscribe !== 'function' || typeof adapter.send !== 'function') throw new TypeError('Adapter requires subscribe(onPublicView) and send(action).');
-      timer.cancel(); detachTransport(); transport = adapter; state = null;
+      timer.cancel(); detachTransport(); transport = adapter; state = null; view = null;
       let first = true;
       unsubscribe = adapter.subscribe(publicState => {
+        if (transport !== adapter) return;
         if (!publicState || typeof publicState.viewerId !== 'string' || !Array.isArray(publicState.players) || !publicState.players.some(player => player.id === publicState.viewerId && player.kind === 'human')) {
           throw new TypeError('Adapter public view must identify its authenticated human viewer.');
         }
         human = publicState.viewerId;
+        $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = '';
         receive(publicState);
         if (first || screen === 'lobbyScreen' || (publicState.phase === 'lobby' && screen === 'battleScreen')) { show(publicState.phase === 'lobby' ? 'lobbyScreen' : 'battleScreen'); first = false; }
       });
+      const connection = adapter.getStatus?.(); if (connection?.kind) window.NumberBluffClient.reportConnectionStatus(connection);
     },
     disconnect() { timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); }
   });
   saveSettings();
 })();
+
+</script><script>
+/* AgentSDK bridge. SDK contracts are supplied examples, not live-verified APIs.
+ * Broadcast-only transport exposes current round cards to network inspection.
+ * It NEVER sends the private draw pile or RNG. No cheat-proof secrecy is claimed. */
+(function(root,factory){
+  if(typeof module==='object'&&module.exports) module.exports=factory(require('./engine.js'));
+  else root.NumberBluffGravity=factory(root.NumberBluff);
+})(typeof globalThis==='object'?globalThis:this,function(G){
+  'use strict';
+  const VERSION=1, LIMIT=48000, DIFFICULTIES=['easy','normal','hard'];
+  const clone=x=>JSON.parse(JSON.stringify(x));
+  const id=x=>typeof x==='string'&&x.length>0&&x.length<=128&&!/[\u0000-\u001f]/.test(x);
+  const safeName=x=>typeof x==='string'&&x.trim()?x.trim().slice(0,24):'プレイヤー';
+  function avatar(x){try{const u=new url("https://tanabe0422.github.io/number-bluff/x");return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch{return null;}}
+  const profile=p=>({userId:p.userId,name:safeName(p.name),avatarUrl:avatar(p.avatarUrl)});
+  function createSession(options){
+    const {roomId,userId,hostUserId,sendMessage}=options;
+    if(!id(roomId)||!id(userId)||!id(hostUserId)||typeof sendMessage!=='function')throw new TypeError('Verified room, user, host IDs and sendMessage are required.');
+    const isHost=userId===hostUserId, rng=options.rng||Math.random;
+    const later=options.setTimeout||setTimeout, clear=options.clearTimeout||clearTimeout;
+    const onStatus=typeof options.onStatus==='function'?options.onStatus:()=>{};
+    const members=new Map(), listeners=new Set(), sequences=new Map(), seen=new Map();
+    const now=options.now||Date.now;
+    const heartbeatMs=options.heartbeatMs??5000, timeoutMs=options.timeoutMs??30000;
+    if(!Number.isFinite(heartbeatMs)||heartbeatMs<100||!Number.isFinite(timeoutMs)||timeoutMs<heartbeatMs*3)throw new RangeError('Use a bounded heartbeat and a timeout of at least three intervals.');
+    let heartbeatTimer=null,lastHostSeen=now();
+    let state=null, latest=null, closed=false, hostLost=false, timer=null, generation=0;
+    let epoch=isHost?(options.epoch||String(Date.now())+'-'+String(Math.random()).slice(2)):null;
+    let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, scheduledRevision=null;
+    let lastStatus=null;
+    const status=(kind,detail={})=>{lastStatus={kind,...detail};onStatus({...lastStatus});};
+    function cancel(){scheduledRevision=null;generation++;if(timer!==null)clear(timer);timer=null;}
+    function emit(v){if(latest&&latest.revision===v.revision)return;latest=v;for(const fn of listeners)fn(clone(v));}
+    function transmit(body){
+      if(closed||hostLost)return Promise.resolve(false);
+      const message=JSON.stringify({protocol:'number-bluff',version:VERSION,roomId,epoch,...body});
+      if(message.length>LIMIT)throw new RangeError('Room message exceeds protocol limit.');
+      return Promise.resolve(sendMessage(message)).catch(error=>{status('send-error');throw error;});
+    }
+    function seatFor(uid){return state?.players.find(p=>p.userId===uid);}
+    function localize(wire){
+      const me=wire.players.find(p=>p.userId===userId&&p.kind==='human');
+      if(!me)return null;
+      const v=clone(wire);v.viewerId=me.id;v.players=v.players.map(p=>({...p,avatarUrl:avatar(p.avatarUrl)}));
+      if(v.phase==='play')v.hands[me.id]=null;
+      return v;
+    }
+    function scheduleBot(){
+      if(timer!==null&&scheduledRevision===state.revision)return;
+      cancel();if(!isHost||closed||hostLost||state.phase!=='play')return;
+      const bot=state.players.find(p=>p.id===state.turn);if(bot?.kind!=='bot')return;
+      const rev=state.revision,ticket=generation;scheduledRevision=rev;
+      timer=later(()=>{timer=null;if(closed||hostLost||ticket!==generation||state.revision!==rev)return;
+        const action=G.chooseBotAction(G.botView(state,bot.id),rng);
+        if(action){const next=G.dispatch(state,{...action,player:bot.id,revision:rev},rng);if(next!==state){state=next;publish();}}
+      },options.botDelay??650);
+    }
+    function publish(reason){
+      G.assertInvariant(state);
+      const wire={...G.publicView(state,'__broadcast__'),hostId:state.players[0].id,roomId};delete wire.viewerId;wire.history=wire.history.slice(-100);
+      const own=localize(wire);if(own)emit(own);
+      void transmit({type:'snapshot',sequence:++hostSequence,view:wire,reason:reason||null}).catch(()=>{});
+      if(reason)status(reason);scheduleBot();
+    }
+    function addMember(raw){
+      if(closed||!raw||!id(raw.userId))return false;
+      const p=profile(raw);members.set(p.userId,p);seen.set(p.userId,now());
+      if(!isHost||p.userId===hostUserId)return true;
+      const existing=seatFor(p.userId);
+      if(existing){sequences.delete(p.userId);state={...state,revision:state.revision+1,players:state.players.map(x=>x.id===existing.id?{...x,name:p.name,avatarUrl:p.avatarUrl}:x)};publish();return true;}
+      if(state.phase!=='lobby'){status('join-waiting',{userId:p.userId});return false;}
+      if(state.players.length>=8){const bot=state.players.find(x=>x.kind==='bot');if(bot)state=G.removeBot(state,bot.id);else {status('room-full');return false;}}
+      const next=G.addBot(state);const added=next.players.find(x=>!state.players.some(y=>x.id===y.id));
+      state={...next,players:next.players.map(x=>x.id===added.id?{...x,kind:'human',difficulty:null,...p}:x)};
+      publish();return true;
+    }
+    function removeMember(uid){
+      if(closed)return false;
+      if(uid===hostUserId){hostLost=true;cancel();stopHeartbeat();status('host-lost');return true;}
+      if(!members.has(uid))return false;members.delete(uid);seen.delete(uid);sequences.delete(uid);
+      if(!isHost)return true;
+      const seat=seatFor(uid);if(!seat)return true;
+      const active=state.phase!=='lobby';
+      // Explicit abandonment policy: no fabricated move, life loss, bot takeover or win.
+      if(active)state=G.returnToLobby(state);
+      state={...state,revision:state.revision+1,players:state.players.filter(p=>p.id!==seat.id)};
+      publish(active?'player-left-match-abandoned':'player-left');return true;
+    }
+    function processAction(sender,action){
+      if(!isHost||closed||hostLost||!members.has(sender)||!action||typeof action!=='object')return false;
+      const actor=seatFor(sender);if(!actor||actor.kind!=='human'||action.player!==actor.id||action.revision!==state.revision)return false;
+      const manages=sender===hostUserId;let next=state;
+      switch(action.type){
+        case 'declare': case 'challenge': next=G.dispatch(state,{type:action.type,player:actor.id,value:action.value,revision:state.revision},rng);break;
+        case 'nextRound': if(manages)next=G.nextRound(state,rng);break;
+        case 'rematch': if(manages)next=G.rematch(state,rng);break;
+        case 'returnToLobby': if(manages)next=G.returnToLobby(state);break;
+        case 'startGame': if(manages)next=G.startGame(state,rng);break;
+        case 'addBot': if(manages)next=G.addBot(state,action.difficulty||'normal');break;
+        case 'removeBot': if(manages)next=G.removeBot(state,action.target);break;
+        case 'setDifficulty': if(manages)next=G.setDifficulty(state,action.target,action.difficulty);break;
+        case 'setBotAvatar': if(manages&&state.phase==='lobby'&&Number.isInteger(action.avatar)&&action.avatar>=0&&action.avatar<4&&state.players.some(p=>p.id===action.target&&p.kind==='bot'))next={...state,revision:state.revision+1,players:state.players.map(p=>p.id===action.target?{...p,botAvatar:action.avatar}:p)};break;
+      }
+      if(next===state)return false;state=next;publish();return true;
+    }
+    function validSnapshot(v){
+      if(!v||!['lobby','play','reveal','finished'].includes(v.phase)||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.players)||v.players.length<1||v.players.length>8)return false;
+      if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;
+      if(new Set(v.players.map(p=>p?.id)).size!==v.players.length)return false;
+      if(v.players.some(p=>!p||typeof p!=='object'||!/^p[1-8]$/.test(p.id)||!['human','bot'].includes(p.kind)||typeof p.name!=='string'||p.name.length>24||!Number.isInteger(p.life)||p.life<0||p.life>3||!Number.isSafeInteger(p.wins)||p.wins<0))return false;
+      if(!v.hands||typeof v.hands!=='object'||!Array.isArray(v.discard)||v.discard.length>36||!Array.isArray(v.history)||v.history.length>1000)return false;
+      const validCard=c=>c===null||(typeof c==='object'&&G.FULL_DECK.some(x=>x.id===c?.id&&x.kind===c.kind&&x.value===c.value&&x.label===c.label));
+      const seat=x=>v.players.some(p=>p.id===x),optionalSeat=x=>x===null||seat(x);
+      if(!Number.isSafeInteger(v.game)||v.game<0||!Number.isSafeInteger(v.round)||v.round<0||!Number.isInteger(v.deckCount)||v.deckCount<0||v.deckCount>36)return false;
+      if(v.bid!==null&&(!Number.isSafeInteger(v.bid)||v.bid<0))return false;
+      if(!optionalSeat(v.turn)||!optionalSeat(v.last)||!optionalSeat(v.starter))return false;
+      if(v.players.some(p=>p.kind==='human'&&!id(p.userId)))return false;
+      if(!Object.entries(v.hands).every(([key,c])=>seat(key)&&validCard(c))||!v.discard.every(c=>c!==null&&validCard(c)))return false;
+      if(!v.history.every(a=>a&&typeof a==='object'&&seat(a.player)&&(['declare','challenge'].includes(a.type))&&(a.type!=='declare'||Number.isSafeInteger(a.value)&&a.value>=0)))return false;
+      if(v.phase==='reveal'||v.phase==='finished'){
+        const r=v.result;if(!r||typeof r!=='object'||!r.cards||typeof r.cards!=='object'||!Object.entries(r.cards).every(([key,c])=>seat(key)&&c!==null&&validCard(c)))return false;
+        if(!validCard(r.extraCard)||!validCard(r.removedCard)||![r.sum,r.baseSum,r.bid].every(Number.isSafeInteger)||![1,2].includes(r.multiplier)||typeof r.reset!=='boolean')return false;
+        if(![r.loser,r.challenger,r.bidder].every(seat)||!optionalSeat(r.winner))return false;
+      }else if(v.result!==null)return false;
+      return true;
+    }
+    function receive(sender,raw){
+      // sender MUST come from SDK envelope data.user_id, never from message JSON.
+      if(closed||hostLost||!id(sender)||typeof raw!=='string'||raw.length>LIMIT)return false;
+      let message;try{message=JSON.parse(raw);}catch{return false;}
+      if(!message||message.protocol!=='number-bluff'||message.version!==VERSION||message.roomId!==roomId)return false;
+      if(message.type==='bye'){
+        if(sender!==hostUserId&&(!isHost||!members.has(sender)))return false;
+        if(message.epoch!==epoch)return false;
+        if(sender!==hostUserId&&message.revision!==state.revision)return false;
+        return removeMember(sender);
+      }
+      if(message.type==='hello'||message.type==='resync'||message.type==='ping'){
+        if(!isHost||!members.has(sender))return false;seen.set(sender,now());
+        if(!seatFor(sender)&&state.phase==='lobby')addMember(members.get(sender));else if(message.type!=='ping')publish();return true;
+      }
+      if(message.type==='snapshot'){
+        if(isHost||sender!==hostUserId||!id(message.epoch)||!Number.isSafeInteger(message.sequence)||message.sequence<=acceptedHostSequence||!validSnapshot(message.view))return false;
+        if(epoch!==null&&epoch!==message.epoch){status('host-session-changed');return false;}
+        if(latest&&message.view.revision<latest.revision)return false;
+        lastHostSeen=now();
+        const own=localize(message.view);if(!own){status('join-waiting');return false;}
+        lastHostSeen=now();epoch=message.epoch;acceptedHostSequence=message.sequence;emit(own);if(message.reason)status(message.reason);return true;
+      }
+      if(message.type==='action'){
+        if(!isHost||message.epoch!==epoch||!members.has(sender)||!Number.isSafeInteger(message.sequence)||message.sequence<=0||message.sequence<=(sequences.get(sender)||0))return false;
+        seen.set(sender,now());
+        if(message.action?.revision!==state.revision){publish();return false;}
+        sequences.set(sender,message.sequence);
+        const accepted=processAction(sender,message.action);if(!accepted)publish();return accepted;
+      }
+      return false;
+    }
+    function stopHeartbeat(){if(heartbeatTimer!==null)clear(heartbeatTimer);heartbeatTimer=null;}
+    function heartbeat(){
+      if(closed||hostLost||options.heartbeat===false)return;
+      heartbeatTimer=later(()=>{heartbeatTimer=null;if(closed||hostLost)return;
+        if(isHost){
+          for(const uid of Array.from(members.keys()))if(uid!==userId&&now()-(seen.get(uid)??now())>=timeoutMs){removeMember(uid);status('participant-timeout',{userId:uid});}
+          publish();
+        }else if(now()-lastHostSeen>=timeoutMs){hostLost=true;cancel();status('host-timeout');return;}
+        else void transmit({type:'ping'}).catch(()=>{});
+        heartbeat();
+      },heartbeatMs);
+      if(typeof heartbeatTimer?.unref==='function')heartbeatTimer.unref();
+    }
+    const self=profile({userId,name:options.name,avatarUrl:options.avatarUrl});members.set(userId,self);
+    if(isHost){state=G.createLobby({name:self.name,botCount:0});state={...state,players:state.players.map(p=>({...p,...self}))};}
+    for(const member of options.members||[])if(member&&id(member.userId)){members.set(member.userId,profile(member));seen.set(member.userId,now());}
+    const adapter={
+      subscribe(fn){if(typeof fn!=='function')throw new TypeError('Listener required');listeners.add(fn);if(latest)fn(clone(latest));return()=>listeners.delete(fn);},
+      send(action){if(closed||hostLost)return Promise.reject(new Error('Room is disconnected.'));if(isHost)return Promise.resolve(processAction(userId,action));if(!epoch)return Promise.reject(new Error('Waiting for host.'));return transmit({type:'action',sequence:++commandSequence,action});},
+      receive,addMember,removeMember,
+      resync(){return isHost?(publish(),Promise.resolve()):transmit({type:'resync'});},
+      close(){if(closed)return;void transmit({type:'bye',revision:latest?.revision}).catch(()=>{});closed=true;cancel();stopHeartbeat();listeners.clear();status('closed');},
+      getStatus(){return {...(lastStatus||{}),roomId,isHost,closed,hostLost,ready:!!latest};}
+    };
+    if(isHost){for(const member of members.values())if(member.userId!==userId)addMember(member);publish();}
+    else void transmit({type:'hello'}).catch(()=>{});
+    heartbeat();
+    return Object.freeze(adapter);
+  }
+
+  async function install({sdk,client,resolveHost,normalizeMember,normalizeProfile,onStatus,rng}={}){
+    if(!sdk?.user?.getMyUserInfo||!sdk?.room?.create||!sdk?.room?.join||!sdk?.room?.receiveMessage||!sdk?.room?.sendMessage)throw new TypeError('AgentSDK user and room methods are required.');
+    if(!client?.configureRoomActions)throw new TypeError('NumberBluffClient is required.');
+    client.setRoomAdapterExpected(true);
+    const own=await sdk.user.getMyUserInfo();if(own?.errno!==0||!id(String(own.data?.user_id||'')))throw new Error('GRAVITY profile unavailable.');
+    const myId=String(own.data.user_id);
+    const supplied=normalizeProfile?normalizeProfile(own.data):{name:own.data.name,avatarUrl:own.data.portrait};
+    const me=profile({userId:myId,...supplied});me.userId=myId;client.configureLocalProfile(me);
+    const member=raw=>{const p=normalizeMember?normalizeMember(raw):{userId:String(raw?.user_id||''),name:raw?.user_name||raw?.name,avatarUrl:raw?.portrait||raw?.portait};return id(p?.userId)?profile(p):null;};
+    let active=null, pending=false, listenerGeneration=0, requestGeneration=0;
+    function handle(payload){
+      if(!active||!payload?.data)return;const data=payload.data,uid=String(data.user_id||'');
+      if(payload.type==='aitools_game_sendmsg')active.receive(uid,data.msg_data);
+      else if(payload.type==='aitools_game_joinroom'){const p=member(data);if(p)active.addMember(p);}
+      else if(payload.type==='aitools_game_exitroom')active.removeMember(uid);
+    }
+    async function enter(kind,requestedId){
+      if(pending)throw new Error('Room request already pending.');pending=true;const request=++requestGeneration;
+      if(active)active.close();active=null;++listenerGeneration;
+      try{
+        if(kind==='join'&&!id(requestedId))throw new TypeError('Room ID required.');
+        const result=await (kind==='create'?sdk.room.create({max_players:8,room_permission:0}):sdk.room.join({room_id:requestedId}));
+        if(request!==requestGeneration)throw new Error('Room request canceled.');
+        if(result?.errno!==0)throw new Error('GRAVITY room request failed.');
+        if(active)active.close();active=null;
+        const buffered=[],generation=++listenerGeneration;
+        // Register synchronously immediately after success, before host resolution awaits.
+        sdk.room.receiveMessage(payload=>{if(generation!==listenerGeneration)return;if(active)handle(payload);else if(buffered.length<64)buffered.push(payload);});
+        const data=result.data||{},roomId=String(data.room_id||requestedId||'');
+        // AI Studio says first user is creator. This ordering is an assumption to verify on-device.
+        // Pin this identity for the session; later roster reorder/host_declare never replaces it.
+        const hostUserId=kind==='create'?myId:String((resolveHost?await resolveHost(data):data.user_list?.[0]?.user_id)||'');
+        if(request!==requestGeneration)throw new Error('Room request canceled.');
+        if(!id(roomId)||!id(hostUserId))throw new Error('Verified room and host IDs are required.');
+        active=createSession({roomId,userId:myId,hostUserId,name:me.name,avatarUrl:me.avatarUrl,rng,onStatus,
+          members:Array.isArray(data.user_list)?data.user_list.map(member).filter(Boolean):[],
+          sendMessage:async message=>{const response=await sdk.room.sendMessage({message});if(response?.errno!==undefined&&response.errno!==0)throw new Error('GRAVITY send failed.');}
+        });for(const payload of buffered)handle(payload);return active;
+      }finally{pending=false;}
+    }
+    client.configureRoomActions({create:()=>enter('create'),join:roomId=>enter('join',roomId)});
+    return Object.freeze({resync:()=>active?.resync(),close:()=>{requestGeneration++;listenerGeneration++;active?.close();active=null;},getSession:()=>active});
+  }
+  return Object.freeze({createSession,install,protocolVersion:VERSION});
+});
+
+</script><script>
+/* GRAVITY platform shell, based on user-provided AI Studio specifications.
+ * Real-device SDK behavior and the user_list host ordering remain unverified. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else {
+    root.NumberBluffPlatform = factory();
+    if (root.AgentSDK) void root.NumberBluffPlatform.start({ window: root }).catch(() => {});
+  }
+})(typeof globalThis === 'object' ? globalThis : this, function () {
+  'use strict';
+  const installations = new WeakMap();
+  function exclusionHeight(height) { return Number.isFinite(height) && height >= 812 ? 98 : 74; }
+  async function start(options = {}) {
+    const win = options.window || globalThis.window, client = options.client || win?.NumberBluffClient;
+    const sdk = options.sdk || win?.AgentSDK, adapter = options.adapter || win?.NumberBluffGravity;
+    if (!win || !client) throw new TypeError('Window and NumberBluffClient are required.');
+    if (!sdk) return null; // An ordinary browser keeps its existing layout and offline mode.
+    if (installations.has(win)) return installations.get(win);
+    client.setRoomAdapterExpected(true);
+    const promise = setup(); installations.set(win, promise);
+    try { return await promise; } catch (error) { installations.delete(win); client.reportConnectionStatus({ kind: 'profile-error' }); throw error; }
+    async function setup() {
+      if (!adapter?.install) throw new TypeError('GRAVITY adapter is required.');
+      let bridge = null, closed = false, top = exclusionHeight(win.innerHeight), lastWidth = win.innerWidth;
+      const sent = new Set();
+      const update = () => {
+        // Keep the native-header band stable while a software keyboard shrinks the viewport.
+        const active = win.document?.activeElement;
+        const widthChanged = win.innerWidth !== lastWidth; lastWidth = win.innerWidth;
+        if (widthChanged || !active || !/^(INPUT|TEXTAREA)$/.test(active.tagName)) top = exclusionHeight(win.innerHeight);
+        client.setViewportInsets({ top, bottom: 0 });
+      };
+      update();
+      bridge = await adapter.install({ sdk, client, onStatus: event => client.reportConnectionStatus(event) });
+      client.setRoomRequestCanceler?.(() => bridge.close());
+      const unsubscribe = client.onMatchComplete(result => {
+        if (closed || !result || typeof result.roomId !== 'string' || !Number.isSafeInteger(result.game) || !result.winner) return;
+        const key = JSON.stringify([result.roomId, result.game]);
+        if (sent.has(key)) return;
+        sent.add(key);
+        // Only a numeric game score is shared with the hosting parent. No identity or cards.
+        const score = result.winner === result.viewerId ? 1 : 0;
+        win.parent.postMessage({ type: 'gameOver', score }, '*');
+      });
+      const resume = () => { if (!closed && !win.document?.hidden) Promise.resolve(bridge.resync()).catch(() => client.reportConnectionStatus({ kind: 'send-error' })); };
+      win.addEventListener('resize', update); win.document?.addEventListener('focusout', update);
+      win.document?.addEventListener('visibilitychange', resume);
+      const pagehide = () => { bridge.close(); client.reportConnectionStatus({ kind: 'session-ended' }); };
+      win.addEventListener('pagehide', pagehide);
+      return Object.freeze({
+        resync: resume,
+        close() {
+          if (closed) return; closed = true; unsubscribe(); bridge.close(); client.setRoomRequestCanceler?.(null);
+          win.removeEventListener('resize', update); win.removeEventListener('pagehide', pagehide);
+          win.document?.removeEventListener('focusout', update); win.document?.removeEventListener('visibilitychange', resume);
+          installations.delete(win);
+        }
+      });
+    }
+  }
+  return Object.freeze({ start, exclusionHeight });
+});
 
 </script></body></html>

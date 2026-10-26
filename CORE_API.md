@@ -1,4 +1,4 @@
-# Number Bluff — offline core / multiplayer adapter boundary
+# Number Bluff — pure core / implemented multiplayer adapter boundary
 
 `engine.js` is dependency-free UMD: `window.NumberBluff` in browser, `require('./engine')` in Node. It has no DOM, network, timers, global randomness, persistence or backend. Every transition returns a new state; invalid transitions return the original object. Random operations require an explicit `rng(): number` in `[0,1)`; the browser shell may inject `Math.random`, tests inject seeded RNG.
 
@@ -26,7 +26,7 @@ const view = NumberBluff.publicView(state, 'p1');
 - `returnToLobby(state)`: play/reveal/finished → same-room lobby. Preserves seat IDs, names, kind, difficulty, room wins, and game count; resets round/lives/cards/turn/result/history. Active-play abandonment must be explicitly confirmed by the UI. No victory is awarded; an existing lobby is unchanged. `createLobby` is a genuinely new room and resets wins.
 - Match ends when one survivor remains. Winner's room wins increment exactly once. Repeated challenge/nextRound/rematch in invalid phases is a no-op.
 
-Players are `{id,name,kind:'human'|'bot',difficulty,life,wins,eliminated}`. Seat IDs are stable string IDs `p1`…`p8`. The transitions themselves do not depend on `kind`, so a future authoritative adapter can supply human actors; offline lobby intentionally does not fake online humans.
+Players are `{id,name,kind:'human'|'bot',difficulty,life,wins,eliminated}`. Seat IDs are stable string IDs `p1`…`p8`. The transitions themselves do not depend on `kind`, so the authoritative adapter supplies real human actors without changing the rule engine; the offline lobby intentionally does not fake online humans.
 
 State fields: `phase:'lobby'|'play'|'reveal'|'finished'`, `revision`, `game`, `round`, `players`, private `deck`, `discard`, private `hands`, `bid`, `last`, `turn`, `starter`, `result`, `history`. `turn`, `last`, `starter` are player IDs or null. Histories contain this round's public declarations/challenge only.
 
@@ -49,7 +49,7 @@ const action = NumberBluff.chooseBotAction(NumberBluff.botView(state,id),Math.ra
 state = NumberBluff.dispatch(state,{...action,player:id,revision:state.revision},Math.random);
 ```
 
-`dispatch(state,action,rng)` requires exact `action.revision` and supports declare/challenge/nextRound/rematch. Use this guard for replayed/stale actions. Direct transition helpers still validate phase/turn/bid. Authentication, authorization of progression/rematch, seat admission and command deduplication belong to the future authoritative multiplayer adapter. Do not trust a client-supplied player ID. Disconnect behavior, networking, host migration, SDK and service choices are intentionally unspecified.
+`dispatch(state,action,rng)` requires exact `action.revision` and supports declare/challenge/nextRound/rematch. Use this guard for replayed/stale actions. Direct transition helpers still validate phase/turn/bid. Authentication mapping, authorization of progression/rematch, seat admission and command deduplication are implemented separately in `gravity-room-adapter.js`. It verifies the SDK envelope sender against the assigned human seat rather than trusting a client-supplied player ID. Its host identity is pinned from the supplied SDK assumption that `user_list[0]` is the creator; that ordering and envelope authenticity require real-device verification. See `GRAVITY_ADAPTER.md` for protocol and disconnect behavior. Guest departure during a match abandons it without awarding a win and returns to the same-room lobby; host loss stops progress without automatic migration. The pure engine remains SDK-independent.
 
 `scheduler.js` exports `NumberBluffScheduler(setTimeoutFn?,clearTimeoutFn?)`: `{schedule(callback,delay),cancel()}`. Scheduling cancels the previous ticket; generation guards invalidate queued, canceled and already-fired callbacks. The UI should cancel on confirmed exit, restart, or state changes and capture a revision for bot actions. Opening a guide or an unconfirmed exit dialog intentionally does not pause bots or steal focus; cancel only when an exit is confirmed.
 
@@ -58,3 +58,11 @@ state = NumberBluff.dispatch(state,{...action,player:id,revision:state.revision}
 `npm test`: Node built-in test runner, no install needed. Tests cover exact physical deck, all 16 special subsets, negative totals, MAX ties, extra specials/reset, discard refill, legal actions/ties, elimination/next starter/wins/rematch, host-alone lobby/no-op start, lobby caps and 2–8 playing seats, sanitized views, BOT hidden-hand/deck-order noninterference, deterministic replay, RNG validation, immutability, stale revisions, scheduler replays and 10,000 challenge rounds with conservation checks.
 
 `assertInvariant(state)` verifies physical deck conservation, seat/life constraints and active hands/turn. Result display references are deliberately excluded from physical conservation counting. `parseBid(raw)` normalizes full-width digits and accepts nonnegative safe integers only.
+
+## Platform and presentation boundary
+
+`app.js` connects the sanitized adapter DTO to the UI and closes/fences old adapters on actual exit or canceled room requests. `card-presentation.js` presents the authoritative result in stages without changing its arithmetic or randomness. Outcome-dependent life/win changes are withheld until the outcome stage. Guest controls cannot advance the authoritative round or rematch; they may skip their own presentation.
+
+`gravity-platform.js` starts only with an available AgentSDK, applies the supplied GRAVITY 74/98 CSS-pixel header exclusion through the existing viewport inset interface, and requests resync on return from background. SDK completion after script load requires explicit `NumberBluffPlatform.start()`. After the complete match result presentation, it sends the parent `{type:'gameOver',score}` once per room/game, with score 1 for the local winner and 0 otherwise. This is not a per-round or abandonment notification. No identities or cards are included.
+
+The adapter and platform tests use simulated SDK envelopes/timers. They do not establish actual GRAVITY connectivity, delivery guarantees, mobile background behavior or free-service limits. Room wins have no persistent save. Broadcast snapshots exclude the private deck/RNG but expose current cards to network inspection; masking one's own card in the UI is not cryptographic secrecy or anti-cheat protection.

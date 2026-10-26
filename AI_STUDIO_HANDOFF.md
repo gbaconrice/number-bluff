@@ -1,106 +1,93 @@
-# AI Studio 引き継ぎ — 通信接続と GRAVITY 最適化だけを追加する
+# AI Studio 引き継ぎ — GRAVITY実機の確認と最終調整
 
-## 目的と納品の境界
+## 今回の役割
 
-GitHub 側で36枚ルール・BOT・画面を実装してから、AI Studio に **マルチプレイ通信と GRAVITY 実環境への最適化のみ** を依頼する。24枚デモからゲームを作り直す依頼ではない。既存のルール、絵柄、画面構成、カード計算を維持する。
+GitHub側で36枚ルール、UI・素材・演出に加え、提供されたAgentSDK仕様に基づくルーム作成・参加・同期・切断対応を実装しています。AI Studioには通信の新規作り直しではなく、**実際のSDK仕様の確認とGRAVITY実端末での検証・必要な最終調整**を依頼します。
 
-- 入力: `ai-studio.html`（HTML/CSS/全実行 JavaScript を一体化）。画像・フォントだけを `https://tanabe0422.github.io/number-bluff/assets/` から絶対 URL で読む。
-- 原本: `index.html`, `styles.css`, `engine.js`, `scheduler.js`, `app.js`。修正は原本へ戻し、`node tools/build-single-html.mjs` で再生成する。生成物だけを直して原本と乖離させない。
-- 現状のオンライン参加画面は未接続の案内であり、通信が完成した表示ではない。
-- SDK と実機の動作は未検証。Node テストの成功と、AI Studio / GRAVITY での成功を混同しない。
-- 外部バックエンド、新規アカウント、API キー、外部コード提供をユーザーへ要求しない。SDK の実機仕様が不足する場合は不足点を具体的に報告し、無断で別サービスへ移行しない。
+過去にAI Studioで作成された統合済みHTMLは本ソースの作業者には提供されていません。既存版に固有の設定がある場合は差分を比較し、有効なSDK設定を失わないでください。ただし古い「開始＝BOT専用、参加画面内で新規作成」という導線は復活させないでください。独立バックエンドや有料サービスへの移行は不要です。
 
-## SDK 情報の出所: ユーザー提供回答（公式確認済みではない）
+## 配布と原本
 
-2026-10-26 にユーザーが提示した AI Studio の回答による情報。以下を実装契約と断定せず、AI Studio の実際の SDK / 実行環境で名前・引数・戻り値・認証保証・制限を確認する。
+- 入力は `ai-studio.html`。HTML/CSS/ゲーム・SDK連携JavaScriptは一体化され、外部JS・CSSは読み込みません。
+- 画像とフォントは `https://tanabe0422.github.io/number-bluff/assets/` の絶対URLです。配布先で最新素材がHTTP 200になることを確認してください。
+- 原本は `index.html`、`styles.css`、`engine.js`、`scheduler.js`、`background-motion.js/.css`、`card-presentation.js/.css`、`app.js`、`gravity-room-adapter.js`、`gravity-platform.js` です。
+- 原本を直し、`npm test` と `node tools/build-single-html.mjs` を実行して単一HTMLを再生成します。生成HTMLだけを修正して原本と分離しないでください。
+- 単体・通信模擬テストは実SDK通信を証明しません。実GRAVITY複数端末テストは未実施です。
 
-| 提供された内容 | 必要な確認 |
-|---|---|
-| 単一 HTML が必要、画像は絶対 URL | HTML サイズ、外部画像・フォント、CSP、WebView の制限 |
-| `window.AgentSDK.user.getMyUserInfo` → `{errno,data:{user_id,name}}` | 呼出し形式、非同期形式、失敗、ID の安定性 |
-| `room.create({max_players:8,room_permission:0})` | 戻り値の room ID / host ID、権限値の意味、満員処理 |
-| `room.join({room_id})` | 戻り値、既存メンバー一覧、再接続の扱い |
-| `receiveMessage` の種別 `aitools_game_joinroom`, `aitools_game_exitroom`, `aitools_game_sendmsg` | 正確な登録形式、解除方法、イベント順序、重複・欠落、送信者認証 |
-| イベントの `data.user_id`, `user_name`, `msg_data`（JSON） | スキーマ、最大長、送信者 ID が SDK により保証されるか |
-| `sendMessage({message:JSON.stringify(...)})` は他参加者へ一斉配信、個別送信なし | 自分への配送有無、容量、頻度、順序、再送、配信保証 |
-| `save_data` 利用不可 | 永続ランキングを実装しない。部屋存続中の通算勝利数だけ |
-| 無料で利用できるという案内 | 正確な無料枠、人数、配信頻度、容量、商用条件は未確認。無制限とは表示しない |
+## 変更しないUI・ゲーム契約
 
-`room` 等の名前空間の完全なパスや Promise / callback 形式は、上表から推測して確定しない。未提示の unsubscribe / reconnect / host-migration API を捏造しない。
+- 「ゲームをはじめる」＝ホストのルーム作成→人間の参加待ち。BOTは任意追加です。
+- 「ルームに参加」＝ID参加だけ。新規作成・ローカル練習・BOT戦をこの中へ移さないでください。
+- 実在する人間にはGRAVITYの名前とアイコンを使用し、マスコットはBOT専用。プロフィール不足時は中立な人型で表示します。
+- ホームの設定ボタンと動きを減らす設定UIは不要です。背景は自動演出し、OS側の動き軽減を内部で尊重します。
+- 招待UIを置く場合はロビー限定。遊び方、図鑑、結果、操作欄へSDKの常駐オーバーレイを重ねないでください。ネイティブ招待の制御APIは未確認です。
+- 36枚デッキ、特殊効果の順序、ライフ3、2〜8席、勝敗・再戦・部屋内勝数、BOTの情報制限は [CORE_API.md](CORE_API.md) を維持します。
+- 演出は「誰が何を宣言したか」を示してからカード公開、特殊効果、加算、倍率、比較、勝敗の順に進めます。単に数値を一瞬で出すUIへ戻さないでください。
 
-## 変更してはいけないゲーム契約
+## 使用しているSDK契約と未確認点
 
-詳細は `CORE_API.md` とテストが正本。
+情報源は2026-10-26にユーザーが提示したAI Studioの回答です。公式資料そのものを独立に検証したものではありません。
 
-- 物理カード全36枚: 1〜5各4、10×3、15×2、20×1、0×3、−5×2、−10×1、×2・MAX→0・?・リセット0各1。カード ID の重複・消失を許さない。
-- 判定順: `?` で残り山から1枚（空なら捨て札から）追加 → MAX→0で最大の正数 **1枚だけ** を0化 → 数字の和 → ×2（負の合計も倍）。追加カードの特殊効果も適用。
-- リセット0は合計を0にするカードではない。そのラウンド解決後に全36枚を回収して再シャッフル。通常は使用札を捨て札へ。場のカードを山補充に混ぜない。
-- ロビーはホスト1名+BOT0〜7体まで（BOT全削除可）、開始は人間＋BOT合計2〜8席、ライフ3、0で脱落。SDK の `max_players` は人間接続枠であり、BOTはアプリ内仮想席。BOTをSDKユーザーとして参加させない。人間が入る際に合計8席を超えないよう、開始前に入場を拒否するかBOTを減らすポリシーを実装する。
-- 自分のカードだけ対戦中は伏せる。他の生存者のカードは見える。公開時は全員分を見せる。
-- 宣言は安全な0以上の整数・前の宣言より大きい。最初の宣言前はチャレンジ不可。宣言 > 実合計なら宣言者負け、宣言 ≤ 実合計ならチャレンジャー負け（同値も後者）。
-- 次ラウンドは敗者が生存なら敗者から、脱落なら次の生存席から。新ゲームは先頭席/ホスト開始が現在の既定。
-- 最後の生存者の部屋内勝数を一度だけ加算。再戦はライフを戻し、同じ部屋内の勝数を保持。別途「ランキング挑戦」モードや公開ルーム一覧は追加しない。
-- BOTは自分のカード・真の合計・山順を参照しない。`chooseBotAction(botView(state,id), rng)` を使う。難易度は推論・閾値の差であり情報透視ではない。
+| 項目 | 現在の実装 | 実機で確認する点 |
+|---|---|---|
+| 自分の情報 | `AgentSDK.user.getMyUserInfo()` の `data.user_id`, `name`, `portrait` | 値の型、IDの安定性、失敗・画像URL |
+| 作成 | `AgentSDK.room.create({max_players:8,room_permission:0})` | room ID、人数上限、権限値 |
+| 参加 | `AgentSDK.room.join({room_id})` の `data.user_list` | 空一覧、再参加、途中参加、満員 |
+| ホスト | 最初の `user_list[0].user_id` をそのセッション中固定 | 一覧が作成者先頭を保証するか。保証しない場合は信頼できる仕様へ変更 |
+| プロフィール | 参加一覧は `name` / `portrait`、参加通知は `user_name` / `portait` | 提示された綴りの実データ |
+| 受信 | 作成・参加成功直後に `receiveMessage(callback)` を同期登録 | SDK登録方式、解除API、イベント欠落・順序、認証された `data.user_id` |
+| 配信 | `sendMessage({message:JSON.stringify(...)})` | 自分への配送有無、長さ・頻度・配信保証 |
+| 保存 | 永続化なし、ルーム勝数だけ | `save_data` が利用不可という提供情報。勝手に永続ランキングを追加しない |
 
-## 現在のUI接続口（SDKとは別のローカルAPI）
+イベント名は `aitools_game_joinroom`、`aitools_game_exitroom`、`aitools_game_sendmsg`。通信JSONは `data.msg_data` です。ホスト宣言メッセージだけでホストを選び直す方式は使用しません。元のSDK送信者情報を信頼できることが前提で、JSON中の自己申告IDは認証に使いません。
 
-`window.NumberBluffClient.connect(adapter)` は `adapter.subscribe(onSanitizedPublicView)` と `adapter.send(action)` を要求する。`subscribe` は解除関数を返す契約とし、`disconnect()` でUIをホームへ戻す。これは通信実装そのものではない。SDKから届いた未検証JSONや完全stateをそのまま渡さない。
+## 起動・画面連携
 
-現行UIは受信DTOの `viewerId` が実在する人間席と一致することを検証し、本人表示と送信actionのplayerへ反映する。ローカル新規ロビーでは `p1` に戻す。ただしDTOの整合性検査はSDK認証の代わりではない。オンライン化時は **認証済み本人と実際のviewerIdの結び付け** をアダプターで保証し、ホストはpayloadのplayerを信用せず認証済み送信者の席で上書きする。全員をp1として扱わない。オンラインの開始・BOT編集・次ラウンド/再戦もホスト権限のコマンドへ接続し、クライアントのローカル遷移へ逃がさない。
+`gravity-platform.js` は読み込み時に `window.AgentSDK` が存在すれば自動起動します。SDK注入が遅い環境では、SDK提供完了後に `NumberBluffPlatform.start()` を明示的に呼んでください。無期限ポーリングやSDK失敗時のローカルBOT戦への代替起動はしません。
 
-## 権威状態とアダプター境界
+内部では `NumberBluffGravity.install({sdk,client,onStatus})` が `NumberBluffClient.configureRoomActions({create,join})` とプロフィールを設定します。`setRoomAdapterExpected(true)` が未接続時の代替起動を防ぎます。SDKのない通常ブラウザだけは、ホスト1名・BOT0体のローカル検証ロビーを使用します。
 
-1. ホストだけが非公開の完全 state、乱数、物理デッキ、BOT、ゲーム遷移を管理する。クライアントは表示と入力要求のみ。`createLobby` は現状「人間1名+BOT」のオフライン生成器であるため、実在の SDK ユーザーを席へ結ぶロビー・入退室層は追加実装が必要。接続済み人間をBOTで偽装しない。
-2. SDK が保証する送信者 `data.user_id` と、ホストが保持する `userId → seatId` の対応で操作主体を決める。JSON 内の `player`, `user_id`, `hostId` は認証根拠にしない。表示名は `textContent` で出し、HTMLとして挿入しない。
-3. 独自プロトコルには `protocolVersion`, `roomSessionId`, `matchId`, `commandId`, `expectedRevision` を持たせる。セッションとスキーマ・サイズを検証し、`(認証済みsenderId, commandId)` の処理済み記録で重複を抑止。revisionだけでは重複ID対策の代わりにならない。
-4. ホストは席・在室・生存・手番・phase・整数・権限を検証してから `dispatch(state,{...action,player:resolvedSeat,revision:expectedRevision},rng)`。`nextRound` / `rematch` / 開始 / BOT設定はホスト権限とし、参加者の要求だけで勝手に進めない。無効・古い要求は state を変えない。
-5. ホストのみ1つの `NumberBluffScheduler` を使う。BOT callback はセッション・match・revisionを再検証し、退出/再戦/中断時に `cancel()`。クライアント側ではBOTタイマーを動かさない。
-6. ホストの更新はローカル画面へも直接反映する（「他人だけ配信」の場合は自分への受信を待たない）。参加者は認証されたホストからの同一セッション・同一matchの新しいrevisionだけ適用。順番の逆転・二重配送を無視し、欠落時の再同期を設計する。
+UIは認証済み本人席の `viewerId` と固定ホスト席の `hostId` を受け、ホストだけにBOT設定・開始・次ラウンド・再戦・ロビー復帰を許可します。アダプターでも権限を再検証します。ゲストは自分の結果演出をスキップできますが、試合進行は確定できません。退出時に古いアダプターを `close()` し、キャンセルした非同期入室と古い受信コールバックを無効化します。
 
-### 秘匿性の制約 — 安易な「不正防止済み」を禁止
+### 上部除外領域
 
-`publicView(state, viewerId)` は描画用DTOで、本人のカードは null、山順は含めない。**完全stateをそのまま配信してはならない**（山順まで漏れる）。ただし個別配送なしの一斉配信では、受信者別DTOを全員へ配っても他人向けDTOから自分のカードを読める。全員分の現在手札を配信してUIだけで隠す案も同じ問題がある。
+提供仕様の `window.innerHeight >= 812` なら98px、未満なら74pxを、GRAVITY接続時だけ `setViewportInsets` に渡します。OS safe areaとの二重加算を避け、利用可能高さを一か所で計算します。入力フォーカス中はキーボードで高さが縮んでもヘッダー帯を不用意に変更しません。縦横回転、812px境界、キーボード、狭い画面で実機確認してください。
 
-したがって提示SDKの機能だけで「本人のカードが端末に届かない」「チート不能」は保証できない。通常の画面表示上の伏せ札と、通信上の秘密を区別する。暗号学的な手札秘匿が必須なら、SDKで認証済みの個別通信または信頼できる実行基盤が提供されるかを確認してから方針決定する。勝手な暗号プロトコルや外部サーバーで解決済みとしない。ホスト自身も権威stateを保有するため、悪意あるホストに対する公平性は保証しない。
+### 試合終了通知
 
-### レビュー用擬似コード（実SDKコードではない・実行未検証）
+オンライン試合が `finished` となり結果演出が完了した時、各クライアントが `window.parent.postMessage({type:'gameOver',score}, '*')` を部屋ID＋ゲーム番号ごとに一度送ります。スコアは本人が勝者なら1、その他0です。送るのは種別と数値だけで、ユーザー情報や手札は含めません。各ラウンド、中断、重複snapshot、通常ブラウザのオフライン試合では送りません。親側がこの値と通知単位を期待しているか確認してください。
 
-```text
-onTransportEvent(verifiedEvent):
-  reject malformed / oversized JSON
-  if authoritativeHost and event is ACTION:
-    sender = verifiedEvent.authenticatedSenderId  // SDK実機で保証を確認
-    seat = admittedSeats.get(sender)               // payload.playerを使わない
-    check session, match, commandId, exact expectedRevision
-    check membership, seat, phase, turn and host-only operations
-    if command already processed: return same acknowledgement, do not apply again
-    next = NumberBluff.dispatch(state, resolvedAction, hostRng)
-    if next === state: reject without mutation
-    remember command; state = next
-    render NumberBluff.publicView(state, hostSeat)
-    broadcast approved snapshot policy (never deck order; privacy limitation above)
-    schedule at most one BOT with captured session/match/revision
-  else if event is SNAPSHOT:
-    accept only authenticated current host, correct session/match, newer revision
-    render locally sanitized viewer DTO; never run engine/BOT transitions
-```
+## 通信・切断の実装方針
 
-`onTransportEvent`, `authenticatedSenderId`, ACK、snapshot は設計上の仮名。実際のSDKに存在するAPIとは主張しない。SDKメッセージハンドラーと本体の間に薄い通信アダプターを作り、純粋エンジンへSDK依存を混ぜない。
+詳細は [GRAVITY_ADAPTER.md](GRAVITY_ADAPTER.md) とテストが正本です。
 
-## 入退室・通信断の推奨方針（提案、未確定仕様）
+- ホストだけが非公開state、山、乱数、BOTとルール遷移を実行します。参加者は表示と操作要求のみです。
+- 部屋、固定ホスト、epoch、送信者、連番、revision、席・手番・権限、JSONの形と長さを検証します。重複・古い要求を再実行しません。
+- 現在の既定は5秒のheartbeat、30秒の無応答timeoutです。仮の運用値であり、SDK頻度制限とスマホのバックグラウンド停止時間を実機で調整してください。
+- ゲストの退出またはtimeoutで、進行中の試合は勝利を付けず終了し、残ったメンバーを同じルームのロビーへ戻します。勝手なBOT化、手番スキップ、ライフ減算はしません。
+- ホスト喪失では入力を停止して理由を表示します。自動ホスト移譲は行わず、再参加または新規作成が必要です。
+- 復帰時に再同期し、同じIDの再参加や古い退出メッセージを検証します。SDKネイティブ退出・受信解除のAPIは未確認です。ローカルのcloseと世代フェンスは、ネイティブ部屋からの退出を保証しません。
+- 途中参加者はロビーまで待機します。ロビー満員時はBOT席を1つ置き換え、8人の実ユーザーがいる場合は追加席を作りません。
 
-- ロビーで入場済みメンバーと席対応を同期。ゲーム途中の新規参加は観戦または次ゲームまで待機とする案。途中参加で山・手札を作り直さない。
-- 一時切断は入力を止め、再接続がSDKで保証される場合に同じユーザーの席を再利用して最新状態を同期。復帰期限・退出判定は実機仕様に基づき決める。無期限に無言で手番停止させない。
-- ホスト退出時は **対戦を中断し勝者・勝数を作らずロビー/案内へ戻す** 方針を推奨。自動ホスト移譲は別途検証・設計しない限り行わない。
-- 画面終了・部屋退出・再接続時の受信解除とタイマー解除を実APIで検証する。登録が二重にならないこと。部屋終了時に勝数は終了し、永続保存や架空のランキングを表示しない。
+### 一斉配信の秘匿制約
 
-## AI Studio / GRAVITY での受入試験
+山順・将来のカード・乱数は配信しません。ただし一斉配信のsnapshotには現在の場のカードが含まれ、各端末のUIが本人のカードだけ伏せます。通信を解析すれば本人のカードを読めます。ホスト自身も手札を知っています。**「本人のカードが端末に届かない」「不正防止済み」「チート不能」とは説明しないでください。** 独自暗号や外部サーバーで解決済みと扱わないでください。
 
-- 実アカウント2台で作成→ID参加→同じ部屋/席/手番/結果/再戦が一致。3人以上、人間+BOT合計8席、9席目拒否、BOT追加/削除の権限制御。
-- 同時押下、再送、古いrevision、他人のplayer指定、非ホストsnapshot、巨大/壊れたJSON、部屋違い、前のmatchの遅延メッセージを拒否。
-- 一斉配送が自分へ届かなくてもホストが進む。ホストのBOT遷移1回だけ。複数端末がBOTを重複実行しない。
-- 特殊4種と同値判定、負の合計、脱落・次手番、1勝だけ加算、再戦で部屋勝数保持。全36枚の保存則。
-- 参加者退出・ホスト退出・一時切断・再接続・画面閉じ戻り・二重ハンドラー・回線遅延を試験。中断時に偽の勝者が出ない。
-- GRAVITY音声ルームとの併用、縦画面/狭い端末、safe area、タップ、入力フォーカス、音声許可を奪わないこと、背景復帰、画像/フォント読込失敗を確認。
-- 外部画像とフォントが実URLで200になることを確認。ローカルの素材存在やHTMLビルド成功は公開配信確認の代わりにならない。
-- 実際に通った試験・未実施・失敗・既知の秘匿制約を記録してから納品。通信未接続の単体HTMLを「マルチプレイ完成」と呼ばない。
+## AI Studioに渡す依頼文
+
+> 添付の単一HTMLには、提供いただいたAgentSDK仕様に沿う通信アダプターとGRAVITY画面連携を実装済みです。全体の作り直しではなく、実際のSDKでのAPI・フィールド・イベント・ホスト識別を確認し、実端末で最終調整してください。SDKが遅れて注入される場合は、その完了時点でNumberBluffPlatform.start()を呼んでください。
+>
+> 「ゲームをはじめる」はルーム作成→参加待ち、「ルームに参加」はID参加だけです。人間にはGRAVITYプロフィールを使い、BOTは任意追加です。ホーム設定や動き設定を追加せず、参考に沿ったカード・画面・段階的結果演出を維持してください。招待はロビーだけで表示してください。
+>
+> 36枚ルールとBOT情報制限は変更しないでください。実アカウント2台以上で作成、参加、宣言、チャレンジ、結果、再戦、退出、バックグラウンド復帰を確認してください。特にuser_list[0]が作成者か、portrait／portaitの実値、上部74／98px、試合単位のgameOver通知、ネイティブ退出・招待・受信解除を確認してください。実際に通った試験と未確認事項を分けて報告し、模擬テストだけで「GRAVITY完成」としないでください。
+
+## 実機の受入確認
+
+1. 2台以上で同じ部屋・席・手番・結果・再戦が一致し、人間＋BOT8席、満員、ホスト権限を確認する。
+2. 特殊4種、同値・負の合計、脱落、勝数の一度加算と同一ルーム再戦を確認する。
+3. 二重押下・遅延・古いrevision・壊れたJSON・偽の主体を受けても状態が破損せず、BOTが複数端末で実行されないことを確認する。
+4. ホスト・ゲスト退出、タスクキル、復帰、再参加、入室途中の取消、二重リスナーで停止・再同期・案内が適切なことを確認する。
+5. 320px級から大画面、全ページ、8席、上部除外、入力キーボードで見切れとタップ不可を確認する。図鑑を招待ボタンで覆わないこと。
+6. カード公開と計算の順序・テンポ、宣言者の表示、結果前に勝敗を漏らさないこと、スキップ・次進行の二重操作を確認する。
+7. 実URLの画像・フォント取得と、親へのgameOverが試合ごとに一度だけであることを確認する。
+8. SDKの無料枠・配信制限は未確認として扱う。永続ランキングや無制限無料を保証しない。
