@@ -81,6 +81,21 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
 @media(max-width:350px){.bid-panel{grid-template-rows:10px 22px 10px;grid-template-columns:32px minmax(0,1fr);column-gap:6px}.bid-panel #bidActor .avatar{width:30px;height:30px}}
 /* Keep catalogue counts readable where the cloud artwork is brightest. */
 #guideContent[data-tab="cards"]{background:#0b1c40d9;border-radius:12px}
+/* BOT information stays legible above the bright lower cloud bank. */
+#guideContent[data-tab="bots"]>p{background:#0b1c40e8;border-radius:10px;padding:9px 10px;color:#fff4e2}
+/* Landscape keeps the table beside the controls instead of squeezing it above them. */
+@media(min-width:650px) and (max-height:500px){
+ main{max-width:850px}
+ #battleScreen:not(.is-result){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:44px 18px minmax(0,1fr);column-gap:12px;row-gap:4px;min-height:300px}
+ #battleScreen:not(.is-result)>.topbar{grid-column:1;grid-row:1;margin:0}
+ #battleScreen:not(.is-result)>.battle-meta{grid-column:1;grid-row:2;margin:0;min-height:18px}
+ #battleScreen:not(.is-result)>.battle-grid{grid-column:1;grid-row:3;align-self:stretch;margin-bottom:0;height:100%;max-height:100%}
+ #battleScreen:not(.is-result)>#gamePanel{grid-column:2;grid-row:1/4;align-self:center;min-width:0}
+ #battleScreen:not(.is-result) .bid-panel{height:48px;min-height:48px;margin:0 auto 6px;grid-template-rows:10px 22px 10px;padding:2px 9px}
+ #battleScreen:not(.is-result) .bid-panel strong{font-size:24px;line-height:22px}
+ #battleScreen:not(.is-result) .input-console{padding:6px}
+ #battleScreen:not(.is-result) .keypad{gap:3px}
+}
 
 </style><style>
 /* This layer sits above the static sky, below main (position:relative; z-index:1).
@@ -185,8 +200,8 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
 
 </style></head><body><main>
 <section id="homeScreen" class="screen home"><div class="hanging-stars" aria-hidden="true">✦　　　　　✧　　　　　✦</div><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""><span class="hero-copy">数字で<br>だませる？<br>それとも<br>見抜ける？</span></div><div class="home-actions"><button id="startGame" data-intent="createRoom" class="pill gold">ゲームをはじめる <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button><button id="homeCards"><b aria-hidden="true">▤</b><span class="icon-caption">カード図鑑</span></button></nav></section>
-<section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><button id="lobbyBack" class="circle" aria-label="ホームへ戻る">‹</button><h1>ナンバーブラフ<small>NUMBER BLUFF</small></h1><button class="circle settings-open" aria-label="設定">⚙</button></header><h2 class="room-line">ルームロビー</h2><p id="roomIdentity" class="room-identity hide"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button></section>
-<section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">‹</button><h1 id="battleTitle">ナンバーブラフ<small>NUMBER BLUFF</small></h1><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><div class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></div><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" tabindex="0" aria-label="プレイヤーとカード（上下にスクロール）"></div><section id="gamePanel"><div class="bid-panel glass"><div id="bidActor" aria-hidden="true"></div><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" class="sr-only" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><div class="declare-region gold"><label class="sr-only" for="number">宣言する数字</label><input id="number" type="text" inputmode="none" autocomplete="off" spellcheck="false" aria-describedby="inputHint inputError"><button id="declare">宣言</button></div><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="sr-only">前より大きな0以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><div id="resultAnnouncement" class="sr-only" role="status" aria-live="polite"></div><section id="result" class="hide"><h2 id="resultTitle" class="sr-only" tabindex="-1">ラウンド結果</h2><div id="resultCards" class="hide" aria-hidden="true"></div><section class="calculation glass" aria-live="off"><div><h3 id="calculationHeading">計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span id="totalLabel">最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><div id="resultAvatar" aria-hidden="true"></div><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button><button id="restartBtn" class="subtle">ロビーで設定を変更</button></section></section>
+<section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><button id="lobbyBack" class="circle" aria-label="ホームへ戻る">‹</button><h1>ナンバーブラフ<small>NUMBER BLUFF</small></h1><button class="circle settings-open" aria-label="設定">⚙</button></header><h2 class="room-line">ルームロビー</h2><p id="roomIdentity" class="room-identity hide"></p><p id="onlineLobbyStatus" class="room-status hide" role="status" aria-live="polite"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button></section>
+<section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">‹</button><h1 id="battleTitle">ナンバーブラフ<small>NUMBER BLUFF</small></h1><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><div class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></div><p id="onlineBattleStatus" class="room-status hide" role="status" aria-live="polite"></p><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" tabindex="0" aria-label="プレイヤーとカード（上下にスクロール）"></div><section id="gamePanel"><div class="bid-panel glass"><div id="bidActor" aria-hidden="true"></div><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" class="sr-only" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><div class="declare-region gold"><label class="sr-only" for="number">宣言する数字</label><input id="number" type="text" inputmode="none" autocomplete="off" spellcheck="false" aria-describedby="inputHint inputError"><button id="declare">宣言</button></div><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="sr-only">前より大きな0以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><div id="resultAnnouncement" class="sr-only" role="status" aria-live="polite"></div><section id="result" class="hide"><h2 id="resultTitle" class="sr-only" tabindex="-1">ラウンド結果</h2><div id="resultCards" class="hide" aria-hidden="true"></div><section class="calculation glass" aria-live="off"><div><h3 id="calculationHeading">計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span id="totalLabel">最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><div id="resultAvatar" aria-hidden="true"></div><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button><button id="restartBtn" class="subtle">ロビーで設定を変更</button></section></section>
 <section id="guidePanel" class="screen hide" aria-label="ゲームガイド"><header class="topbar"><button id="closeGuide" class="circle" aria-label="ガイドを閉じる">‹</button><h1 id="guideTitle">遊び方</h1><span class="circle decorative" aria-hidden="true">✦</span></header><div class="guide-tabs" role="tablist" aria-label="ガイド"><button data-tab="rules" role="tab">遊び方</button><button data-tab="cards" role="tab">カード図鑑</button><button data-tab="bots" role="tab">BOT</button><button data-tab="examples" role="tab">計算例</button></div><article id="guideContent" tabindex="-1"></article><dialog id="cardDetail"><button id="closeCardDetail" class="circle" aria-label="カード詳細を閉じる">×</button><div id="cardDetailContent"></div></dialog></section>
 <section id="settingsPanel" class="screen hide" aria-labelledby="settingsTitle"><header class="topbar"><button id="closeSettings" class="circle" aria-label="設定を閉じる">‹</button><h1 id="settingsTitle">設定</h1></header><div class="cream settings"><label><span>効果音<small>宣言・判定時の短い音</small></span><input id="soundToggle" type="checkbox"></label></div></section>
 <section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><button id="closeJoin" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="joinTitle">ルームに参加</h1></header><form id="joinForm" class="join-form glass"><label class="sr-only" for="roomId">ルームID</label><input id="roomId" name="roomId" placeholder="ルームID" autocomplete="off" maxlength="64" required><button id="joinRoom" data-intent="joinRoom" class="pill blue" type="submit">参加する</button><p id="roomJoinStatus" class="room-status" role="status" aria-live="polite"></p></form></section>
@@ -525,7 +540,9 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
 (() => {
   'use strict';
   const G = window.NumberBluff, timer = window.NumberBluffScheduler(), $ = id => document.getElementById(id);
-  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false;
+  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
+  const matchListeners = new Set();
+  let connectionBlocked = false, connectionMessage = '';
   const screenListeners = new Set(), screenNames = { homeScreen: 'home', lobbyScreen: 'lobby', battleScreen: 'battle', guidePanel: 'guide', settingsPanel: 'settings', joinPanel: 'join' };
   const updateViewport = () => document.documentElement.style.setProperty('--nb-viewport-height', (window.visualViewport?.height || window.innerHeight) + 'px');
   window.addEventListener('resize', updateViewport); window.visualViewport?.addEventListener('resize', updateViewport); updateViewport();
@@ -624,7 +641,9 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
   function detachTransport() {
     cancelPresentation(); presentationKey = null; roomEpoch++;
     if (typeof unsubscribe === 'function') unsubscribe();
-    unsubscribe = null; transport = null;
+    unsubscribe = null; const old = transport; transport = null; connectionBlocked = false; connectionMessage = '';
+    if (typeof old?.close === 'function') old.close();
+    paintConnectionStatus();
   }
   async function requestRoom(kind, roomId) {
     const status = $(kind === 'create' ? 'roomCreateStatus' : 'roomJoinStatus');
@@ -633,18 +652,18 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
     const request = ++roomRequest; button.disabled = true; status.textContent = '接続中…';
     try {
       const adapter = await roomActions[kind](...(kind === 'join' ? [roomId] : []));
-      if (request !== roomRequest) return;
+      if (request !== roomRequest) { adapter?.close?.(); return; }
       if (adapter) window.NumberBluffClient.connect(adapter);
-      status.textContent = transport ? '' : '接続待ち';
+      status.textContent = view ? '' : connectionMessage || 'ホストからの情報を待っています…';
     } catch { if (request === roomRequest) status.textContent = '接続できませんでした。もう一度お試しください。'; }
     finally { if (request === roomRequest) button.disabled = false; }
   }
-  function cancelRoomRequest() { ++roomRequest; $('startGame').disabled = false; $('joinRoom').disabled = false; $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = ''; }
+  function cancelRoomRequest() { ++roomRequest; if (cancelRoomOperation) cancelRoomOperation(); $('startGame').disabled = false; $('joinRoom').disabled = false; $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = ''; }
   function createLocalHostRoom() {
     detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: localProfile.name, botCount: 0 }); state.players[0].avatarUrl = localProfile.avatarUrl; avatarChoice = {}; selectedBot = null;
     view = G.publicView(state, human); renderLobby(); show('lobbyScreen');
   }
-  const canManageLobby = () => !transport || (typeof view?.hostId === 'string' && view.hostId === human);
+  const canManageLobby = () => !connectionBlocked && (!transport || (typeof view?.hostId === 'string' && view.hostId === human));
   function lobbyAction(type, details = {}) {
     if (!transport || !canManageLobby()) return;
     $('lobbyError').textContent = '';
@@ -714,7 +733,7 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
     $('resultAvatar').replaceChildren(playerAvatar(f.outcomeVisible ? r.winner || r.loser : r.challenger));
     const loser = view.players.find(p => p.id === r.loser);
     $('resultText').textContent = f.outcomeVisible ? r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') : name(r.challenger) + '「グラビティ！」';
-    $('next').textContent = '結果を見る';
+    $('next').textContent = '結果を見る'; $('next').disabled = connectionBlocked;
   }
   function renderResult() {
     const r = view.result; $('resultCards').replaceChildren(); $('calculationSteps').replaceChildren();
@@ -738,10 +757,13 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
     const loser = view.players.find(p => p.id === r.loser);
     $('resultAvatar').replaceChildren(playerAvatar(r.winner || r.loser));
     $('resultText').textContent = r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') + '　' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum;
-    $('next').textContent = r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›';
+    $('next').textContent = canManageLobby() ? (r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›') : 'ホストの操作を待っています';
+    $('next').disabled = !canManageLobby();
+    if (transport && view.phase === 'finished' && r.winner) for (const listener of matchListeners) { try { listener({ roomId: view.roomId, game: view.game, winner: r.winner, viewerId: human }); } catch {} }
   }
   function renderBattle(previous = null) {
-    const active = view.phase === 'play', yourTurn = active && view.turn === human;
+    const active = view.phase === 'play', yourTurn = active && view.turn === human && !connectionBlocked;
+    $('restartBtn').disabled = !canManageLobby();
     let startPresentation = false;
     if (active) { cancelPresentation(); presentationKey = null; $('resultAnnouncement').textContent = ''; }
     else if (view.result) {
@@ -776,6 +798,7 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
   }
   function receive(next) {
     const previous = view; view = next; clearError();
+    if (connectionMessage === 'ホストからの情報を待っています…') { connectionMessage = ''; paintConnectionStatus(); }
     if (view.phase === 'lobby') { cancelPresentation(); presentationKey = null; renderLobby(); } else renderBattle(previous);
   }
   function apply(next) {
@@ -794,7 +817,8 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
     return true;
   }
   function action(type, value) {
-    if (!view) return false;
+    if (!view || connectionBlocked) return false;
+    if (transport && ['nextRound', 'rematch', 'returnToLobby'].includes(type) && !canManageLobby()) return false;
     if (transport) { Promise.resolve(transport.send({ type, player: human, value, revision: view.revision })).catch(() => fail('接続を確認して、もう一度お試しください。')); return true; }
     const next = G.dispatch(state, { type, player: human, value, revision: view.revision }, Math.random);
     const changed = apply(next); if (changed) sound(type === 'challenge'); return changed;
@@ -812,7 +836,7 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
     if (value === null || !action('declare', value)) { fail('前より大きな0以上の整数を入力してください（最大9007199254740991）。'); $('number').focus(); }
   };
   $('challenge').onclick = () => action('challenge');
-  $('next').onclick = event => { if (presenter.active) { nextReadyAt = performance.now() + 400; presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
+  $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
   document.querySelectorAll('[data-digit]').forEach(button => { button.onclick = () => {
     if ($('number').disabled) return;
     const prior = suggested ? '' : $('number').value, next = prior === '0' ? button.dataset.digit : prior + button.dataset.digit;
@@ -822,11 +846,11 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
   $('backspace').onclick = () => { if (!$('number').disabled) { $('number').value = $('number').value.slice(0, -1); suggested = false; clearError(); } };
   $('number').addEventListener('input', () => { suggested = false; clearError(); });
   $('number').addEventListener('keydown', event => { if (event.key === 'Enter' && !$('declare').disabled) { event.preventDefault(); $('declare').click(); } });
-  function confirm(intent) { confirmIntent = intent; $('restartTitle').textContent = intent === 'home' ? '対戦を終了してホームへ？' : '対戦を終了してロビーへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = intent === 'home' ? '終了して戻る' : 'ロビーへ戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
+  function confirm(intent) { if (intent === 'lobby' && !canManageLobby()) return; confirmIntent = intent; $('restartTitle').textContent = intent === 'home' ? '対戦を終了してホームへ？' : '対戦を終了してロビーへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = intent === 'home' ? '終了して戻る' : 'ロビーへ戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
   function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); (confirmIntent === 'home' ? $('homeBtn') : $('restartBtn')).focus(); }
   $('homeBtn').onclick = () => confirm('home'); $('restartBtn').onclick = () => confirm('lobby'); $('cancelRestart').onclick = closeConfirm;
   $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); if (confirmIntent === 'home') { detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); } else if (transport) { action('returnToLobby'); } else { apply(G.returnToLobby(state)); show('lobbyScreen', 'beginGame'); } };
-  function overlay(id, trigger) { overlayReturn = { screen, trigger }; show(id); }
+  function overlay(id, trigger) { if (screen === 'homeScreen' || screen === 'joinPanel') cancelRoomRequest(); overlayReturn = { screen, trigger }; show(id); }
   function closeOverlay() { const back = overlayReturn || { screen: 'homeScreen', trigger: $('startGame') }; show(back.screen); back.trigger?.focus(); overlayReturn = null; }
   $('homeRules').onclick = () => { overlay('guidePanel', $('homeRules')); guide('rules'); };
   $('homeCards').onclick = () => { overlay('guidePanel', $('homeCards')); guide('cards'); };
@@ -836,10 +860,10 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
   document.querySelectorAll('.settings-open').forEach(button => { button.onclick = () => openSettings(button); });
   $('closeSettings').onclick = closeOverlay;
   $('soundToggle').onchange = () => { settings.sound = $('soundToggle').checked; saveSettings(); sound(); };
-  document.querySelectorAll('[data-tab]').forEach(button => { button.onclick = () => guide(button.dataset.tab); });
+  document.querySelectorAll('.guide-tabs button[data-tab]').forEach(button => { button.onclick = () => guide(button.dataset.tab); });
   function guide(tab) {
     const container = $('guideContent'); container.replaceChildren(); container.dataset.tab = tab; $('guideTitle').textContent = ({rules:'遊び方',cards:'カード図鑑',bots:'BOTについて',examples:'計算例'})[tab];
-    document.querySelectorAll('[data-tab]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.tab === tab)));
+    document.querySelectorAll('.guide-tabs button[data-tab]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.tab === tab)));
     if (tab === 'rules') {
 
       const steps = [['カードを配る','自分のカードだけ見えません。他の人のカードを見て、全員の合計を予想しよう。'],['数字を宣言','最初は0以上の整数。次の人は、前の宣言より大きな数を宣言します。'],['グラビティ！','直前の宣言が合計を超えていると思ったら、グラビティ！で挑戦。'],['勝敗判定','全カードを公開し、特殊効果を含めて合計。宣言が合計より大きければ宣言者の負け。合計以下なら、疑った側の負け。'],['最後まで生き残ろう','負けるとライフが1減り、0で脱落。最後の1人が優勝！次のラウンドは負けた人から（脱落時は次の生存者）。']];
@@ -895,9 +919,24 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
   document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel' || screen === 'settingsPanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
   window.addEventListener('pagehide', () => { timer.cancel(); cancelPresentation(true); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });
-  // Transport-neutral seam. The caller must provide an authenticated, sanitized public
-  // view stream; no network SDK, room backend, or pretend remote users are included.
+  // The SDK bridge provides the normalized stream; the UI never runs remote authority.
+  function paintConnectionStatus() {
+    for (const id of ['onlineLobbyStatus', 'onlineBattleStatus']) { $(id).textContent = connectionMessage; $(id).classList.toggle('hide', !connectionMessage); }
+  }
   window.NumberBluffClient = Object.freeze({
+    onMatchComplete(listener) {
+      if (typeof listener !== 'function') throw new TypeError('Match listener must be a function.');
+      matchListeners.add(listener); return () => matchListeners.delete(listener);
+    },
+    reportConnectionStatus(event) {
+      const messages = { 'host-lost': 'ホストが退出しました。ホームに戻って参加し直してください。', 'host-timeout': 'ホストとの接続が切れました。ホームに戻って参加し直してください。', 'send-error': '送信できませんでした。接続を確認してください。', 'participant-timeout': '参加者との接続が切れました。', 'player-left-match-abandoned': '参加者が退出したため、対戦を中止してロビーに戻りました。', 'host-session-changed': 'ホストの接続が変わりました。ホームに戻って参加し直してください。', 'session-ended': '接続を終了しました。ホームに戻って参加し直してください。', 'join-waiting': 'ホストからの情報を待っています…', 'room-full': 'このルームは満員です。', 'profile-error': 'GRAVITYのプロフィールを取得できません。再読み込みしてください。' };
+      if (!event || !messages[event.kind]) return;
+      connectionMessage = messages[event.kind];
+      if (['host-lost', 'host-timeout', 'host-session-changed', 'session-ended'].includes(event.kind)) connectionBlocked = true;
+      paintConnectionStatus();
+      if (screen === 'homeScreen' || screen === 'joinPanel' || !transport) { $('roomCreateStatus').textContent = connectionMessage; $('roomJoinStatus').textContent = connectionMessage; }
+      if (view) { if (view.phase === 'lobby') renderLobby(); else renderBattle(); }
+    },
     setViewportInsets(insets) {
       if (!insets || !['top', 'bottom'].every(key => typeof (insets[key] ?? 0) === 'number' && Number.isFinite(insets[key] ?? 0) && (insets[key] ?? 0) >= 0)) throw new TypeError('Insets require finite, nonnegative top/bottom pixel values.');
       for (const key of ['top', 'bottom']) document.documentElement.style.setProperty('--nb-host-' + key, (insets[key] ?? 0) + 'px');
@@ -907,6 +946,7 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
       if (typeof listener !== 'function') throw new TypeError('Screen listener must be a function.');
       screenListeners.add(listener); listener(screenNames[screen]); return () => screenListeners.delete(listener);
     },
+    setRoomRequestCanceler(cancel) { if (cancel !== null && typeof cancel !== 'function') throw new TypeError('Canceler must be a function.'); cancelRoomOperation = cancel; },
     setRoomAdapterExpected(required = true) { roomAdapterExpected = !!required; },
     configureRoomActions(actions) {
       if (!actions || typeof actions.create !== 'function' || typeof actions.join !== 'function') throw new TypeError('Room actions require create() and join(roomId).');
@@ -923,17 +963,318 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
       timer.cancel(); detachTransport(); transport = adapter; state = null; view = null;
       let first = true;
       unsubscribe = adapter.subscribe(publicState => {
+        if (transport !== adapter) return;
         if (!publicState || typeof publicState.viewerId !== 'string' || !Array.isArray(publicState.players) || !publicState.players.some(player => player.id === publicState.viewerId && player.kind === 'human')) {
           throw new TypeError('Adapter public view must identify its authenticated human viewer.');
         }
         human = publicState.viewerId;
+        $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = '';
         receive(publicState);
         if (first || screen === 'lobbyScreen' || (publicState.phase === 'lobby' && screen === 'battleScreen')) { show(publicState.phase === 'lobby' ? 'lobbyScreen' : 'battleScreen'); first = false; }
       });
+      const connection = adapter.getStatus?.(); if (connection?.kind) window.NumberBluffClient.reportConnectionStatus(connection);
     },
     disconnect() { timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); }
   });
   saveSettings();
 })();
+
+</script><script>
+/* AgentSDK bridge. SDK contracts are supplied examples, not live-verified APIs.
+ * Broadcast-only transport exposes current round cards to network inspection.
+ * It NEVER sends the private draw pile or RNG. No cheat-proof secrecy is claimed. */
+(function(root,factory){
+  if(typeof module==='object'&&module.exports) module.exports=factory(require('./engine.js'));
+  else root.NumberBluffGravity=factory(root.NumberBluff);
+})(typeof globalThis==='object'?globalThis:this,function(G){
+  'use strict';
+  const VERSION=1, LIMIT=48000, DIFFICULTIES=['easy','normal','hard'];
+  const clone=x=>JSON.parse(JSON.stringify(x));
+  const id=x=>typeof x==='string'&&x.length>0&&x.length<=128&&!/[\u0000-\u001f]/.test(x);
+  const safeName=x=>typeof x==='string'&&x.trim()?x.trim().slice(0,24):'プレイヤー';
+  function avatar(x){try{const u=new url("https://tanabe0422.github.io/number-bluff/x");return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch{return null;}}
+  const profile=p=>({userId:p.userId,name:safeName(p.name),avatarUrl:avatar(p.avatarUrl)});
+  function createSession(options){
+    const {roomId,userId,hostUserId,sendMessage}=options;
+    if(!id(roomId)||!id(userId)||!id(hostUserId)||typeof sendMessage!=='function')throw new TypeError('Verified room, user, host IDs and sendMessage are required.');
+    const isHost=userId===hostUserId, rng=options.rng||Math.random;
+    const later=options.setTimeout||setTimeout, clear=options.clearTimeout||clearTimeout;
+    const onStatus=typeof options.onStatus==='function'?options.onStatus:()=>{};
+    const members=new Map(), listeners=new Set(), sequences=new Map(), seen=new Map();
+    const now=options.now||Date.now;
+    const heartbeatMs=options.heartbeatMs??5000, timeoutMs=options.timeoutMs??30000;
+    if(!Number.isFinite(heartbeatMs)||heartbeatMs<100||!Number.isFinite(timeoutMs)||timeoutMs<heartbeatMs*3)throw new RangeError('Use a bounded heartbeat and a timeout of at least three intervals.');
+    let heartbeatTimer=null,lastHostSeen=now();
+    let state=null, latest=null, closed=false, hostLost=false, timer=null, generation=0;
+    let epoch=isHost?(options.epoch||String(Date.now())+'-'+String(Math.random()).slice(2)):null;
+    let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, scheduledRevision=null;
+    let lastStatus=null;
+    const status=(kind,detail={})=>{lastStatus={kind,...detail};onStatus({...lastStatus});};
+    function cancel(){scheduledRevision=null;generation++;if(timer!==null)clear(timer);timer=null;}
+    function emit(v){if(latest&&latest.revision===v.revision)return;latest=v;for(const fn of listeners)fn(clone(v));}
+    function transmit(body){
+      if(closed||hostLost)return Promise.resolve(false);
+      const message=JSON.stringify({protocol:'number-bluff',version:VERSION,roomId,epoch,...body});
+      if(message.length>LIMIT)throw new RangeError('Room message exceeds protocol limit.');
+      return Promise.resolve(sendMessage(message)).catch(error=>{status('send-error');throw error;});
+    }
+    function seatFor(uid){return state?.players.find(p=>p.userId===uid);}
+    function localize(wire){
+      const me=wire.players.find(p=>p.userId===userId&&p.kind==='human');
+      if(!me)return null;
+      const v=clone(wire);v.viewerId=me.id;v.players=v.players.map(p=>({...p,avatarUrl:avatar(p.avatarUrl)}));
+      if(v.phase==='play')v.hands[me.id]=null;
+      return v;
+    }
+    function scheduleBot(){
+      if(timer!==null&&scheduledRevision===state.revision)return;
+      cancel();if(!isHost||closed||hostLost||state.phase!=='play')return;
+      const bot=state.players.find(p=>p.id===state.turn);if(bot?.kind!=='bot')return;
+      const rev=state.revision,ticket=generation;scheduledRevision=rev;
+      timer=later(()=>{timer=null;if(closed||hostLost||ticket!==generation||state.revision!==rev)return;
+        const action=G.chooseBotAction(G.botView(state,bot.id),rng);
+        if(action){const next=G.dispatch(state,{...action,player:bot.id,revision:rev},rng);if(next!==state){state=next;publish();}}
+      },options.botDelay??650);
+    }
+    function publish(reason){
+      G.assertInvariant(state);
+      const wire={...G.publicView(state,'__broadcast__'),hostId:state.players[0].id,roomId};delete wire.viewerId;wire.history=wire.history.slice(-100);
+      const own=localize(wire);if(own)emit(own);
+      void transmit({type:'snapshot',sequence:++hostSequence,view:wire,reason:reason||null}).catch(()=>{});
+      if(reason)status(reason);scheduleBot();
+    }
+    function addMember(raw){
+      if(closed||!raw||!id(raw.userId))return false;
+      const p=profile(raw);members.set(p.userId,p);seen.set(p.userId,now());
+      if(!isHost||p.userId===hostUserId)return true;
+      const existing=seatFor(p.userId);
+      if(existing){sequences.delete(p.userId);state={...state,revision:state.revision+1,players:state.players.map(x=>x.id===existing.id?{...x,name:p.name,avatarUrl:p.avatarUrl}:x)};publish();return true;}
+      if(state.phase!=='lobby'){status('join-waiting',{userId:p.userId});return false;}
+      if(state.players.length>=8){const bot=state.players.find(x=>x.kind==='bot');if(bot)state=G.removeBot(state,bot.id);else {status('room-full');return false;}}
+      const next=G.addBot(state);const added=next.players.find(x=>!state.players.some(y=>x.id===y.id));
+      state={...next,players:next.players.map(x=>x.id===added.id?{...x,kind:'human',difficulty:null,...p}:x)};
+      publish();return true;
+    }
+    function removeMember(uid){
+      if(closed)return false;
+      if(uid===hostUserId){hostLost=true;cancel();stopHeartbeat();status('host-lost');return true;}
+      if(!members.has(uid))return false;members.delete(uid);seen.delete(uid);sequences.delete(uid);
+      if(!isHost)return true;
+      const seat=seatFor(uid);if(!seat)return true;
+      const active=state.phase!=='lobby';
+      // Explicit abandonment policy: no fabricated move, life loss, bot takeover or win.
+      if(active)state=G.returnToLobby(state);
+      state={...state,revision:state.revision+1,players:state.players.filter(p=>p.id!==seat.id)};
+      publish(active?'player-left-match-abandoned':'player-left');return true;
+    }
+    function processAction(sender,action){
+      if(!isHost||closed||hostLost||!members.has(sender)||!action||typeof action!=='object')return false;
+      const actor=seatFor(sender);if(!actor||actor.kind!=='human'||action.player!==actor.id||action.revision!==state.revision)return false;
+      const manages=sender===hostUserId;let next=state;
+      switch(action.type){
+        case 'declare': case 'challenge': next=G.dispatch(state,{type:action.type,player:actor.id,value:action.value,revision:state.revision},rng);break;
+        case 'nextRound': if(manages)next=G.nextRound(state,rng);break;
+        case 'rematch': if(manages)next=G.rematch(state,rng);break;
+        case 'returnToLobby': if(manages)next=G.returnToLobby(state);break;
+        case 'startGame': if(manages)next=G.startGame(state,rng);break;
+        case 'addBot': if(manages)next=G.addBot(state,action.difficulty||'normal');break;
+        case 'removeBot': if(manages)next=G.removeBot(state,action.target);break;
+        case 'setDifficulty': if(manages)next=G.setDifficulty(state,action.target,action.difficulty);break;
+        case 'setBotAvatar': if(manages&&state.phase==='lobby'&&Number.isInteger(action.avatar)&&action.avatar>=0&&action.avatar<4&&state.players.some(p=>p.id===action.target&&p.kind==='bot'))next={...state,revision:state.revision+1,players:state.players.map(p=>p.id===action.target?{...p,botAvatar:action.avatar}:p)};break;
+      }
+      if(next===state)return false;state=next;publish();return true;
+    }
+    function validSnapshot(v){
+      if(!v||!['lobby','play','reveal','finished'].includes(v.phase)||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.players)||v.players.length<1||v.players.length>8)return false;
+      if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;
+      if(new Set(v.players.map(p=>p?.id)).size!==v.players.length)return false;
+      if(v.players.some(p=>!p||typeof p!=='object'||!/^p[1-8]$/.test(p.id)||!['human','bot'].includes(p.kind)||typeof p.name!=='string'||p.name.length>24||!Number.isInteger(p.life)||p.life<0||p.life>3||!Number.isSafeInteger(p.wins)||p.wins<0))return false;
+      if(!v.hands||typeof v.hands!=='object'||!Array.isArray(v.discard)||v.discard.length>36||!Array.isArray(v.history)||v.history.length>1000)return false;
+      const validCard=c=>c===null||(typeof c==='object'&&G.FULL_DECK.some(x=>x.id===c?.id&&x.kind===c.kind&&x.value===c.value&&x.label===c.label));
+      const seat=x=>v.players.some(p=>p.id===x),optionalSeat=x=>x===null||seat(x);
+      if(!Number.isSafeInteger(v.game)||v.game<0||!Number.isSafeInteger(v.round)||v.round<0||!Number.isInteger(v.deckCount)||v.deckCount<0||v.deckCount>36)return false;
+      if(v.bid!==null&&(!Number.isSafeInteger(v.bid)||v.bid<0))return false;
+      if(!optionalSeat(v.turn)||!optionalSeat(v.last)||!optionalSeat(v.starter))return false;
+      if(v.players.some(p=>p.kind==='human'&&!id(p.userId)))return false;
+      if(!Object.entries(v.hands).every(([key,c])=>seat(key)&&validCard(c))||!v.discard.every(c=>c!==null&&validCard(c)))return false;
+      if(!v.history.every(a=>a&&typeof a==='object'&&seat(a.player)&&(['declare','challenge'].includes(a.type))&&(a.type!=='declare'||Number.isSafeInteger(a.value)&&a.value>=0)))return false;
+      if(v.phase==='reveal'||v.phase==='finished'){
+        const r=v.result;if(!r||typeof r!=='object'||!r.cards||typeof r.cards!=='object'||!Object.entries(r.cards).every(([key,c])=>seat(key)&&c!==null&&validCard(c)))return false;
+        if(!validCard(r.extraCard)||!validCard(r.removedCard)||![r.sum,r.baseSum,r.bid].every(Number.isSafeInteger)||![1,2].includes(r.multiplier)||typeof r.reset!=='boolean')return false;
+        if(![r.loser,r.challenger,r.bidder].every(seat)||!optionalSeat(r.winner))return false;
+      }else if(v.result!==null)return false;
+      return true;
+    }
+    function receive(sender,raw){
+      // sender MUST come from SDK envelope data.user_id, never from message JSON.
+      if(closed||hostLost||!id(sender)||typeof raw!=='string'||raw.length>LIMIT)return false;
+      let message;try{message=JSON.parse(raw);}catch{return false;}
+      if(!message||message.protocol!=='number-bluff'||message.version!==VERSION||message.roomId!==roomId)return false;
+      if(message.type==='bye'){
+        if(sender!==hostUserId&&(!isHost||!members.has(sender)))return false;
+        if(message.epoch!==epoch)return false;
+        if(sender!==hostUserId&&message.revision!==state.revision)return false;
+        return removeMember(sender);
+      }
+      if(message.type==='hello'||message.type==='resync'||message.type==='ping'){
+        if(!isHost||!members.has(sender))return false;seen.set(sender,now());
+        if(!seatFor(sender)&&state.phase==='lobby')addMember(members.get(sender));else if(message.type!=='ping')publish();return true;
+      }
+      if(message.type==='snapshot'){
+        if(isHost||sender!==hostUserId||!id(message.epoch)||!Number.isSafeInteger(message.sequence)||message.sequence<=acceptedHostSequence||!validSnapshot(message.view))return false;
+        if(epoch!==null&&epoch!==message.epoch){status('host-session-changed');return false;}
+        if(latest&&message.view.revision<latest.revision)return false;
+        lastHostSeen=now();
+        const own=localize(message.view);if(!own){status('join-waiting');return false;}
+        lastHostSeen=now();epoch=message.epoch;acceptedHostSequence=message.sequence;emit(own);if(message.reason)status(message.reason);return true;
+      }
+      if(message.type==='action'){
+        if(!isHost||message.epoch!==epoch||!members.has(sender)||!Number.isSafeInteger(message.sequence)||message.sequence<=0||message.sequence<=(sequences.get(sender)||0))return false;
+        seen.set(sender,now());
+        if(message.action?.revision!==state.revision){publish();return false;}
+        sequences.set(sender,message.sequence);
+        const accepted=processAction(sender,message.action);if(!accepted)publish();return accepted;
+      }
+      return false;
+    }
+    function stopHeartbeat(){if(heartbeatTimer!==null)clear(heartbeatTimer);heartbeatTimer=null;}
+    function heartbeat(){
+      if(closed||hostLost||options.heartbeat===false)return;
+      heartbeatTimer=later(()=>{heartbeatTimer=null;if(closed||hostLost)return;
+        if(isHost){
+          for(const uid of Array.from(members.keys()))if(uid!==userId&&now()-(seen.get(uid)??now())>=timeoutMs){removeMember(uid);status('participant-timeout',{userId:uid});}
+          publish();
+        }else if(now()-lastHostSeen>=timeoutMs){hostLost=true;cancel();status('host-timeout');return;}
+        else void transmit({type:'ping'}).catch(()=>{});
+        heartbeat();
+      },heartbeatMs);
+      if(typeof heartbeatTimer?.unref==='function')heartbeatTimer.unref();
+    }
+    const self=profile({userId,name:options.name,avatarUrl:options.avatarUrl});members.set(userId,self);
+    if(isHost){state=G.createLobby({name:self.name,botCount:0});state={...state,players:state.players.map(p=>({...p,...self}))};}
+    for(const member of options.members||[])if(member&&id(member.userId)){members.set(member.userId,profile(member));seen.set(member.userId,now());}
+    const adapter={
+      subscribe(fn){if(typeof fn!=='function')throw new TypeError('Listener required');listeners.add(fn);if(latest)fn(clone(latest));return()=>listeners.delete(fn);},
+      send(action){if(closed||hostLost)return Promise.reject(new Error('Room is disconnected.'));if(isHost)return Promise.resolve(processAction(userId,action));if(!epoch)return Promise.reject(new Error('Waiting for host.'));return transmit({type:'action',sequence:++commandSequence,action});},
+      receive,addMember,removeMember,
+      resync(){return isHost?(publish(),Promise.resolve()):transmit({type:'resync'});},
+      close(){if(closed)return;void transmit({type:'bye',revision:latest?.revision}).catch(()=>{});closed=true;cancel();stopHeartbeat();listeners.clear();status('closed');},
+      getStatus(){return {...(lastStatus||{}),roomId,isHost,closed,hostLost,ready:!!latest};}
+    };
+    if(isHost){for(const member of members.values())if(member.userId!==userId)addMember(member);publish();}
+    else void transmit({type:'hello'}).catch(()=>{});
+    heartbeat();
+    return Object.freeze(adapter);
+  }
+
+  async function install({sdk,client,resolveHost,normalizeMember,normalizeProfile,onStatus,rng}={}){
+    if(!sdk?.user?.getMyUserInfo||!sdk?.room?.create||!sdk?.room?.join||!sdk?.room?.receiveMessage||!sdk?.room?.sendMessage)throw new TypeError('AgentSDK user and room methods are required.');
+    if(!client?.configureRoomActions)throw new TypeError('NumberBluffClient is required.');
+    client.setRoomAdapterExpected(true);
+    const own=await sdk.user.getMyUserInfo();if(own?.errno!==0||!id(String(own.data?.user_id||'')))throw new Error('GRAVITY profile unavailable.');
+    const myId=String(own.data.user_id);
+    const supplied=normalizeProfile?normalizeProfile(own.data):{name:own.data.name,avatarUrl:own.data.portrait};
+    const me=profile({userId:myId,...supplied});me.userId=myId;client.configureLocalProfile(me);
+    const member=raw=>{const p=normalizeMember?normalizeMember(raw):{userId:String(raw?.user_id||''),name:raw?.user_name||raw?.name,avatarUrl:raw?.portrait||raw?.portait};return id(p?.userId)?profile(p):null;};
+    let active=null, pending=false, listenerGeneration=0, requestGeneration=0;
+    function handle(payload){
+      if(!active||!payload?.data)return;const data=payload.data,uid=String(data.user_id||'');
+      if(payload.type==='aitools_game_sendmsg')active.receive(uid,data.msg_data);
+      else if(payload.type==='aitools_game_joinroom'){const p=member(data);if(p)active.addMember(p);}
+      else if(payload.type==='aitools_game_exitroom')active.removeMember(uid);
+    }
+    async function enter(kind,requestedId){
+      if(pending)throw new Error('Room request already pending.');pending=true;const request=++requestGeneration;
+      if(active)active.close();active=null;++listenerGeneration;
+      try{
+        if(kind==='join'&&!id(requestedId))throw new TypeError('Room ID required.');
+        const result=await (kind==='create'?sdk.room.create({max_players:8,room_permission:0}):sdk.room.join({room_id:requestedId}));
+        if(request!==requestGeneration)throw new Error('Room request canceled.');
+        if(result?.errno!==0)throw new Error('GRAVITY room request failed.');
+        if(active)active.close();active=null;
+        const buffered=[],generation=++listenerGeneration;
+        // Register synchronously immediately after success, before host resolution awaits.
+        sdk.room.receiveMessage(payload=>{if(generation!==listenerGeneration)return;if(active)handle(payload);else if(buffered.length<64)buffered.push(payload);});
+        const data=result.data||{},roomId=String(data.room_id||requestedId||'');
+        // AI Studio says first user is creator. This ordering is an assumption to verify on-device.
+        // Pin this identity for the session; later roster reorder/host_declare never replaces it.
+        const hostUserId=kind==='create'?myId:String((resolveHost?await resolveHost(data):data.user_list?.[0]?.user_id)||'');
+        if(request!==requestGeneration)throw new Error('Room request canceled.');
+        if(!id(roomId)||!id(hostUserId))throw new Error('Verified room and host IDs are required.');
+        active=createSession({roomId,userId:myId,hostUserId,name:me.name,avatarUrl:me.avatarUrl,rng,onStatus,
+          members:Array.isArray(data.user_list)?data.user_list.map(member).filter(Boolean):[],
+          sendMessage:async message=>{const response=await sdk.room.sendMessage({message});if(response?.errno!==undefined&&response.errno!==0)throw new Error('GRAVITY send failed.');}
+        });for(const payload of buffered)handle(payload);return active;
+      }finally{pending=false;}
+    }
+    client.configureRoomActions({create:()=>enter('create'),join:roomId=>enter('join',roomId)});
+    return Object.freeze({resync:()=>active?.resync(),close:()=>{requestGeneration++;listenerGeneration++;active?.close();active=null;},getSession:()=>active});
+  }
+  return Object.freeze({createSession,install,protocolVersion:VERSION});
+});
+
+</script><script>
+/* GRAVITY platform shell, based on user-provided AI Studio specifications.
+ * Real-device SDK behavior and the user_list host ordering remain unverified. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else {
+    root.NumberBluffPlatform = factory();
+    if (root.AgentSDK) void root.NumberBluffPlatform.start({ window: root }).catch(() => {});
+  }
+})(typeof globalThis === 'object' ? globalThis : this, function () {
+  'use strict';
+  const installations = new WeakMap();
+  function exclusionHeight(height) { return Number.isFinite(height) && height >= 812 ? 98 : 74; }
+  async function start(options = {}) {
+    const win = options.window || globalThis.window, client = options.client || win?.NumberBluffClient;
+    const sdk = options.sdk || win?.AgentSDK, adapter = options.adapter || win?.NumberBluffGravity;
+    if (!win || !client) throw new TypeError('Window and NumberBluffClient are required.');
+    if (!sdk) return null; // An ordinary browser keeps its existing layout and offline mode.
+    if (installations.has(win)) return installations.get(win);
+    client.setRoomAdapterExpected(true);
+    const promise = setup(); installations.set(win, promise);
+    try { return await promise; } catch (error) { installations.delete(win); client.reportConnectionStatus({ kind: 'profile-error' }); throw error; }
+    async function setup() {
+      if (!adapter?.install) throw new TypeError('GRAVITY adapter is required.');
+      let bridge = null, closed = false, top = exclusionHeight(win.innerHeight), lastWidth = win.innerWidth;
+      const sent = new Set();
+      const update = () => {
+        // Keep the native-header band stable while a software keyboard shrinks the viewport.
+        const active = win.document?.activeElement;
+        const widthChanged = win.innerWidth !== lastWidth; lastWidth = win.innerWidth;
+        if (widthChanged || !active || !/^(INPUT|TEXTAREA)$/.test(active.tagName)) top = exclusionHeight(win.innerHeight);
+        client.setViewportInsets({ top, bottom: 0 });
+      };
+      update();
+      bridge = await adapter.install({ sdk, client, onStatus: event => client.reportConnectionStatus(event) });
+      client.setRoomRequestCanceler?.(() => bridge.close());
+      const unsubscribe = client.onMatchComplete(result => {
+        if (closed || !result || typeof result.roomId !== 'string' || !Number.isSafeInteger(result.game) || !result.winner) return;
+        const key = JSON.stringify([result.roomId, result.game]);
+        if (sent.has(key)) return;
+        sent.add(key);
+        // Only a numeric game score is shared with the hosting parent. No identity or cards.
+        const score = result.winner === result.viewerId ? 1 : 0;
+        win.parent.postMessage({ type: 'gameOver', score }, '*');
+      });
+      const resume = () => { if (!closed && !win.document?.hidden) Promise.resolve(bridge.resync()).catch(() => client.reportConnectionStatus({ kind: 'send-error' })); };
+      win.addEventListener('resize', update); win.document?.addEventListener('focusout', update);
+      win.document?.addEventListener('visibilitychange', resume);
+      const pagehide = () => { bridge.close(); client.reportConnectionStatus({ kind: 'session-ended' }); };
+      win.addEventListener('pagehide', pagehide);
+      return Object.freeze({
+        resync: resume,
+        close() {
+          if (closed) return; closed = true; unsubscribe(); bridge.close(); client.setRoomRequestCanceler?.(null);
+          win.removeEventListener('resize', update); win.removeEventListener('pagehide', pagehide);
+          win.document?.removeEventListener('focusout', update); win.document?.removeEventListener('visibilitychange', resume);
+          installations.delete(win);
+        }
+      });
+    }
+  }
+  return Object.freeze({ start, exclusionHeight });
+});
 
 </script></body></html>

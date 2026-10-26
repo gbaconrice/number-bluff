@@ -80,3 +80,18 @@ main{padding-top:var(--nb-top-gap);padding-bottom:var(--nb-bottom-gap)}
 @media(max-width:350px){.bid-panel{grid-template-rows:10px 22px 10px;grid-template-columns:32px minmax(0,1fr);column-gap:6px}.bid-panel #bidActor .avatar{width:30px;height:30px}}
 /* Keep catalogue counts readable where the cloud artwork is brightest. */
 #guideContent[data-tab="cards"]{background:#0b1c40d9;border-radius:12px}
+/* BOT information stays legible above the bright lower cloud bank. */
+#guideContent[data-tab="bots"]>p{background:#0b1c40e8;border-radius:10px;padding:9px 10px;color:#fff4e2}
+/* Landscape keeps the table beside the controls instead of squeezing it above them. */
+@media(min-width:650px) and (max-height:500px){
+ main{max-width:850px}
+ #battleScreen:not(.is-result){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:44px 18px minmax(0,1fr);column-gap:12px;row-gap:4px;min-height:300px}
+ #battleScreen:not(.is-result)>.topbar{grid-column:1;grid-row:1;margin:0}
+ #battleScreen:not(.is-result)>.battle-meta{grid-column:1;grid-row:2;margin:0;min-height:18px}
+ #battleScreen:not(.is-result)>.battle-grid{grid-column:1;grid-row:3;align-self:stretch;margin-bottom:0;height:100%;max-height:100%}
+ #battleScreen:not(.is-result)>#gamePanel{grid-column:2;grid-row:1/4;align-self:center;min-width:0}
+ #battleScreen:not(.is-result) .bid-panel{height:48px;min-height:48px;margin:0 auto 6px;grid-template-rows:10px 22px 10px;padding:2px 9px}
+ #battleScreen:not(.is-result) .bid-panel strong{font-size:24px;line-height:22px}
+ #battleScreen:not(.is-result) .input-console{padding:6px}
+ #battleScreen:not(.is-result) .keypad{gap:3px}
+}

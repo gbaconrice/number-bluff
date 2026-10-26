@@ -11,7 +11,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const output = new URL('../artifacts/', import.meta.url);
 await mkdir(output, { recursive: true });
 const assets = ['celestial-background','star-sprite','moon-cat','cloud-bunny','blue-cloud','hero-platform','cloud-foreground','home-hero','home-logo','celestial-background-v3','card-cream-star','card-pink-bunny','card-gold-cat','card-ice-cloud','card-double','card-max0','card-extra','card-reset'];
-const files = new Map([['/', ['index.html','text/html']], ...['index.html','ai-studio.html','app.js','engine.js','scheduler.js','background-motion.js','card-presentation.js','styles.css','background-motion.css','card-presentation.css'].map(p=>['/'+p,[p,p.endsWith('.html')?'text/html':p.endsWith('.css')?'text/css':'text/javascript']]), ...assets.map(n=>[`/assets/${n}.webp`,[`assets/${n}.webp`,'image/webp']]), ['/assets/title-mochiy.ttf',['assets/title-mochiy.ttf','font/ttf']]]);
+const files = new Map([['/', ['index.html','text/html']], ...['index.html','ai-studio.html','app.js','engine.js','scheduler.js','background-motion.js','card-presentation.js','gravity-room-adapter.js','gravity-platform.js','styles.css','background-motion.css','card-presentation.css'].map(p=>['/'+p,[p,p.endsWith('.html')?'text/html':p.endsWith('.css')?'text/css':'text/javascript']]), ...assets.map(n=>[`/assets/${n}.webp`,[`assets/${n}.webp`,'image/webp']]), ['/assets/title-mochiy.ttf',['assets/title-mochiy.ttf','font/ttf']]]);
 const provenance = await Promise.all([...assets.map(n=>`assets/${n}.webp`),'assets/title-mochiy.ttf'].map(async path=>{const b=await readFile(root+path);return {path,bytes:b.length,sha256:createHash('sha256').update(b).digest('hex')};}));
 await writeFile(new URL('asset-provenance.json',output),JSON.stringify(provenance,null,2));
 const server=http.createServer(async(req,res)=>{const p=new URL(req.url,'http://localhost').pathname;if(p==='/favicon.ico'){res.writeHead(204).end();return;}const f=files.get(p);if(!f){res.writeHead(404).end();return;}try{const b=await readFile(root+f[0]);res.writeHead(200,{'content-type':f[1],'cache-control':'no-store','access-control-allow-origin':'*'}).end(b);}catch{res.writeHead(500).end();}});
@@ -31,7 +31,18 @@ async function shot(page,width,state){
  for(const item of labels){assert.ok(Math.abs((item.label.left+item.label.right-item.card.left-item.card.right)/2)<=1,`${state}: numeric label not centered ${JSON.stringify(item)}`);assert.ok(item.label.top>=item.card.top&&item.label.bottom<=item.card.top+item.card.height*.38+1,`${state}: numeric label outside upper38% slot ${JSON.stringify(item)}`);assert.equal(item.glyphFits,true,`${state}: numeric glyph clipped ${item.text}`);}
  await page.screenshot({path:fileURLToPath(new URL(`${width}-${state}.png`,output)),fullPage:true});
 }
+async function landscapeReachability(page,label,topInset=0){
+ const controls=()=>page.locator('#homeBtn,#rulesBtn,#number,#keypad,#declare,#challenge').evaluateAll(els=>els.map(e=>({id:e.id,...e.getBoundingClientRect().toJSON()})));
+ const before=await controls();for(const r of before)assert.ok(r.top>=topInset&&r.bottom<=390+1&&r.left>=0&&r.right<=844,`landscape action obstructed ${JSON.stringify(r)}`);
+ const grid=page.locator('#playerGrid'),players=page.locator('#playerGrid .battle-player'),reachable=[];
+ for(const player of await players.all()){
+  await player.scrollIntoViewIfNeeded();const item=await player.evaluate(e=>{const card=e.querySelector('.player-card').getBoundingClientRect(),r=e.getBoundingClientRect(),g=document.getElementById('playerGrid').getBoundingClientRect(),name=e.querySelector('.player-name'),a=e.querySelector('.avatar').getBoundingClientRect();return{id:e.dataset.player,player:r.toJSON(),card:card.toJSON(),grid:g.toJSON(),nameSize:parseFloat(getComputedStyle(name).fontSize),avatarWidth:a.width,avatarHeight:a.height,y:scrollY};});
+  assert.ok(item.grid.height>=item.player.height-1,'landscape grid must fit an entire player identity and card, not a thin clipped strip');assert.ok(item.player.top>=item.grid.top-1&&item.player.bottom<=item.grid.bottom+1,`landscape player not fully reachable ${JSON.stringify(item)}`);assert.ok(item.card.width>=48&&item.card.height>=68&&item.nameSize>=10&&item.avatarWidth>=24&&item.avatarHeight>=24,'landscape cards/identity must remain readable');assert.equal(item.y,0,'only landscape player grid may scroll');reachable.push(item);
+ }
+ assert.deepEqual(await controls(),before,'landscape grid scroll must not displace actions');await grid.evaluate(e=>{e.scrollTop=0;});await writeFile(new URL(`${label}-landscape-geometry.json`,output),JSON.stringify({topInset,controls:before,reachable},null,2));
+}
 async function fit(page,width){
+ if(width===844){await landscapeReachability(page,`844-${await page.locator('#playerGrid .battle-player').count()}players`);return;}
  if(width!==320&&width!==390)return;
  assert.equal(await page.locator('#playerGrid').evaluate(e=>e.scrollHeight<=e.clientHeight+1),true,'standard phone must show all player rows without internal clipping/scroll');
  const b=await page.evaluate(()=>({y:scrollY,h:innerHeight,w:innerWidth,items:[...document.querySelectorAll('#playerGrid .player-card,#number,#keypad,#declare,#challenge')].map(e=>({name:e.id||e.parentElement.dataset.player,...JSON.parse(JSON.stringify(e.getBoundingClientRect()))}))}));
@@ -123,7 +134,7 @@ async function finishMatch(page,width,count,label){
  }
  throw Error(`${count}-player match did not terminate within 450 public UI transitions`);
 }
-async function setup(width,packaged=false){
+async function setup(width,packaged=false,initialize=null){
  const context=await browser.newContext({viewport:{width,height:width===320?640:width===844?390:844},serviceWorkers:'block',reducedMotion:'no-preference'});const page=await context.newPage();page.setDefaultTimeout(10_000);page.setDefaultNavigationTimeout(15_000);const errors=[],external=[],mapped=[];
  page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
  await context.route('**/*',async route=>{const u=new URL(route.request().url());if(u.origin===origin)return route.continue();
@@ -134,6 +145,7 @@ async function setup(width,packaged=false){
   window.__audioStarts=0;const proto=window.OscillatorNode?.prototype;if(proto){const start=proto.start;proto.start=function(...a){window.__audioStarts++;return start.apply(this,a);};}
  });
  const time=new Date('2026-01-01T00:00:00Z');await page.clock.install({time});await page.clock.pauseAt(new Date(time.getTime()+1000));
+ if(initialize)await initialize(page,context);
  await page.goto(origin+(packaged?'/ai-studio.html':''));return{context,page,errors,external,mapped};
 }
 try{
@@ -275,9 +287,74 @@ try{
    assert.deepEqual(errors,[]);assert.deepEqual(external,[]);results.push({scenario:'synthetic-adapter-contract-not-network',status:'passed',errors,external});
   }catch(error){results.push({scenario:'synthetic-adapter-contract-not-network',status:'failed',error:String(error.stack),errors,external});}finally{await context.close();}
  }
+ // Two actual browser clients, production adapter/platform, local mock AgentSDK broker.
+ // This verifies the supplied SDK-shaped contract, NOT GRAVITY or network service behavior.
+ {
+  const peers=new Map(),traffic=[],calls=[];let host,guest,releaseJoin,releaseCreate;let delayJoin=false,delayCreate=false;
+  const profiles={host:{user_id:'mock-host',name:'ホスト 花子',portrait:'https://profiles.example.test/avatar.webp'},guest:{user_id:'mock-guest',name:'ゲスト 太郎',portrait:'https://profiles.example.test/avatar.webp'}};
+  const inject=key=>async(page,context)=>{
+   peers.set(key,{page,joined:false});
+   await context.route('https://profiles.example.test/avatar.webp',route=>readFile(root+'assets/star-sprite.webp').then(body=>route.fulfill({contentType:'image/webp',body})));
+   await page.exposeBinding('__mockSdkCall',async(_source,method,args)=>{
+    calls.push({key,method,args});const peer=peers.get(key);
+    if(method==='profile')return{errno:0,data:profiles[key]};
+    if(method==='create'){if(delayCreate)await new Promise(resolve=>{releaseCreate=resolve;});assert.equal(key,'host');assert.deepEqual(args,{max_players:8,room_permission:0});peer.joined=true;return{errno:0,data:{room_id:'MOCK-ROOM',user_list:[profiles.host]}};}
+    if(method==='join'){
+     if(delayJoin)await new Promise(resolve=>{releaseJoin=resolve;});
+     assert.equal(args.room_id,'MOCK-ROOM');peer.joined=true;
+     const event={type:'aitools_game_joinroom',data:{...profiles[key],user_name:profiles[key].name,portait:profiles[key].portrait}};
+     await peers.get('host').page.evaluate(event=>window.__mockReceive?.(event),event);
+     return{errno:0,data:{room_id:'MOCK-ROOM',user_list:[profiles.host,profiles.guest]}};
+    }
+    if(method==='send'){
+     const body=JSON.parse(args.message);traffic.push({key,body});assert.equal('deck' in (body.view||{}),false,'private draw pile must never enter SDK transport');
+     for(const [other,target]of peers)if(other!==key&&target.joined)await target.page.evaluate(event=>window.__mockReceive?.(event),{type:'aitools_game_sendmsg',data:{user_id:profiles[key].user_id,msg_data:args.message}});
+     return{errno:0};
+    }
+    throw Error('Unexpected mock SDK operation '+method);
+   });
+   await page.addInitScript(()=>{
+    window.__gameOverMessages=[];window.addEventListener('message',event=>{if(event.data?.type==='gameOver')window.__gameOverMessages.push(event.data);});
+    window.AgentSDK={user:{getMyUserInfo:()=>window.__mockSdkCall('profile')},room:{create:args=>window.__mockSdkCall('create',args).then(result=>{window.__createCompletions=(window.__createCompletions||0)+1;return result;}),join:args=>window.__mockSdkCall('join',args).then(result=>{window.__joinCompletions=(window.__joinCompletions||0)+1;return result;}),receiveMessage:callback=>{window.__mockReceive=callback;},sendMessage:args=>window.__mockSdkCall('send',args)}};
+   });
+  };
+  try{
+   host=await setup(390,false,inject('host'));guest=await setup(390,false,inject('guest'));
+   const hp=host.page,gp=guest.page;
+   await Promise.all([hp,gp].map(p=>p.evaluate(()=>NumberBluffPlatform.start({window}))));
+   await hp.locator('#startGame').click();await hp.locator('#lobbyScreen').waitFor({state:'visible'});
+   assert.equal(await hp.locator('#lobbyPlayers [data-seat]').count(),1);assert.equal(await hp.locator('#beginGame').isDisabled(),true);assert.equal(await hp.locator('[data-seat="p1"] strong').textContent(),'ホスト 花子');
+   assert.equal(await hp.locator('[data-seat="p1"] img.profile-avatar').getAttribute('src'),profiles.host.portrait);
+   await gp.locator('#joinGame').click();assert.equal(await gp.locator('#joinLocal').count(),0);await gp.locator('#roomId').fill('MOCK-ROOM');await gp.locator('#joinRoom').click();await gp.locator('[data-seat="p2"]').waitFor();await hp.locator('[data-seat="p2"]').waitFor();
+   assert.equal(await gp.locator('#beginGame').isDisabled(),true);assert.equal(await gp.locator('#addBot').isDisabled(),true);assert.equal(await hp.locator('#lobbyPlayers [data-seat]').count(),2);assert.equal(await gp.locator('[data-seat="p2"] strong').textContent(),'ゲスト 太郎');
+   await shot(hp,'mock-sdk','host-lobby');await shot(gp,'mock-sdk','guest-lobby');await hp.locator('#beginGame').click();await gp.locator('#battleScreen').waitFor({state:'visible'});
+   await hp.locator('#rulesBtn').focus();await hp.setViewportSize({width:844,height:390});await hp.waitForTimeout(50);await landscapeReachability(hp,'mock-sdk-native74',74);await shot(hp,'mock-sdk','native74-landscape');await hp.setViewportSize({width:390,height:844});await hp.waitForTimeout(50);
+   assert.equal(await gp.locator('[data-player="p2"] #humanCard').textContent(),'?');assert.equal(await hp.locator('[data-player="p1"] #humanCard').textContent(),'?');assert.equal(await gp.locator('#restartBtn').isDisabled(),true);
+   const nativeTop=await hp.locator('#homeBtn').evaluate(e=>e.getBoundingClientRect().top);assert.ok(nativeTop>=98,'844px native header exclusion must remain clear');
+   for(let round=0;round<3;round++){
+    await hp.locator('#number').fill('999');await hp.locator('#declare').click();await gp.locator('#challenge').click();
+    await gp.locator('#result').waitFor({state:'visible'});assert.equal(await gp.locator('#next').isEnabled(),true,'guest may skip their own presentation');
+    assert.deepEqual(await gp.evaluate(()=>window.__gameOverMessages),[],'no gameOver before final presentation');
+    await gp.locator('#next').click();assert.equal(await gp.locator('#next').isDisabled(),true,'guest cannot advance or rematch');await completePresentation(hp);
+    if(round<2){assert.deepEqual(await hp.evaluate(()=>window.__gameOverMessages),[]);assert.deepEqual(await gp.evaluate(()=>window.__gameOverMessages),[]);await advanceResult(hp);await gp.locator('#gamePanel').waitFor({state:'visible'});}
+   }
+   await hp.waitForFunction(()=>window.__gameOverMessages.length===1);await gp.waitForFunction(()=>window.__gameOverMessages.length===1);
+   assert.deepEqual(await hp.evaluate(()=>window.__gameOverMessages),[{type:'gameOver',score:0}]);assert.deepEqual(await gp.evaluate(()=>window.__gameOverMessages),[{type:'gameOver',score:1}]);
+   await shot(hp,'mock-sdk','host-finished');await shot(gp,'mock-sdk','guest-finished');
+   await hp.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));await hp.clock.runFor(1000);assert.equal(await hp.evaluate(()=>window.__gameOverMessages.length),1,'resync must not duplicate finished score');
+   await exit(gp);const guestSends=traffic.filter(t=>t.key==='guest').length;await gp.clock.runFor(31000);assert.equal(traffic.filter(t=>t.key==='guest').length,guestSends,'home exit must close session heartbeat');assert.equal(await gp.locator('#homeScreen').isVisible(),true);
+   await exit(hp);const hostSends=traffic.filter(t=>t.key==='host').length;await hp.clock.runFor(31000);assert.equal(traffic.filter(t=>t.key==='host').length,hostSends,'host exit must cancel room callbacks');
+   delayCreate=true;await hp.locator('#startGame').click();await hp.locator('#homeCards').click();assert.ok(releaseCreate,'mock create request must be pending');releaseCreate();await hp.waitForFunction(()=>window.__createCompletions===2);await hp.waitForTimeout(50);assert.equal(await hp.locator('#guidePanel').isVisible(),true,'late create must not replace guide');await hp.locator('#closeGuide').click();assert.equal(await hp.locator('#homeScreen').isVisible(),true);const afterLateCreate=traffic.filter(t=>t.key==='host').length;await hp.clock.runFor(31000);assert.equal(traffic.filter(t=>t.key==='host').length,afterLateCreate,'canceled create must not start heartbeat');
+   delayJoin=true;await gp.locator('#joinGame').click();await gp.locator('#roomId').fill('MOCK-ROOM');await gp.locator('#joinRoom').click();await gp.locator('#closeJoin').click();assert.ok(releaseJoin,'mock join request must be pending');releaseJoin();await gp.waitForFunction(()=>window.__joinCompletions===2);await gp.waitForTimeout(50);assert.equal(await gp.locator('#homeScreen').isVisible(),true,'late join must never reopen room');const afterLateJoin=traffic.filter(t=>t.key==='guest').length;await gp.clock.runFor(31000);assert.equal(traffic.filter(t=>t.key==='guest').length,afterLateJoin,'late canceled adapter must not keep heartbeat alive');
+   for(const client of[host,guest]){assert.deepEqual(client.errors,[]);assert.deepEqual(client.external,[]);}
+   await writeFile(new URL('mock-sdk-contract.json',output),JSON.stringify({scope:'local SDK-shaped mock; not actual GRAVITY/network validation',calls,transportCount:traffic.length,gameOver:[{score:0},{score:1}]},null,2));
+   results.push({scenario:'two-page-mock-AgentSDK-not-live-network',status:'passed',transportCount:traffic.length,errors:[],external:[]});
+  }catch(error){results.push({scenario:'two-page-mock-AgentSDK-not-live-network',status:'failed',error:String(error.stack),errors:[...(host?.errors||[]),...(guest?.errors||[])],external:[...(host?.external||[]),...(guest?.external||[])]});for(const[key,peer]of peers)await peer.page.screenshot({path:fileURLToPath(new URL(`mock-sdk-${key}-failure.png`,output)),fullPage:true}).catch(()=>{});}
+  finally{await host?.context.close();await guest?.context.close();}
+ }
  // Real generated single-HTML package: no script/style dependencies, absolute
  // published-asset URLs fulfilled with the exact local asset bytes (not network).
  const {context,page,errors,external,mapped}=await setup(390,true);
  try{assert.equal(await page.locator('script[src],link[rel="stylesheet"]').count(),0);await page.evaluate(async()=>{await document.fonts.load('20px TitleMochiy');await document.fonts.ready;});assert.equal(await page.evaluate(()=>document.fonts.check('20px TitleMochiy')),true);await page.locator('#startGame').click();await begin(page,'package',4);assert.ok(mapped.some(u=>u.endsWith('title-mochiy.ttf')));assert.ok(mapped.some(u=>u.endsWith('star-sprite.webp')));assert.deepEqual(errors,[]);assert.deepEqual(external,[]);results.push({scenario:'single-html',status:'passed',mapped:[...new Set(mapped)],errors,external});}catch(error){results.push({scenario:'single-html',status:'failed',error:String(error.stack),errors,external});}finally{await context.close();}
 }catch(error){results.push({status:'failed',stage:'suite',error:String(error.stack)});}finally{clearTimeout(watchdog);await browser?.close();await new Promise(r=>server.close(r));await writeFile(new URL('results.json',output),JSON.stringify(results,null,2));}
-console.log(JSON.stringify(results,null,2));if(results.length!==9||results.some(r=>r.status!=='passed'))process.exitCode=1;
+console.log(JSON.stringify(results,null,2));if(results.length!==10||results.some(r=>r.status!=='passed'))process.exitCode=1;
