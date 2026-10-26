@@ -1,14 +1,59 @@
-# AI Studio 引き継ぎ — 通信接続と GRAVITY 最適化だけを追加する
+# AI Studio 引き継ぎ — visual-v3 UI更新・既存通信を保持
 
 ## 目的と納品の境界
 
-GitHub 側で36枚ルール・BOT・画面を実装してから、AI Studio に **マルチプレイ通信と GRAVITY 実環境への最適化のみ** を依頼する。24枚デモからゲームを作り直す依頼ではない。既存のルール、絵柄、画面構成、カード計算を維持する。
+GitHub側の36枚ルールを維持し、今回のvisual-v3はフロントエンド・素材・導線の更新として適用する。ユーザーにはAI Studioで通信を組み込んだHTMLがあるが、その最新版は今回の作業者には未提供。**既存のSDK通信・状態同期を保持してUI差分を統合する**。通信部分やゲームエンジンを作り直す依頼ではない。
 
 - 入力: `ai-studio.html`（HTML/CSS/全実行 JavaScript を一体化）。画像・フォントだけを `https://tanabe0422.github.io/number-bluff/assets/` から絶対 URL で読む。
-- 原本: `index.html`, `styles.css`, `engine.js`, `scheduler.js`, `app.js`。修正は原本へ戻し、`node tools/build-single-html.mjs` で再生成する。生成物だけを直して原本と乖離させない。
-- 現状のオンライン参加画面は未接続の案内であり、通信が完成した表示ではない。
+- 原本: `index.html`, `styles.css`, `background-motion.css`, `background-motion.js`, `engine.js`, `scheduler.js`, `app.js`。修正は原本へ戻し、`node tools/build-single-html.mjs` で再生成する。生成物だけを直して原本と乖離させない。
+- この納品ベース自体にSDK通信は含まない。ユーザーの既存AI Studio版の完成度をこのベースから判断しない。対戦中の切断問題は未解決の確認事項であり、実際の最新版HTMLと再現条件を確認するまで修正済みとしない。
 - SDK と実機の動作は未検証。Node テストの成功と、AI Studio / GRAVITY での成功を混同しない。
 - 外部バックエンド、新規アカウント、API キー、外部コード提供をユーザーへ要求しない。SDK の実機仕様が不足する場合は不足点を具体的に報告し、無断で別サービスへ移行しない。
+
+
+## 最新の導線・プロフィール・表示契約（この節を優先）
+
+- ホーム「ゲームをはじめる」= **ホストとしてルームを作成 → 人間の参加待ち**。BOTは任意で追加する。BOT専用スタートや「練習」への分岐に変えない。
+- ホーム「ルームに参加」= **ルームIDを入力して既存ルームへ参加するだけ**。参加画面に新規作成・ローカル練習・BOT戦の別導線を入れない。
+- ホームの設定ボタンは削除。動き/軽減の設定UIは一切追加しない。背景は自動演出し、OSの `prefers-reduced-motion` とページ非表示を内部で尊重する。背景モジュールにゲーム進行を依存させない。
+- 招待UIはロビー内だけ。遊び方・カード図鑑・結果等へ常駐する全画面オーバーレイで覆わない。SDK側の招待オーバーレイがある場合も画面切替時の解除を実APIで確認する。
+- 実在する人間には **GRAVITYプロフィールの名前とアバター** を使う。キャラクターの名前・絵はBOT専用。プロフィール画像が取得できない/読込失敗の場合は中立な人型プレースホルダーにし、BOTへ見せかけない。
+
+### 現行ローカルAPI（SDK APIではない）
+
+```js
+// この3つは納品UI自身のAPI。SDKの呼出し方法を示すコードではない。
+NumberBluffClient.setRoomAdapterExpected(true);
+NumberBluffClient.configureLocalProfile({ name: normalizedName, avatarUrl: normalizedAvatarUrl });
+NumberBluffClient.configureRoomActions({
+  create: async () => existingAdapterCreateRoom(),
+  join: async roomId => existingAdapterJoinRoom(roomId)
+});
+```
+
+`existingAdapterCreateRoom/JoinRoom` は説明用仮名で、SDKにその関数があるとは主張しない。既存SDK層に接続し、返り値を `connect(adapter)` が受け取れるアダプターに正規化する。既存層が自らconnectする場合は二重接続しない。
+
+- `configureRoomActions({create,join})`: 両方関数必須。`create()` / `join(roomId)` はPromise対応。設定すると自動的にSDK接続必須モードになる。SDK初期化開始時点から `setRoomAdapterExpected(true)` を呼び、未準備/失敗時にローカル戦へフォールバックさせない。
+- 素の検証ベースのみ、フック未設定・接続必須でない場合に、ホスト1人+BOT0体のローカル待機ロビーを作る。架空のルームIDを表示しない。これはプラットフォーム上の代替通信ではない。
+- `configureLocalProfile({name,avatarUrl})`: transport接続前、かつ対戦開始前に設定。nameは空白除去後1文字以上、最大24文字へ制限。avatarUrlは資格情報を含まないHTTPS URLだけを採用し、それ以外はnull。SDKにおけるアバターの元フィールド名は未確認なので推測しない。実APIの返答から既存SDK層が正規化する。
+- リモートDTOには認証済み本人席の `viewerId`、人間席の `name` / `avatarUrl`、明示的な `hostId` を含める。viewerIdは実在人間席と一致必須。hostIdが欠落する場合はホスト権限を推定しない。
+- リモートのBOT追加/削除/難易度/見た目/開始は `adapter.send` の `addBot`, `removeBot`（target）, `setDifficulty`（target,difficulty）, `setBotAvatar`（target,avatar）, `startGame` 意図として送る。UIはhostIdで制限するが、**ホスト側も送信者認証と権限を再検証**する。これらは独自コマンド名でありSDKメソッドでも、全てがengine.dispatchへ直接渡せるという意味でもない。アダプターが検証して対応するエンジン操作へ変換する。
+
+### GRAVITY上端の除外領域・viewport
+
+実SDKが提供する `topExclusionHeight` を確認し、その単位、座標系、safe-areaを含むか、変更通知の方法を先に特定する。APIの所属や呼出し形式、px単位とは仮定しない。統合側からUIへ渡す正規化insetフックは、検証済みの **非負有限CSS px値** を受け取る契約として設計し、SDK値をそのままCSSへ差し込まない。既存のviewport調整がある場合はそれを尊重して一か所で合成する。
+
+除外領域がOS safe-areaを包含するならmax、独立なら必要な差分だけ加えるなど、実測に基づき計算する。`env(safe-area-inset-top)` とSDK insetの二重加算は禁止。paddingを加えた上に無調整の `min-height:100dvh` を残して縦方向にはみ出させない。利用可能高さを差し引くかborder-box内で一度だけ確保し、上部UI・下部ボタン・ガイド・招待の非重複を狭い実機で確認する。画面復帰・回転・キーボード表示時も再検証する。この段落は統合要件であり、未提示のSDK APIやinsetフックが実装済みという主張ではない。
+
+## AI Studioにそのまま渡す依頼文
+
+> 添付のvisual-v3単一HTMLはフロントエンド更新用です。あなたが既に組み込んだ最新のSDK・ルーム通信・権威状態同期・認証・入退室処理は保持し、その版へ画面、素材、背景モジュールと下記導線の差分だけを統合してください。未接続ベースで既存通信を上書きしないでください。
+>
+> ホーム「ゲームをはじめる」はホストのルーム作成→参加待ちです。BOTは任意追加。「参加」はID参加だけにし、作成や練習を入れないでください。人間の名前/画像は実GRAVITYプロフィールからname/avatarUrlへ正規化、マスコットはBOT専用です。ホーム設定と動き設定は不要。背景は自動でOSの動き軽減を尊重します。招待UIはロビー内限定で、ガイドを覆わないようにしてください。
+>
+> NumberBluffClientのconfigureRoomActions({create,join})、setRoomAdapterExpected(true)、configureLocalProfileを既存の認証済みSDK層へ結んでください。viewerIdとhostIdを正しく供給し、ホストだけがBOT設定と開始を確定してください。SDK待ち/失敗時にローカル戦へ逃がさないでください。SDK APIやアバターフィールド、topExclusionHeightの単位を推測せず、実環境で確認し、上端の除外領域とsafe-areaを二重加算しないでください。
+>
+> engine.jsの36枚ルール・BOT情報制限・勝敗・部屋勝数は変更しないでください。対戦中の切断問題は残る確認事項です。最新の統合済みHTMLで再現を確認し、既存同期を保ったまま原因と修正を検証してください。未検証で「切断修正済み」「GRAVITY完成」としないでください。単体テスト、複数実端末、作成/参加/ホスト権限/退出/復帰、ガイド中の招待非表示、全画面の余白を分けて検証結果を報告してください。
 
 ## SDK 情報の出所: ユーザー提供回答（公式確認済みではない）
 
@@ -50,7 +95,7 @@ GitHub 側で36枚ルール・BOT・画面を実装してから、AI Studio に 
 
 ## 権威状態とアダプター境界
 
-1. ホストだけが非公開の完全 state、乱数、物理デッキ、BOT、ゲーム遷移を管理する。クライアントは表示と入力要求のみ。`createLobby` は現状「人間1名+BOT」のオフライン生成器であるため、実在の SDK ユーザーを席へ結ぶロビー・入退室層は追加実装が必要。接続済み人間をBOTで偽装しない。
+1. ホストだけが非公開の完全 state、乱数、物理デッキ、BOT、ゲーム遷移を管理する。クライアントは表示と入力要求のみ。`createLobby` は現状「人間1名+BOT」のオフライン生成器であるため、実在の SDK ユーザーを席へ結ぶロビー・入退室層はSDKアダプターの責任（既存統合版にある処理を保持し、不足分だけ補う）。接続済み人間をBOTで偽装しない。
 2. SDK が保証する送信者 `data.user_id` と、ホストが保持する `userId → seatId` の対応で操作主体を決める。JSON 内の `player`, `user_id`, `hostId` は認証根拠にしない。表示名は `textContent` で出し、HTMLとして挿入しない。
 3. 独自プロトコルには `protocolVersion`, `roomSessionId`, `matchId`, `commandId`, `expectedRevision` を持たせる。セッションとスキーマ・サイズを検証し、`(認証済みsenderId, commandId)` の処理済み記録で重複を抑止。revisionだけでは重複ID対策の代わりにならない。
 4. ホストは席・在室・生存・手番・phase・整数・権限を検証してから `dispatch(state,{...action,player:resolvedSeat,revision:expectedRevision},rng)`。`nextRound` / `rematch` / 開始 / BOT設定はホスト権限とし、参加者の要求だけで勝手に進めない。無効・古い要求は state を変えない。

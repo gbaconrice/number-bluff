@@ -1,0 +1,28 @@
+/* Finite, purposeful card gestures. No motion preference control in the app. */
+.presentation-card { position:relative; isolation:isolate; perspective:700px; transform-origin:50% 65%; }
+.presentation-card[data-revealed="false"] { visibility:hidden; }
+.presentation-card.is-revealing { animation:card-reveal 340ms cubic-bezier(.2,.72,.2,1) both; }
+.presentation-card.is-dealing { animation:card-deal 300ms cubic-bezier(.2,.72,.2,1) both; }
+.presentation-card.is-adding { animation:card-contribute 300ms ease-out both; }
+.presentation-card.is-zeroed .card-value { opacity:.28; text-decoration:line-through; }
+.presentation-zero-stamp { position:absolute; z-index:4; right:6%; bottom:12%; padding:3px 9px; border:2px solid #c4fbff; border-radius:8px; background:#133c4e; color:#e6ffff; font-weight:900; transform:rotate(-9deg); animation:zero-stamp 260ms ease-out both; }
+.presentation-extra { animation:extra-draw 340ms ease-out both; }
+.presentation-vortex { pointer-events:none; position:absolute; inset:9%; z-index:-1; border-radius:50%; background:conic-gradient(from 30deg,transparent,#a98cff88,transparent,#74efff77,transparent); filter:blur(7px); animation:galaxy-reveal 650ms ease-out both; }
+#result[data-presentation-phase="multiply"] .final-total,
+#result[data-presentation-phase="multiply"] #finalTotal { animation:total-emphasis 430ms ease-out both; }
+#result[data-presentation-phase="compare"] #finalTotal { animation:total-lock 260ms ease-out both; }
+.presentation-bid-pulse { animation:bid-pulse 380ms ease-out both; }
+.presentation-refresh { animation:deck-refresh 380ms ease-out both; }
+@keyframes card-deal { from {opacity:0;transform:translateY(-12px) rotate(-3deg) scale(.96)} to {opacity:1;transform:none} }
+@keyframes card-reveal { 0% {opacity:.2;transform:rotateY(-85deg) translateY(7px)} 65% {opacity:1;transform:rotateY(7deg) translateY(-3px)} 100% {opacity:1;transform:none} }
+@keyframes card-contribute { 40% {transform:translateY(-7px) scale(1.045);filter:brightness(1.16)} 100% {transform:none;filter:none} }
+@keyframes zero-stamp { from {opacity:0;transform:rotate(-9deg) scale(1.6)} to {opacity:1;transform:rotate(-9deg) scale(1)} }
+@keyframes extra-draw { from {opacity:0;transform:translate(24px,-18px) rotate(8deg) scale(.85)} to {opacity:1;transform:none} }
+@keyframes galaxy-reveal { from {opacity:0;transform:rotate(-120deg) scale(.7)} 40% {opacity:1} to {opacity:.7;transform:rotate(90deg) scale(1.15)} }
+@keyframes total-emphasis { 45% {transform:scale(1.15);text-shadow:0 0 22px #b4a0ff} to {transform:none} }
+@keyframes total-lock { from {opacity:.5;transform:translateY(4px)} to {opacity:1;transform:none} }
+@keyframes bid-pulse { 45% {transform:scale(1.035)} to {transform:none} }
+@keyframes deck-refresh { 45% {opacity:.65;transform:translateY(-4px)} to {opacity:1;transform:none} }
+@media (prefers-reduced-motion:reduce) {
+ .presentation-card,.presentation-zero-stamp,.presentation-extra,.presentation-vortex,.presentation-bid-pulse,.presentation-refresh,#result #finalTotal { animation:none!important;transition:none!important; }
+}

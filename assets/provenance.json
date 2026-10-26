@@ -1,44 +1,103 @@
 {
   "assets": [
     {
+      "file": "blue-cloud.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 62346,
+      "sha256": "ff352e9312c461b0ac73fc86b46361226ad7af7510073cb32a6e940dfcef9b27",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-cream-star.webp",
+      "width": 1051,
+      "height": 1497,
+      "bytes": 289980,
+      "sha256": "66b7bc159358ec085bf002d56ad0a428aff45127d96e1a149cb4b36c955ec50b",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-double.webp",
+      "width": 1051,
+      "height": 1496,
+      "bytes": 576168,
+      "sha256": "30a934fac409ab9794ec0a3ded162a624482bf6b2153974c81d990017287da91",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-extra.webp",
+      "width": 1049,
+      "height": 1500,
+      "bytes": 484230,
+      "sha256": "05b195451d6d2451c17bc7c808e330bd9355514a6b9013d8e1754eb71e63cd57",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-gold-cat.webp",
+      "width": 1062,
+      "height": 1482,
+      "bytes": 318062,
+      "sha256": "62bdca500c7e2f92b758d0a0bbd5bb21ba1fa2285eacbecebe3992124f8b6202",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-ice-cloud.webp",
+      "width": 1060,
+      "height": 1484,
+      "bytes": 286574,
+      "sha256": "22ee7c4d3dcfcac8b1fa0ec133a52c06d0cbe5ab2c2cca8cade11e90a105ad73",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-max0.webp",
+      "width": 1049,
+      "height": 1499,
+      "bytes": 492844,
+      "sha256": "d87557aa91617ff2c06d989c34f2bc838c3651658d9d6369491d6d57fc01fcce",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-pink-bunny.webp",
+      "width": 1062,
+      "height": 1482,
+      "bytes": 313648,
+      "sha256": "8fe3ad2d99139fa3f76d8f850dcb5ccc2f87a9e3413c9924dc619c4eb2fc4041",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-reset.webp",
+      "width": 1062,
+      "height": 1482,
+      "bytes": 317784,
+      "sha256": "99eacc9e011d7d07f02a80b7bd1d4b74e72854a0be50315682c921384aa7b533",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "celestial-background-v3.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 314480,
+      "sha256": "08aede15b79736ad772e38ae78e41442bb66ba7803314ed8d4251c97b10a3a23",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
       "file": "celestial-background.webp",
       "width": 1024,
       "height": 1536,
       "bytes": 131894,
       "sha256": "5ebd6ec51eae7ba640099e823372b28cacf7822af5d4d7ea23da228e28be0caf",
-      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
-      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
-      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
-    },
-    {
-      "file": "hero-platform.webp",
-      "width": 2172,
-      "height": 724,
-      "bytes": 158860,
-      "sha256": "949aa32e071adc24a5a6c058b5dd333eeeb09ad5030da3cf8939813a9dabf388",
-      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
-      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
-      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
-    },
-    {
-      "file": "star-sprite.webp",
-      "width": 1254,
-      "height": 1254,
-      "bytes": 57600,
-      "sha256": "4bc18283591f9e7abbb934456644266dd0210eb7f1806fb5d6e0c401fea0877b",
-      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
-      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
-      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
-    },
-    {
-      "file": "moon-cat.webp",
-      "width": 1254,
-      "height": 1254,
-      "bytes": 104694,
-      "sha256": "5bd5cbaf558809cdb2378e17ce0b00800d16d9302b756086d35313c3004c5589",
-      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
-      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
-      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
     },
     {
       "file": "cloud-bunny.webp",
@@ -46,32 +105,72 @@
       "height": 1254,
       "bytes": 76674,
       "sha256": "bb10edb51103f0f6ae5b2cf9ee84636e138855362da07c3985ef464a9b692f1a",
-      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
-      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
-      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
     },
     {
-      "file": "blue-cloud.webp",
+      "file": "cloud-foreground.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 254496,
+      "sha256": "0ead95e62ffee85d50c70034b6d9bc65f1ae6e392789db49a54fc926ee32eece",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "hero-platform.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 158860,
+      "sha256": "949aa32e071adc24a5a6c058b5dd333eeeb09ad5030da3cf8939813a9dabf388",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "home-hero.webp",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 173246,
+      "sha256": "fa8b9c36f0ae54d06be2f5d5bcd793b77a0bda61206342782933bfa4c46856e4",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "home-logo.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 235118,
+      "sha256": "5517fa065a6bbeca13ef0e0d1fa52610ad95dc33fa9ecaa1a2360e1ff2c3bbda",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "moon-cat.webp",
       "width": 1254,
       "height": 1254,
-      "bytes": 62346,
-      "sha256": "ff352e9312c461b0ac73fc86b46361226ad7af7510073cb32a6e940dfcef9b27",
-      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
-      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
-      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
+      "bytes": 104694,
+      "sha256": "5bd5cbaf558809cdb2378e17ce0b00800d16d9302b756086d35313c3004c5589",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "star-sprite.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 57600,
+      "sha256": "4bc18283591f9e7abbb934456644266dd0210eb7f1806fb5d6e0c401fea0877b",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
     }
   ],
   "font": {
     "file": "title-mochiy.ttf",
-    "family": "Mochiy Pop One",
-    "source": "https://github.com/google/fonts/tree/main/ofl/mochiypopone",
-    "license": "SIL OFL 1.1; OFL-MochiyPopOne.txt included",
-    "subset": "ナンバーブラフ",
-    "sha256": "91e7c4907125ce84a222b590d6978cd211b9374c0c4363519d939b89c91a6f34"
+    "license": "OFL-MochiyPopOne.txt"
   },
   "notes": [
-    "Source reference screenshots are not distributed.",
-    "Numbers, explanation text and interactive controls remain HTML/CSS.",
-    "Original generated PNGs are preserved separately; runtime WebP files are encoded for download size."
+    "Reference screenshots and personal profile images are not distributed.",
+    "Human profile images/names are supplied by the platform; generated character avatars are for BOTs.",
+    "Card numerals and UI instructions remain DOM text; home logo is decorative artwork with accessible title.",
+    "Background movement is automatic and has no in-game motion setting."
   ]
 }

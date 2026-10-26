@@ -10,8 +10,8 @@ import { chromium } from 'playwright';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = new URL('../artifacts/', import.meta.url);
 await mkdir(output, { recursive: true });
-const assets = ['celestial-background','star-sprite','moon-cat','cloud-bunny','blue-cloud','hero-platform'];
-const files = new Map([['/', ['index.html','text/html']], ...['index.html','ai-studio.html','app.js','engine.js','scheduler.js','styles.css'].map(p=>['/'+p,[p,p.endsWith('.html')?'text/html':p.endsWith('.css')?'text/css':'text/javascript']]), ...assets.map(n=>[`/assets/${n}.webp`,[`assets/${n}.webp`,'image/webp']]), ['/assets/title-mochiy.ttf',['assets/title-mochiy.ttf','font/ttf']]]);
+const assets = ['celestial-background','star-sprite','moon-cat','cloud-bunny','blue-cloud','hero-platform','cloud-foreground','home-hero','home-logo','celestial-background-v3','card-cream-star','card-pink-bunny','card-gold-cat','card-ice-cloud','card-double','card-max0','card-extra','card-reset'];
+const files = new Map([['/', ['index.html','text/html']], ...['index.html','ai-studio.html','app.js','engine.js','scheduler.js','background-motion.js','card-presentation.js','styles.css','background-motion.css','card-presentation.css'].map(p=>['/'+p,[p,p.endsWith('.html')?'text/html':p.endsWith('.css')?'text/css':'text/javascript']]), ...assets.map(n=>[`/assets/${n}.webp`,[`assets/${n}.webp`,'image/webp']]), ['/assets/title-mochiy.ttf',['assets/title-mochiy.ttf','font/ttf']]]);
 const provenance = await Promise.all([...assets.map(n=>`assets/${n}.webp`),'assets/title-mochiy.ttf'].map(async path=>{const b=await readFile(root+path);return {path,bytes:b.length,sha256:createHash('sha256').update(b).digest('hex')};}));
 await writeFile(new URL('asset-provenance.json',output),JSON.stringify(provenance,null,2));
 const server=http.createServer(async(req,res)=>{const p=new URL(req.url,'http://localhost').pathname;if(p==='/favicon.ico'){res.writeHead(204).end();return;}const f=files.get(p);if(!f){res.writeHead(404).end();return;}try{const b=await readFile(root+f[0]);res.writeHead(200,{'content-type':f[1],'cache-control':'no-store','access-control-allow-origin':'*'}).end(b);}catch{res.writeHead(500).end();}});
@@ -19,14 +19,21 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin=`http://127.0.0.1:${server.address().port}`,results=[];
 let browser;
 const watchdog=setTimeout(async()=>{results.push({status:'failed',stage:'global-timeout'});await writeFile(new URL('results.json',output),JSON.stringify(results,null,2));process.exit(1);},7*60*1000);watchdog.unref();
+async function settleCardMotion(page){await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>a.playState==='running'&&a.effect?.target?.closest?.('.presentation-card,.presentation-extra,.presentation-zero-stamp,.presentation-vortex,.presentation-bid-pulse,.presentation-refresh,.final-total')).map(a=>a.finished.catch(()=>{})));});}
+async function completePresentation(page){if(await page.locator('#result').getAttribute('data-presentation-phase')!=='complete')await page.clock.runFor(5000);assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'complete');await settleCardMotion(page);}
+async function advanceResult(page){await completePresentation(page);await page.clock.runFor(401);await page.locator('#next').click();}
 async function shot(page,width,state){
+ await settleCardMotion(page);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${state}: horizontal overflow`);
  const controls=await page.locator('button,input').evaluateAll(els=>els.filter(e=>e.getClientRects().length).map(e=>{const target=e.type==='checkbox'?e.closest('label')||e:e;const r=target.getBoundingClientRect();return{id:e.id,name:e.getAttribute('aria-label')||e.labels?.[0]?.textContent||e.textContent.trim(),w:r.width,h:r.height};}));
  for(const c of controls){assert.ok(c.name,`${state}: unlabeled ${c.id}`);assert.ok(c.w>=40&&c.h>=40,`${state}: small touch target ${c.id} ${c.w}x${c.h}`);}
+ const labels=await page.locator('.kind-number .card-value').evaluateAll(els=>els.filter(e=>e.getClientRects().length).map(e=>{const label=e.getBoundingClientRect(),card=e.closest('.player-card').getBoundingClientRect();return{text:e.textContent,label:label.toJSON(),card:card.toJSON(),glyphFits:e.scrollWidth<=e.clientWidth};}));
+ for(const item of labels){assert.ok(Math.abs((item.label.left+item.label.right-item.card.left-item.card.right)/2)<=1,`${state}: numeric label not centered ${JSON.stringify(item)}`);assert.ok(item.label.top>=item.card.top&&item.label.bottom<=item.card.top+item.card.height*.38+1,`${state}: numeric label outside upper38% slot ${JSON.stringify(item)}`);assert.equal(item.glyphFits,true,`${state}: numeric glyph clipped ${item.text}`);}
  await page.screenshot({path:fileURLToPath(new URL(`${width}-${state}.png`,output)),fullPage:true});
 }
 async function fit(page,width){
  if(width!==320&&width!==390)return;
+ assert.equal(await page.locator('#playerGrid').evaluate(e=>e.scrollHeight<=e.clientHeight+1),true,'standard phone must show all player rows without internal clipping/scroll');
  const b=await page.evaluate(()=>({y:scrollY,h:innerHeight,w:innerWidth,items:[...document.querySelectorAll('#playerGrid .player-card,#number,#keypad,#declare,#challenge')].map(e=>({name:e.id||e.parentElement.dataset.player,...JSON.parse(JSON.stringify(e.getBoundingClientRect()))}))}));
  assert.equal(b.y,0,'battle initial scroll must be zero');assert.ok(b.items.length>=6);
  for(const r of b.items)assert.ok(r.width>0&&r.height>0&&r.top>=0&&r.bottom<=b.h&&r.left>=0&&r.right<=b.w,`${width}: ${r.name} outside initial viewport ${JSON.stringify(r)}`);
@@ -41,15 +48,24 @@ async function inverse(page){
  for(const card of await others.all()){assert.ok(!(await card.getAttribute('class')).includes('hidden'));assert.ok((await card.locator('.card-value').textContent()).trim());}
  assert.equal((await page.locator('#calculationSteps').textContent()).trim(),'','stale calculation retained during play');
 }
+async function backgroundChecks(page,width){
+ assert.equal(await page.locator('.nb-background').getAttribute('aria-hidden'),'true');assert.equal(await page.locator('.nb-background').evaluate(e=>getComputedStyle(e).pointerEvents),'none');assert.equal(await page.locator('.nb-background__star').count(),16);assert.equal(await page.locator('.nb-background__clouds').count(),1);assert.equal(await page.locator('.nb-background__shooting-star').count(),1);assert.equal(await page.evaluate(()=>NumberBluffBackground.state.running),true);
+ const snapshot=()=>page.evaluate(()=>({boxes:[...document.querySelectorAll('.home-brand,.home-art img,.home-actions button')].map(e=>e.getBoundingClientRect().toJSON()),cloud:getComputedStyle(document.querySelector('.nb-background__clouds')).transform}));
+ const before=await snapshot();await page.waitForTimeout(1200);const after=await snapshot();assert.deepEqual(after.boxes,before.boxes,'background motion must never move foreground UI');assert.notEqual(after.cloud,before.cloud,'cloud layer must actually animate');
+ await page.evaluate(()=>NumberBluffBackground.setEnabled(false));assert.equal(await page.evaluate(()=>NumberBluffBackground.state.running),false);assert.equal(await page.locator('.nb-background__clouds').evaluate(e=>getComputedStyle(e).animationName),'none');assert.equal(await page.locator('.nb-background__shooting-star').evaluate(e=>getComputedStyle(e).display),'none');
+ await page.evaluate(()=>NumberBluffBackground.setEnabled(true));await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(50);assert.equal(await page.evaluate(()=>NumberBluffBackground.state.running),false);assert.equal(await page.locator('.nb-background__clouds').evaluate(e=>getComputedStyle(e).animationName),'none');await page.emulateMedia({reducedMotion:'no-preference'});await page.waitForTimeout(50);
+ await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));});assert.equal(await page.locator('.nb-background').getAttribute('data-motion'),'paused');assert.equal(await page.locator('.nb-background__clouds').evaluate(e=>getComputedStyle(e).animationPlayState),'paused');await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));});assert.equal(await page.evaluate(()=>NumberBluffBackground.state.running),true);
+ await writeFile(new URL(`${width}-background-motion.json`,output),JSON.stringify({before,after,defaultRunning:true,reducedMotionStatic:true,hiddenPaused:true},null,2));
+}
 async function art(page){
- await page.evaluate(()=>document.fonts.ready);
+ await page.evaluate(async()=>{await document.fonts.load('20px TitleMochiy');await document.fonts.ready;});
  assert.equal(await page.evaluate(()=>document.fonts.check('20px TitleMochiy')),true,'local title font must load');
  const evidence=await page.evaluate(async names=>{
   const evidence=[];for(const name of names){const im=new Image();im.src=`assets/${name}.webp`;await im.decode();const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0);const d=x.getImageData(0,0,c.width,c.height).data;let transparent=0,visible=0;for(let i=3;i<d.length;i+=4){if(d[i]===0)transparent++;if(d[i]>0)visible++;}evidence.push({name,width:c.width,height:c.height,transparent,visible});}
   for(const im of document.querySelectorAll('img'))await im.decode();return evidence;
  },assets);
- for(const a of evidence){assert.ok(a.width>=512&&a.height>=512&&a.visible>0);if(a.name!=='celestial-background')assert.ok(a.transparent>0);}
- const imgs=await page.locator('.home-art img').evaluateAll(els=>els.map(e=>({src:e.getAttribute('src'),fit:getComputedStyle(e).objectFit,left:e.getBoundingClientRect().left,right:e.getBoundingClientRect().right,w:innerWidth})));
+ for(const a of evidence){assert.ok(a.width>=512&&a.height>=512&&a.visible>0);if(!a.name.startsWith('celestial-background'))assert.ok(a.transparent>0);}
+ const imgs=await page.locator('.home-brand,.home-art img').evaluateAll(els=>els.map(e=>({src:e.getAttribute('src'),fit:getComputedStyle(e).objectFit,left:e.getBoundingClientRect().left,right:e.getBoundingClientRect().right,w:innerWidth})));
  for(const i of imgs){assert.equal(i.fit,'contain');assert.ok(i.left>=0&&i.right<=i.w,`home artwork clips horizontally: ${JSON.stringify(i)}`);}
  return evidence;
 }
@@ -59,8 +75,9 @@ async function configure(page,count){
  while(await page.locator('#lobbyPlayers [data-seat]').count()<count)await page.locator('#addBot').click();
  assert.equal(await page.locator('#lobbyPlayers [data-seat]').count(),count);
 }
-async function lobbyConfig(page){return page.locator('#lobbyPlayers [data-seat]').evaluateAll(nodes=>nodes.map(e=>({id:e.dataset.seat,src:e.querySelector('img').getAttribute('src'),name:e.querySelector('strong').textContent,difficulty:(e.querySelector('small').textContent.match(/やさしい|普通|強い/)||[])[0]||null})));}
-async function begin(page,width,count){await configure(page,count);await page.locator('#beginGame').click();assert.equal(await page.locator('#playerGrid [data-player]').count(),count);assert.equal(await page.locator('#declare').isEnabled(),true);await inverse(page);await fit(page,width);await shot(page,width,`battle-${count}`);}
+async function lobbyConfig(page){return page.locator('#lobbyPlayers [data-seat]').evaluateAll(nodes=>nodes.map(e=>({id:e.dataset.seat,src:e.querySelector('.avatar')?.getAttribute('src')||null,name:e.querySelector('strong').textContent,difficulty:(e.querySelector('small').textContent.match(/やさしい|普通|強い/)||[])[0]||null})));}
+async function begin(page,width,count){await configure(page,count);await page.locator('#beginGame').click();assert.equal(await page.locator('#playerGrid [data-player]').count(),count);assert.equal(await page.locator('#declare').isEnabled(),true);await inverse(page);await shot(page,width,`battle-${count}`);if(count===8){const geometry=await page.locator('#playerGrid .battle-player').evaluateAll(nodes=>nodes.map(e=>{const c=e.querySelector('.player-card').getBoundingClientRect(),a=e.querySelector('.avatar').getBoundingClientRect();return{id:e.dataset.player,ratio:c.width/c.height,nameSize:parseFloat(getComputedStyle(e.querySelector('.player-name')).fontSize),avatarWidth:a.width,avatarHeight:a.height};}));await writeFile(new URL(`${width}-eight-geometry.json`,output),JSON.stringify(geometry,null,2));for(const item of geometry){assert.ok(item.ratio>=.68&&item.ratio<=.72,`portrait card ratio ${JSON.stringify(item)}`);assert.ok(item.nameSize>=10&&item.avatarWidth>=24&&item.avatarHeight>=24,`legible player identity ${JSON.stringify(item)}`);}}await fit(page,width);}
+
 async function exit(page,intent='home'){
  await page.locator(intent==='home'?'#homeBtn':'#restartBtn').click();await page.locator('#confirmRestart').click();
  assert.equal(await page.locator(intent==='home'?'#homeScreen':'#lobbyScreen').isVisible(),true);
@@ -73,6 +90,7 @@ async function keypad(page,width){
  await shot(page,width,'keypad-invalid');await page.locator('#number').fill('9007199254740991');await page.locator('[data-digit="9"]').click();assert.equal(await page.locator('#number').inputValue(),'9007199254740991');assert.equal((await page.locator('#bid').textContent()).trim(),'—');
 }
 async function revealCheck(page){
+ await completePresentation(page);
  const total=(await page.locator('#finalTotal').textContent()).trim();assert.match(total,/^-?\d+$/);assert.ok((await page.locator('#calculationSteps').textContent()).includes('数字の合計'));assert.ok((await page.locator('#resultText').textContent()).trim());
  assert.equal(await page.locator('#keypad button:enabled').count(),0);
  // The visible equation must agree with its displayed final total; independent
@@ -82,7 +100,7 @@ async function revealCheck(page){
   // '?' is a real extra-card face in the 36-card deck, not always a card back.
   assert.ok(!ownClass.includes('hidden'),'revealed card still uses hidden/back state');
   assert.equal(await own.locator('.card-value').count(),1,'reveal requires an actual face label');
-  assert.equal(await own.locator('.card-art').count(),1,'reveal requires actual face artwork');
+  assert.match(await own.evaluate(e=>getComputedStyle(e).backgroundImage),/assets\/card-[^/]+\.webp/,'reveal requires actual generated frame artwork');
   assert.doesNotMatch(await own.getAttribute('aria-label'),/非公開/);
   if((await own.locator('.card-value').textContent()).trim()==='?')assert.ok(ownClass.includes('kind-extra'),'question-mark face must identify the extra-card kind');
  }
@@ -95,7 +113,7 @@ async function finishMatch(page,width,count,label){
    if(await page.locator('#playerGrid .special').count()){if(!special)await shot(page,width,`${label}-special-reveal`);special=true;}
    if(rounds===1)await shot(page,width,`${label}-reveal`);
    if(text.includes('優勝')){await shot(page,width,`${label}-finished`);return{rounds,spectated,special,text};}
-   await page.locator('#next').click();
+   await advanceResult(page);
   }else if(await page.locator('#declare').isEnabled()){
    await inverse(page);await page.locator('#number').fill('999');await page.locator('#declare').click();
   }else{
@@ -123,18 +141,19 @@ try{
  for(const width of [320,390,844,1280]){
   const {context,page,errors,external}=await setup(width);
   try{
-   await page.locator('#startGame').waitFor({state:'visible'});assert.equal(await page.locator('.home-actions button').count(),2);assert.equal(await page.locator('.home-icons button').count(),3);const artwork=await art(page);await shot(page,width,'home');
-   await page.locator('#joinGame').click();assert.match(await page.locator('#joinPanel').textContent(),/未接続|まだ接続|準備中/);assert.equal(await page.locator('#joinPanel input').count(),0);await shot(page,width,'join-unconnected');await page.locator('#closeJoin').click();
+   await page.locator('#startGame').waitFor({state:'visible'});assert.equal(await page.locator('.home-actions button').count(),2);assert.equal(await page.locator('.home-icons button').count(),2);await shot(page,width,'home');await page.evaluate(()=>NumberBluffClient.setRoomAdapterExpected(true));await page.locator('#startGame').click();assert.match(await page.locator('#roomCreateStatus').textContent(),/接続待ち/);assert.equal(await page.locator('#homeScreen').isVisible(),true);await page.evaluate(()=>NumberBluffClient.setRoomAdapterExpected(false));const artwork=await art(page);await backgroundChecks(page,width);
+   await page.locator('#joinGame').click();assert.equal(await page.locator('#joinPanel input').count(),1);assert.equal(await page.locator('#joinLocal').count(),0);await page.locator('#roomId').fill('ROOM-TEST');await page.locator('#joinRoom').click();assert.match(await page.locator('#roomJoinStatus').textContent(),/接続待ち/);assert.equal(await page.locator('#joinPanel').isVisible(),true);await shot(page,width,'join-unconnected');await page.locator('#closeJoin').click();
    await page.locator('#homeCards').click();assert.equal(await page.locator('[data-tab]').count(),4);
    for(const tab of ['rules','cards','bots','examples']){await page.locator(`[data-tab="${tab}"]`).click();assert.equal(await page.locator(`[data-tab="${tab}"]`).getAttribute('aria-selected'),'true');if(tab==='cards'){
-     const text=await page.locator('#guideContent').textContent();assert.match(text,/全36枚/);assert.match(text,/32枚/);assert.match(text,/特殊カード 4枚/);const shown=await page.locator('#guideContent .catalogue > div').evaluateAll(items=>items.map(e=>({label:e.querySelector('.card-value').textContent,count:Number(e.querySelector('small').textContent.replace('×',''))})));const grouped=new Map();for(const c of engine.FULL_DECK.filter(c=>c.kind==='number'))grouped.set(c.label,(grouped.get(c.label)||0)+1);assert.equal(shown.length,grouped.size);for(const c of shown)assert.equal(c.count,grouped.get(c.label),`wrong count for ${c.label}`);for(const label of ['MAX→0','×2','リセット','?'])assert.ok(text.includes(label));
-     const label=page.locator('#guideContent .kind-max0 .card-value');const bounds=await label.evaluate(e=>({text:e.textContent,inner:e.getBoundingClientRect().toJSON(),outer:e.closest('.player-card').getBoundingClientRect().toJSON()}));assert.equal(bounds.text,'MAX→0');assert.ok(bounds.inner.left>=bounds.outer.left&&bounds.inner.right<=bounds.outer.right,'MAX→0 label clipped');
-    }await shot(page,width,`guide-${tab}`);}
+     const text=await page.locator('#guideContent').textContent();assert.match(text,/全36枚/);assert.match(text,/32枚/);assert.match(text,/特殊カード 4枚/);const shown=await page.locator('#guideContent .catalogue:not(.special-catalogue) > .catalogue-item').evaluateAll(items=>items.map(e=>({label:e.querySelector('.card-value').textContent,count:Number(e.querySelector('small').textContent.replace('×',''))})));const grouped=new Map();for(const c of engine.FULL_DECK.filter(c=>c.kind==='number'))grouped.set(c.label,(grouped.get(c.label)||0)+1);assert.equal(shown.length,grouped.size);for(const c of shown)assert.equal(c.count,grouped.get(c.label),`wrong count for ${c.label}`);for(const label of ['MAX→0','×2','リセット','?'])assert.ok(text.includes(label));
+     const label=page.locator('#guideContent .kind-max0 .card-value');const bounds=await label.evaluate(e=>({text:e.textContent,inner:e.getBoundingClientRect().toJSON(),outer:e.closest('.player-card').getBoundingClientRect().toJSON()}));assert.equal(bounds.text,'MAX→0');assert.ok(bounds.inner.left>=bounds.outer.left&&bounds.inner.right<=bounds.outer.right,'MAX→0 label clipped');assert.equal(await label.evaluate(e=>e.scrollWidth<=e.clientWidth),true,'MAX→0 glyph text must fit label box');
+    }if(tab==='examples')assert.equal(await page.locator('#guideContent .example').count(),3);await shot(page,width,`guide-${tab}`);if(tab==='cards'){await page.locator('#guideContent .kind-max0').click();assert.equal(await page.locator('#cardDetail').evaluate(e=>e.open),true);assert.match(await page.locator('#cardDetailContent').textContent(),/MAX→0/);await shot(page,width,'card-detail');await page.keyboard.press('Escape');assert.equal(await page.locator('#cardDetail').evaluate(e=>e.open),false);assert.equal(await page.locator('#guidePanel').isVisible(),true);await page.locator('#guideContent .kind-reset').click();await page.locator('#closeCardDetail').click();assert.equal(await page.locator('#cardDetail').evaluate(e=>e.open),false);}}
    await page.locator('#closeGuide').click();assert.equal(await page.locator('#homeCards').evaluate(e=>e===document.activeElement),true);
-   await page.locator('#homeSettings').click();assert.equal(await page.locator('#soundToggle').isChecked(),false);await page.locator('#soundToggle').check();assert.ok(await page.evaluate(()=>window.__audioStarts>0),'sound switch must actually create audio');await page.locator('#motionToggle').check();assert.equal(await page.locator('body').getAttribute('data-motion'),'on');await shot(page,width,'settings');await page.locator('#closeSettings').click();assert.notEqual(await page.locator('.hero-main').evaluate(e=>getComputedStyle(e).animationName),'none');await page.locator('#homeSettings').click();await page.locator('#motionToggle').uncheck();await page.locator('#soundToggle').uncheck();await page.locator('#closeSettings').click();assert.equal(await page.locator('.hero-main').evaluate(e=>getComputedStyle(e).animationName),'none');
-   await page.locator('#startGame').click();assert.equal(await page.locator('#lobbyPlayers').locator(':scope > *').count(),8);assert.equal(await page.locator('#lobbyPlayers [data-seat]').count(),4);await shot(page,width,'lobby-4');
+   assert.equal(await page.locator('#homeSettings,#motionToggle').count(),0,'removed settings controls must not return');
+   await page.locator('#startGame').click();assert.equal(await page.locator('#lobbyPlayers').locator(':scope > *').count(),8);assert.equal(await page.locator('#lobbyPlayers [data-seat]').count(),1,'standalone create must start with one real host and zero bots');assert.equal(await page.locator('#beginGame').isDisabled(),true);assert.equal(await page.locator('#roomIdentity').isVisible(),false,'standalone room must not invent an online room ID');await shot(page,width,'created-local-host-room');await configure(page,4);assert.equal(await page.locator('[data-seat="p1"] .person-placeholder').count(),1);assert.equal(await page.locator('[data-seat="p1"] strong').textContent(),'プレイヤー');await shot(page,width,'lobby-4');
+   await page.locator('#lobbyScreen .settings-open').click();assert.equal(await page.locator('#soundToggle').isChecked(),false);assert.equal(await page.locator('#motionToggle').count(),0);await page.locator('#soundToggle').check();assert.ok(await page.evaluate(()=>window.__audioStarts>0),'sound control must create real audio');await shot(page,width,'settings');await page.locator('#soundToggle').uncheck();await page.locator('#closeSettings').click();
    for(const difficulty of ['easy','normal','hard']){await page.locator(`[data-difficulty="${difficulty}"]`).click();assert.equal(await page.locator(`[data-difficulty="${difficulty}"]`).getAttribute('aria-pressed'),'true');}
-   await page.locator('[data-avatar="3"]').click();assert.equal(await page.locator('[data-avatar="3"]').getAttribute('aria-pressed'),'true');assert.ok((await page.locator('#lobbyPlayers .selected img').getAttribute('src')).endsWith('blue-cloud.webp'));const botLabels=await page.locator('#lobbyPlayers button[data-seat] strong').allTextContents();assert.equal(new Set(botLabels).size,botLabels.length,'duplicate avatar BOT labels must remain unambiguous');
+   await page.locator('[data-avatar="3"]').click();assert.equal(await page.locator('[data-avatar="3"]').getAttribute('aria-pressed'),'true');assert.ok((await page.locator('#lobbyPlayers .selected img').getAttribute('src')).endsWith('blue-cloud.webp'));await page.locator('#lobbyPlayers button[data-seat]').first().click();await page.locator('[data-avatar="3"]').click();const botLabels=await page.locator('#lobbyPlayers button[data-seat] strong').allTextContents();assert.equal(new Set(botLabels).size,botLabels.length,'duplicate avatar BOT labels must remain unambiguous');
    await configure(page,1);assert.equal(await page.locator('#beginGame').isDisabled(),true);assert.equal(await page.locator('#removeBot').isDisabled(),true);await shot(page,width,'lobby-host-only');await configure(page,8);assert.equal(await page.locator('#addBot').isDisabled(),true);await page.locator('#addBot').evaluate(e=>{for(let i=0;i<10;i++)e.click();});assert.equal(await page.locator('#lobbyPlayers [data-seat]').count(),8);await shot(page,width,'lobby-8');
    await begin(page,width,4);await keypad(page,width);await page.locator('#number').fill('0');await page.locator('#number').press('Enter');assert.equal(await page.locator('#keypad button:enabled').count(),0);
    // Guide overlay must retain focus while BOT transitions continue in background.
@@ -142,31 +161,98 @@ try{
    await exit(page);await tick(page);assert.equal(await page.locator('#homeScreen').isVisible(),true);await page.locator('#startGame').click();await begin(page,width,2);
    // Equal bids are invalid; seed preserves a normal low first declaration.
    await page.locator('#number').fill('0');await page.locator('#declare').click();await tick(page);
-   for(let turn=0;turn<30&&!await page.locator('#challenge').isEnabled();turn++){if(await page.locator('#next').isVisible())await page.locator('#next').click();else if(await page.locator('#declare').isEnabled()){await page.locator('#number').fill('0');await page.locator('#declare').click();}else await tick(page);}
+   for(let turn=0;turn<30&&!await page.locator('#challenge').isEnabled();turn++){if(await page.locator('#next').isVisible())await advanceResult(page);else if(await page.locator('#declare').isEnabled()){await page.locator('#number').fill('0');await page.locator('#declare').click();}else await tick(page);}
    assert.equal(await page.locator('#challenge').isEnabled(),true,'must exercise equal-bid rejection and human challenge');const bid=(await page.locator('#bid').textContent()).trim();await page.locator('#number').fill(bid);await page.locator('#declare').click();assert.equal(await page.locator('#number').getAttribute('aria-invalid'),'true');assert.equal((await page.locator('#bid').textContent()).trim(),bid);await page.locator('#challenge').click();await revealCheck(page);await shot(page,width,'human-challenge');
    // A canceled confirmation retains this match; accepted exit invalidates timer.
    await page.locator('#homeBtn').click();const oldBid=await page.locator('#bid').textContent();await page.locator('#cancelRestart').click();assert.equal(await page.locator('#bid').textContent(),oldBid);assert.equal(await page.locator('#homeBtn').evaluate(e=>e===document.activeElement),true);await exit(page);await page.locator('#startGame').click();await configure(page,2);await page.locator('[data-difficulty="hard"]').click();await page.locator('[data-avatar="2"]').click();const savedRoster=await lobbyConfig(page);await begin(page,width,2);
    const two=await finishMatch(page,width,2,'two');assert.match(two.text,/通算 1勝/);
    await exit(page,'lobby');assert.deepEqual(await lobbyConfig(page),savedRoster,'return to lobby must retain roster, difficulty and avatar');assert.match(await page.locator('#lobbyPlayers button[data-seat]').textContent(),/1勝/);await shot(page,width,'room-win-preserved');
    await begin(page,width,2);assert.match(await page.locator('#playerGrid [data-player]:not([data-player="p1"])').textContent(),/1勝/);const roomRestart=await finishMatch(page,width,2,'room-restart');assert.match(roomRestart.text,/通算 2勝/);
-   await page.locator('#next').click();await inverse(page);assert.equal(await page.locator('#declare').isEnabled(),true);const rematch=await finishMatch(page,width,2,'rematch');assert.match(rematch.text,/通算 3勝/);
+   await advanceResult(page);await inverse(page);assert.equal(await page.locator('#declare').isEnabled(),true);const rematch=await finishMatch(page,width,2,'rematch');assert.match(rematch.text,/通算 3勝/);
    await page.locator('#restartBtn').click();await page.locator('#cancelRestart').click();assert.equal(await page.locator('#result').isVisible(),true);await exit(page,'lobby');await begin(page,width,8);const eight=await finishMatch(page,width,8,'eight');assert.equal(eight.spectated,true,'must exercise eliminated-human spectator flow');assert.equal(eight.special,true,'must show actual special-card result calculation');
    await exit(page);await page.locator('#startGame').click();await begin(page,width,2);await page.locator('#number').fill('999');await page.locator('#declare').click();await page.locator('#homeBtn').click();await shot(page,width,'exit-confirm');await page.locator('#confirmRestart').click();await tick(page);assert.equal(await page.locator('#homeScreen').isVisible(),true);await page.locator('#startGame').click();await begin(page,width,2);await tick(page);assert.equal((await page.locator('#bid').textContent()).trim(),'—');assert.equal(await page.locator('#declare').isEnabled(),true);
-   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);results.push({width,status:'passed',errors,external,artwork,two,roomRestart,rematch,eight});
+   await page.evaluate(()=>{NumberBluffBackground.destroy();NumberBluffBackground.destroy();});assert.equal(await page.locator('.nb-background').count(),0);assert.deepEqual(errors,[]);assert.deepEqual(external,[]);results.push({width,status:'passed',errors,external,artwork,two,roomRestart,rematch,eight});
   }catch(error){results.push({width,status:'failed',error:String(error.stack),errors,external});await page.screenshot({path:fileURLToPath(new URL(`${width}-failure.png`,output)),fullPage:true}).catch(()=>{});}finally{await context.close();}
+ }
+ // The presentation consumes sanitized, already-authorized result DTOs. The
+ // fixture is calculated by the real engine in Node, never a browser state hook.
+ {
+  const {context,page,errors,external}=await setup(390);
+  try{
+   let seed=77;const rng=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
+   let before=engine.startGame(engine.createLobby({name:'演出テスト',botCount:3}),rng);
+   const number=engine.FULL_DECK.find(c=>c.kind==='number'&&c.value===10),extra=engine.FULL_DECK.find(c=>c.kind==='extra'),max=engine.FULL_DECK.find(c=>c.kind==='max0'),double=engine.FULL_DECK.find(c=>c.kind==='double'),five=engine.FULL_DECK.find(c=>c.kind==='number'&&c.value===5);
+   const hands={p1:number,p2:extra,p3:max,p4:double};before={...before,hands,deck:[...engine.FULL_DECK.filter(c=>![number,extra,max,double,five].includes(c)),five],discard:[]};before=engine.declare(before,'p1',999);
+   const after=engine.challenge(before,'p2',rng);assert.equal(after.result.sum,10);assert.equal(after.result.baseSum,5);assert.equal(after.result.removedCard.id,number.id);
+   const playing=engine.publicView(before,'p1'),revealed=engine.publicView(after,'p1');
+   await page.evaluate(dto=>{window.__presentationActions=[];NumberBluffClient.connect({subscribe(receive){window.__presentationReceive=receive;receive(dto);return()=>{};},send(action){window.__presentationActions.push(action);return Promise.resolve();}});},playing);
+   assert.match(await page.locator('#lastBidder').textContent(),/演出テスト/);assert.equal(await page.locator('#bidActor .person-placeholder').count(),1);
+   const oldLife=await page.locator('#playerGrid .hearts').allTextContents();await page.evaluate(()=>{window.__announcements=[];window.__statusObserver=new MutationObserver(()=>{const text=document.getElementById('resultAnnouncement').textContent.trim();if(text)window.__announcements.push(text);});window.__statusObserver.observe(document.getElementById('resultAnnouncement'),{childList:true,subtree:true,characterData:true});});await page.evaluate(dto=>window.__presentationReceive(dto),revealed);
+   const checkpoints=[];let previousAt=0;
+   for(const [at,phase] of [[0,'hold'],[300,'reveal'],[820,'extra'],[1020,'max'],[1220,'sum'],[1660,'multiply'],[1940,'compare'],[2290,'outcome'],[2470,'complete']]){
+    if(at>previousAt)await page.clock.runFor(at-previousAt);previousAt=at;
+    assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),phase);
+    const life=await page.locator('#playerGrid .hearts').allTextContents(),total=(await page.locator('#finalTotal').textContent()).trim();
+    if(at<1940)assert.equal(total,'…','final total must remain undisclosed until compare');else assert.equal(total,'10');
+    if(at<2290)assert.deepEqual(life,oldLife,'life must not decrement before outcome');else assert.match(await page.locator('[data-player="p1"] .hearts').getAttribute('aria-label'),/2 \/ 3/);
+    if(phase==='hold')assert.equal(await page.locator('#playerGrid .player-card.hidden').count(),4);
+    if(phase==='extra')assert.equal(await page.locator('#calculationSteps .extra-reveal .player-card').count(),1);
+    if(phase==='max')assert.equal(await page.locator('.presentation-zero-stamp').count(),1);
+    if(phase==='multiply')assert.equal(await page.locator('.presentation-vortex').count(),1);
+    if(phase==='reveal'){await page.evaluate(dto=>window.__presentationReceive(dto),revealed);assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'reveal','duplicate result must not restart the timeline');}
+    checkpoints.push({at,phase,total,life});await page.screenshot({path:fileURLToPath(new URL(`presentation-${phase}.png`,output)),fullPage:true});
+   }
+   assert.equal(await page.locator('.calculation').getAttribute('aria-live'),'off');const announcements=await page.evaluate(()=>{window.__statusObserver.disconnect();return window.__announcements;});assert.equal(announcements.length,1,'announce final math/outcome once, not every frame');assert.match(announcements[0],/10/);await revealCheck(page);await page.evaluate(dto=>window.__presentationReceive(dto),revealed);assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'complete');
+   // A finished two-seat round verifies held wins and skip/double-tap behavior.
+   let last=engine.startGame(engine.createLobby({name:'演出テスト',botCount:1}),rng);last={...last,game:2,players:last.players.map(p=>p.id==='p1'?{...p,life:1}:p)};last=engine.declare(last,'p1',999);const ended=engine.challenge(last,'p2',rng);assert.equal(ended.result.winner,'p2');
+   await page.evaluate(dto=>window.__presentationReceive(dto),engine.publicView(last,'p1'));await page.evaluate(dto=>window.__presentationReceive(dto),engine.publicView(ended,'p1'));assert.equal(await page.locator('[data-player="p2"] .wins-badge').count(),0,'win must not appear during hold');
+   await page.locator('#next').click();assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'complete');assert.match(await page.locator('[data-player="p2"] .wins-badge').textContent(),/1勝/);assert.equal(await page.evaluate(()=>window.__presentationActions.length),0,'skip must not advance game');await page.locator('#next').click();assert.equal(await page.evaluate(()=>window.__presentationActions.length),0,'immediate repeated skip must not advance');await page.clock.runFor(401);await page.locator('#next').click();assert.equal(await page.evaluate(()=>window.__presentationActions.at(-1).type),'rematch');
+   // Pending frames cannot overwrite a newer active round or a home exit.
+   const newer={...playing,game:3};await page.evaluate(dto=>window.__presentationReceive(dto),newer);await page.evaluate(dto=>window.__presentationReceive(dto),{...revealed,game:3});assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'hold');
+   await page.evaluate(dto=>window.__presentationReceive(dto),{...playing,game:4});await page.clock.runFor(5000);assert.equal(await page.locator('#gamePanel').isVisible(),true);await inverse(page);
+   await page.evaluate(dto=>window.__presentationReceive(dto),{...revealed,game:4});await page.evaluate(()=>dispatchEvent(new PageTransitionEvent('pagehide')));assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'complete');await page.clock.runFor(5000);assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'complete','pagehide cancels pending frames');
+   await page.evaluate(dto=>window.__presentationReceive(dto),{...playing,game:5});await page.evaluate(dto=>window.__presentationReceive(dto),{...revealed,game:5});await page.evaluate(dto=>NumberBluffClient.connect({subscribe(receive){window.__presentationReceive=receive;receive(dto);return()=>{};},send(){return Promise.resolve();}}),{...playing,game:6});await page.clock.runFor(5000);assert.equal(await page.locator('#gamePanel').isVisible(),true,'room replacement cancels prior room presentation');
+   await page.evaluate(dto=>window.__presentationReceive(dto),{...revealed,game:6});await exit(page);const settled=await page.locator('#resultText').textContent();await page.clock.runFor(5000);assert.equal(await page.locator('#homeScreen').isVisible(),true);assert.equal(await page.locator('#resultText').textContent(),settled);
+   await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(50);await page.evaluate(dto=>NumberBluffClient.connect({subscribe(receive){window.__presentationReceive=receive;receive(dto);return()=>{};},send(){return Promise.resolve();}}),playing);await page.evaluate(dto=>window.__presentationReceive(dto),revealed);assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'complete','OS reduced motion presents final state immediately');
+   await writeFile(new URL('presentation-checkpoints.json',output),JSON.stringify(checkpoints,null,2));assert.deepEqual(errors,[]);assert.deepEqual(external,[]);results.push({scenario:'authorized-result-presentation-contract',status:'passed',errors,external,checkpoints});
+  }catch(error){results.push({scenario:'authorized-result-presentation-contract',status:'failed',error:String(error.stack),errors,external});await page.screenshot({path:fileURLToPath(new URL('presentation-failure.png',output)),fullPage:true}).catch(()=>{});}finally{await context.close();}
+ }
+ // Host overlay/keyboard geometry simulations, not a claim about a live SDK.
+ for(const width of [320,390]){
+  const {context,page,errors,external}=await setup(width);
+  try{
+   await page.evaluate(()=>{window.__screens=[];window.__stopScreens=NumberBluffClient.onScreenChange(screen=>window.__screens.push(screen));});assert.deepEqual(await page.evaluate(()=>window.__screens),['home']);
+   await page.locator('#startGame').click();await begin(page,width,8);
+   await page.evaluate(()=>NumberBluffClient.setViewportInsets({top:80,bottom:80}));
+   const readControls=()=>page.evaluate(()=>({scrollY,viewport:visualViewport.height,battle:document.getElementById('battleScreen').getBoundingClientRect().toJSON(),controls:['homeBtn','rulesBtn','number','keypad','declare','challenge'].map(id=>({id,...document.getElementById(id).getBoundingClientRect().toJSON()}))}));
+   const insets=await readControls();assert.equal(insets.scrollY,0);assert.ok(Math.abs(insets.battle.height-(insets.viewport-160))<=1,'host insets must be subtracted exactly once');
+   for(const r of insets.controls)assert.ok(r.top>=80&&r.bottom<=insets.viewport-80+1,`inset controls obstructed ${JSON.stringify(r)}`);
+   const grid=page.locator('#playerGrid');assert.equal(await grid.getAttribute('tabindex'),'0');
+   const reachable=[];
+   for(const card of await page.locator('#playerGrid .player-card').all()){
+    await card.scrollIntoViewIfNeeded();const value=await card.evaluate(e=>{const r=e.getBoundingClientRect(),p=e.closest('.battle-player'),g=document.getElementById('playerGrid').getBoundingClientRect(),a=p.querySelector('.avatar').getBoundingClientRect();return{id:p.dataset.player,card:r.toJSON(),grid:g.toJSON(),ratio:r.width/r.height,nameSize:parseFloat(getComputedStyle(p.querySelector('.player-name')).fontSize),avatarWidth:a.width,avatarHeight:a.height,scrollY};});
+    assert.ok(value.card.top>=value.grid.top-1&&value.card.bottom<=value.grid.bottom+1,`inset card not fully reachable ${JSON.stringify(value)}`);assert.ok(value.ratio>=.68&&value.ratio<=.72&&value.nameSize>=10&&value.avatarWidth>=24&&value.avatarHeight>=24,'inset mode must not crush cards or identity');assert.equal(value.scrollY,0,'only player grid may scroll');reachable.push(value);
+   }
+   const after=await readControls();assert.deepEqual(after.controls,insets.controls,'scrolling players must not move battle actions');await shot(page,`${width}-insets`,'battle-8-last-row');await writeFile(new URL(`${width}-insets-geometry.json`,output),JSON.stringify({insets,after,reachable},null,2));
+   await exit(page);assert.deepEqual(await page.evaluate(()=>window.__screens),['home','lobby','battle','home']);await page.evaluate(()=>{window.__stopScreens();NumberBluffClient.setViewportInsets({top:0,bottom:0});});
+   await page.setViewportSize({width:390,height:500});await page.waitForTimeout(50);await page.locator('#joinGame').click();await page.locator('#roomId').fill('KEYBOARD-TEST');
+   const join=await page.evaluate(()=>({height:visualViewport.height,stored:document.documentElement.style.getPropertyValue('--nb-viewport-height'),controls:['closeJoin','roomId','joinRoom'].map(id=>({id,...document.getElementById(id).getBoundingClientRect().toJSON()}))}));assert.equal(join.height,500);assert.equal(join.stored,'500px');for(const r of join.controls)assert.ok(r.top>=0&&r.bottom<=500,`keyboard-like join control unreachable ${JSON.stringify(r)}`);assert.deepEqual(await page.evaluate(()=>window.__screens),['home','lobby','battle','home'],'unsubscribe must stop screen events');await shot(page,`${width}-insets`,'join-keyboard-390x500');
+   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);results.push({scenario:'host-insets-and-keyboard-simulation',width,status:'passed',errors,external,reachableCards:reachable.length,join});
+  }catch(error){results.push({scenario:'host-insets-and-keyboard-simulation',width,status:'failed',error:String(error.stack),errors,external});await page.screenshot({path:fileURLToPath(new URL(`${width}-insets-failure.png`,output)),fullPage:true}).catch(()=>{});}finally{await context.close();}
  }
  // Synthetic adapter-contract test only: a sanitized public DTO, no SDK,
  // server, fake online room, or private state passed into the browser.
  {
   const {context,page,errors,external}=await setup(390);
   try{
+   await page.route('https://profiles.example.test/avatar.webp',async route=>route.fulfill({contentType:'image/webp',body:await readFile(root+'assets/star-sprite.webp')}));
    let seed=30;const rng=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
    let fixture=engine.startGame(engine.createLobby({botCount:1}),rng);
    fixture=engine.declare(fixture,'p1',0);
-   fixture={...fixture,players:fixture.players.map(p=>({...p,kind:p.id==='p2'?'human':'bot'}))};
+   fixture={...fixture,players:fixture.players.map(p=>({...p,kind:p.id==='p2'?'human':'bot',name:p.id==='p2'?'ゲスト 太郎':p.name,avatarUrl:p.id==='p2'?'https://profiles.example.test/avatar.webp':undefined}))};
    const dto=engine.publicView(fixture,'p2');assert.equal(dto.hands.p2,null);assert.equal('deck' in dto,false);
    await page.evaluate(dto=>{window.__seamActions=[];window.NumberBluffClient.connect({subscribe(receive){window.__seamReceive=receive;receive(dto);return()=>{};},send(action){window.__seamActions.push(action);return Promise.resolve();}});},dto);
-   assert.equal(await page.locator('[data-player="p2"] #humanCard').count(),1);
+   assert.equal(await page.locator('[data-player="p2"] #humanCard').count(),1);assert.equal(await page.locator('[data-player="p2"] .player-name').textContent(),'ゲスト 太郎');assert.equal(await page.locator('[data-player="p2"] img.profile-avatar').getAttribute('src'),'https://profiles.example.test/avatar.webp');
    assert.equal((await page.locator('[data-player="p2"] .player-card').textContent()).trim(),'?');
    assert.ok(!(await page.locator('[data-player="p1"] .player-card').getAttribute('class')).includes('hidden'));
    await page.locator('#number').fill('1');await page.locator('#declare').click();
@@ -179,13 +265,19 @@ try{
    const specialReveal=engine.publicView(engine.challenge(allSpecial,'p2',rng),'p2');assert.equal(specialReveal.result.sum,0);
    await page.evaluate(dto=>window.__seamReceive(dto),specialReveal);await revealCheck(page);
    const expressions=await page.locator('#calculationSteps .calc-expression').allTextContents();assert.ok(expressions.includes('0 = 0'),'empty numeric terms must render explicit zero');for(const expression of expressions)assert.doesNotMatch(expression,/^\s*[+=]/);await shot(page,'adapter','all-special-zero');
-   await page.evaluate(()=>window.NumberBluffClient.disconnect());await page.locator('#startGame').click();await page.locator('#beginGame').click();assert.equal(await page.locator('[data-player="p1"] #humanCard').count(),1);await inverse(page);
+   await page.evaluate(()=>{window.NumberBluffClient.disconnect();window.NumberBluffClient.configureLocalProfile({name:' 佐藤 花子 ',avatarUrl:'javascript:alert(1)'});});await page.locator('#startGame').click();assert.equal(await page.locator('[data-seat="p1"] strong').textContent(),'佐藤 花子');assert.equal(await page.locator('[data-seat="p1"] .person-placeholder').count(),1);await page.locator('#lobbyBack').click();await page.evaluate(()=>NumberBluffClient.configureLocalProfile({name:'佐藤 花子',avatarUrl:'https://profiles.example.test/avatar.webp'}));await page.locator('#startGame').click();assert.equal(await page.locator('[data-seat="p1"] img.profile-avatar').getAttribute('src'),'https://profiles.example.test/avatar.webp');await configure(page,2);await page.locator('#beginGame').click();assert.equal(await page.locator('[data-player="p1"] #humanCard').count(),1);await inverse(page);
+   await page.evaluate(()=>NumberBluffClient.disconnect());
+   const hostLobby={...engine.publicView(engine.createLobby({name:'ホスト',botCount:1}),'p1'),hostId:'p1'};
+   await page.evaluate(dto=>{window.__lobbyActions=[];NumberBluffClient.connect({subscribe(receive){window.__lobbyReceive=receive;receive(dto);return()=>{};},send(action){window.__lobbyActions.push(action);return Promise.resolve();}});},hostLobby);
+   await page.locator('#addBot').click();await page.locator('#beginGame').click();const lobbyActions=await page.evaluate(()=>window.__lobbyActions);assert.deepEqual(lobbyActions.map(a=>a.type),['addBot','startGame']);for(const action of lobbyActions){assert.equal(action.player,'p1');assert.equal(action.revision,hostLobby.revision);}assert.equal(await page.locator('#lobbyPlayers [data-seat]').count(),2,'remote lobby must await authoritative view, not invent participants');
+   await page.evaluate(dto=>{delete dto.hostId;window.__lobbyReceive(dto);},hostLobby);assert.equal(await page.locator('#addBot').isDisabled(),true);assert.equal(await page.locator('#beginGame').isDisabled(),true,'missing hostId cannot confer host permissions');
+   await page.evaluate(()=>{NumberBluffClient.disconnect();window.__createCalls=0;window.__joinedId=null;NumberBluffClient.configureRoomActions({create:async()=>{window.__createCalls++;},join:async id=>{window.__joinedId=id;}});});await page.locator('#startGame').click();assert.equal(await page.evaluate(()=>window.__createCalls),1);assert.equal(await page.locator('#homeScreen').isVisible(),true,'configured hook must not fall through to standalone lobby');await page.locator('#joinGame').click();await page.locator('#roomId').fill('  NORMALIZED-123  ');await page.locator('#joinRoom').click();assert.equal(await page.evaluate(()=>window.__joinedId),'NORMALIZED-123');assert.equal(await page.locator('#joinPanel').isVisible(),true);
    assert.deepEqual(errors,[]);assert.deepEqual(external,[]);results.push({scenario:'synthetic-adapter-contract-not-network',status:'passed',errors,external});
   }catch(error){results.push({scenario:'synthetic-adapter-contract-not-network',status:'failed',error:String(error.stack),errors,external});}finally{await context.close();}
  }
  // Real generated single-HTML package: no script/style dependencies, absolute
  // published-asset URLs fulfilled with the exact local asset bytes (not network).
  const {context,page,errors,external,mapped}=await setup(390,true);
- try{assert.equal(await page.locator('script[src],link[rel="stylesheet"]').count(),0);await page.evaluate(()=>document.fonts.ready);assert.equal(await page.evaluate(()=>document.fonts.check('20px TitleMochiy')),true);await page.locator('#startGame').click();await begin(page,'package',4);assert.ok(mapped.some(u=>u.endsWith('title-mochiy.ttf')));assert.ok(mapped.some(u=>u.endsWith('star-sprite.webp')));assert.deepEqual(errors,[]);assert.deepEqual(external,[]);results.push({scenario:'single-html',status:'passed',mapped:[...new Set(mapped)],errors,external});}catch(error){results.push({scenario:'single-html',status:'failed',error:String(error.stack),errors,external});}finally{await context.close();}
+ try{assert.equal(await page.locator('script[src],link[rel="stylesheet"]').count(),0);await page.evaluate(async()=>{await document.fonts.load('20px TitleMochiy');await document.fonts.ready;});assert.equal(await page.evaluate(()=>document.fonts.check('20px TitleMochiy')),true);await page.locator('#startGame').click();await begin(page,'package',4);assert.ok(mapped.some(u=>u.endsWith('title-mochiy.ttf')));assert.ok(mapped.some(u=>u.endsWith('star-sprite.webp')));assert.deepEqual(errors,[]);assert.deepEqual(external,[]);results.push({scenario:'single-html',status:'passed',mapped:[...new Set(mapped)],errors,external});}catch(error){results.push({scenario:'single-html',status:'failed',error:String(error.stack),errors,external});}finally{await context.close();}
 }catch(error){results.push({status:'failed',stage:'suite',error:String(error.stack)});}finally{clearTimeout(watchdog);await browser?.close();await new Promise(r=>server.close(r));await writeFile(new URL('results.json',output),JSON.stringify(results,null,2));}
-console.log(JSON.stringify(results,null,2));if(results.length!==6||results.some(r=>r.status!=='passed'))process.exitCode=1;
+console.log(JSON.stringify(results,null,2));if(results.length!==9||results.some(r=>r.status!=='passed'))process.exitCode=1;
