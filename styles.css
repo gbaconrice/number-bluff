@@ -20,3 +20,5 @@
 .wins-badge{position:absolute;right:3px;bottom:3px;z-index:1;font-size:8px;line-height:1.2;padding:2px 4px;background:#233357e8;color:#fff0bd;border-radius:5px;font-weight:800}
 
 .battle-player{position:relative}
+/* Keep turn announcements legible over the bright decorative cloud bank. */
+#status{background:#102449f2;border-radius:8px;color:#fff7e6;text-shadow:0 1px 2px #050e26}
