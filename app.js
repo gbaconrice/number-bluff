@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const G = window.NumberBluff, timer = window.NumberBluffScheduler(), $ = id => document.getElementById(id);
+  const audio = window.NumberBluffAudio.create();
   let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
   const sessionFinishListeners = new Set();
   let connectionBlocked = false, connectionMessage = '';
@@ -39,12 +40,16 @@
     onPhase: paintPresentationFrame
   });
   function cancelPresentation(settle = false) {
+    if (presenter.active) audio.stop();
     presenter.cancel(); presentationFrame = null; presentationPrevious = null;
     if (settle && view?.result && view.phase !== 'play' && view.phase !== 'lobby') { renderPlayers(); renderResult(); }
   }
   function paintPresentationFrame(frame, key) {
     if (key !== presentationKey || !view?.result || view.phase === 'play' || view.phase === 'lobby') return;
     const hadOutcome = presentationFrame?.outcomeVisible;
+    const phaseSound = { hold: 'challenge', reveal: 'reveal', extra: 'extra', max: 'max', sum: 'sum', multiply: 'multiply', reset: 'reset', compare: 'compare' };
+    if (frame.outcomeVisible && !hadOutcome) audio.play(view.result.winner === human ? 'win' : view.result.loser === human ? 'loss' : 'outcome');
+    else if (phaseSound[frame.phase]) audio.play(phaseSound[frame.phase]);
     presentationFrame = frame;
     if (frame.outcomeVisible && !hadOutcome) renderPlayers();
     for (const p of view.players) {
@@ -58,13 +63,12 @@
       node.classList.toggle('is-adding', frame.phase === 'sum' && frame.cardId === card.id);
       node.classList.toggle('is-zeroed', frame.removedCardId === card.id);
       if (frame.removedCardId === card.id && !node.querySelector('.presentation-zero-stamp')) node.append(el('span', 'presentation-zero-stamp', '0'));
-      if (frame.phase === 'multiply' && card.kind === 'double' && !node.querySelector('.presentation-vortex')) node.append(el('span', 'presentation-vortex'));
     }
     renderResult();
     if (frame.outcomeVisible && !hadOutcome) $('resultAnnouncement').textContent = '最終合計 ' + view.result.sum + '。' + $('resultText').textContent;
   }
   function show(id, focus = null) {
-    if (screen === 'battleScreen' && id !== screen) cancelPresentation(true);
+    if (screen === 'battleScreen' && id !== screen) { audio.stop(); cancelPresentation(true); }
     for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
     screen = id; window.scrollTo(0, 0);
     for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
@@ -78,7 +82,8 @@
     if (card.kind !== 'number') node.classList.add('special');
     if (card.value < 0) node.classList.add('negative');
     node.append(el('span', 'card-value', card.kind === 'reset' ? 'リセット' : card.label));
-    const motion = el('span', 'card-art-motion'); motion.setAttribute('aria-hidden', 'true'); node.append(motion);
+    const motion = window.NumberBluffPresentation.createArtMotion(document, card.kind);
+    if (motion) node.append(motion);
     if (card.kind === 'number') {
       node.classList.add(card.value < 0 || card.value === 0 ? 'skin-ice' : card.value === 5 || card.value === 15 ? 'skin-gold' : card.value === 1 || card.value === 2 ? 'skin-pink' : 'skin-cream');
       // Artwork follows the public numeric value, never seat, random state or a hidden card ID.
@@ -99,7 +104,7 @@
     if (result) for (const listener of sessionFinishListeners) { try { listener(result); } catch {} }
   }
   function detachTransport() {
-    cancelPresentation(); presentationKey = null; roomEpoch++;
+    audio.stop(); cancelPresentation(); presentationKey = null; roomEpoch++;
     if (typeof unsubscribe === 'function') unsubscribe();
     unsubscribe = null; const old = transport; transport = null; connectionBlocked = false; connectionMessage = '';
     if (typeof old?.close === 'function') old.close();
@@ -244,8 +249,10 @@
     if (yourTurn) { $('number').value = view.bid === null ? '1' : view.bid === Number.MAX_SAFE_INTEGER ? '' : String(view.bid + 1); suggested = true; }
     $('next').disabled = active; renderResult();
     if (active && previous && (previous.phase !== 'play' || previous.round !== view.round || previous.game !== view.game)) {
+      audio.play('deal');
       $('playerGrid').querySelectorAll('.player-card').forEach((node, i) => { node.classList.add('presentation-card', 'is-dealing'); node.style.animationDelay = (i * 30) + 'ms'; });
     } else if (active && previous && previous.bid !== view.bid) {
+      audio.play('declare');
       const panel = document.querySelector('.bid-panel'); panel.classList.remove('presentation-bid-pulse'); void panel.offsetWidth; panel.classList.add('presentation-bid-pulse');
     }
     if (startPresentation) { presenter.play(presentationKey, view.result, view.players); if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) presenter.skip(); }
@@ -281,6 +288,10 @@
     const next = G.dispatch(state, { type, player: human, value, revision: view.revision }, Math.random);
     return apply(next);
   }
+  document.addEventListener('click', event => {
+    const button = event.target.closest?.('button');
+    if (event.isTrusted && button && !button.disabled && !['declare', 'challenge', 'beginGame', 'next'].includes(button.id)) audio.play('tap');
+  });
   $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = () => { const finished = captureSessionFinish(); cancelRoomRequest(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   $('joinForm').onsubmit = event => { event.preventDefault(); const id = $('roomId').value.trim(); if (id) requestRoom('join', id); };
   $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
@@ -294,7 +305,7 @@
     if (value === null || !action('declare', value)) { fail('前より大きな1以上の整数を入力してください（最大9007199254740991）。'); $('number').focus(); }
   };
   $('challenge').onclick = () => action('challenge');
-  $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
+  $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; audio.stop(); presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
   document.querySelectorAll('[data-digit]').forEach(button => { button.onclick = () => {
     if ($('number').disabled) return;
     const prior = suggested ? '' : $('number').value, next = prior === '0' ? button.dataset.digit : prior + button.dataset.digit;
