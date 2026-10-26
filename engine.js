@@ -36,6 +36,14 @@
   }
   function startGame(s,rng) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;return deal({...s,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,starter:s.players[0].id},rng);}
   function rematch(s,rng) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:s.players.map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng);}
+  // A room survives leaving a match. The UI must confirm abandoning active play;
+  // no winner is awarded here. createLobby is reserved for a genuinely new room.
+  function returnToLobby(s) {
+    if(!['play','reveal','finished'].includes(s.phase))return s;
+    return updated(s,{phase:'lobby',round:0,players:s.players.map(p=>({...p,life:3,eliminated:false})),
+      deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,
+      starter:s.players[0].id,result:null,history:[]});
+  }
   function nextRound(s,rng) {if(s.phase!=='reveal')return s;return deal(s,rng);}
   function declare(s,who,value) {
     if(s.phase!=='play'||s.turn!==who||!Number.isSafeInteger(value)||value<0||(s.bid!==null&&value<=s.bid))return s;
@@ -117,5 +125,5 @@
     if(s.phase==='play'&&(!alive(s).some(p=>p.id===s.turn)||Object.keys(s.hands).length!==alive(s).length))throw new Error('Invalid active turn/hands');
     return true;
   }
-  return {FULL_DECK,createLobby,addBot,removeBot,setDifficulty,startGame,nextRound,rematch,declare,challenge,evaluateCards,publicView,botView,chooseBotAction,possibleTotals,parseBid,dispatch,assertInvariant,shuffle};
+  return {FULL_DECK,createLobby,addBot,removeBot,setDifficulty,startGame,nextRound,rematch,returnToLobby,declare,challenge,evaluateCards,publicView,botView,chooseBotAction,possibleTotals,parseBid,dispatch,assertInvariant,shuffle};
 });

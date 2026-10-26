@@ -23,6 +23,7 @@ const view = NumberBluff.publicView(state, 'p1');
 - `challenge(state,playerId,rng)`: active turn only, after a bid. Bid > actual total loses bidder; otherwise challenger loses, including a tie.
 - `nextRound(state,rng)`: reveal → play; loser starts if still alive, otherwise next surviving seat clockwise.
 - `rematch(state,rng)`: finished → new game; resets lives/cards, preserves each seat's room wins, including bots.
+- `returnToLobby(state)`: play/reveal/finished → same-room lobby. Preserves seat IDs, names, kind, difficulty, room wins, and game count; resets round/lives/cards/turn/result/history. Active-play abandonment must be explicitly confirmed by the UI. No victory is awarded; an existing lobby is unchanged. `createLobby` is a genuinely new room and resets wins.
 - Match ends when one survivor remains. Winner's room wins increment exactly once. Repeated challenge/nextRound/rematch in invalid phases is a no-op.
 
 Players are `{id,name,kind:'human'|'bot',difficulty,life,wins,eliminated}`. Seat IDs are stable string IDs `p1`…`p8`. The transitions themselves do not depend on `kind`, so a future authoritative adapter can supply human actors; offline lobby intentionally does not fake online humans.
@@ -50,7 +51,7 @@ state = NumberBluff.dispatch(state,{...action,player:id,revision:state.revision}
 
 `dispatch(state,action,rng)` requires exact `action.revision` and supports declare/challenge/nextRound/rematch. Use this guard for replayed/stale actions. Direct transition helpers still validate phase/turn/bid. Authentication, authorization of progression/rematch, seat admission and command deduplication belong to the future authoritative multiplayer adapter. Do not trust a client-supplied player ID. Disconnect behavior, networking, host migration, SDK and service choices are intentionally unspecified.
 
-`scheduler.js` exports `NumberBluffScheduler(setTimeoutFn?,clearTimeoutFn?)`: `{schedule(callback,delay),cancel()}`. Scheduling cancels the previous ticket; generation guards invalidate queued, canceled and already-fired callbacks. The UI should cancel on exit/restart/modal flow and capture a revision for bot actions.
+`scheduler.js` exports `NumberBluffScheduler(setTimeoutFn?,clearTimeoutFn?)`: `{schedule(callback,delay),cancel()}`. Scheduling cancels the previous ticket; generation guards invalidate queued, canceled and already-fired callbacks. The UI should cancel on confirmed exit, restart, or state changes and capture a revision for bot actions. Opening a guide or an unconfirmed exit dialog intentionally does not pause bots or steal focus; cancel only when an exit is confirmed.
 
 ## Verification
 

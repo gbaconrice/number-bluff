@@ -136,3 +136,23 @@ test('host-alone lobby permits zero bots, rejects start without mutation or RNG,
  s=E.addBot(s,'easy');s=E.startGame(s,seeded());assert.equal(s.phase,'play');E.assertInvariant(s);
  assert.throws(()=>E.createLobby({botCount:-1}));assert.throws(()=>E.createLobby({botCount:8}));
 });
+test('returnToLobby preserves same-room seats, settings, wins and game count',()=>{
+ let s=fixture(['n1_1','n2_1'],{life:[1,3],bid:100});
+ s={...s,players:s.players.map(p=>({...p,name:`Named ${p.id}`,difficulty:p.kind==='bot'?'hard':null}))};
+ s=E.challenge(s,'p2',seeded());assert.equal(s.phase,'finished');
+ const retained=s.players.map(({life,eliminated,...rest})=>rest),game=s.game;
+ const lobby=E.returnToLobby(freezeDeep(s));assert.equal(lobby.phase,'lobby');assert.equal(lobby.game,game);assert.equal(lobby.revision,s.revision+1);
+ assert.deepEqual(lobby.players.map(({life,eliminated,...rest})=>rest),retained);assert.ok(lobby.players.every(p=>p.life===3&&!p.eliminated));
+ assert.deepEqual(lobby.hands,{});assert.deepEqual(lobby.discard,[]);assert.deepEqual(lobby.history,[]);assert.equal(lobby.result,null);assert.equal(lobby.turn,null);assert.equal(lobby.bid,null);assert.equal(lobby.last,null);assert.equal(lobby.round,0);E.assertInvariant(lobby);
+ assert.equal(E.returnToLobby(lobby),lobby);
+ const started=E.startGame(lobby,seeded(57));assert.equal(started.game,game+1);assert.equal(started.players[1].wins,1);assert.equal(started.players[1].difficulty,'hard');assert.equal(started.players[1].name,'Named p2');E.assertInvariant(started);
+ const rematched=E.rematch(s,seeded(57));assert.equal(rematched.players[1].wins,1);assert.equal(rematched.players[1].difficulty,'hard');assert.equal(rematched.game,game+1);
+ assert.ok(E.createLobby().players.every(p=>p.wins===0));
+});
+test('returnToLobby from active play or reveal never awards abandonment victory',()=>{
+ for(const phase of ['play','reveal']){
+  let s=fixture(['n1_1','n2_1'],{bid:100});if(phase==='reveal')s=E.challenge(s,'p2',seeded());
+  const before=s.players.map(p=>p.wins),lobby=E.returnToLobby(freezeDeep(s));
+  assert.equal(lobby.phase,'lobby');assert.deepEqual(lobby.players.map(p=>p.wins),before);assert.equal(lobby.result,null);E.assertInvariant(lobby);
+ }
+});

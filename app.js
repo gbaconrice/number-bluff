@@ -13,7 +13,14 @@
   const image = (src, cls = '') => { const node = el('img', cls); node.src = src; node.alt = ''; return node; };
   const avatarIndex = id => avatarChoice[id] ?? ((Number(id.slice(1)) - 1) % 4);
   const avatar = id => avatars[avatarIndex(id)];
-  const name = id => { const p = view?.players.find(p => p.id === id); return !p ? '' : p.id === human ? 'あなた' : p.kind === 'human' ? p.name : avatarNames[avatarIndex(id)] + (Number(id.slice(1)) > 4 ? ' ' + id.slice(1) : ''); };
+  const name = id => {
+    const player = view?.players.find(p => p.id === id);
+    if (!player) return '';
+    if (player.id === human) return 'あなた';
+    if (player.kind === 'human') return player.name;
+    const duplicate = view.players.filter(p => p.kind === 'bot' && avatarIndex(p.id) === avatarIndex(id)).length > 1;
+    return avatarNames[avatarIndex(id)] + (duplicate ? ' ' + id.slice(1) : '');
+  };
   function show(id, focus = null) {
     for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
     screen = id; window.scrollTo(0, 0);
@@ -69,7 +76,7 @@
       const slot = el(p.kind === 'bot' ? 'button' : 'div', 'lobby-seat' + (p.id === selectedBot ? ' selected' : ''));
       slot.dataset.seat = p.id;
       if (p.id === 'p1') slot.append(el('span', 'crown', '♛'));
-      slot.append(image(avatar(p.id)), el('strong', '', name(p.id)), el('small', '', p.kind === 'human' ? 'ホスト · ' + p.wins + '勝' : 'BOT · ' + difficultyNames[p.difficulty]));
+      slot.append(image(avatar(p.id)), el('strong', '', name(p.id)), el('small', '', p.kind === 'human' ? 'ホスト · ' + p.wins + '勝' : 'BOT · ' + difficultyNames[p.difficulty] + (p.wins > 0 ? ' · ' + p.wins + '勝' : '')));
       if (p.kind === 'bot') { slot.type = 'button'; slot.setAttribute('aria-pressed', String(p.id === selectedBot)); slot.onclick = () => { selectedBot = p.id; renderLobby(); }; }
       grid.append(slot);
     }
@@ -94,14 +101,16 @@
       const node = cardNode(card, view.phase === 'play' && p.id === human && !out, out);
       if (p.id === human) node.id = 'humanCard';
       node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : view.phase === 'play' && p.id === human ? 'あなたの非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
-      block.append(info, node); grid.append(block);
+      block.append(info, node);
+      if (p.wins > 0) block.append(el('span', 'wins-badge', p.wins + '勝'));
+      grid.append(block);
     }
   }
   function renderResult() {
     const r = view.result; $('resultCards').replaceChildren(); $('calculationSteps').replaceChildren();
     if (!r) { $('resultText').textContent = ''; $('finalTotal').textContent = ''; return; }
     $('resultTitle').textContent = r.winner ? '対戦終了！' : '全カード公開！';
-    const numeric = Object.values(r.cards).filter(c => c.kind === 'number');
+    const numeric = [...Object.values(r.cards), ...(r.extraCard ? [r.extraCard] : [])].filter(c => c.kind === 'number');
     const line = (label, expression) => { const row = el('div', 'calc-line'); row.append(el('div', '', label), el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
     if (r.extraCard) {
       const extra = el('div', 'extra-reveal');
@@ -109,7 +118,7 @@
       $('calculationSteps').append(extra);
     }
     if (r.removedCard) line('MAX→0：最大の数字1枚を0に', r.removedCard.label + ' → 0');
-    line('数字の合計', numeric.map(c => c.id === r.removedCard?.id ? '0' : c.value < 0 ? '(' + c.value + ')' : c.value).join(' + ') + (r.extraCard?.kind === 'number' ? ' + ' + (r.extraCard.id === r.removedCard?.id ? 0 : '(' + r.extraCard.value + ')') : '') + ' = ' + r.baseSum);
+    line('数字の合計', (numeric.map(c => c.id === r.removedCard?.id ? '0' : c.value < 0 ? '(' + c.value + ')' : String(c.value)).join(' + ') || '0') + ' = ' + r.baseSum);
     if (r.multiplier !== 1) line('×2 の効果', r.baseSum + ' × 2 = ' + r.sum);
     if (r.reset) $('calculationSteps').append(el('div', 'calc-line', 'リセット：この判定後、全36枚を混ぜ直します。'));
     $('finalTotal').textContent = r.sum;
@@ -185,7 +194,7 @@
   function confirm(intent) { confirmIntent = intent; $('restartTitle').textContent = intent === 'home' ? '対戦を終了してホームへ？' : '対戦を終了してロビーへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = intent === 'home' ? '終了して戻る' : 'ロビーへ戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
   function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); (confirmIntent === 'home' ? $('homeBtn') : $('restartBtn')).focus(); }
   $('homeBtn').onclick = () => confirm('home'); $('restartBtn').onclick = () => confirm('lobby'); $('cancelRestart').onclick = closeConfirm;
-  $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); if (confirmIntent === 'home') { detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); } else newLobby(); };
+  $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); if (confirmIntent === 'home') { detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); } else if (transport) { action('returnToLobby'); } else { apply(G.returnToLobby(state)); show('lobbyScreen', 'beginGame'); } };
   function overlay(id, trigger) { overlayReturn = { screen, trigger }; show(id); }
   function closeOverlay() { const back = overlayReturn || { screen: 'homeScreen', trigger: $('startGame') }; show(back.screen); back.trigger?.focus(); overlayReturn = null; }
   $('homeRules').onclick = () => { overlay('guidePanel', $('homeRules')); guide('rules'); };
@@ -267,7 +276,7 @@
         }
         human = publicState.viewerId;
         receive(publicState);
-        if (first || screen === 'lobbyScreen') { show(publicState.phase === 'lobby' ? 'lobbyScreen' : 'battleScreen'); first = false; }
+        if (first || screen === 'lobbyScreen' || (publicState.phase === 'lobby' && screen === 'battleScreen')) { show(publicState.phase === 'lobby' ? 'lobbyScreen' : 'battleScreen'); first = false; }
       });
     },
     disconnect() { timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); }
