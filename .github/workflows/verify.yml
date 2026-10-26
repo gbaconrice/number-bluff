@@ -1,0 +1,41 @@
+name: Verify preview
+on:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: https://registry.npmjs.org
+      - name: Engine and scheduler tests
+        run: npm test
+      - name: Install browser test dependency (no runtime dependencies)
+        run: npm install --no-save --package-lock=false --ignore-scripts --registry=https://registry.npmjs.org playwright@1.57.0
+      - name: Install Chromium
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Build single HTML handoff
+        run: node tools/build-single-html.mjs
+      - name: Browser regression and responsive checks
+        run: node tools/e2e.mjs
+      - name: Screenshots and test results only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-browser-results
+          path: |
+            artifacts/*.png
+            artifacts/*.json
+          if-no-files-found: ignore
+          retention-days: 7
+
