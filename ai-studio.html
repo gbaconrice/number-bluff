@@ -1,0 +1,481 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101b40"><title>ナンバーブラフ</title><style>
+@font-face{font-family:TitleMochiy;src:url("https://tanabe0422.github.io/number-bluff/assets/title-mochiy.ttf") format("truetype");font-display:swap}
+:root{color-scheme:dark;font-family:ui-rounded,"Hiragino Maru Gothic ProN","Yu Gothic",system-ui,sans-serif;color:#fff5e8;background:#101a3d;--cream:#fff0c6;--line:#9aade2;--ink:#182b59}*{box-sizing:border-box}body{margin:0;background:#101a3d url("https://tanabe0422.github.io/number-bluff/assets/celestial-background.webp") center/cover fixed;min-height:100dvh}main{max-width:500px;margin:auto;padding:10px max(9px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(9px,env(safe-area-inset-left));padding-top:max(10px,env(safe-area-inset-top))}.screen{position:relative}.hide,[hidden]{display:none!important}button,input{font:inherit}button{min-height:44px;border:1px solid #9db4ef;border-radius:14px;background:linear-gradient(#344c80,#17294e);box-shadow:inset 0 1px 2px #e8ecff66,0 2px 6px #0004;color:#fff5e8;font-weight:800;cursor:pointer;touch-action:manipulation;padding:8px 12px}button:disabled{background:#34415e;color:#aab4d0;border-color:#67748e;box-shadow:none;cursor:not-allowed}button:focus-visible,input:focus-visible,[tabindex="-1"]:focus-visible{outline:3px solid #ffe29a;outline-offset:3px}button:active:not(:disabled){transform:translateY(1px)}p{line-height:1.75}h1,h2,h3,p{margin-top:0}h2{font-size:18px;margin-bottom:12px}h3{font-size:12px;margin-bottom:7px}.gold{background:linear-gradient(#fff6ce,#ffe4a1);border-color:#fff2c3;color:#162853;box-shadow:inset 0 0 0 2px #fff8dd8f,0 0 12px #ffe5af70,0 3px 0 #b69885}.lavender{background:linear-gradient(125deg,#c6c1ff,#8f88f0 50%,#c8adf3);border-color:#eee3ff;color:#201b52;box-shadow:inset 0 0 0 2px #e2dcff80,0 0 13px #beb1ff88}.blue{background:linear-gradient(#3c58be,#263c88);border-color:#a0b4ff;box-shadow:inset 0 0 0 2px #667ee44d,0 0 10px #9aaaff66}.pill{display:block;width:100%;border-radius:30px;font-size:20px;min-height:51px;position:relative}.pill>span{position:absolute;right:19px;font-size:25px;top:8px;color:#8c6581}.circle{width:42px;min-height:42px;flex-shrink:0;padding:0;border-radius:50%;font-size:24px;background:#112653b3}.decorative{display:grid;place-items:center}.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:46px;margin-bottom:7px}.topbar h1{margin:0;text-align:center;font-size:25px;line-height:1.1;color:#ffedc6;text-shadow:0 0 9px #ffe1a955}.topbar h1 small{display:block;font-size:8px;letter-spacing:.12em;margin-top:4px;color:#f4e8ff}.glass{border:1px solid #91a7dd;border-radius:16px;background:linear-gradient(145deg,#152c56de,#081937e8);box-shadow:inset 0 1px 0 #f4e6ff26,0 3px 10px #0004;padding:12px}.cream{background:linear-gradient(135deg,#fff1cf,#f8e4e6);color:#1d3161;padding:18px;border:1px solid #fff1d0;border-radius:17px;box-shadow:0 0 18px #918df333}.quiet{font-size:10px;text-align:center;color:#e5e0f3;margin:12px 0 0}.button-row{display:flex;gap:8px;justify-content:flex-end}.error{font-size:11px;color:#ffbed6;line-height:1.6;margin:6px 0 0}.error:empty{display:none}
+.home{display:flex;flex-direction:column;justify-content:center;min-height:calc(100dvh - 25px);text-align:center;padding:20px 10px}.hanging-stars{position:absolute;top:0;left:0;right:0;font-size:26px;color:#ffe5a4;text-shadow:0 0 12px #ffdaa4;pointer-events:none}.home-logo{font-size:clamp(32px,9.4vw,49px);font-weight:1000;letter-spacing:-.055em;white-space:nowrap;line-height:1.4;color:#ffd7e7;text-shadow:0 3px 0 #6c5282,0 0 12px #f9bde766;margin:9px -5px 0;transform:rotate(-3deg)}.home-logo small{font-size:14px;letter-spacing:.14em;display:block;color:#fff0e8;text-shadow:0 2px 0 #354776;margin-top:0}.home-art{height:clamp(220px,38dvh,325px);position:relative;margin:0;isolation:isolate}.galaxy-pool{position:absolute;left:0;right:0;bottom:1%;height:43%;background:url("https://tanabe0422.github.io/number-bluff/assets/hero-platform.webp") center/contain no-repeat;z-index:-1}.hero-main{position:absolute;width:64%;height:84%;left:20%;bottom:14%;object-fit:contain}.hero-friend{position:absolute;width:31%;height:45%;bottom:3%;object-fit:contain}.hero-friend.left{left:0}.hero-friend.right{right:0;transform:scaleX(-1)}.hero-copy{position:absolute;right:0;top:8%;font-size:12px;line-height:1.4;font-weight:800;transform:rotate(8deg);text-shadow:0 2px 5px #101b3f}.home-actions{display:grid;gap:12px}.home-icons{display:flex;justify-content:space-around;margin:18px 6px 0}.home-icons button{display:grid;justify-items:center;gap:6px;background:none;border:0;box-shadow:none;font-size:11px;padding:0 10px}.home-icons b{font-size:25px;width:43px;height:43px;border:1px solid #d2dcff;border-radius:50%;display:grid;place-items:center;background:#11224dc9}
+.room-line{display:flex;justify-content:space-between;align-items:center;min-height:32px;font-size:13px;font-weight:800;padding:0 10px;margin-bottom:8px}.room-line span{font-size:10px;color:#c8d8f5}.lobby-box h2{font-size:15px;margin:0 0 9px}.lobby-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.lobby-seat{position:relative;min-width:0;border:1px solid #6d8bc7;border-radius:13px;padding:7px 3px;background:#203965a3;text-align:center;min-height:101px;color:#f7edff}.lobby-seat.selected{border-color:#ffe7a3;box-shadow:0 0 9px #fff0b777}.lobby-seat img{display:block;width:100%;height:48px;object-fit:contain}.lobby-seat strong{font-size:11px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lobby-seat small{display:block;font-size:9px;margin-top:2px;color:#d3dafa}.lobby-seat .crown{position:absolute;left:50%;transform:translateX(-50%);top:-8px;color:#ffe9ac;font-size:18px}.lobby-seat.empty{color:#bcccf1;display:flex;flex-direction:column;align-items:center;justify-content:center}.lobby-seat.empty b{font-size:30px;line-height:1.1}.lobby-seat.empty small{font-size:9px}.bot-config{margin:10px 0 15px;padding:11px}.bot-config h2{font-size:13px;margin-bottom:8px}.bot-config h2 small{font-size:10px;font-weight:400;color:#d1dbf4}.bot-choices{display:flex;gap:8px}.bot-choices button{width:49px;height:45px;min-height:45px;padding:0;border-radius:10px}.bot-choices img{width:42px;height:42px;object-fit:contain}.bot-choices button[aria-pressed="true"],.difficulty button[aria-pressed="true"]{border-color:#d3deff;background:#5070d5;box-shadow:0 0 9px #a8baff}.cool{filter:hue-rotate(27deg)}.difficulty{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.difficulty button{font-size:12px;min-height:39px;padding:6px}.bot-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:9px;color:#d3dcf2;margin-top:7px}.bot-footer button{font-size:9px;min-height:32px;padding:4px 6px;background:#1a2c4d}
+.battle-meta{display:flex;align-items:center;justify-content:center;gap:14px;font-size:11px;font-weight:750;margin-bottom:7px;min-height:22px}.battle-meta button{border:0;box-shadow:none;background:none;font-size:10px;min-height:22px;padding:0}.battle-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:8px}.battle-player{min-width:0;text-align:center}.player-info{height:73px;border:1px solid #7893ca;border-radius:11px;background:#0a2047ce;margin-bottom:5px;padding:4px 2px}.battle-player.self .player-info{border-color:#ffe7a3;box-shadow:0 0 8px #ffe7a344}.battle-player.active .player-info{box-shadow:0 0 0 2px #b6c9ff,0 0 10px #a5beff88}.player-name{font-size:10px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.player-info img{display:block;margin:0 auto;width:37px;height:34px;object-fit:contain}.hearts{font-size:11px;line-height:1;letter-spacing:1px;color:#ffb2d1}.player-card{width:100%;height:112px;position:relative;isolation:isolate;border:1px solid #fff1c9;border-radius:10px;background:linear-gradient(140deg,#fff5ce,#ffdfe4 60%,#b7cbff);box-shadow:inset 0 0 0 2px #fff8e1aa,0 0 8px #cbb3ff33;color:#1b2c5a;font-weight:900;font-size:32px;line-height:1;padding-top:13px;overflow:hidden}.player-card:before{content:"✦";position:absolute;left:5px;top:5px;font-size:10px;color:#fff}.player-card .card-art{position:absolute;left:7%;width:86%;height:57%;bottom:0;object-fit:contain;z-index:-1}.player-card.hidden{background:radial-gradient(ellipse at 50% 60%,#5367b5,#112354 70%);color:#fff1cb;padding-top:32px;font-size:41px;border-color:#c8d6ff}.player-card.hidden:after{content:"✦";position:absolute;right:8px;bottom:10px;font-size:17px;text-shadow:-40px -61px #ffe9b5}.player-card.special{background:radial-gradient(ellipse at 50% 80%,#6575dd,#142b61 70%);color:#ffefd6}.player-card.kind-max0{font-size:clamp(12px,3.7vw,19px);padding-top:13px;letter-spacing:-.06em}.player-card.kind-reset{font-size:16px}.player-card.negative{background:linear-gradient(#e7f6ff,#b8d4ff,#c1b3f0)}.battle-player.eliminated{opacity:.48}.player-card.out{background:#142448;color:#c8d4f0;font-size:15px;padding-top:35px;border-color:#6176a5}.battle-grid.many .player-info{height:49px;display:grid;grid-template-columns:27px 1fr;align-items:center;padding:3px}.battle-grid.many .player-name{grid-column:1/-1;font-size:9px}.battle-grid.many .player-info img{width:25px;height:26px}.battle-grid.many .hearts{font-size:9px;letter-spacing:0}.battle-grid.many .player-card{height:74px;font-size:27px;padding-top:7px}.battle-grid.many .player-card.hidden{padding-top:20px}.battle-grid.many .player-card.kind-max0{font-size:13px;padding-top:9px}.battle-grid.many .player-card.kind-reset{font-size:13px}.battle-grid.many{row-gap:7px}.bid-panel{text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:74px;padding:6px;margin:6px auto;max-width:92%;border-radius:18px}.bid-panel>span{font-size:11px;font-weight:750;line-height:1.3}.bid-panel strong{font-size:35px;line-height:1.1;overflow-wrap:anywhere}.bid-panel #lastBidder{font-size:10px;color:#d8e1fa}#status{font-size:12px;text-align:center;font-weight:800;min-height:22px;padding:2px 0;margin:3px 0}.input-console{padding:9px}.entry-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px}.entry-row label{font-size:10px}.entry-row input{width:45%;min-width:0;height:44px;border:1px solid #99afe4;border-radius:10px;text-align:center;background:#101f40;color:#fff0bc;font-size:20px;padding:3px 8px}.entry-row input[aria-invalid="true"]{border-color:#ffb1ce}.controls{display:grid;grid-template-columns:1.25fr 1fr;gap:10px}.keypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.keypad button{height:44px;min-height:44px;min-width:0;padding:0;border-radius:11px;font-size:20px}.keypad .zero{grid-column:2}.decisions{display:grid;grid-template-rows:1fr 1.15fr;gap:9px}.decisions button{font-size:24px;padding:5px;position:relative;border-radius:17px;overflow:hidden}.decisions #challenge{font-size:clamp(13px,3.6vw,20px);padding-bottom:25px}.decisions #challenge img{width:45px;height:45px;object-fit:contain;position:absolute;bottom:-7px;right:4px;pointer-events:none}.hint{font-size:8px;color:#d5dcf0;margin:5px 0 0;line-height:1.4}
+#resultTitle{text-align:center;font-size:22px;margin:10px 0;color:#fff0c5}.calculation{display:grid;grid-template-columns:1fr 82px;gap:10px;margin:10px 0}.calculation h3{font-size:12px}#calculationSteps{font-size:12px;line-height:1.8}.calc-line{margin-bottom:5px}.calc-expression{font-weight:850;font-size:18px;overflow-wrap:anywhere}.final-total{border:1px solid #a5b7e8;border-radius:12px;padding:10px 4px;text-align:center;align-self:stretch;display:flex;flex-direction:column;justify-content:center}.final-total span{font-size:11px}.final-total strong{font-size:39px;line-height:1.2;color:#ffedb7;overflow-wrap:anywhere}.result-message{display:flex;align-items:center;gap:8px;margin-bottom:13px;padding:8px}.result-message img{width:65px;height:65px;object-fit:contain}.result-message p{font-size:13px;margin:0;font-weight:800}.subtle{display:block;background:#10244ac9;margin:13px auto 0;font-size:11px;min-height:44px}.guide-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin:10px 0 0}.guide-tabs button{border-radius:10px 10px 0 0;font-size:10px;min-height:40px;padding:4px}.guide-tabs button[aria-selected="true"]{background:#eee5fb;color:#1d3267;border-color:#ede8ff}.guide-tabs+.cream{border-radius:0 0 17px 17px;min-height:420px}.guide-step{position:relative;background:#fff5db88;border-radius:13px;padding:13px 12px 13px 46px;margin:9px 0}.guide-step b.step-number{position:absolute;left:11px;top:14px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:white;background:linear-gradient(#a5a8ef,#575cbd);font-size:17px}.guide-step h3{font-size:14px;margin-bottom:5px}.guide-step p{font-size:12px;margin:0}.catalogue{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px 7px;margin:13px 0 18px}.catalogue .player-card{height:108px;font-size:31px}.catalogue .kind-max0{font-size:12px}.catalogue .kind-reset{font-size:12px}.catalogue small{font-size:10px;display:block;text-align:center;margin-top:4px}.special-rule{display:flex;align-items:center;gap:12px;border-radius:12px;background:#fff7df99;padding:9px;margin:9px 0}.special-rule .player-card{width:66px;min-width:66px;height:87px;font-size:22px}.special-rule .kind-max0{font-size:11px}.special-rule .kind-reset{font-size:11px}.special-rule p{font-size:11px;line-height:1.7;margin:0}.special-rule strong{font-size:14px}.guide-bot{display:flex;gap:12px;margin:12px 0;padding:12px;background:#fff9e499;border-radius:14px}.guide-bot img{width:72px;height:72px;object-fit:contain}.guide-bot p{font-size:12px;margin:0}.guide-bot h3{font-size:16px}.cream>p{font-size:13px}.example{padding:14px;background:#fff8df99;border-radius:13px;margin:10px 0}.example h3{font-size:14px}.example p{font-size:12px;margin:0}.example strong{display:block;font-size:23px;margin-top:7px;color:#304a82}.settings label{display:flex;justify-content:space-between;align-items:center;padding:17px 0;border-bottom:1px solid #d5c6d4;font-weight:750}.settings small{display:block;font-size:11px;font-weight:400;margin-top:5px}.settings input{width:28px;height:28px;accent-color:#7264b8}.settings p{font-size:12px;margin-top:20px}body[data-motion="on"] .hero-main{animation:float 4s ease-in-out infinite}@keyframes float{50%{transform:translateY(-7px)}}
+@media(min-width:600px){main{max-width:520px;padding-top:20px}.home{min-height:780px}.home-logo{font-size:51px}.home-art{height:350px}.player-card{height:132px}.battle-grid.many .player-card{height:93px}.lobby-seat{min-height:114px}.lobby-seat img{height:60px}}
+@media(max-width:350px){main{padding:7px max(7px,env(safe-area-inset-right)) 12px max(7px,env(safe-area-inset-left))}.topbar{min-height:40px;margin-bottom:4px}.topbar h1{font-size:21px}.topbar .circle{width:38px;min-height:38px}.topbar h1 small{font-size:7px}.home{padding:16px 7px;min-height:calc(100dvh - 19px)}.home-logo{font-size:32px}.home-art{height:230px}.home-logo small{font-size:12px}.home-actions{gap:10px}.pill{font-size:18px;min-height:48px}.home-icons{margin-top:14px}.home-icons b{width:39px;height:39px}.lobby-box{padding:9px}.lobby-grid{gap:5px}.lobby-seat{min-height:89px}.lobby-seat img{height:39px}.lobby-seat strong{font-size:10px}.lobby-seat small{font-size:8px}.bot-config{margin:7px 0 11px}.battle-meta{font-size:10px;margin-bottom:5px;min-height:20px}.battle-grid{gap:5px;margin-bottom:5px}.player-info{height:62px;padding:3px 1px}.player-info img{height:28px;width:31px}.player-name{font-size:9px}.hearts{font-size:10px}.player-card{height:96px;font-size:29px;padding-top:10px}.player-card.hidden{padding-top:27px}.player-card.kind-max0{font-size:12px}.battle-grid.many .player-info{height:40px;grid-template-columns:22px 1fr;margin-bottom:3px;padding:2px}.battle-grid.many .player-name{font-size:8px}.battle-grid.many .player-info img{width:20px;height:20px}.battle-grid.many .hearts{font-size:8px}.battle-grid.many .player-card{height:56px;font-size:23px;padding-top:5px}.battle-grid.many .player-card.hidden{padding-top:13px;font-size:30px}.battle-grid.many .player-card.kind-max0{font-size:11px;padding-top:6px}.battle-grid.many .player-card.kind-reset{font-size:11px}.bid-panel{min-height:58px;margin:4px auto;padding:4px}.bid-panel strong{font-size:29px}.bid-panel>span{font-size:10px}#status{font-size:11px;min-height:19px;margin:2px 0;padding:1px}.input-console{padding:7px}.entry-row{margin-bottom:5px}.entry-row label{font-size:9px}.entry-row input{height:40px;font-size:19px}.controls{gap:7px}.keypad{gap:4px}.decisions{gap:7px}.decisions button{font-size:21px}.decisions #challenge{font-size:12px}.hint{font-size:7px}.catalogue .player-card{height:88px}.catalogue .kind-max0{font-size:10px}.cream{padding:14px}.guide-step{padding:11px 9px 11px 40px}.guide-step b.step-number{left:8px}.final-total strong{font-size:33px}.calculation{grid-template-columns:1fr 70px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.home-logo,.topbar h1{font-family:TitleMochiy,ui-rounded,sans-serif;font-weight:400}.home-logo small,.topbar h1 small{font-family:system-ui,sans-serif;font-weight:800}.circle,.topbar .circle{width:44px;min-height:44px}.difficulty button,.bot-footer button{min-height:44px}.entry-row input{height:44px}.home-logo{letter-spacing:-.075em}.hanging-stars{display:none}
+@media(max-width:350px){.battle-grid.many .player-card{height:52px}.battle-grid.many{row-gap:5px}.topbar{margin-bottom:2px}.home-logo{font-size:29px}.bot-footer span{max-width:150px}}
+
+/* Illustrated guides: art remains separate from real, selectable rule text. */
+.guide-step{padding-right:74px;min-height:96px}.step-art{position:absolute;right:8px;top:22px;width:55px;height:65px;display:grid;place-items:center}.step-art img{width:55px;height:62px;object-fit:contain}.step-art .player-card{width:42px;height:62px;font-size:26px;padding-top:18px;transform:rotate(10deg)}.speech-bubble{position:absolute;top:-11px;right:0;font-size:9px;white-space:nowrap;font-weight:850;background:#fff7d1;border:1px solid #8c8fc7;border-radius:8px;padding:3px;color:#293f80;transform:rotate(-5deg)}.step-crown{position:absolute;top:-9px;color:#c49325;font-size:21px}.extra-reveal{display:flex;align-items:center;gap:10px;margin-bottom:10px}.extra-reveal>span{font-size:11px}.extra-reveal .player-card{width:58px;height:78px;font-size:24px;flex-shrink:0;padding-top:8px}.extra-reveal .kind-max0,.extra-reveal .kind-reset{font-size:11px}.example-visual{display:flex;align-items:center;gap:9px;margin:10px 0}.example-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;flex:1;min-width:0}.example-cards .player-card{height:76px;font-size:24px;padding-top:9px}.example-cards .kind-max0,.example-cards .kind-reset{font-size:10px;padding-top:10px}.example-extra{position:relative}.example-extra>small{position:absolute;top:-13px;left:0;font-size:9px;font-weight:800}.example-total{width:63px;flex-shrink:0;text-align:center;border-radius:10px;background:#ffe8ad;padding:9px 3px}.example-total span{font-size:9px;display:block}.example-total strong{font-size:29px;margin:0;line-height:1.2}.example-expression{font-size:12px;font-weight:800;line-height:1.6;margin-top:7px}.example-cards .card-art{height:52%}
+@media(max-width:350px){.guide-step{padding-right:66px}.step-art{right:5px;width:48px}.step-art img{width:48px}.example{padding:11px}.example-visual{gap:6px}.example-total{width:49px}.example-total strong{font-size:24px}.example-cards{gap:3px}.example-cards .player-card{height:64px;font-size:21px}.example-cards .kind-max0,.example-cards .kind-reset{font-size:8px}.example-cards .kind-max0{letter-spacing:-.08em}}
+
+.home-icons .icon-caption{background:#10234bc9;border-radius:6px;padding:3px 6px;color:#fff5e8;text-shadow:0 1px 2px #08132e;line-height:1.3}
+
+.wins-badge{position:absolute;right:3px;bottom:3px;z-index:1;font-size:8px;line-height:1.2;padding:2px 4px;background:#233357e8;color:#fff0bd;border-radius:5px;font-weight:800}
+
+.battle-player{position:relative}
+/* Keep turn announcements legible over the bright decorative cloud bank. */
+#status{background:#102449f2;border-radius:8px;color:#fff7e6;text-shadow:0 1px 2px #050e26}
+
+</style></head><body><main>
+<section id="homeScreen" class="screen home"><div class="hanging-stars" aria-hidden="true">✦　　　　　✧　　　　　✦</div><h1 class="home-logo">ナンバーブラフ<small>NUMBER BLUFF</small></h1><div class="home-art" aria-hidden="true"><div class="galaxy-pool"></div><img class="hero-main" src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""><img class="hero-friend left" src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""><img class="hero-friend right" src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""><span class="hero-copy">数字で<br>だませる？<br>それとも<br>見抜ける？</span></div><div class="home-actions"><button id="startGame" class="pill gold">ゲームをはじめる <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button><button id="homeCards"><b aria-hidden="true">▤</b><span class="icon-caption">カード図鑑</span></button><button id="homeSettings"><b aria-hidden="true">⚙</b><span class="icon-caption">設定</span></button></nav></section>
+<section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><button id="lobbyBack" class="circle" aria-label="ホームへ戻る">‹</button><h1>ナンバーブラフ<small>NUMBER BLUFF</small></h1><button class="circle settings-open" aria-label="設定">⚙</button></header><div class="room-line">ローカルルーム <span>あなた + BOT</span></div><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><span>BOTを選んで、見た目と難易度を変更</span><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" class="pill lavender">ゲームを開始する <span>›</span></button><p class="quiet">数字32枚 + 特殊4枚 · 全36枚 / ライフ3</p></section>
+<section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">‹</button><h1>ナンバーブラフ<small>NUMBER BLUFF</small></h1><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><div class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></div><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" aria-label="プレイヤーとカード"></div><section id="gamePanel"><div class="bid-panel glass"><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="entry-row"><label for="number">宣言する数字</label><input id="number" type="text" inputmode="none" autocomplete="off" spellcheck="false" aria-describedby="inputHint inputError"></div><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><button id="declare" class="gold">宣言</button><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="hint">前より大きな0以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><section id="result" class="hide"><h2 id="resultTitle" tabindex="-1">全カード公開！</h2><div id="resultCards" class="hide" aria-hidden="true"></div><section class="calculation glass"><div><h3>計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span>最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button><button id="restartBtn" class="subtle">ロビーで設定を変更</button></section></section>
+<section id="guidePanel" class="screen hide" aria-label="ゲームガイド"><header class="topbar"><button id="closeGuide" class="circle" aria-label="ガイドを閉じる">‹</button><h1>ナンバーブラフ<small>GUIDE BOOK</small></h1><span class="circle decorative" aria-hidden="true">✦</span></header><div class="guide-tabs" role="tablist" aria-label="ガイド"><button data-tab="rules" role="tab">遊び方</button><button data-tab="cards" role="tab">カード図鑑</button><button data-tab="bots" role="tab">BOT</button><button data-tab="examples" role="tab">計算例</button></div><article id="guideContent" class="cream" tabindex="-1"></article></section>
+<section id="settingsPanel" class="screen hide" aria-labelledby="settingsTitle"><header class="topbar"><button id="closeSettings" class="circle" aria-label="設定を閉じる">‹</button><h1 id="settingsTitle">設定</h1></header><div class="cream settings"><label><span>効果音<small>宣言・判定時の短い音</small></span><input id="soundToggle" type="checkbox"></label><label><span>ゆったりした動き<small>ホームのキャラクター演出</small></span><input id="motionToggle" type="checkbox"></label><p>端末の「視差効果を減らす」設定も尊重します。音は初期状態でオフです。</p></div></section>
+<section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><button id="closeJoin" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="joinTitle">ルームに参加</h1></header><div class="cream"><h2>オンライン接続は準備中です</h2><p>ルーム参加はAI Studioで接続するマルチプレイ機能です。現在はまだ接続されていないため、ルームへの参加はできません。</p><p>「ゲームをはじめる」から、1人と最大7体のBOTで全36枚のルールを遊べます。</p><button id="joinLocal" class="gold">BOTと遊ぶ</button></div></section>
+</main><script>
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.NumberBluff = factory();
+})(typeof globalThis === 'object' ? globalThis : this, function () {
+  'use strict';
+  const counts = [[1,4],[2,4],[3,4],[4,4],[5,4],[10,3],[15,2],[20,1],[0,3],[-5,2],[-10,1]];
+  const cards = [];
+  for (const [value,count] of counts) for(let n=1;n<=count;n++) cards.push(Object.freeze({id:`n${value}_${n}`,kind:'number',value,label:String(value)}));
+  for (const [kind,label] of [['double','×2'],['max0','MAX→0'],['extra','?'],['reset','0↻']]) cards.push(Object.freeze({id:kind,kind,value:0,label}));
+  const FULL_DECK = Object.freeze(cards);
+  const difficulties = ['easy','normal','hard'];
+  function random(rng) {
+    if(typeof rng !== 'function') throw new TypeError('Inject an RNG function returning [0,1).');
+    const n = rng(); if(!Number.isFinite(n)||n<0||n>=1) throw new RangeError('RNG must return [0,1).'); return n;
+  }
+  function shuffle(input,rng) { const a=input.slice(); for(let i=a.length-1;i>0;i--) {const j=Math.floor(random(rng)*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+  const alive = s => s.players.filter(p=>p.life>0);
+  function nextSeat(s,id) { const i=s.players.findIndex(p=>p.id===id);for(let n=1;n<=s.players.length;n++){const p=s.players[(i+n)%s.players.length];if(p.life>0)return p.id;} return null; }
+  function updated(s,patch) { return {...s,...patch,revision:s.revision+1}; }
+  function createLobby({name='YOU',botCount=1,difficulty='normal'}={}) {
+    if(!Number.isInteger(botCount)||botCount<0||botCount>7||!difficulties.includes(difficulty)) throw new RangeError('Use 0–7 bots and easy/normal/hard.');
+    return {phase:'lobby',revision:0,game:0,round:0,players:[{id:'p1',name:String(name).slice(0,24)||'YOU',kind:'human',difficulty:null,life:3,wins:0,eliminated:false},...Array.from({length:botCount},(_,i)=>({id:`p${i+2}`,name:`BOT ${i+1}`,kind:'bot',difficulty,life:3,wins:0,eliminated:false}))],deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,starter:'p1',result:null,history:[]};
+  }
+  function addBot(s,difficulty='normal') {
+    if(s.phase!=='lobby'||s.players.length>=8||!difficulties.includes(difficulty))return s;
+    const seat=Array.from({length:7},(_,i)=>i+2).find(n=>!s.players.some(p=>p.id===`p${n}`));
+    return updated(s,{players:[...s.players,{id:`p${seat}`,name:`BOT ${seat-1}`,kind:'bot',difficulty,life:3,wins:0,eliminated:false}]});
+  }
+  function removeBot(s,id) {if(s.phase!=='lobby'||s.players.length<=1||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;return updated(s,{players:s.players.filter(p=>p.id!==id)});}
+  function setDifficulty(s,id,difficulty) {if(s.phase!=='lobby'||!difficulties.includes(difficulty)||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;return updated(s,{players:s.players.map(p=>p.id===id?{...p,difficulty}:p)});}
+  function draw(pool,rng) { if(!pool.deck.length){pool.deck=shuffle(pool.discard,rng);pool.discard=[];} if(!pool.deck.length)throw new Error('No available card');return pool.deck.pop(); }
+  function deal(s,rng) {
+    const pool={deck:s.deck.slice(),discard:s.discard.slice()},hands={};
+    for(const p of alive(s)) hands[p.id]=draw(pool,rng);
+    return updated(s,{...pool,hands,phase:'play',round:s.round+1,bid:null,last:null,turn:s.starter,result:null,history:[]});
+  }
+  function startGame(s,rng) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;return deal({...s,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,starter:s.players[0].id},rng);}
+  function rematch(s,rng) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:s.players.map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng);}
+  // A room survives leaving a match. The UI must confirm abandoning active play;
+  // no winner is awarded here. createLobby is reserved for a genuinely new room.
+  function returnToLobby(s) {
+    if(!['play','reveal','finished'].includes(s.phase))return s;
+    return updated(s,{phase:'lobby',round:0,players:s.players.map(p=>({...p,life:3,eliminated:false})),
+      deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,
+      starter:s.players[0].id,result:null,history:[]});
+  }
+  function nextRound(s,rng) {if(s.phase!=='reveal')return s;return deal(s,rng);}
+  function declare(s,who,value) {
+    if(s.phase!=='play'||s.turn!==who||!Number.isSafeInteger(value)||value<0||(s.bid!==null&&value<=s.bid))return s;
+    return updated(s,{bid:value,last:who,turn:nextSeat(s,who),history:[...s.history,{type:'declare',player:who,value}]});
+  }
+  // Extra is supplied separately: it is one physical card, never recursively drawn.
+  function evaluateCards(handCards,extraCard=null) {
+    const hasExtra=handCards.some(c=>c.kind==='extra');
+    const all=hasExtra&&extraCard?[...handCards,extraCard]:handCards.slice();
+    const positive=all.filter(c=>c.kind==='number'&&c.value>0);
+    const removedCard=all.some(c=>c.kind==='max0')&&positive.length?positive.reduce((a,b)=>a.value>=b.value?a:b):null;
+    const baseSum=all.reduce((sum,c)=>sum+(c.kind==='number'&&c!==removedCard?c.value:0),0);
+    const multiplier=all.some(c=>c.kind==='double')?2:1;
+    return {sum:baseSum*multiplier,baseSum,multiplier,removedCard,reset:all.some(c=>c.kind==='reset')};
+  }
+  function challenge(s,who,rng) {
+    if(s.phase!=='play'||s.turn!==who||s.bid===null)return s;
+    const pool={deck:s.deck.slice(),discard:s.discard.slice()};
+    const handCards=Object.values(s.hands),extraCard=handCards.some(c=>c.kind==='extra')?draw(pool,rng):null;
+    const outcome=evaluateCards(handCards,extraCard),loser=s.bid>outcome.sum?s.last:who;
+    let players=s.players.map(p=>p.id===loser?{...p,life:Math.max(0,p.life-1),eliminated:p.life<=1}:p);
+    const survivors=players.filter(p=>p.life>0),winner=survivors.length===1?survivors[0].id:null;
+    if(winner)players=players.map(p=>p.id===winner?{...p,wins:p.wins+1}:p);
+    pool.discard.push(...handCards,...(extraCard?[extraCard]:[]));
+    if(outcome.reset){pool.deck=shuffle(FULL_DECK,rng);pool.discard=[];}
+    const starter=players.find(p=>p.id===loser).life>0?loser:nextSeat({...s,players},loser);
+    return updated(s,{...pool,players,hands:{},phase:winner?'finished':'reveal',turn:null,starter,
+      result:{...outcome,cards:{...s.hands},extraCard,loser,challenger:who,bidder:s.last,bid:s.bid,winner},history:[...s.history,{type:'challenge',player:who}]});
+  }
+  function publicView(s,viewerId) {
+    const reveal=s.phase==='reveal'||s.phase==='finished';
+    const hands=reveal?{...s.result.cards}:Object.fromEntries(Object.entries(s.hands).map(([id,c])=>[id,id===viewerId?null:c]));
+    return {phase:s.phase,revision:s.revision,game:s.game,round:s.round,players:s.players.map(p=>({...p})),hands,discard:s.discard.slice(),deckCount:s.deck.length,bid:s.bid,last:s.last,turn:s.turn,starter:s.starter,result:reveal?{...s.result,cards:{...s.result.cards}}:null,history:s.history.map(a=>({...a})),viewerId};
+  }
+  function botView(s,id) {return publicView(s,id);}
+  // This function accepts ONLY a sanitized public view. It enumerates legal own-card
+  // and '?' possibilities from public exclusions, never reads authoritative state.
+  function possibleTotals(view) {
+    const visible=Object.values(view.hands).filter(Boolean),excluded=new Set([...visible,...view.discard].map(c=>c.id));
+    const unknown=FULL_DECK.filter(c=>!excluded.has(c.id)),totals=[];
+    for(const own of unknown){
+      const hand=[...visible,own];
+      // With an exhausted draw pile, '?' refills from public discard, not the
+      // own-card pool. Otherwise every unseen non-own card is equally possible.
+      const extras=view.deckCount===0?view.discard:unknown.filter(c=>c.id!==own.id);
+      if(hand.some(c=>c.kind==='extra'))for(const extra of extras)totals.push(evaluateCards(hand,extra).sum);
+      else for(let i=0;i<Math.max(1,extras.length);i++)totals.push(evaluateCards(hand).sum);
+    }
+    return totals.length?totals:[0];
+  }
+  function chooseBotAction(view,rng) {
+    const bot=view.players.find(p=>p.id===view.viewerId);
+    if(view.phase!=='play'||view.turn!==view.viewerId||!bot||bot.kind!=='bot')return null;
+    const totals=possibleTotals(view).sort((a,b)=>a-b),difficulty=bot.difficulty||'normal';
+    const noise=random(rng),quantile=difficulty==='easy'?.25+noise*.5:difficulty==='hard'?.55:.4+noise*.2;
+    const target=Math.max(0,Math.floor(totals[Math.min(totals.length-1,Math.floor(quantile*totals.length))]));
+    const safe=view.bid===null?1:totals.filter(sum=>sum>=view.bid).length/totals.length;
+    const threshold=difficulty==='hard'?.48:difficulty==='normal'?.35+noise*.2:.15+noise*.6;
+    if(view.bid!==null&&(safe<threshold||view.bid===Number.MAX_SAFE_INTEGER))return {type:'challenge'};
+    const minimum=view.bid===null?0:view.bid+1;
+    return {type:'declare',value:Math.max(minimum,Math.min(target,minimum+(difficulty==='hard'?3:difficulty==='normal'?5:8)))};
+  }
+  function parseBid(raw) { const n=String(raw).replace(/[０-９]/g,c=>String(c.charCodeAt(0)-65296)).trim();if(!/^\d+$/.test(n))return null;const value=Number(n);return Number.isSafeInteger(value)?value:null; }
+  // Future authoritative adapter: send expected revision with each action to reject
+  // stale/replayed commands; authenticate actor outside this pure engine.
+  function dispatch(s,action,rng) {
+    if(!action||action.revision!==s.revision)return s;
+    if(action.type==='declare')return declare(s,action.player,action.value);
+    if(action.type==='challenge')return challenge(s,action.player,rng);
+    if(action.type==='nextRound')return nextRound(s,rng);
+    if(action.type==='rematch')return rematch(s,rng);
+    return s;
+  }
+  function assertInvariant(s) {
+    const physical=[...s.deck,...s.discard,...Object.values(s.hands)],ids=physical.map(c=>c.id);
+    if(ids.length!==36||new Set(ids).size!==36||ids.some(id=>!FULL_DECK.some(c=>c.id===id)))throw new Error('Physical deck conservation violated');
+    if(s.players.length<(s.phase==='lobby'?1:2)||s.players.length>8||new Set(s.players.map(p=>p.id)).size!==s.players.length)throw new Error('Invalid seats');
+    if(s.players.some(p=>!Number.isInteger(p.life)||p.life<0||p.life>3||p.eliminated!==(p.life===0)))throw new Error('Invalid life');
+    if(s.phase==='play'&&(!alive(s).some(p=>p.id===s.turn)||Object.keys(s.hands).length!==alive(s).length))throw new Error('Invalid active turn/hands');
+    return true;
+  }
+  return {FULL_DECK,createLobby,addBot,removeBot,setDifficulty,startGame,nextRound,rematch,returnToLobby,declare,challenge,evaluateCards,publicView,botView,chooseBotAction,possibleTotals,parseBid,dispatch,assertInvariant,shuffle};
+});
+
+</script><script>
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.NumberBluffScheduler = factory();
+})(typeof globalThis === 'object' ? globalThis : this, function () {
+  'use strict';
+  // Invalidate even callbacks already queued by the browser before clearTimeout.
+  return function createScheduler(set = setTimeout, clear = clearTimeout) {
+    let generation = 0, pending = null;
+    function cancel() {
+      generation++;
+      if (pending !== null) clear(pending);
+      pending = null;
+    }
+    function schedule(callback, delay) {
+      cancel();
+      const ticket = generation;
+      pending = set(() => {
+        if (ticket !== generation) return;
+        pending = null;
+        generation++;
+        callback();
+      }, delay);
+    }
+    return { cancel, schedule };
+  };
+});
+
+
+</script><script>
+(() => {
+  'use strict';
+  const G = window.NumberBluff, timer = window.NumberBluffScheduler(), $ = id => document.getElementById(id);
+  let human = 'p1';
+  const difficultyNames = { easy: 'やさしい', normal: '普通', hard: '強い' };
+  const avatars = ['https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp', 'https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp', 'https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp', 'https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp'];
+  const avatarNames = ['ほしもち', 'ほしねこ', 'もふうさ', 'くもまる'];
+  let state = null, view = null, screen = 'homeScreen', selectedBot = 'p2', nextDifficulty = 'normal';
+  let avatarChoice = {}, suggested = true, overlayReturn = null, confirmIntent = 'home';
+  let transport = null, unsubscribe = null, settings = { sound: false, motion: false }, audioContext;
+  try { settings = { ...settings, ...JSON.parse(localStorage.getItem('number-bluff-settings') || '{}') }; } catch {}
+  const el = (tag, cls, text) => { const node = document.createElement(tag); if (cls) node.className = cls; if (text !== undefined) node.textContent = text; return node; };
+  const image = (src, cls = '') => { const node = el('img', cls); node.src = src; node.alt = ''; return node; };
+  const avatarIndex = id => avatarChoice[id] ?? ((Number(id.slice(1)) - 1) % 4);
+  const avatar = id => avatars[avatarIndex(id)];
+  const name = id => {
+    const player = view?.players.find(p => p.id === id);
+    if (!player) return '';
+    if (player.id === human) return 'あなた';
+    if (player.kind === 'human') return player.name;
+    const duplicate = view.players.filter(p => p.kind === 'bot' && avatarIndex(p.id) === avatarIndex(id)).length > 1;
+    return avatarNames[avatarIndex(id)] + (duplicate ? ' ' + id.slice(1) : '');
+  };
+  function show(id, focus = null) {
+    for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
+    screen = id; window.scrollTo(0, 0);
+    if (focus) $(focus).focus({ preventScroll: true });
+  }
+  function saveSettings() {
+    document.body.dataset.motion = settings.motion ? 'on' : 'off';
+    $('soundToggle').checked = !!settings.sound; $('motionToggle').checked = !!settings.motion;
+    try { localStorage.setItem('number-bluff-settings', JSON.stringify(settings)); } catch {}
+  }
+  function sound(reveal = false) {
+    if (!settings.sound) return;
+    try {
+      const Audio = window.AudioContext || window.webkitAudioContext; if (!Audio) return;
+      audioContext ||= new Audio(); void audioContext.resume();
+      const oscillator = audioContext.createOscillator(), gain = audioContext.createGain();
+      oscillator.type = 'sine'; oscillator.frequency.value = reveal ? 660 : 440;
+      gain.gain.setValueAtTime(.045, audioContext.currentTime); gain.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + .16);
+      oscillator.connect(gain); gain.connect(audioContext.destination); oscillator.start(); oscillator.stop(audioContext.currentTime + .17);
+    } catch { /* Sound is optional; gameplay never depends on an audio device. */ }
+  }
+  function cardNode(card, hidden = false, out = false) {
+    const node = el('div', 'player-card');
+    if (out) { node.classList.add('out'); node.textContent = '脱落'; return node; }
+    if (hidden || !card) { node.classList.add('hidden'); node.textContent = '?'; return node; }
+    node.classList.add('kind-' + card.kind);
+    if (card.kind !== 'number') node.classList.add('special');
+    if (card.value < 0) node.classList.add('negative');
+    node.append(el('span', 'card-value', card.kind === 'reset' ? 'リセット' : card.label));
+    const art = image(card.kind === 'max0' || card.value === 5 || card.value === 15 ? avatars[1] : card.value < 0 || card.value === 0 ? avatars[3] : card.value === 1 || card.value === 2 ? avatars[2] : avatars[0], 'card-art');
+    node.append(art);
+    if (card.kind === 'double') node.classList.add('orbit-card');
+    return node;
+  }
+  function clearError() { $('inputError').textContent = ''; $('number').removeAttribute('aria-invalid'); }
+  function fail(message) { $('inputError').textContent = message; $('number').setAttribute('aria-invalid', 'true'); }
+  function detachTransport() {
+    if (typeof unsubscribe === 'function') unsubscribe();
+    unsubscribe = null; transport = null;
+  }
+  function newLobby() {
+    detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: 'あなた', botCount: 3 }); avatarChoice = {}; selectedBot = 'p2';
+    view = G.publicView(state, human); renderLobby(); show('lobbyScreen', 'beginGame');
+  }
+  function renderLobby() {
+    $('playerCount').textContent = view.players.length + '/8';
+    const selected = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
+    if (!selected) selectedBot = view.players.find(p => p.kind === 'bot')?.id;
+    const grid = $('lobbyPlayers'); grid.replaceChildren();
+    for (let i = 0; i < 8; i++) {
+      const p = view.players[i];
+      if (!p) { const slot = el('button', 'lobby-seat empty'); slot.type = 'button'; slot.setAttribute('aria-label', 'BOTを追加'); slot.append(el('b', '', '+'), el('small', '', 'BOTを追加')); slot.onclick = addBot; grid.append(slot); continue; }
+      const slot = el(p.kind === 'bot' ? 'button' : 'div', 'lobby-seat' + (p.id === selectedBot ? ' selected' : ''));
+      slot.dataset.seat = p.id;
+      if (p.id === 'p1') slot.append(el('span', 'crown', '♛'));
+      slot.append(image(avatar(p.id)), el('strong', '', name(p.id)), el('small', '', p.kind === 'human' ? 'ホスト · ' + p.wins + '勝' : 'BOT · ' + difficultyNames[p.difficulty] + (p.wins > 0 ? ' · ' + p.wins + '勝' : '')));
+      if (p.kind === 'bot') { slot.type = 'button'; slot.setAttribute('aria-pressed', String(p.id === selectedBot)); slot.onclick = () => { selectedBot = p.id; renderLobby(); }; }
+      grid.append(slot);
+    }
+    const bot = view.players.find(p => p.id === selectedBot);
+    $('selectedBotLabel').textContent = bot ? ' — ' + name(bot.id) : '';
+    $('addBot').disabled = view.players.length >= 8; $('removeBot').disabled = view.players.length <= 1;
+    $('beginGame').disabled = view.players.length < 2;
+    document.querySelectorAll('[data-avatar]').forEach(button => { button.disabled = !bot; });
+    document.querySelectorAll('[data-difficulty]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.difficulty === (bot?.difficulty || nextDifficulty))));
+    document.querySelectorAll('[data-avatar]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.avatar) === avatarIndex(selectedBot || 'p2'))));
+  }
+  function addBot() { if (transport || !state) return; const next = G.addBot(state, nextDifficulty); if (next === state) return; selectedBot = next.players.find(p => !state.players.some(old => old.id === p.id)).id; state = next; view = G.publicView(state, human); renderLobby(); }
+  function renderPlayers() {
+    const grid = $('playerGrid'); grid.replaceChildren(); grid.classList.toggle('many', view.players.length > 4);
+    for (const p of view.players) {
+      const block = el('div', 'battle-player' + (p.id === human ? ' self' : '') + (p.id === view.turn ? ' active' : '') + (p.eliminated ? ' eliminated' : ''));
+      block.dataset.player = p.id;
+      const info = el('div', 'player-info'); info.append(el('div', 'player-name', name(p.id)), image(avatar(p.id)));
+      const hearts = el('div', 'hearts', '♥'.repeat(p.life) + '♡'.repeat(3 - p.life)); hearts.setAttribute('aria-label', name(p.id) + 'のライフ ' + p.life + ' / 3'); info.append(hearts);
+      const card = view.hands[p.id];
+      const out = !Object.prototype.hasOwnProperty.call(view.hands, p.id) && p.eliminated;
+      const node = cardNode(card, view.phase === 'play' && p.id === human && !out, out);
+      if (p.id === human) node.id = 'humanCard';
+      node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : view.phase === 'play' && p.id === human ? 'あなたの非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
+      block.append(info, node);
+      if (p.wins > 0) block.append(el('span', 'wins-badge', p.wins + '勝'));
+      grid.append(block);
+    }
+  }
+  function renderResult() {
+    const r = view.result; $('resultCards').replaceChildren(); $('calculationSteps').replaceChildren();
+    if (!r) { $('resultText').textContent = ''; $('finalTotal').textContent = ''; return; }
+    $('resultTitle').textContent = r.winner ? '対戦終了！' : '全カード公開！';
+    const numeric = [...Object.values(r.cards), ...(r.extraCard ? [r.extraCard] : [])].filter(c => c.kind === 'number');
+    const line = (label, expression) => { const row = el('div', 'calc-line'); row.append(el('div', '', label), el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
+    if (r.extraCard) {
+      const extra = el('div', 'extra-reveal');
+      extra.append(el('span', '', '「?」で追加公開'), cardNode(r.extraCard));
+      $('calculationSteps').append(extra);
+    }
+    if (r.removedCard) line('MAX→0：最大の数字1枚を0に', r.removedCard.label + ' → 0');
+    line('数字の合計', (numeric.map(c => c.id === r.removedCard?.id ? '0' : c.value < 0 ? '(' + c.value + ')' : String(c.value)).join(' + ') || '0') + ' = ' + r.baseSum);
+    if (r.multiplier !== 1) line('×2 の効果', r.baseSum + ' × 2 = ' + r.sum);
+    if (r.reset) $('calculationSteps').append(el('div', 'calc-line', 'リセット：この判定後、全36枚を混ぜ直します。'));
+    $('finalTotal').textContent = r.sum;
+    const loser = view.players.find(p => p.id === r.loser);
+    $('resultText').textContent = r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.bidder) + 'の宣言 ' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum + '。' + name(r.loser) + 'の負け！' + (loser.eliminated ? ' 脱落しました。' : ' ライフが1減りました。');
+    $('next').textContent = r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›';
+  }
+  function renderBattle(previous = null) {
+    renderPlayers(); $('roundLabel').textContent = 'ラウンド ' + view.round; $('survivorCount').textContent = '生存者 ' + view.players.filter(p => !p.eliminated).length + '/' + view.players.length;
+    $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : '最初の宣言をどうぞ';
+    const active = view.phase === 'play', yourTurn = active && view.turn === human;
+    $('gamePanel').classList.toggle('hide', !active); $('result').classList.toggle('hide', active); $('result').classList.toggle('open', !active);
+    const alive = !view.players.find(p => p.id === human)?.eliminated;
+    $('status').textContent = active ? yourTurn ? 'あなたの手番です' : alive ? name(view.turn) + ' が考えています…' : 'あなたは脱落しました。残りの対戦を見届けよう。' : '';
+    $('declare').disabled = !yourTurn || view.bid === Number.MAX_SAFE_INTEGER;
+    $('challenge').disabled = !yourTurn || view.bid === null;
+    $('number').disabled = !yourTurn;
+    document.querySelectorAll('#keypad button').forEach(button => { button.disabled = !yourTurn; });
+    if (yourTurn) { $('number').value = view.bid === null ? '0' : view.bid === Number.MAX_SAFE_INTEGER ? '' : String(view.bid + 1); suggested = true; }
+    $('next').disabled = active; renderResult();
+    if (screen === 'battleScreen' && $('restartConfirm').classList.contains('hide')) {
+      if (!active && previous?.phase === 'play') $('resultTitle').focus();
+      else if (yourTurn && previous) $('status').focus({ preventScroll: true });
+    }
+  }
+  function receive(next) {
+    const previous = view; view = next; clearError();
+    if (view.phase === 'lobby') renderLobby(); else renderBattle(previous);
+  }
+  function apply(next) {
+    if (next === state) return false;
+    timer.cancel(); state = next; receive(G.publicView(state, human));
+    if (state.phase === 'play' && state.turn !== human) {
+      const captured = state;
+      timer.schedule(() => {
+        if (transport || state !== captured || state.phase !== 'play') return;
+        const action = G.chooseBotAction(G.botView(state, state.turn), Math.random);
+        if (!action) return;
+        const updated = action.type === 'challenge' ? G.challenge(state, state.turn, Math.random) : G.declare(state, state.turn, action.value);
+        if (updated !== state) { sound(action.type === 'challenge'); apply(updated); }
+      }, 650 + Math.random() * 450);
+    }
+    return true;
+  }
+  function action(type, value) {
+    if (!view) return false;
+    if (transport) { Promise.resolve(transport.send({ type, player: human, value, revision: view.revision })).catch(() => fail('接続を確認して、もう一度お試しください。')); return true; }
+    const next = G.dispatch(state, { type, player: human, value, revision: view.revision }, Math.random);
+    const changed = apply(next); if (changed) sound(type === 'challenge'); return changed;
+  }
+  $('startGame').onclick = newLobby; $('joinLocal').onclick = newLobby; $('lobbyBack').onclick = () => show('homeScreen', 'startGame');
+  $('joinGame').onclick = () => show('joinPanel', 'closeJoin'); $('closeJoin').onclick = () => show('homeScreen', 'joinGame');
+  $('addBot').onclick = addBot;
+  $('removeBot').onclick = () => { if (transport) return; state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
+  document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
+  document.querySelectorAll('[data-difficulty]').forEach(button => { button.onclick = () => { nextDifficulty = button.dataset.difficulty; if (!transport) { state = G.setDifficulty(state, selectedBot, nextDifficulty); view = G.publicView(state, human); renderLobby(); } }; });
+  $('beginGame').onclick = () => { if (transport) return; show('battleScreen'); apply(G.startGame(state, Math.random)); window.scrollTo(0, 0); $('status').focus({ preventScroll: true }); };
+  $('declare').onclick = () => {
+    const value = G.parseBid($('number').value);
+    if (value === null || !action('declare', value)) { fail('前より大きな0以上の整数を入力してください（最大9007199254740991）。'); $('number').focus(); }
+  };
+  $('challenge').onclick = () => action('challenge');
+  $('next').onclick = () => action(view.phase === 'finished' ? 'rematch' : 'nextRound');
+  document.querySelectorAll('[data-digit]').forEach(button => { button.onclick = () => {
+    if ($('number').disabled) return;
+    const prior = suggested ? '' : $('number').value, next = prior === '0' ? button.dataset.digit : prior + button.dataset.digit;
+    if (next.length > 16 || G.parseBid(next) === null) { fail('入力できる最大の整数は9007199254740991です。'); return; }
+    $('number').value = next; suggested = false; clearError();
+  }; });
+  $('backspace').onclick = () => { if (!$('number').disabled) { $('number').value = $('number').value.slice(0, -1); suggested = false; clearError(); } };
+  $('number').addEventListener('input', () => { suggested = false; clearError(); });
+  $('number').addEventListener('keydown', event => { if (event.key === 'Enter' && !$('declare').disabled) { event.preventDefault(); $('declare').click(); } });
+  function confirm(intent) { confirmIntent = intent; $('restartTitle').textContent = intent === 'home' ? '対戦を終了してホームへ？' : '対戦を終了してロビーへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = intent === 'home' ? '終了して戻る' : 'ロビーへ戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
+  function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); (confirmIntent === 'home' ? $('homeBtn') : $('restartBtn')).focus(); }
+  $('homeBtn').onclick = () => confirm('home'); $('restartBtn').onclick = () => confirm('lobby'); $('cancelRestart').onclick = closeConfirm;
+  $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); if (confirmIntent === 'home') { detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); } else if (transport) { action('returnToLobby'); } else { apply(G.returnToLobby(state)); show('lobbyScreen', 'beginGame'); } };
+  function overlay(id, trigger) { overlayReturn = { screen, trigger }; show(id); }
+  function closeOverlay() { const back = overlayReturn || { screen: 'homeScreen', trigger: $('startGame') }; show(back.screen); back.trigger?.focus(); overlayReturn = null; }
+  $('homeRules').onclick = () => { overlay('guidePanel', $('homeRules')); guide('rules'); };
+  $('homeCards').onclick = () => { overlay('guidePanel', $('homeCards')); guide('cards'); };
+  $('rulesBtn').onclick = () => { overlay('guidePanel', $('rulesBtn')); guide('rules'); };
+  $('closeGuide').onclick = closeOverlay;
+  const openSettings = trigger => { overlay('settingsPanel', trigger); $('soundToggle').focus(); };
+  $('homeSettings').onclick = () => openSettings($('homeSettings'));
+  document.querySelectorAll('.settings-open').forEach(button => { button.onclick = () => openSettings(button); });
+  $('closeSettings').onclick = closeOverlay;
+  $('soundToggle').onchange = () => { settings.sound = $('soundToggle').checked; saveSettings(); sound(); };
+  $('motionToggle').onchange = () => { settings.motion = $('motionToggle').checked; saveSettings(); };
+  document.querySelectorAll('[data-tab]').forEach(button => { button.onclick = () => guide(button.dataset.tab); });
+  function guide(tab) {
+    const container = $('guideContent'); container.replaceChildren();
+    document.querySelectorAll('[data-tab]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.tab === tab)));
+    if (tab === 'rules') {
+      container.append(el('h2', '', '遊び方'));
+      const steps = [['カードを配る','自分のカードだけ見えません。他の人のカードを見て、全員の合計を予想しよう。'],['数字を宣言','最初は0以上の整数。次の人は、前の宣言より大きな数を宣言します。'],['グラビティ！','直前の宣言が合計を超えていると思ったら、グラビティ！で挑戦。'],['勝敗判定','全カードを公開し、特殊効果を含めて合計。宣言が合計より大きければ宣言者の負け。合計以下なら、疑った側の負け。'],['最後まで生き残ろう','負けるとライフが1減り、0で脱落。最後の1人が優勝！次のラウンドは負けた人から（脱落時は次の生存者）。']];
+      steps.forEach(([title, text], index) => {
+        const section = el('section', 'guide-step');
+        section.append(el('b', 'step-number', index + 1), el('h3', '', title), el('p', '', text));
+        const illustration = el('div', 'step-art'); illustration.setAttribute('aria-hidden', 'true');
+        if (index === 0) illustration.append(cardNode(null, true));
+        else {
+          illustration.append(image(avatars[index === 3 ? 2 : 0]));
+          if (index === 1 || index === 2) illustration.append(el('span', 'speech-bubble', index === 1 ? '12 !' : 'グラビティ！'));
+          if (index === 4) illustration.append(el('span', 'step-crown', '♛'));
+        }
+        section.append(illustration); container.append(section);
+      });
+      container.append(el('p', '', '1人 + BOT 1〜7体、最大8人。ライフ3。再戦しても通算勝利数は引き継ぎます。'));
+    } else if (tab === 'cards') {
+      container.append(el('h2', '', 'カード図鑑（全36枚）'), el('h3', '', '数字カード 32枚'));
+      const grouped = new Map(); for (const c of G.FULL_DECK) { const key = c.kind + ':' + c.value; if (!grouped.has(key)) grouped.set(key, { card: c, count: 0 }); grouped.get(key).count++; }
+      const catalogue = el('div', 'catalogue');
+      [...grouped.values()].filter(x => x.card.kind === 'number').sort((a, b) => a.card.value - b.card.value).forEach(({ card, count }) => { const item = el('div'); item.append(cardNode(card), el('small', '', '×' + count)); catalogue.append(item); });
+      container.append(catalogue, el('h3', '', '特殊カード 4枚（各1枚）'));
+      const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
+      [...grouped.values()].filter(x => x.card.kind !== 'number').forEach(({ card }) => { const row = el('div', 'special-rule'), copy = el('p'); copy.append(el('strong', '', card.kind === 'reset' ? 'リセット' : card.label), el('br'), document.createTextNode(descriptions[card.kind])); row.append(cardNode(card), copy); container.append(row); });
+    } else if (tab === 'bots') {
+      container.append(el('h2', '', 'BOTについて'), el('p', '', '一緒に遊べる3段階のBOT。ロビーで1体ずつ難易度を選べます。'));
+      const descriptions = ['判断にゆらぎが多め。まずはのんびり練習したい人に。','見えているカードと公開済みの情報からバランスよく判断。','公開情報から合計の可能性を比較し、慎重に挑戦します。'];
+      ['easy','normal','hard'].forEach((d, i) => { const row = el('div', 'guide-bot'), copy = el('div'); copy.append(el('h3', '', difficultyNames[d]), el('p', '', descriptions[i])); row.append(image(avatars[i]), copy); container.append(row); });
+      container.append(el('p', '', 'BOTも自分のカードや山札の中身は見ていません。難易度を変えても、見える情報は同じです。'));
+    } else {
+      container.append(el('h2', '', '計算例'));
+      const samples = [
+        ['通常の合計','3、5、−5 の場合','3 + 5 − 5 = 3',[3,5,-5],3],
+        ['×2 の効果','数字を合計してから2倍','(3 + 5 − 5) × 2 = 6',[3,5,-5,'double'],6],
+        ['MAX→0','10、5、3 なら、10を1枚だけ0に','0 + 5 + 3 = 8',[10,5,3,'max0'],8],
+        ['「?」の追加公開','追加で10が出た場合','5 + 4 + 10 = 19',[5,4,'extra'],19,10],
+        ['マイナスとリセット','判定後、全36枚を混ぜ直します。合計は0になりません。','−5 − 10 + 0 = −15',[-5,-10,'reset'],-15]
+      ];
+      for (const [title, text, expression, values, total, extra] of samples) {
+        const row = el('section', 'example'), visual = el('div', 'example-visual'), cards = el('div', 'example-cards');
+        const find = value => G.FULL_DECK.find(card => typeof value === 'number' ? card.kind === 'number' && card.value === value : card.kind === value);
+        for (const value of values) cards.append(cardNode(find(value)));
+        if (extra !== undefined) { const additional = el('div', 'example-extra'); additional.append(el('small', '', '追加'), cardNode(find(extra))); cards.append(additional); }
+        const result = el('div', 'example-total'); result.append(el('span', '', '最終合計'), el('strong', '', total));
+        visual.append(cards, result); row.append(el('h3', '', title), visual, el('p', '', text), el('div', 'example-expression', expression)); container.append(row);
+      }
+    }
+    container.focus({ preventScroll: true });
+  }
+  document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel' || screen === 'settingsPanel') closeOverlay(); else if (screen === 'joinPanel') show('homeScreen', 'joinGame'); });
+  window.addEventListener('pagehide', () => timer.cancel());
+  window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });
+  // Transport-neutral seam. The caller must provide an authenticated, sanitized public
+  // view stream; no network SDK, room backend, or pretend remote users are included.
+  window.NumberBluffClient = Object.freeze({
+    connect(adapter) {
+      if (!adapter || typeof adapter.subscribe !== 'function' || typeof adapter.send !== 'function') throw new TypeError('Adapter requires subscribe(onPublicView) and send(action).');
+      timer.cancel(); detachTransport(); transport = adapter; state = null;
+      let first = true;
+      unsubscribe = adapter.subscribe(publicState => {
+        if (!publicState || typeof publicState.viewerId !== 'string' || !Array.isArray(publicState.players) || !publicState.players.some(player => player.id === publicState.viewerId && player.kind === 'human')) {
+          throw new TypeError('Adapter public view must identify its authenticated human viewer.');
+        }
+        human = publicState.viewerId;
+        receive(publicState);
+        if (first || screen === 'lobbyScreen' || (publicState.phase === 'lobby' && screen === 'battleScreen')) { show(publicState.phase === 'lobby' ? 'lobbyScreen' : 'battleScreen'); first = false; }
+      });
+    },
+    disconnect() { timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); }
+  });
+  saveSettings();
+})();
+
+</script></body></html>
