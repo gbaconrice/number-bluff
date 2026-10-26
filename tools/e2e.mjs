@@ -1,6 +1,7 @@
 // Run with Node 22 and playwright@1.57.0. No backend, secrets, or test hooks in the app.
 import assert from 'node:assert/strict';
 import http from 'node:http';
+import { createHash } from 'node:crypto';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -12,6 +13,8 @@ const allowedFiles = new Map([
   ['/', ['index.html', 'text/html']], ['/index.html', ['index.html', 'text/html']],
   ['/engine.js', ['engine.js', 'text/javascript']], ['/scheduler.js', ['scheduler.js', 'text/javascript']],
   ['/app.js', ['app.js', 'text/javascript']],
+  ...['celestial-background', 'star-sprite', 'moon-cat'].map(name =>
+    [`/assets/${name}.webp`, [`assets/${name}.webp`, 'image/webp']]),
 ]);
 const server = http.createServer(async (req, res) => {
   const path = new URL(req.url, 'http://localhost').pathname;
@@ -26,6 +29,12 @@ const server = http.createServer(async (req, res) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
 const results = [];
+const assetProvenance = await Promise.all(['celestial-background', 'star-sprite', 'moon-cat'].map(async name => {
+  const path = `assets/${name}.webp`;
+  const bytes = await readFile(root + path);
+  return { path, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') };
+}));
+await writeFile(new URL('asset-provenance.json', output), JSON.stringify(assetProvenance, null, 2));
 let browser;
 const watchdog = setTimeout(async () => {
   results.push({ status: 'failed', stage: 'global-timeout', error: 'Browser suite exceeded six minutes' });
@@ -52,7 +61,7 @@ async function checkInitialPhoneActions(page, width) {
   if (width !== 320 && width !== 390) return;
   const bounds = await page.evaluate(() => ({
     scrollY, viewportHeight: innerHeight,
-    controls: ['botCard', 'humanCard', 'number', 'declare', 'challenge'].map(id => {
+    controls: ['botCard', 'humanCard', 'number', 'keypad', 'declare', 'challenge'].map(id => {
       const element = document.getElementById(id);
       const { top, bottom, left, right, width, height } = element.getBoundingClientRect();
       return { id, top, bottom, left, right, width, height, viewportWidth: innerWidth };
@@ -66,6 +75,72 @@ async function checkInitialPhoneActions(page, width) {
     assert.ok(control.left >= 0 && control.right <= control.viewportWidth,
       `${width}: ${control.id} must fit viewport width`);
   }
+}
+async function checkArtwork(page) {
+  const evidence = await page.evaluate(async () => {
+    const result = [];
+    for (const name of ['celestial-background', 'star-sprite', 'moon-cat']) {
+      const image = new Image();
+      image.src = `assets/${name}.webp`;
+      await image.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(image, 0, 0);
+      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let transparent = 0, opaque = 0;
+      for (let i = 3; i < pixels.length; i += 4) {
+        if (pixels[i] === 0) transparent++;
+        if (pixels[i] === 255) opaque++;
+      }
+      result.push({ name, width: image.naturalWidth, height: image.naturalHeight, transparent, opaque });
+    }
+    for (const img of document.querySelectorAll('img')) await img.decode();
+    return { assets: result, background: getComputedStyle(document.body).backgroundImage,
+      images: [...document.querySelectorAll('img')].filter(img => img.getClientRects().length).map(img => ({
+        src: img.getAttribute('src'), fit: getComputedStyle(img).objectFit,
+        left: img.getBoundingClientRect().left, right: img.getBoundingClientRect().right,
+        width: img.getBoundingClientRect().width, height: img.getBoundingClientRect().height,
+        viewportWidth: innerWidth,
+      })) };
+  });
+  assert.ok(evidence.background.includes('assets/celestial-background.webp'), 'actual background asset is not in use');
+  for (const art of evidence.assets) {
+    assert.ok(art.width >= 512 && art.height >= 512 && art.opaque > 0, `${art.name}: failed/empty artwork`);
+    if (art.name !== 'celestial-background') assert.ok(art.transparent > 0, `${art.name}: transparent cutout required`);
+  }
+  for (const name of ['star-sprite', 'moon-cat']) {
+    assert.ok(evidence.images.some(img => img.src === `assets/${name}.webp`), `${name}: missing rendered mascot`);
+  }
+  for (const img of evidence.images) {
+    assert.equal(img.fit, 'contain', `${img.src}: artwork must not be cropped`);
+    assert.ok(img.width > 0 && img.height > 0 && img.left >= 0 && img.right <= img.viewportWidth,
+      `${img.src}: artwork clipped outside page`);
+  }
+  return evidence.assets;
+}
+async function checkKeypad(page, width) {
+  assert.equal(await page.locator('#number').getAttribute('inputmode'), 'none');
+  assert.equal(await page.locator('#keypad [data-digit]').count(), 10);
+  await page.locator('#keypad [data-digit="7"]').click();
+  assert.equal(await page.locator('#number').inputValue(), '7', 'first digit must replace suggested bid');
+  await page.locator('#keypad [data-digit="2"]').click();
+  assert.equal(await page.locator('#number').inputValue(), '72');
+  await page.locator('#backspace').click();
+  assert.equal(await page.locator('#number').inputValue(), '7');
+  await page.locator('#backspace').click();
+  assert.equal(await page.locator('#number').inputValue(), '');
+  await page.locator('#declare').click();
+  assert.equal(await page.locator('#number').getAttribute('aria-invalid'), 'true');
+  await checkLayout(page, 'keypad-invalid', width);
+  await page.locator('#keypad [data-digit="0"]').click();
+  assert.equal(await page.locator('#number').inputValue(), '0');
+  assert.equal(await page.locator('#number').getAttribute('aria-invalid'), null);
+  for (let i = 0; i < 9; i++) await page.locator('#keypad [data-digit="8"]').click();
+  assert.equal((await page.locator('#number').inputValue()).length, 8);
+  assert.ok((await page.locator('#inputError').textContent()).trim(), 'ninth digit needs accessible feedback');
+  assert.equal((await page.locator('#bid').textContent()).trim(), '—', 'keypad must not automatically declare');
+  assert.equal(await page.locator('#declare').isEnabled(), true);
 }
 async function checkHiddenCard(page) {
   assert.equal((await page.locator('#humanCard').textContent()).trim(), '?');
@@ -109,12 +184,31 @@ try {
     await page.clock.pauseAt(new Date(time.getTime() + 1000));
     try {
       await page.goto(origin);
+      await page.locator('#startGame').waitFor({ state: 'visible' });
+      assert.equal(await page.locator('#battleScreen').isVisible(), false);
+      const artwork = await checkArtwork(page);
+      await checkLayout(page, 'home', width);
+      await page.locator('#homeRules').click();
+      assert.equal(await page.locator('#rulesTitle').evaluate(el => el === document.activeElement), true);
+      await checkLayout(page, 'home-rules', width);
+      await page.locator('#closeRules').click();
+      assert.equal(await page.locator('#homeRules').evaluate(el => el === document.activeElement), true);
+      await page.locator('#homeCards').click();
+      assert.equal(await page.locator('#cardGuideTitle').evaluate(el => el === document.activeElement), true);
+      await checkLayout(page, 'cards', width);
+      await page.keyboard.press('Escape');
+      assert.equal(await page.locator('#cardGuide').isVisible(), false);
+      assert.equal(await page.locator('#homeCards').evaluate(el => el === document.activeElement), true);
+      await page.locator('#startGame').click();
+      assert.equal(await page.locator('#homeScreen').isVisible(), false);
+      assert.equal(await page.locator('#status').evaluate(el => el === document.activeElement), true);
       await page.locator('#declare').waitFor({ state: 'visible' });
       assert.equal(await page.locator('#declare').isEnabled(), true);
       assert.equal(await page.locator('#challenge').isDisabled(), true);
       await checkHiddenCard(page);
       await checkInitialPhoneActions(page, width);
       await checkLayout(page, 'normal', width);
+      await checkKeypad(page, width);
       await page.locator('#rulesBtn').click();
       await page.locator('#closeRules').waitFor({ state: 'visible' });
       await checkLayout(page, 'rules', width);
@@ -138,13 +232,16 @@ try {
       }
       await checkLayout(page, 'invalid-bid', width);
       await page.locator('#number').fill('0');
-      await page.locator('#declare').click();
+      await page.locator('#number').press('Enter');
       assert.equal(await page.locator('#declare').isDisabled(), true);
+      assert.equal(await page.locator('#keypad button:enabled').count(), 0);
       await page.locator('#rulesBtn').click();
       await tickBot(page);
       assert.equal(await page.locator('#rulesTitle').evaluate(el => el === document.activeElement), true, 'BOT stole focus from rules');
       await page.locator('#closeRules').click();
       assert.equal(await page.locator('#challenge').isEnabled(), true);
+      await page.locator('#keypad [data-digit="7"]').click();
+      assert.equal(await page.locator('#number').inputValue(), '7', 'new human-turn suggestion must be replaced');
       const bid = (await page.locator('#bid').textContent()).trim();
       await page.locator('#number').fill(bid);
       await page.locator('#declare').click();
@@ -153,6 +250,8 @@ try {
       assert.equal(await page.locator('#challenge').isEnabled(), true);
       await page.locator('#challenge').click();
       await page.locator('#next').waitFor({ state: 'visible' });
+      assert.equal(await page.locator('#resultTitle').evaluate(el => el === document.activeElement), true);
+      assert.equal(await page.locator('#keypad button:enabled').count(), 0);
       assert.match(await page.locator('#resultCards').textContent(), /\d/);
       assert.notEqual((await page.locator('#humanCard').textContent()).trim(), '?');
       await checkLayout(page, 'reveal', width);
@@ -204,9 +303,39 @@ try {
       assert.equal(await page.locator('#declare').isEnabled(), true);
       await checkHiddenCard(page);
       await checkLayout(page, 'restart-stale-timer', width);
+      // Return home while the BOT is scheduled, then start a fresh match.
+      // Waiting on home must not run the retired callback or reveal game UI.
+      await page.locator('#number').fill('0');
+      await page.locator('#declare').click();
+      const pendingBid = await page.locator('#bid').textContent();
+      await page.locator('#homeBtn').click();
+      assert.equal(await page.locator('#restartConfirm').isVisible(), true);
+      await checkLayout(page, 'home-confirm', width);
+      await page.locator('#cancelRestart').click();
+      assert.equal(await page.locator('#battleScreen').isVisible(), true);
+      assert.equal(await page.locator('#homeScreen').isVisible(), false);
+      assert.equal(await page.locator('#bid').textContent(), pendingBid);
+      assert.equal(await page.locator('#declare').isDisabled(), true);
+      assert.equal(await page.locator('#homeBtn').evaluate(el => el === document.activeElement), true);
+      await page.locator('#homeBtn').click();
+      await page.locator('#confirmRestart').click();
+      assert.equal(await page.locator('#battleScreen').isVisible(), false);
+      assert.equal(await page.locator('#startGame').evaluate(el => el === document.activeElement), true);
+      const retiredBid = await page.locator('#bid').textContent();
+      await tickBot(page);
+      assert.equal(await page.locator('#bid').textContent(), retiredBid);
+      await checkLayout(page, 'home-return', width);
+      await page.locator('#startGame').click();
+      await tickBot(page);
+      assert.equal((await page.locator('#bid').textContent()).trim(), '—');
+      assert.equal(await page.locator('#declare').isEnabled(), true);
+      assert.equal(await page.locator('#humanLife').getAttribute('aria-label'), 'あなたのライフ 3 / 3');
+      await checkHiddenCard(page);
+      await checkInitialPhoneActions(page, width);
+      await checkLayout(page, 'home-reentry', width);
       assert.deepEqual(external, [], 'app attempted external network requests');
       assert.deepEqual(errors, [], 'browser errors');
-      results.push({ width, status: 'passed', errors, external });
+      results.push({ width, status: 'passed', errors, external, artwork });
     } catch (error) {
       results.push({ width, status: 'failed', error: String(error.stack), errors, external });
       await page.screenshot({ path: fileURLToPath(new URL(`${width}-failure.png`, output)), fullPage: true }).catch(() => {});
@@ -222,3 +351,4 @@ try {
 }
 console.log(JSON.stringify(results, null, 2));
 if (results.some(result => result.status !== 'passed') || results.length !== 4) process.exitCode = 1;
+

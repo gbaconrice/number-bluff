@@ -4,6 +4,29 @@
   const timer = window.NumberBluffScheduler();
   const $ = id => document.getElementById(id);
   let state;
+  let playing = false;
+  let replaceSuggested = true;
+  let guideTrigger = null;
+  let confirmationIntent = 'restart';
+  const keypadButtons = [...$('keypad').querySelectorAll('button')];
+  function clearInputError() {
+    $('inputError').textContent = '';
+    $('number').removeAttribute('aria-invalid');
+  }
+  function closeGuides(restoreFocus = true) {
+    $('rules').classList.add('hide');
+    $('cardGuide').classList.add('hide');
+    for (const id of ['homeRules', 'homeCards', 'rulesBtn']) $(id).setAttribute('aria-expanded', 'false');
+    if (restoreFocus && guideTrigger) guideTrigger.focus();
+    guideTrigger = null;
+  }
+  function openGuide(id, trigger, title) {
+    closeGuides(false);
+    guideTrigger = trigger;
+    $(id).classList.remove('hide');
+    trigger.setAttribute('aria-expanded', 'true');
+    $(title).focus();
+  }
   function render() {
     const cards = state.result ? state.result.cards : state.hands;
     if ($('roundLabel')) $('roundLabel').textContent = 'ROUND ' + String(state.round).padStart(2, '0');
@@ -18,11 +41,15 @@
     $('status').textContent = state.phase !== 'play' ? '判定中' : state.turn === 0 ? 'あなたの番です' : 'BOTが考えています…';
     $('declare').disabled = state.phase !== 'play' || state.turn !== 0;
     $('number').disabled = $('declare').disabled;
+    keypadButtons.forEach(button => { button.disabled = $('declare').disabled; });
     $('challenge').disabled = state.phase !== 'play' || state.turn !== 0 || state.bid === null;
     $('next').disabled = state.phase !== 'reveal';
     $('result').classList.toggle('open', state.phase === 'reveal');
     $('gamePanel').classList.toggle('hide', state.phase === 'reveal');
-    if (state.phase === 'play' && state.turn === 0) $('number').value = state.bid === null ? '0' : String(state.bid + 1);
+    if (state.phase === 'play' && state.turn === 0) {
+      $('number').value = state.bid === null ? '0' : String(state.bid + 1);
+      replaceSuggested = true;
+    }
     if (state.result) {
       const { sum, loser, winner } = state.result;
       $('resultTitle').textContent = loser === 0 ? 'あなたの負け' : 'BOTの負け';
@@ -43,21 +70,21 @@
     }
   }
   function apply(next) {
-    if (next === state) return false;
+    if (!playing || next === state) return false;
     timer.cancel();
     const previous = state;
     state = next;
     if ($('inputError')) $('inputError').textContent = '';
     $('number').removeAttribute('aria-invalid');
     render();
-    const panelOpen = !$('rules').classList.contains('hide') ||
+    const panelOpen = !$('rules').classList.contains('hide') || !$('cardGuide').classList.contains('hide') ||
       ($('restartConfirm') && !$('restartConfirm').classList.contains('hide'));
     if (!panelOpen && state.phase === 'reveal' && previous?.phase === 'play') $('resultTitle').focus();
     else if (!panelOpen && previous && state.phase === 'play' && state.turn === 0) $('number').focus();
     if (state.phase === 'play' && state.turn === 1) {
       const scheduledState = state;
       timer.schedule(() => {
-        if (state !== scheduledState || state.phase !== 'play' || state.turn !== 1) return;
+        if (!playing || state !== scheduledState || state.phase !== 'play' || state.turn !== 1) return;
         const action = game.chooseBotAction(game.botView(state));
         apply(action.type === 'challenge' ? game.challenge(state, 1) : game.declare(state, 1, action.value));
       }, 550 + Math.random() * 550);
@@ -76,42 +103,97 @@
   };
   $('challenge').onclick = () => apply(game.challenge(state, 0));
   $('next').onclick = () => apply(game.nextRound(state));
-  function closeRestart() {
-    if ($('restartConfirm')) { $('restartConfirm').hidden = true; $('restartConfirm').classList.add('hide'); }
+  function closeRestart(restoreFocus = true) {
+    $('restartConfirm').hidden = true;
+    $('restartConfirm').classList.add('hide');
     $('restartBtn').setAttribute('aria-expanded', 'false');
-    $('restartBtn').focus();
+    $('homeBtn').setAttribute('aria-expanded', 'false');
+    if (restoreFocus) $(confirmationIntent === 'home' ? 'homeBtn' : 'restartBtn').focus();
   }
-  $('restartBtn').onclick = () => {
-    if ($('restartConfirm')) {
-      $('restartConfirm').hidden = false;
-      $('restartConfirm').classList.remove('hide');
-      $('restartBtn').setAttribute('aria-expanded', 'true');
-      $('cancelRestart').focus();
-    } else if (confirm('現在の対戦を終了して再戦しますか？')) apply(game.newMatch());
-  };
-  if ($('confirmRestart')) $('confirmRestart').onclick = () => { closeRestart(); apply(game.newMatch()); };
-  if ($('cancelRestart')) $('cancelRestart').onclick = closeRestart;
-  $('rulesBtn').onclick = () => {
-    $('rules').classList.remove('hide');
-    $('rulesBtn').setAttribute('aria-expanded', 'true');
-    ($('rulesTitle') || $('closeRules')).focus();
-  };
-  function closeRules() {
-    $('rules').classList.add('hide');
-    $('rulesBtn').setAttribute('aria-expanded', 'false');
-    $('rulesBtn').focus();
+  function openConfirmation(intent) {
+    confirmationIntent = intent;
+    $('homeBtn').setAttribute('aria-expanded', 'false');
+    $('restartBtn').setAttribute('aria-expanded', 'false');
+    const home = intent === 'home';
+    $('restartTitle').textContent = home ? 'ホームへ戻りますか？' : '対戦をやり直しますか？';
+    $('restartText').textContent = home ? '現在の対戦を終了します。次に遊ぶときは、新しい対戦になります。' : '現在のライフとラウンドをリセットします。';
+    $('confirmRestart').textContent = home ? '終了して戻る' : 'やり直す';
+    $('restartConfirm').hidden = false;
+    $('restartConfirm').classList.remove('hide');
+    $(home ? 'homeBtn' : 'restartBtn').setAttribute('aria-expanded', 'true');
+    $('cancelRestart').focus();
   }
-  $('closeRules').onclick = closeRules;
+  $('restartBtn').onclick = () => openConfirmation('restart');
+  $('confirmRestart').onclick = () => {
+    const home = confirmationIntent === 'home';
+    closeRestart(!home);
+    if (home) showHome();
+    else apply(game.newMatch());
+  };
+  $('cancelRestart').onclick = () => closeRestart();
+  $('rulesBtn').onclick = () => openGuide('rules', $('rulesBtn'), 'rulesTitle');
+  $('homeRules').onclick = () => openGuide('rules', $('homeRules'), 'rulesTitle');
+  $('homeCards').onclick = () => openGuide('cardGuide', $('homeCards'), 'cardGuideTitle');
+  $('closeRules').onclick = () => closeGuides();
+  $('closeCardGuide').onclick = () => closeGuides();
+  $('startGame').onclick = () => {
+    timer.cancel();
+    closeGuides(false);
+    $('restartConfirm').classList.add('hide');
+    $('restartConfirm').hidden = true;
+    $('restartBtn').setAttribute('aria-expanded', 'false');
+    $('homeScreen').classList.add('hide');
+    $('battleScreen').classList.remove('hide');
+    playing = true;
+    state = undefined;
+    apply(game.newMatch());
+    window.scrollTo(0, 0);
+    $('status').focus({ preventScroll: true });
+  };
+  function showHome() {
+    timer.cancel();
+    playing = false;
+    closeGuides(false);
+    $('restartConfirm').classList.add('hide');
+    $('restartConfirm').hidden = true;
+    $('restartBtn').setAttribute('aria-expanded', 'false');
+    $('battleScreen').classList.add('hide');
+    $('homeScreen').classList.remove('hide');
+    window.scrollTo(0, 0);
+    $('startGame').focus({ preventScroll: true });
+  }
+  $('homeBtn').onclick = () => openConfirmation('home');
+  for (const button of $('keypad').querySelectorAll('[data-digit]')) {
+    button.onclick = () => {
+      if (!playing || $('number').disabled) return;
+      const digit = button.dataset.digit;
+      const prior = replaceSuggested ? '' : $('number').value;
+      if (prior.length >= 8) {
+        $('inputError').textContent = '宣言は8桁以内で入力してください。';
+        return;
+      }
+      $('number').value = prior === '0' ? digit : prior + digit;
+      replaceSuggested = false;
+      clearInputError();
+    };
+  }
+  $('backspace').onclick = () => {
+    if (!playing || $('number').disabled) return;
+    $('number').value = $('number').value.slice(0, -1);
+    replaceSuggested = false;
+    clearInputError();
+  };
+  $('number').addEventListener('input', () => { replaceSuggested = false; clearInputError(); });
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape') return;
-    if ($('restartConfirm') && !$('restartConfirm').hidden && !$('restartConfirm').classList.contains('hide')) closeRestart();
-    else if (!$('rules').classList.contains('hide')) closeRules();
+    if (!$('restartConfirm').hidden && !$('restartConfirm').classList.contains('hide')) closeRestart();
+    else if (!$('rules').classList.contains('hide') || !$('cardGuide').classList.contains('hide')) closeGuides();
   });
   $('number').addEventListener('keydown', event => {
     if (event.key === 'Enter' && !$('declare').disabled) { event.preventDefault(); $('declare').click(); }
   });
   window.addEventListener('pagehide', () => timer.cancel());
   // A page restored from back/forward cache needs a fresh BOT callback.
-  window.addEventListener('pageshow', event => { if (event.persisted) apply({ ...state }); });
-  apply(game.newMatch());
+  window.addEventListener('pageshow', event => { if (event.persisted && playing && state) apply({ ...state }); });
 })();
+
