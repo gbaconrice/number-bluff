@@ -9,7 +9,7 @@ function fixture(height = 844) {
     addEventListener: (n, fn) => events.set(n, fn), removeEventListener: n => events.delete(n),
     parent: { postMessage: (message, origin) => messages.push({ message, origin }) } };
   const client = { setRoomAdapterExpected: value => { client.expected = value; }, setViewportInsets: value => insets.push(value),
-    reportConnectionStatus: value => statuses.push(value), onMatchComplete: fn => { finish = fn; return () => { finish = null; }; } };
+    reportConnectionStatus: value => statuses.push(value), onSessionFinish: fn => { finish = fn; return () => { finish = null; }; } };
   const adapter = { install: async () => { installs++; return { close: () => closes++, resync: () => { resyncs++; }, getSession: () => ({ close: () => closes++ }) }; } };
   return {window:win, win, client, adapter, events, docEvents, messages, insets, statuses, finish: value => finish?.(value), counts: () => ({closes,resyncs,installs})};
 }
@@ -23,13 +23,33 @@ test('native header exclusion at 811/812 boundary and focused keyboard resize re
   f.win.innerWidth=844; f.events.get('resize')(); assert.equal(f.insets.at(-1).top,74,'rotation recalculates even with an input focused');
   f.win.document.activeElement=null; f.events.get('resize')(); assert.equal(f.insets.at(-1).top,74);
 });
-test('only completed match callback posts minimal score, once per room/game', async () => {
+const exit = (overrides={}) => ({reason:'explicit-exit',roomId:'r',sessionId:1,viewerId:'p1',player:{id:'p1',kind:'human',currentStreak:0,bestStreak:5},...overrides});
+test('only explicit play-session exit posts own best streak once, not match updates', async () => {
   const f=fixture(); const bridge=await P.start({...f,sdk:{}});
-  f.finish(null); f.finish({roomId:'r',game:1}); assert.equal(f.messages.length,0);
-  f.finish({roomId:'r',game:1,winner:'p1',viewerId:'p1'}); f.finish({roomId:'r',game:1,winner:'p1',viewerId:'p1'});
-  f.finish({roomId:'r',game:2,winner:'p2',viewerId:'p1'});
-  assert.deepEqual(f.messages,[{message:{type:'gameOver',score:1},origin:'*'},{message:{type:'gameOver',score:0},origin:'*'}]);
-  bridge.close(); f.finish({roomId:'r',game:3,winner:'p1',viewerId:'p1'}); assert.equal(f.messages.length,2);
+  f.finish(null); f.finish({roomId:'r',game:1,winner:'p1',viewerId:'p1'});
+  f.finish(exit({reason:'match-complete'})); f.finish(exit({reason:'rematch'})); f.finish(exit({reason:'host-lost'}));
+  assert.equal(f.messages.length,0,'match, rematch and involuntary events must never open native popup');
+  f.finish(exit()); f.finish(exit());
+  assert.deepEqual(f.messages,[{message:{type:'gameOver',score:5},origin:'*'}],'best 5 survives current streak resetting to 0');
+  f.finish(exit({sessionId:2,player:{id:'p1',kind:'human',bestStreak:0}}));
+  assert.equal(f.messages.length,2,'a fresh play session can submit again even with reused room ID');
+  assert.equal(f.messages[1].message.score,0);
+  bridge.close(); f.finish(exit({sessionId:3})); assert.equal(f.messages.length,2);
+});
+test('BOT, another player, missing session, and invalid scores are never submitted', async () => {
+  const f=fixture(); await P.start({...f,sdk:{}});
+  for (const invalid of [
+    exit({player:{id:'p1',kind:'bot',bestStreak:10}}),
+    exit({player:{id:'p2',kind:'human',bestStreak:10}}),
+    exit({sessionId:undefined}), exit({roomId:''}),
+    ...[-1,NaN,Infinity,1.5,Number.MAX_SAFE_INTEGER+1,'5'].map(bestStreak=>exit({player:{id:'p1',kind:'human',bestStreak}}))
+  ]) f.finish(invalid);
+  assert.deepEqual(f.messages,[]);
+});
+test('pagehide, visibility resume and platform teardown do not submit scores', async () => {
+  const f=fixture(); const bridge=await P.start({...f,sdk:{}});
+  f.docEvents.get('visibilitychange')(); f.events.get('pagehide')(); bridge.close();
+  assert.deepEqual(f.messages,[]);
 });
 test('duplicate bootstrap installs once, resume resyncs only visible, cleanup removes hooks', async () => {
   const f=fixture(); const a=await P.start({...f,sdk:{}}),b=await P.start({...f,sdk:{}}); assert.equal(a,b); assert.equal(f.counts().installs,1);

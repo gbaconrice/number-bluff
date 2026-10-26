@@ -33,14 +33,20 @@
       update();
       bridge = await adapter.install({ sdk, client, onStatus: event => client.reportConnectionStatus(event) });
       client.setRoomRequestCanceler?.(() => bridge.close());
-      const unsubscribe = client.onMatchComplete(result => {
-        if (closed || !result || typeof result.roomId !== 'string' || !Number.isSafeInteger(result.game) || !result.winner) return;
-        const key = JSON.stringify([result.roomId, result.game]);
+      const unsubscribe = client.onSessionFinish(result => {
+        // gameOver opens a native results popup. Never fire it for round/match updates,
+        // rematches, visibility changes, disconnect events or automatic abandonment.
+        if (closed || !result || result.reason !== 'explicit-exit' ||
+            typeof result.roomId !== 'string' || !result.roomId ||
+            !Number.isSafeInteger(result.sessionId) || result.sessionId < 0 ||
+            typeof result.viewerId !== 'string' || result.player?.id !== result.viewerId ||
+            result.player?.kind !== 'human' || !Number.isSafeInteger(result.player.bestStreak) || result.player.bestStreak < 0) return;
+        const key = JSON.stringify([result.roomId, result.sessionId]);
         if (sent.has(key)) return;
         sent.add(key);
-        // Only a numeric game score is shared with the hosting parent. No identity or cards.
-        const score = result.winner === result.viewerId ? 1 : 0;
-        win.parent.postMessage({ type: 'gameOver', score }, '*');
+        // GRAVITY records the user's personal best. Send only their authoritative
+        // best streak from this play session, even if their current streak is now 0.
+        win.parent.postMessage({ type: 'gameOver', score: result.player.bestStreak }, '*');
       });
       const resume = () => { if (!closed && !win.document?.hidden) Promise.resolve(bridge.resync()).catch(() => client.reportConnectionStatus({ kind: 'send-error' })); };
       win.addEventListener('resize', update); win.document?.addEventListener('focusout', update);

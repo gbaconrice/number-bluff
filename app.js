@@ -2,9 +2,9 @@
   'use strict';
   const G = window.NumberBluff, timer = window.NumberBluffScheduler(), $ = id => document.getElementById(id);
   let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
-  const matchListeners = new Set();
+  const sessionFinishListeners = new Set();
   let connectionBlocked = false, connectionMessage = '';
-  const screenListeners = new Set(), screenNames = { homeScreen: 'home', lobbyScreen: 'lobby', battleScreen: 'battle', guidePanel: 'guide', settingsPanel: 'settings', joinPanel: 'join' };
+  const screenListeners = new Set(), screenNames = { homeScreen: 'home', lobbyScreen: 'lobby', battleScreen: 'battle', guidePanel: 'guide', joinPanel: 'join' };
   const updateViewport = () => document.documentElement.style.setProperty('--nb-viewport-height', (window.visualViewport?.height || window.innerHeight) + 'px');
   window.addEventListener('resize', updateViewport); window.visualViewport?.addEventListener('resize', updateViewport); updateViewport();
   let human = 'p1', localProfile = { name: 'プレイヤー', avatarUrl: null };
@@ -13,10 +13,9 @@
   const avatars = ['assets/star-sprite.webp', 'assets/moon-cat.webp', 'assets/cloud-bunny.webp', 'assets/blue-cloud.webp'];
   const avatarNames = ['ほしもち', 'ほしねこ', 'もふうさ', 'くもまる'];
   let state = null, view = null, screen = 'homeScreen', selectedBot = 'p2', nextDifficulty = 'normal';
-  let avatarChoice = {}, suggested = true, overlayReturn = null, confirmIntent = 'home';
+  let avatarChoice = {}, suggested = true, overlayReturn = null;
   let presentationFrame = null, presentationPrevious = null, presentationKey = null, roomEpoch = 0, nextReadyAt = 0;
-  let transport = null, unsubscribe = null, settings = { sound: false }, audioContext;
-  try { settings.sound = !!JSON.parse(localStorage.getItem('number-bluff-visual-v3-settings') || '{}').sound; } catch {}
+  let transport = null, unsubscribe = null;
   const el = (tag, cls, text) => { const node = document.createElement(tag); if (cls) node.className = cls; if (text !== undefined) node.textContent = text; return node; };
   const image = (src, cls = '') => { const node = el('img', cls); node.src = src; node.alt = ''; return node; };
   const avatarIndex = id => { const p = view?.players.find(p => p.id === id); const value = p?.botAvatar ?? avatarChoice[id]; return Number.isInteger(value) && value >= 0 && value < 4 ? value : (Math.max(0, Number(String(id).replace(/\D/g, '')) - 1) % 4); };
@@ -71,21 +70,6 @@
     for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
     if (focus) $(focus).focus({ preventScroll: true });
   }
-  function saveSettings() {
-    $('soundToggle').checked = !!settings.sound;
-    try { localStorage.setItem('number-bluff-visual-v3-settings', JSON.stringify(settings)); } catch {}
-  }
-  function sound(reveal = false) {
-    if (!settings.sound) return;
-    try {
-      const Audio = window.AudioContext || window.webkitAudioContext; if (!Audio) return;
-      audioContext ||= new Audio(); void audioContext.resume();
-      const oscillator = audioContext.createOscillator(), gain = audioContext.createGain();
-      oscillator.type = 'sine'; oscillator.frequency.value = reveal ? 660 : 440;
-      gain.gain.setValueAtTime(.045, audioContext.currentTime); gain.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + .16);
-      oscillator.connect(gain); gain.connect(audioContext.destination); oscillator.start(); oscillator.stop(audioContext.currentTime + .17);
-    } catch { /* Sound is optional; gameplay never depends on an audio device. */ }
-  }
   function cardNode(card, hidden = false, out = false) {
     const node = el('div', 'player-card');
     if (out) { node.classList.add('out'); node.textContent = '脱落'; return node; }
@@ -99,6 +83,16 @@
   }
   function clearError() { $('inputError').textContent = ''; $('number').removeAttribute('aria-invalid'); }
   function fail(message) { $('inputError').textContent = message; $('number').setAttribute('aria-invalid', 'true'); }
+  function captureSessionFinish() {
+    if (!transport || !view || !Number.isSafeInteger(view.game) || view.game < 1) return null;
+    const player = view.players.find(p => p.id === human && p.kind === 'human');
+    if (!player || !Number.isSafeInteger(player.bestStreak) || player.bestStreak < 0) return null;
+    return { reason: 'explicit-exit', sessionId: roomEpoch, roomId: view.roomId,
+      viewerId: human, player: { id: player.id, kind: player.kind, bestStreak: player.bestStreak } };
+  }
+  function publishSessionFinish(result) {
+    if (result) for (const listener of sessionFinishListeners) { try { listener(result); } catch {} }
+  }
   function detachTransport() {
     cancelPresentation(); presentationKey = null; roomEpoch++;
     if (typeof unsubscribe === 'function') unsubscribe();
@@ -220,11 +214,9 @@
     $('resultText').textContent = r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') + '　' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum;
     $('next').textContent = canManageLobby() ? (r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›') : 'ホストの操作を待っています';
     $('next').disabled = !canManageLobby();
-    if (transport && view.phase === 'finished' && r.winner) for (const listener of matchListeners) { try { listener({ roomId: view.roomId, game: view.game, winner: r.winner, viewerId: human }); } catch {} }
   }
   function renderBattle(previous = null) {
     const active = view.phase === 'play', yourTurn = active && view.turn === human && !connectionBlocked;
-    $('restartBtn').disabled = !canManageLobby();
     let startPresentation = false;
     if (active) { cancelPresentation(); presentationKey = null; $('resultAnnouncement').textContent = ''; }
     else if (view.result) {
@@ -236,7 +228,7 @@
     }
     renderPlayers(); $('roundLabel').textContent = 'ラウンド ' + view.round; $('survivorCount').textContent = '生存者 ' + view.players.filter(p => !p.eliminated).length + '/' + view.players.length;
     $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : name(view.turn) + ' の番'; $('bidActor').replaceChildren(playerAvatar(view.last || view.turn));
-    $('battleScreen').classList.toggle('is-result', !active); $('battleTitle').textContent = active ? 'ナンバーブラフ' : view.phase === 'finished' ? '対戦結果' : 'ラウンド結果';
+    $('battleScreen').classList.toggle('is-result', !active); $('battleTitle').textContent = active ? '対戦中' : view.phase === 'finished' ? '対戦結果' : 'ラウンド結果';
     $('gamePanel').classList.toggle('hide', !active); $('result').classList.toggle('hide', active); $('result').classList.toggle('open', !active);
     const alive = !view.players.find(p => p.id === human)?.eliminated;
     $('status').textContent = active ? yourTurn ? 'あなたの手番です' : alive ? name(view.turn) + ' が考えています…' : 'あなたは脱落しました。残りの対戦を見届けよう。' : '';
@@ -244,7 +236,7 @@
     $('challenge').disabled = !yourTurn || view.bid === null;
     $('number').disabled = !yourTurn;
     document.querySelectorAll('#keypad button').forEach(button => { button.disabled = !yourTurn; });
-    if (yourTurn) { $('number').value = view.bid === null ? '0' : view.bid === Number.MAX_SAFE_INTEGER ? '' : String(view.bid + 1); suggested = true; }
+    if (yourTurn) { $('number').value = view.bid === null ? '1' : view.bid === Number.MAX_SAFE_INTEGER ? '' : String(view.bid + 1); suggested = true; }
     $('next').disabled = active; renderResult();
     if (active && previous && (previous.phase !== 'play' || previous.round !== view.round || previous.game !== view.game)) {
       $('playerGrid').querySelectorAll('.player-card').forEach((node, i) => { node.classList.add('presentation-card', 'is-dealing'); node.style.animationDelay = (i * 30) + 'ms'; });
@@ -272,7 +264,7 @@
         const action = G.chooseBotAction(G.botView(state, state.turn), Math.random);
         if (!action) return;
         const updated = action.type === 'challenge' ? G.challenge(state, state.turn, Math.random) : G.declare(state, state.turn, action.value);
-        if (updated !== state) { sound(action.type === 'challenge'); apply(updated); }
+        if (updated !== state) { apply(updated); }
       }, 650 + Math.random() * 450);
     }
     return true;
@@ -282,9 +274,9 @@
     if (transport && ['nextRound', 'rematch', 'returnToLobby'].includes(type) && !canManageLobby()) return false;
     if (transport) { Promise.resolve(transport.send({ type, player: human, value, revision: view.revision })).catch(() => fail('接続を確認して、もう一度お試しください。')); return true; }
     const next = G.dispatch(state, { type, player: human, value, revision: view.revision }, Math.random);
-    const changed = apply(next); if (changed) sound(type === 'challenge'); return changed;
+    return apply(next);
   }
-  $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = () => { cancelRoomRequest(); detachTransport(); show('homeScreen', 'startGame'); };
+  $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = () => { const finished = captureSessionFinish(); cancelRoomRequest(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   $('joinForm').onsubmit = event => { event.preventDefault(); const id = $('roomId').value.trim(); if (id) requestRoom('join', id); };
   $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
   $('addBot').onclick = addBot;
@@ -294,7 +286,7 @@
   $('beginGame').onclick = () => { if (transport) { lobbyAction('startGame'); return; } show('battleScreen'); apply(G.startGame(state, Math.random)); window.scrollTo(0, 0); $('status').focus({ preventScroll: true }); };
   $('declare').onclick = () => {
     const value = G.parseBid($('number').value);
-    if (value === null || !action('declare', value)) { fail('前より大きな0以上の整数を入力してください（最大9007199254740991）。'); $('number').focus(); }
+    if (value === null || !action('declare', value)) { fail('前より大きな1以上の整数を入力してください（最大9007199254740991）。'); $('number').focus(); }
   };
   $('challenge').onclick = () => action('challenge');
   $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
@@ -307,27 +299,22 @@
   $('backspace').onclick = () => { if (!$('number').disabled) { $('number').value = $('number').value.slice(0, -1); suggested = false; clearError(); } };
   $('number').addEventListener('input', () => { suggested = false; clearError(); });
   $('number').addEventListener('keydown', event => { if (event.key === 'Enter' && !$('declare').disabled) { event.preventDefault(); $('declare').click(); } });
-  function confirm(intent) { if (intent === 'lobby' && !canManageLobby()) return; confirmIntent = intent; $('restartTitle').textContent = intent === 'home' ? '対戦を終了してホームへ？' : '対戦を終了してロビーへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = intent === 'home' ? '終了して戻る' : 'ロビーへ戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
-  function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); (confirmIntent === 'home' ? $('homeBtn') : $('restartBtn')).focus(); }
-  $('homeBtn').onclick = () => confirm('home'); $('restartBtn').onclick = () => confirm('lobby'); $('cancelRestart').onclick = closeConfirm;
-  $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); if (confirmIntent === 'home') { detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); } else if (transport) { action('returnToLobby'); } else { apply(G.returnToLobby(state)); show('lobbyScreen', 'beginGame'); } };
+  function confirmExit() { $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
+  function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); }
+  $('homeBtn').onclick = confirmExit; $('cancelRestart').onclick = closeConfirm;
+  $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); const finished = captureSessionFinish(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   function overlay(id, trigger) { if (screen === 'homeScreen' || screen === 'joinPanel') cancelRoomRequest(); overlayReturn = { screen, trigger }; show(id); }
   function closeOverlay() { const back = overlayReturn || { screen: 'homeScreen', trigger: $('startGame') }; show(back.screen); back.trigger?.focus(); overlayReturn = null; }
   $('homeRules').onclick = () => { overlay('guidePanel', $('homeRules')); guide('rules'); };
-  $('homeCards').onclick = () => { overlay('guidePanel', $('homeCards')); guide('cards'); };
   $('rulesBtn').onclick = () => { overlay('guidePanel', $('rulesBtn')); guide('rules'); };
   $('closeGuide').onclick = closeOverlay;
-  const openSettings = trigger => { overlay('settingsPanel', trigger); $('soundToggle').focus(); };
-  document.querySelectorAll('.settings-open').forEach(button => { button.onclick = () => openSettings(button); });
-  $('closeSettings').onclick = closeOverlay;
-  $('soundToggle').onchange = () => { settings.sound = $('soundToggle').checked; saveSettings(); sound(); };
   document.querySelectorAll('.guide-tabs button[data-tab]').forEach(button => { button.onclick = () => guide(button.dataset.tab); });
   function guide(tab) {
     const container = $('guideContent'); container.replaceChildren(); container.dataset.tab = tab; $('guideTitle').textContent = ({rules:'遊び方',cards:'カード図鑑',bots:'BOTについて',examples:'計算例'})[tab];
     document.querySelectorAll('.guide-tabs button[data-tab]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.tab === tab)));
     if (tab === 'rules') {
 
-      const steps = [['カードを配る','自分のカードだけ見えません。他の人のカードを見て、全員の合計を予想しよう。'],['数字を宣言','最初は0以上の整数。次の人は、前の宣言より大きな数を宣言します。'],['グラビティ！','直前の宣言が合計を超えていると思ったら、グラビティ！で挑戦。'],['勝敗判定','全カードを公開し、特殊効果を含めて合計。宣言が合計より大きければ宣言者の負け。合計以下なら、疑った側の負け。'],['最後まで生き残ろう','負けるとライフが1減り、0で脱落。最後の1人が優勝！次のラウンドは負けた人から（脱落時は次の生存者）。']];
+      const steps = [['カードを配る','自分のカードだけ見えません。他の人のカードを見て、全員の合計を予想しよう。'],['数字を宣言','最初は1以上の整数。次の人は、前の宣言より大きな数を宣言します。'],['グラビティ！','直前の宣言が合計を超えていると思ったら、グラビティ！で挑戦。'],['勝敗判定','全カードを公開し、特殊効果を含めて合計。宣言が合計より大きければ宣言者の負け。合計以下なら、疑った側の負け。'],['最後まで生き残ろう','負けるとライフが1減り、0で脱落。最後の1人が優勝！次のラウンドは負けた人から（脱落した場合は、その判定で勝った人から）。']];
       steps.forEach(([title, text], index) => {
         const section = el('section', 'guide-step');
         section.append(el('b', 'step-number', index + 1), el('h3', '', title), el('p', '', text));
@@ -377,7 +364,7 @@
     const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); $('cardDetail').showModal(); $('closeCardDetail').focus();
   }
   $('closeCardDetail').onclick = () => $('cardDetail').close();
-  document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel' || screen === 'settingsPanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
+  document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
   window.addEventListener('pagehide', () => { timer.cancel(); cancelPresentation(true); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });
   // The SDK bridge provides the normalized stream; the UI never runs remote authority.
@@ -385,9 +372,9 @@
     for (const id of ['onlineLobbyStatus', 'onlineBattleStatus']) { $(id).textContent = connectionMessage; $(id).classList.toggle('hide', !connectionMessage); }
   }
   window.NumberBluffClient = Object.freeze({
-    onMatchComplete(listener) {
-      if (typeof listener !== 'function') throw new TypeError('Match listener must be a function.');
-      matchListeners.add(listener); return () => matchListeners.delete(listener);
+    onSessionFinish(listener) {
+      if (typeof listener !== 'function') throw new TypeError('Session finish listener must be a function.');
+      sessionFinishListeners.add(listener); return () => sessionFinishListeners.delete(listener);
     },
     reportConnectionStatus(event) {
       const messages = { 'host-lost': 'ホストが退出しました。ホームに戻って参加し直してください。', 'host-timeout': 'ホストとの接続が切れました。ホームに戻って参加し直してください。', 'send-error': '送信できませんでした。接続を確認してください。', 'participant-timeout': '参加者との接続が切れました。', 'player-left-match-abandoned': '参加者が退出したため、対戦を中止してロビーに戻りました。', 'host-session-changed': 'ホストの接続が変わりました。ホームに戻って参加し直してください。', 'session-ended': '接続を終了しました。ホームに戻って参加し直してください。', 'join-waiting': 'ホストからの情報を待っています…', 'room-full': 'このルームは満員です。', 'profile-error': 'GRAVITYのプロフィールを取得できません。再読み込みしてください。' };
@@ -437,5 +424,4 @@
     },
     disconnect() { timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); }
   });
-  saveSettings();
 })();
