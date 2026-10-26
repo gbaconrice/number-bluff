@@ -46,6 +46,27 @@ async function checkLayout(page, state, width) {
   }
   await page.screenshot({ path: fileURLToPath(new URL(`${width}-${state}.png`, output)), fullPage: true });
 }
+// On phone-sized initial screens, play must not require scrolling. Rules,
+// footer, long validation messages, and later states may extend vertically.
+async function checkInitialPhoneActions(page, width) {
+  if (width !== 320 && width !== 390) return;
+  const bounds = await page.evaluate(() => ({
+    scrollY, viewportHeight: innerHeight,
+    controls: ['botCard', 'humanCard', 'number', 'declare', 'challenge'].map(id => {
+      const element = document.getElementById(id);
+      const { top, bottom, left, right, width, height } = element.getBoundingClientRect();
+      return { id, top, bottom, left, right, width, height, viewportWidth: innerWidth };
+    }),
+  }));
+  assert.equal(bounds.scrollY, 0, 'initial phone screen unexpectedly scrolled');
+  for (const control of bounds.controls) {
+    assert.ok(control.width > 0 && control.height > 0, `${width}: ${control.id} must be visible`);
+    assert.ok(control.top >= 0 && control.bottom <= bounds.viewportHeight,
+      `${width}: ${control.id} must fit initial ${bounds.viewportHeight}px viewport (top=${control.top}, bottom=${control.bottom})`);
+    assert.ok(control.left >= 0 && control.right <= control.viewportWidth,
+      `${width}: ${control.id} must fit viewport width`);
+  }
+}
 async function checkHiddenCard(page) {
   assert.equal((await page.locator('#humanCard').textContent()).trim(), '?');
   const snapshot = await page.locator('#humanCard').ariaSnapshot();
@@ -66,7 +87,7 @@ async function restart(page, accept = true) {
 try {
   browser = await chromium.launch();
   for (const width of [320, 390, 844, 1280]) {
-    const context = await browser.newContext({ viewport: { width, height: width === 844 ? 390 : 844 }, serviceWorkers: 'block', reducedMotion: 'reduce' });
+    const context = await browser.newContext({ viewport: { width, height: width === 320 ? 640 : width === 844 ? 390 : 844 }, serviceWorkers: 'block', reducedMotion: 'reduce' });
     const page = await context.newPage();
     page.setDefaultTimeout(10_000);
     page.setDefaultNavigationTimeout(15_000);
@@ -92,6 +113,7 @@ try {
       assert.equal(await page.locator('#declare').isEnabled(), true);
       assert.equal(await page.locator('#challenge').isDisabled(), true);
       await checkHiddenCard(page);
+      await checkInitialPhoneActions(page, width);
       await checkLayout(page, 'normal', width);
       await page.locator('#rulesBtn').click();
       await page.locator('#closeRules').waitFor({ state: 'visible' });
