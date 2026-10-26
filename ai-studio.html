@@ -438,7 +438,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 #guideContent[data-tab="bots"]>p { background: #0b1c40e8; border-radius: 10px; padding: 9px 10px; color: #fff4e2; }
 /* Landscape keeps the table beside the controls instead of squeezing it above them. */
 @media(min-width:650px) and (max-height:500px) {
-  main { max-width: 850px; }
+  main:has(#battleScreen:not(.hide):not(.is-result)) { max-width: 850px; }
   #battleScreen:not(.is-result) { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-rows: 44px 18px minmax(0,1fr); column-gap: 12px; row-gap: 4px; min-height: 300px; }
   #battleScreen:not(.is-result)>.topbar { grid-column: 1; grid-row: 1; margin: 0; }
   #battleScreen:not(.is-result)>.battle-meta { grid-column: 1; grid-row: 2; margin: 0; min-height: 18px; }

@@ -25,6 +25,7 @@ async function completePresentation(page){if(await page.locator('#result').getAt
 async function advanceResult(page){await completePresentation(page);await page.clock.runFor(401);await page.locator('#next').click();}
 async function shot(page,width,state){
  await settleCardMotion(page);
+ if(width===844){const geometry=await page.evaluate(()=>({main:document.querySelector('main').getBoundingClientRect().toJSON(),battle:!!document.querySelector('#battleScreen:not(.hide):not(.is-result)'),logo:document.querySelector('.home-brand')?.getBoundingClientRect().toJSON()}));if(geometry.battle)assert.ok(geometry.main.width>440,'active landscape battle must retain expanded two-column area');else{assert.ok(geometry.main.width<=440+1,'landscape home/guide/lobby/results must retain compact440px shell');if(state==='home')assert.ok(geometry.logo.width<=440,'landscape home logo must not expand to battle width');}}
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${state}: horizontal overflow`);
  const controls=await page.locator('button,input').evaluateAll(els=>els.filter(e=>e.getClientRects().length).map(e=>{const target=e.type==='checkbox'?e.closest('label')||e:e;const r=target.getBoundingClientRect();return{id:e.id,name:e.getAttribute('aria-label')||e.labels?.[0]?.textContent||e.textContent.trim(),w:r.width,h:r.height};}));
  for(const c of controls){assert.ok(c.name,`${state}: unlabeled ${c.id}`);assert.ok(c.w>=40&&c.h>=40,`${state}: small touch target ${c.id} ${c.w}x${c.h}`);}
@@ -32,6 +33,14 @@ async function shot(page,width,state){
  for(const item of labels){assert.ok(Math.abs((item.label.left+item.label.right-item.card.left-item.card.right)/2)<=1,`${state}: numeric label not centered ${JSON.stringify(item)}`);assert.ok(item.label.top>=item.card.top&&item.label.bottom<=item.card.top+item.card.height*.38+1,`${state}: numeric label outside upper38% slot ${JSON.stringify(item)}`);assert.equal(item.glyphFits,true,`${state}: numeric glyph clipped ${item.text}`);}
  const faces=await page.locator('.kind-number:not(.hidden):not(.out)').evaluateAll(els=>els.filter(e=>e.getClientRects().length).map(e=>({value:e.dataset.artValue,label:e.querySelector('.card-value')?.textContent,image:getComputedStyle(e).backgroundImage})));for(const face of faces){assert.equal(String(Number(face.label)),face.value,`${state}: visible number art attribute must match value`);assert.ok(face.image.includes('/'+faceByValue[face.value]+'.webp'),`${state}: deterministic per-value illustration mismatch ${JSON.stringify(face)}`);}
  await page.screenshot({path:fileURLToPath(new URL(`${width}-${state}.png`,output)),fullPage:true});
+ if(width===844&&['home','guide-cards','lobby-8'].includes(state)){
+  const before=await page.evaluate(()=>({y:scrollY,layer:document.querySelector('.nb-background').getBoundingClientRect().toJSON(),position:getComputedStyle(document.querySelector('.nb-background')).position,background:getComputedStyle(document.body).backgroundImage,attachment:getComputedStyle(document.body).backgroundAttachment}));
+  await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));await page.waitForTimeout(50);
+  const after=await page.evaluate(()=>({y:scrollY,layer:document.querySelector('.nb-background').getBoundingClientRect().toJSON(),background:getComputedStyle(document.body).backgroundImage,attachment:getComputedStyle(document.body).backgroundAttachment}));
+  assert.equal(before.position,'fixed');assert.deepEqual(after.layer,before.layer,'fixed decorative background must remain viewport anchored after page scroll');assert.equal(after.background,before.background);assert.equal(after.attachment,'fixed','static sky must remain visible behind scrolled content');
+  await page.screenshot({path:fileURLToPath(new URL(`${width}-${state}-scrolled-viewport.png`,output)),fullPage:false});await writeFile(new URL(`${width}-${state}-scroll-background.json`,output),JSON.stringify({before,after,scope:'actual scrolled viewport, not fullPage screenshot synthesis'},null,2));await page.evaluate(y=>scrollTo(0,y),before.y);await page.waitForTimeout(50);
+ }
+
 }
 async function landscapeReachability(page,label,topInset=0){
  const controls=()=>page.locator('#homeBtn,#rulesBtn,#number,#keypad,#declare,#challenge').evaluateAll(els=>els.map(e=>({id:e.id,...e.getBoundingClientRect().toJSON()})));
