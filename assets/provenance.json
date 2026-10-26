@@ -2,41 +2,76 @@
   "assets": [
     {
       "file": "celestial-background.webp",
-      "bytes": 373338,
       "width": 1024,
       "height": 1536,
-      "sha256": "a6693daa0b89096723338e4a680efa7a76c3866fe973986fe999690f1843d143",
-      "source": "Original built-in image generation, 2026-10-26",
-      "runtime_encoding": "WebP quality 90; original dimensions and alpha preserved",
-      "prompt": null,
-      "brief": "Quiet central navy star sky with pastel cloud borders"
+      "bytes": 131894,
+      "sha256": "5ebd6ec51eae7ba640099e823372b28cacf7822af5d4d7ea23da228e28be0caf",
+      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
+      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
+      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
+    },
+    {
+      "file": "hero-platform.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 158860,
+      "sha256": "949aa32e071adc24a5a6c058b5dd333eeeb09ad5030da3cf8939813a9dabf388",
+      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
+      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
+      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
     },
     {
       "file": "star-sprite.webp",
-      "bytes": 144166,
       "width": 1254,
       "height": 1254,
-      "sha256": "6a5ca12bd2ae6dc210c279ab515d4e8e5969fa6f954b6385ff2677f2a12bd9be",
-      "source": "Original built-in image generation, 2026-10-26",
-      "runtime_encoding": "WebP quality 90; original dimensions and alpha preserved",
-      "prompt": "Use case: illustration-story. Asset type: transparent game avatar cutout for Number Bluff, readable at 48–120px wide. Primary request: one adorable original round ivory star-sprite/mochi creature with a tiny soft tuft, small flipper arms, rosy pink cheeks, simple dark ink dot eyes and a tiny friendly mouth, hugging a gentle butter-yellow five-point star. Style: soft pastel celestial storybook watercolor/gouache, pillowy softly shaded forms, very subtle paperlike brush texture, clean silhouette and readable face, cozy midnight-fantasy palette with lilac reflected light. The inspected UI reference images are STYLE guidance only: do not reproduce a UI, screen, layout, or multiple characters. Composition: full body centered on square canvas, all extremities visible, at least 15% clear alpha padding on every side. Actual transparent background. No backdrop, no scenery, no text, no numbers, no UI, no border, no heavy drop shadow, no floating decorations.",
-      "brief": null
+      "bytes": 57600,
+      "sha256": "4bc18283591f9e7abbb934456644266dd0210eb7f1806fb5d6e0c401fea0877b",
+      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
+      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
+      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
     },
     {
       "file": "moon-cat.webp",
-      "bytes": 216456,
       "width": 1254,
       "height": 1254,
-      "sha256": "f1c93881e37f75aef31850f350a5b8d7ebcfab2d43c514cfca0c7cc49ff06e5b",
-      "source": "Original built-in image generation, 2026-10-26",
-      "runtime_encoding": "WebP quality 90; original dimensions and alpha preserved",
-      "prompt": "Use case: illustration-story. Asset type: transparent game avatar cutout for Number Bluff, readable at 48–120px wide. Primary request: one adorable original gray/lilac cat, round soft mochi-like body, short little paws, rounded triangular ears, curled short tail, ivory muzzle and tummy, rosy pink cheeks, sleepy friendly small dark ink eyes and a tiny content smile. Style: soft pastel celestial storybook watercolor/gouache, pillowy softly shaded forms, subtle paperlike brush texture, clean silhouette and readable face, cozy midnight-fantasy palette with lilac reflected light. Match the soft ivory star sprite companion design in style, not anatomy. The inspected UI reference images are STYLE guidance only: do not reproduce a UI, screen, layout, or multiple characters. Composition: full body centered on square canvas, all extremities visible, at least 15% clear alpha padding on every side. Actual transparent background. No backdrop, scenery, text, numbers, UI, border, heavy drop shadow, floating decorations, accessories, crown or star.",
-      "brief": null
+      "bytes": 104694,
+      "sha256": "5bd5cbaf558809cdb2378e17ce0b00800d16d9302b756086d35313c3004c5589",
+      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
+      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
+      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
+    },
+    {
+      "file": "cloud-bunny.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 76674,
+      "sha256": "bb10edb51103f0f6ae5b2cf9ee84636e138855362da07c3985ef464a9b692f1a",
+      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
+      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
+      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
+    },
+    {
+      "file": "blue-cloud.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 62346,
+      "sha256": "ff352e9312c461b0ac73fc86b46361226ad7af7510073cb32a6e940dfcef9b27",
+      "source": "Built-in image generation/editing, reference-guided, 2026-10-26",
+      "runtime_encoding": "WebP quality 90; alpha and dimensions unchanged",
+      "review": "Original reference-inspired art; full-body character images use contain. Decorative background may crop."
     }
   ],
+  "font": {
+    "file": "title-mochiy.ttf",
+    "family": "Mochiy Pop One",
+    "source": "https://github.com/google/fonts/tree/main/ofl/mochiypopone",
+    "license": "SIL OFL 1.1; OFL-MochiyPopOne.txt included",
+    "subset": "ナンバーブラフ",
+    "sha256": "91e7c4907125ce84a222b590d6978cd211b9374c0c4363519d939b89c91a6f34"
+  },
   "notes": [
-    "Reference screenshots were used for visual direction only and are not distributed.",
-    "Text, card values and interactive controls are rendered by HTML/CSS, not baked into images.",
-    "Decorative sky may cover/crop; character illustrations use contain."
+    "Source reference screenshots are not distributed.",
+    "Numbers, explanation text and interactive controls remain HTML/CSS.",
+    "Original generated PNGs are preserved separately; runtime WebP files are encoded for download size."
   ]
 }
