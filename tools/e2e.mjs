@@ -85,7 +85,7 @@ async function illustrationMotionChecks(page){
   const card=document.querySelector('#guideContent .kind-'+kind),layer=card.querySelector('.card-art-motion'),value=card.querySelector('.card-value');if(!layer||layer.getAttribute('aria-hidden')!=='true')throw Error('Missing decorative layer '+kind);
   const animation=layer.getAnimations({subtree:true}).find(a=>a.animationName===name);if(!animation)throw Error('Missing illustration motion '+kind);
   const oldTime=animation.currentTime,oldState=animation.playState,timing=animation.effect.getTiming();animation.pause();
-  const frames=[.25,.5].map(fraction=>{animation.currentTime=Number(timing.duration)*fraction-Number(timing.delay);const c=getComputedStyle(layer,'::before');return{transform:c.transform,opacity:Number(c.opacity),animation:c.animationName,card:card.getBoundingClientRect().toJSON(),value:value.getBoundingClientRect().toJSON(),layer:layer.getBoundingClientRect().toJSON()};});
+  const frames=[.25,.5].map(fraction=>{let time=Number(timing.duration)*fraction+Number(timing.delay);while(time<0)time+=Number(timing.duration);animation.currentTime=time;const c=getComputedStyle(layer,'::before');return{transform:c.transform,opacity:Number(c.opacity),animation:c.animationName,card:card.getBoundingClientRect().toJSON(),value:value.getBoundingClientRect().toJSON(),layer:layer.getBoundingClientRect().toJSON()};});
   animation.currentTime=oldTime;if(oldState==='running')animation.play();return{kind,frames};
  }),expected);
  for(const item of evidence){const[a,b]=item.frames;assert.notEqual(a.transform,b.transform,`${item.kind} illustration must move`);assert.deepEqual(a.card,b.card,'illustration must not move cardframe');assert.deepEqual(a.value,b.value,'illustration must not move number or special label');for(const f of item.frames){assert.ok(f.opacity>0);assert.ok(f.layer.top>=f.card.top+f.card.height*.38&&f.layer.bottom<=f.card.bottom+1&&f.layer.left>=f.card.left&&f.layer.right<=f.card.right,'illustration layer must stay below label and within frame');}}
@@ -96,19 +96,19 @@ async function visibleCardEffects(page){
  await settleCardMotion(page);
  const evidence={};
  for(const [kind,selector,name,positions]of [['foil','#playerGrid .player-card:not(.hidden):not(.out)','card-foil-sweep',[1600,2240]],['outcome','#result .result-message','outcome-sparkles',[312.5,800]]]){
-  await page.evaluate(async({selector,name})=>{const element=document.querySelector(selector),animation=element.getAnimations({subtree:true}).find(a=>a.animationName===name);if(!animation)throw Error('Missing visible animation '+name);window.__visualSample={element,animation,oldTime:animation.currentTime,oldState:animation.playState,delay:Number(animation.effect.getTiming().delay)||0};animation.pause();await animation.ready;},{selector,name});
+  await page.evaluate(async({selector,name})=>{const element=document.querySelector(selector),animation=element.getAnimations({subtree:true}).find(a=>a.animationName===name);if(!animation)throw Error('Missing visible animation '+name);window.__visualSample={element,animation,oldTime:animation.currentTime,oldState:animation.playState,delay:Number(animation.effect.getTiming().delay)||0,duration:Number(animation.effect.getTiming().duration)};animation.pause();await animation.ready;},{selector,name});
   evidence[kind]=[];
   for(const at of positions){
-   await page.evaluate(at=>{const s=window.__visualSample;s.animation.currentTime=at-s.delay;},at);
+   await page.evaluate(at=>{const s=window.__visualSample;let time=at+s.delay;while(time<0)time+=s.duration;s.animation.currentTime=time;},at);
    // Let the browser commit the pending CSS animation seek before reading the
    // pseudo-element. Playwright's game clock remains paused and untouched.
    await page.waitForTimeout(50);
-   evidence[kind].push(await page.evaluate(at=>{const s=window.__visualSample,c=getComputedStyle(s.element,'::after');return{at,currentTime:s.animation.currentTime,delay:s.delay,transform:c.transform,opacity:Number(c.opacity),display:c.display,pointerEvents:c.pointerEvents,animation:c.animationName,box:s.element.getBoundingClientRect().toJSON()};},at));
+   evidence[kind].push(await page.evaluate(at=>{const s=window.__visualSample,c=getComputedStyle(s.element,'::after');return{at,currentTime:s.animation.currentTime,delay:s.delay,duration:s.duration,effectivePhase:((s.animation.currentTime-s.delay)%s.duration)/s.duration,transform:c.transform,opacity:Number(c.opacity),display:c.display,pointerEvents:c.pointerEvents,animation:c.animationName,box:s.element.getBoundingClientRect().toJSON()};},at));
   }
   await page.evaluate(()=>{const s=window.__visualSample;s.animation.currentTime=s.oldTime;if(s.oldState==='finished')s.animation.finish();else if(s.oldState==='running')s.animation.play();delete window.__visualSample;});
  }
  await writeFile(new URL('card-effects-motion.json',output),JSON.stringify({scope:'CSS-only deterministic animation sampling, no game state manipulation',...evidence},null,2));
- for(const [name,frames]of Object.entries(evidence)){assert.notEqual(frames[0].transform,frames[1].transform,`${name} must visibly travel`);for(const f of frames){assert.ok(f.opacity>0&&f.display!=='none',`${name} must be visibly rendered`);assert.equal(f.pointerEvents,'none');}assert.deepEqual(frames[0].box,frames[1].box,`${name} must not displace content`);}
+ for(const [name,frames]of Object.entries(evidence)){assert.notEqual(frames[0].transform,frames[1].transform,`${name} must visibly travel`);for(const f of frames){assert.ok(Math.abs(f.effectivePhase-f.at/f.duration)<.001,'CSS sampler must target the requested active phase');assert.ok(f.opacity>0&&f.display!=='none',`${name} must be visibly rendered`);assert.equal(f.pointerEvents,'none');}assert.deepEqual(frames[0].box,frames[1].box,`${name} must not displace content`);}
  await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(50);assert.equal(await page.locator('#playerGrid .player-card').first().evaluate(e=>getComputedStyle(e,'::after').display),'none');assert.equal(await page.locator('#result .result-message').evaluate(e=>getComputedStyle(e,'::after').display),'none');await page.emulateMedia({reducedMotion:'no-preference'});await page.waitForTimeout(50);
  await writeFile(new URL('card-effects-motion.json',output),JSON.stringify({scope:'CSS-only deterministic animation sampling, no game state manipulation',...evidence,reducedMotionStatic:true},null,2));
 }
