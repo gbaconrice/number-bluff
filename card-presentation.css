@@ -36,9 +36,9 @@
 .battle-player:nth-child(3n) .player-card::after { animation-delay:-6s; }
 .presentation-card.is-revealing { animation:card-reveal-rich 470ms cubic-bezier(.15,.75,.2,1) both; }
 .presentation-card.is-dealing { animation:card-deal-rich 420ms cubic-bezier(.15,.8,.24,1) both; }
-.presentation-card.is-revealing::after,.presentation-card.is-dealing::after { animation:card-opening-glint 650ms ease-out both; }
+.presentation-card.is-revealing:not(.hidden):not(.out)::after,.presentation-card.is-dealing:not(.hidden):not(.out)::after { animation:card-opening-glint 650ms ease-out both; }
 .presentation-card.is-adding { animation:card-contribute-rich 320ms ease-out both; }
-.presentation-card.is-adding::after { animation:card-opening-glint 420ms ease-out both; }
+.presentation-card.is-adding:not(.hidden):not(.out)::after { animation:card-opening-glint 420ms ease-out both; }
 .presentation-card.is-zeroed { box-shadow:inset 0 0 0 2px #b5f6ff88,0 0 14px #7de9ff66; }
 .presentation-zero-stamp { bottom:10%; right:8%; padding:4px 10px; box-shadow:0 0 16px #79eaff66; }
 .presentation-vortex { inset:5%; z-index:1; opacity:.65; background:repeating-conic-gradient(from 20deg,transparent 0deg,#d7b8ff66 35deg,transparent 65deg,#80eaff55 95deg,transparent 120deg); filter:none; animation:galaxy-reveal-rich 900ms ease-out both; }
