@@ -8,22 +8,33 @@ const ART={double:{width:1051,height:1496},extra:{width:1049,height:1500},max0:{
 function containRect(width,height,sourceWidth,sourceHeight){const scale=Math.min(width/sourceWidth,height/sourceHeight);return{x:(width-sourceWidth*scale)/2,y:(height-sourceHeight*scale)/2,width:sourceWidth*scale,height:sourceHeight*scale,scale};}
 function markup(kind,id){
 const a=ART[kind];
-// The actual artwork supplies every visible pixel. Geometry below is only a
-// feathered selection, never a drawn line, new ornament, or displaced image.
-const region={double:'<ellipse cx="535" cy="963" rx="435" ry="165" transform="rotate(-28 535 963)"/>',extra:'<ellipse cx="535" cy="994" rx="298" ry="300"/>',reset:'<path d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" fill="none" stroke="white" stroke-width="108" stroke-linecap="round"/>',max0:'<path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/>'}[kind];
-const movingMask=kind==='double'?`<g transform="translate(535 963) rotate(-28) scale(1 .38)"><g class="art-mask-orbit"><ellipse cx="285" cy="0" rx="190" ry="290" fill="url(#${id}-spot)"/></g></g>`:kind==='reset'?`<g transform="translate(535 1005)"><g class="art-mask-orbit"><ellipse cx="200" cy="0" rx="180" ry="180" fill="url(#${id}-spot)"/></g></g>`:`<rect class="art-light-sweep" x="${kind==='max0'?400:-500}" y="0" width="${kind==='max0'?150:450}" height="${a.height}" fill="url(#${id}-sweep)"/>`;
+// Visible pixels always come from the immutable original. These feathered
+// selections create moving reflection/contrast, not drawn ornamental geometry.
+const region={double:'<ellipse cx="535" cy="963" rx="435" ry="165" transform="rotate(-28 535 963)"/>',extra:'<ellipse cx="535" cy="994" rx="298" ry="300"/>',reset:'<path d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" fill="none" stroke="white" stroke-width="108" stroke-linecap="round"/>',max0:'<path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/><circle cx="518" cy="643" r="16"/><circle cx="614" cy="613" r="20"/><circle cx="697" cy="675" r="16"/>'}[kind];
 const photo=cls=>`<image class="${cls}" x="0" y="0" width="${a.width}" height="${a.height}" preserveAspectRatio="none"/>`;
+const patches=(radius,rx,ry)=>[0,125,250].map(angle=>`<g transform="rotate(${angle})"><ellipse cx="${radius}" cy="0" rx="${rx}" ry="${ry}" fill="url(#${id}-spot)"/></g>`).join('');
+function field(mode){
+ if(kind==='double'||kind==='reset'){
+  const geometry=kind==='double'?'translate(535 963) rotate(-28) scale(1 .38)':'translate(535 1005)';
+  const radius=kind==='double'?285:205;
+  return `<g transform="${geometry}"><g class="art-mask-orbit ${mode}">${patches(radius,mode==='specular-flow'?65:115,mode==='specular-flow'?150:230)}</g></g>`;
+ }
+ if(kind==='max0'&&mode==='specular-flow')return [[518,643],[614,613],[697,675]].map(([x,y],i)=>`<ellipse class="art-jewel-light jewel-${i}" cx="${x}" cy="${y}" rx="30" ry="30" fill="url(#${id}-spot)"/>`).join('');
+ return `<g transform="${kind==='extra'?'rotate(-20 535 994)':''}"><rect class="art-light-sweep ${mode}" x="${kind==='max0'?400:-500}" y="0" width="${kind==='max0'?110:mode==='specular-flow'?160:300}" height="${a.height}" fill="url(#${id}-sweep)"/></g>`;
+}
+const selection=(name,mode,lum='painted-light')=>`<mask id="${id}-${name}" maskUnits="userSpaceOnUse" x="0" y="0" width="${a.width}" height="${a.height}" style="mask-type:luminance"><g mask="url(#${id}-region)"><g mask="url(#${id}-${lum})">${field(mode)}</g></g></mask>`;
 return `<defs>
-<filter id="${id}-soft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="${kind==='max0'?3:10}"/></filter>
-<filter id="${id}-lightboost" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="1.35" exponent=".65" offset="0"/><feFuncG type="gamma" amplitude="1.35" exponent=".65" offset="0"/><feFuncB type="gamma" amplitude="1.35" exponent=".65" offset="0"/></feComponentTransfer></filter>
-<filter id="${id}-bloom" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="7"/></filter>
-<filter id="${id}-luminance" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="0 .08 .3 .65 .95 1"/><feFuncG type="table" tableValues="0 .08 .3 .65 .95 1"/><feFuncB type="table" tableValues="0 .08 .3 .65 .95 1"/></feComponentTransfer></filter>
-<radialGradient id="${id}-spot"><stop stop-color="white"/><stop offset=".35" stop-color="#ddd"/><stop offset="1" stop-color="black"/></radialGradient>
+<filter id="${id}-soft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="${kind==='max0'?2:8}"/></filter>
+<filter id="${id}-lightboost" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncG type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncB type="gamma" amplitude="1.7" exponent=".55" offset="0"/></feComponentTransfer></filter>
+<filter id="${id}-shade"><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"/></filter>
+<filter id="${id}-bloom" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="6"/></filter>
+<filter id="${id}-luminance" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncG type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncB type="table" tableValues="0 .15 .45 .8 1 1"/></feComponentTransfer></filter>
+<radialGradient id="${id}-spot"><stop stop-color="white"/><stop offset=".3" stop-color="#eee"/><stop offset="1" stop-color="black"/></radialGradient>
 <linearGradient id="${id}-sweep"><stop stop-color="black"/><stop offset=".3" stop-color="#888"/><stop offset=".5" stop-color="white"/><stop offset=".7" stop-color="#888"/><stop offset="1" stop-color="black"/></linearGradient>
 <mask id="${id}-region" maskUnits="userSpaceOnUse" x="0" y="0" width="${a.width}" height="${a.height}" style="mask-type:luminance"><g fill="white" filter="url(#${id}-soft)">${region}</g></mask>
 <mask id="${id}-painted-light" maskUnits="userSpaceOnUse" x="0" y="0" width="${a.width}" height="${a.height}" style="mask-type:luminance"><g filter="url(#${id}-luminance)">${photo('art-luminance-source')}</g></mask>
-<mask id="${id}-reveal" maskUnits="userSpaceOnUse" x="0" y="0" width="${a.width}" height="${a.height}" style="mask-type:luminance"><g mask="url(#${id}-region)"><g mask="url(#${id}-painted-light)">${movingMask}</g></g></mask>
-</defs><g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity=".45">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g>`;
+${selection('shade-mask','shade-flow')}${selection('reveal','primary-flow')}${selection('specular-mask','specular-flow')}
+</defs><g class="art-derived-shadow" mask="url(#${id}-shade-mask)" filter="url(#${id}-shade)">${photo('art-shadow-source')}</g><g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity=".3">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g><g class="art-derived-specular" mask="url(#${id}-specular-mask)" filter="url(#${id}-lightboost)">${photo('art-specular-source')}</g>`;
 }
 function createManager(){
 const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false,pageSuspended=false;

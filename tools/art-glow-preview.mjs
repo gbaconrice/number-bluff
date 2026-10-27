@@ -45,7 +45,7 @@ try {
           const content = NumberBluffCardArt.content(document,card), value = document.createElement('span'); value.className = 'card-value'; value.textContent = label;
           const image = NumberBluffCardArt.create(document,card); content.append(value,image); node.append(content); holder.append(node); cards.push({kind,node,image});
         }
-        await Promise.all(cards.map(card => card.image.decode()));
+        await Promise.all(cards.map(card => card.image.decode())); await document.fonts.ready;
         const manager = NumberBluffSpecialSVG.createManager();
         for (const card of cards) manager.attach(card.node,card.kind,{faceUp:true,imageElement:card.image});
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -53,7 +53,7 @@ try {
       }, width);
       for (const card of geometry) { assert.equal(card.width,width); assert.equal(card.height,width*1.5); assert.equal(card.svg,'true'); }
       assert.equal(await page.locator('.nb-card-glare').count(),0,'foil must not contaminate the prototype');
-      await page.waitForTimeout(6000);
+      await page.waitForTimeout(500); for (let frame=0;frame<12;frame++){await page.screenshot({path:output+`art-glow-${width}px-frame-${frame}.png`,animations:'allow'});await page.waitForTimeout(500);}
       await page.screenshot({ path: output + `art-glow-${width}px.png`, animations: 'allow' });
       assert.deepEqual(errors,[]);
       report.previews.push({ cardWidth:width, viewport, geometry, clip:`art-glow-${width}px.webm`, status:'passed' });

@@ -50,11 +50,11 @@ test('all four special raster originals remain byte-identical to approved main',
 test('visible glow pixels derive only from the original image, never painted strokes or extra shapes', () => {
   for (const kind of Object.keys(originals)) {
     const rendered=markup(kind), visible=rendered.slice(rendered.lastIndexOf('</defs>')+7);
-    assert.match(visible, /^<g class="art-derived-light" mask="url\(#prototype-reveal\)">/);
+    assert.match(visible, /^<g class="art-derived-shadow"/);
     assert.doesNotMatch(rendered, /painted-track|contrast-track|light-track|reset-card|orbit-card|cross.?plane|radiance/);
     assert.doesNotMatch(visible, /<(?:path|ellipse|circle|rect|polygon|polyline|text|use)\b/);
     const [width,height]=dimensions[kind];
-    const images=[...rendered.matchAll(/<image\b([^>]*)\/>/g)];assert.equal(images.length,3);
+    const images=[...rendered.matchAll(/<image\b([^>]*)\/>/g)];assert.equal(images.length,5);
     for(const [,attributes] of images){assert.match(attributes,new RegExp(`x="0" y="0" width="${width}" height="${height}"`));assert.doesNotMatch(attributes,/transform=|style=/);}
   }
 });
@@ -64,13 +64,13 @@ test('luminance and feathered selection are masks, not visible geometry', () => 
     assert.match(rendered, /<mask id="prototype-painted-light"[^>]*style="mask-type:luminance">/);
     assert.match(rendered, /<feColorMatrix type="saturate" values="0"\/>/);
     assert.match(rendered, /<mask id="prototype-region"[^>]*style="mask-type:luminance">/);
-    assert.match(rendered, kind==='double'||kind==='reset'?/class="art-mask-orbit"/:/<rect class="art-light-sweep"/);
+    assert.match(rendered, kind==='double'||kind==='reset'?/class="art-mask-orbit[^"]*"/:/<rect class="art-light-sweep[^"]*"/);
     assert.match(rendered, /<g mask="url\(#prototype-region\)"><g mask="url\(#prototype-painted-light\)">/);
   }
 });
 test('every overlay image uses exactly the displayed original URL for currentSrc and src fallback', () => {
   for(const kind of Object.keys(originals))for(const current of [true,false]){
-    const f=fixture(kind,current);assert.equal(f.svg.images.length,3);for(const image of f.svg.images)assert.equal(image.attributes.href,f.originalURL);
+    const f=fixture(kind,current);assert.equal(f.svg.images.length,5);for(const image of f.svg.images)assert.equal(image.attributes.href,f.originalURL);
     assert.equal(f.svg.attributes.viewBox,`0 0 ${dimensions[kind].join(' ')}`);f.manager.destroy();
   }
 });
