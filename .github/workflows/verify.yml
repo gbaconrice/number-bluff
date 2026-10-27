@@ -26,6 +26,8 @@ jobs:
         run: npx --no-install playwright install --with-deps chromium
       - name: Build single HTML handoff
         run: node tools/build-single-html.mjs
+      - name: Online turn deadline and nonblocking countdown
+        run: node tools/online-turn-timer.mjs
       - name: Automatic card motion on mobile and desktop
         run: node tools/card-motion-periodic.mjs
       - name: Natural-time special-card frames

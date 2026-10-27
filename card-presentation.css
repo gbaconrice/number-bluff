@@ -60,3 +60,6 @@
  .presentation-card,.presentation-bid-pulse,.presentation-bid-pulse::after,#result .calculation,#result .result-message,#result .result-message::after,#result #resultAvatar { animation:none!important; transition:none!important; }
  #result .result-message::after { display:none!important; }
 }
+
+/* Individual life slots keep the exact text/width and never intercept input. */
+.life-heart { display:inline-block; transform-origin:center; pointer-events:none; }
