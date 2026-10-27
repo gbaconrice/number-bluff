@@ -1,0 +1,66 @@
+REVIEW PROTOTYPE ONLY — not wired to application/main, not approved visual quality.
+
+Reference: existing game card encyclopedia and original four special artworks.
+No user attachment is included in this repository.
+
+Four-effect design, preserving those artworks:
+? : orb texture refraction inside ellipse only (implemented prototype here).
+×2: use original tilted elliptical accretion texture; mask annulus excludes black
+center and outer stars/clouds; tangent-aligned small flow, not a new spiral stroke.
+MAX: mask crown gold face with original highlights/luminance and its actual contour;
+slow specular travel over metallic facet. Cat, eyes, whiskers, ears stay fixed. No
+sweat, droplets, floating diamond or extra ornaments, explicitly prohibited.
+Reset: mask the actual filled arrow silhouette using contour + original cyan/white
+pixels; specular intensity travels along the arrow surface. Not a rotating new icon,
+not new circular strokes, not moving the entire original illustration.
+
+? implementation: React Bits RippleDistortion's public waveFragment Gaussian/cosine
+brush + composite image displacement adapted to plain WebGL, fused into ONE pass
+(no displacement render target needed for the single finite wave). One renderer,
+one canvas, one original texture per manager. Canvas moves to activated visible card.
+At a time only one host, duration 1200ms, 30fps cap, DPR<=1.5, displacement <=.01UV.
+Fixed mask center (.51,.66), radii (.29,.205), fading normalized radius .70–.88.
+Outside mask alpha is zero, so image/frame/number remain the actual unchanged DOM.
+No tint, grayscale, chromatic spread, added dot/line/shape, or particle cloud.
+No image editing. Source copy checksum equals original; see source.sha256.
+Low performance (four slow >120ms rendered frames), WebGL loss, image failure,
+hidden document, offscreen host, reduced-motion preference all fall back to original.
+Current prototype requires card container aspect/object-fit match original, as demo.
+
+API:
+const fx=NumberBluffSpecialMotion.create({source: 'absolute-or-data-original-url'});
+await fx.ready; // boolean
+fx.play(cardElement); // finite action, never derive from hidden own card's identity
+fx.stop(); fx.destroy();
+fx.renderAt(cardElement,.3); // deterministic visual review, motion/visibility gate kept
+
+Validation: node --check passed. Browser launch blocked in this execution sandbox;
+no claim of visible naturalness, pixel alignment, or GPU compatibility until QA renders.
+Open index.html via local HTTP server and compare 0/30/60/100% at 210px and 80px.
+If rubbery or invisible at 80px, reject/tune; do not replace original artwork to hide it.
+
+FOUR-KIND UPDATE (2026-10-27 02:23 UTC)
+API unified: create({sources:{extra,double,max0,reset}}), play(el,kind),
+renderAt(el,kind,progress). One GL context caches 4 unchanged textures and moves
+one canvas between hosts. Original source asset aspect should match the card face.
+The source image width/height used in coordinate masks is specific per original.
+
+MAX: 7-vertex inset crown-face polygon in original 1049x1499 pixel coordinates,
+soften 3 source px at boundary; warm gold source-color gating; no deformation,
+cat/ears/eyes/whiskers/droplets/sweat affected or added.
+Reset: original 1062x1482 arrow ring surface and measured head interior, source
+brightness gating; light follows original angle without rotating the arrow.
+Double: source 1051x1496, center(520,958), axes(440,155), tilt -0.485 radians;
+annular source-texture displacement only, excludes dark center/clouds/frame.
+No separate circles/lines/particles are rendered: these shapes define an invisible
+sampling mask, not a visible graphical overlay.
+
+Both p=0 and p=1 return alpha=0 globally. Outside local mask returns alpha=0 at
+all phases. The untouched DOM original is therefore the exact visible source in
+protected areas; no blur/tint/filter is applied to entire card or background.
+
+test-special.cjs: start local HTTP server in this directory, pass PROTOTYPE_URL,
+optionally CHROMIUM_PATH, run Node. Collects PNG comparisons for four cards,
+80/210px and 0/.5/1; checks GL transparent protected top/frame, endpoints, label
+bounds, one canvas, reduced motion and cleanup. This test is PREPARED, NOT PASSED.
+Coordinate accuracy/naturalness remain QA acceptance gates, not code-only claims.

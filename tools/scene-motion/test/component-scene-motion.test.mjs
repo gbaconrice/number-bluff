@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright-core';
 
-const js = await readFile(new URL('../component-scene-motion.js', import.meta.url), 'utf8');
-const css = await readFile(new URL('../component-scene-motion.css', import.meta.url), 'utf8');
+const js = await readFile(new URL('../../../component-scene-motion.js', import.meta.url), 'utf8');
+const css = await readFile(new URL('../../../component-scene-motion.css', import.meta.url), 'utf8');
 let browser;
 before(async () => {
   await mkdir('/tmp/nb-scene-browser-home', { recursive: true });
-  browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true, args: ['--no-sandbox'],
+  browser = await chromium.launch({ ...(process.env.CHROMIUM_PATH ? {executablePath:process.env.CHROMIUM_PATH} : {}), headless: true, args: ['--no-sandbox'],
     env: { ...process.env, HOME: '/tmp/nb-scene-browser-home', XDG_CONFIG_HOME: '/tmp/nb-scene-browser-home/config' } });
 });
 after(async () => { await browser?.close(); });
@@ -39,7 +39,7 @@ test('official bundles are self-contained and retain every full runtime license'
   assert.deepEqual(manifest.unresolvedImports, []);
   assert.ok(!/\bimport\s*\(/.test(js));
   for (const [name, file] of [['number-flow','LICENSE.md'],['canvas-confetti','LICENSE'],['esm-env','LICENSE']]) {
-    const license = await readFile(new URL(`../node_modules/${name}/${file}`, import.meta.url), 'utf8');
+    const license = await readFile(new URL(`../licenses/${name}.txt`, import.meta.url), 'utf8');
     assert.ok(js.includes(license.trim()), `${name}: full license in delivered bundle`);
   }
 });
@@ -186,8 +186,8 @@ test('mobile visual fixture is captured with real NumberFlow and a small victory
   try{
     await f.page.evaluate(()=>{motion.setNumber(total,15);motion.setNumber(total,30);motion.celebrate({key:'room1:game1:round1',confirmed:true,won:true});});
     await f.page.waitForTimeout(250);
-    await mkdir(new URL('../test-output/',import.meta.url),{recursive:true});
-    await f.page.screenshot({path:new URL('../test-output/mobile-components.png',import.meta.url).pathname});
+    await mkdir('artifacts',{recursive:true});
+    await f.page.screenshot({path:'artifacts/scene-mobile-components.png'});
     assert.deepEqual(f.errors,[]);assert.deepEqual(f.requests,[]);
   }finally{await f.close();}
 });

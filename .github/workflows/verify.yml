@@ -38,10 +38,18 @@ jobs:
           path: artifacts/visual-preview/
           if-no-files-found: ignore
           retention-days: 7
+      - name: Isolated official number and victory components
+        id: scene
+        continue-on-error: true
+        run: node --test tools/scene-motion/test/component-scene-motion.test.mjs
+      - name: Unadopted special surface visual review (not wired to game)
+        id: special
+        continue-on-error: true
+        run: node tools/special-motion-preview/test-special.cjs
       - name: Browser regression and responsive checks
         run: node tools/e2e.mjs
       - name: Require early visual checks
-        if: always() && steps.visual.outcome == 'failure'
+        if: always() && (steps.visual.outcome == 'failure' || steps.scene.outcome == 'failure' || steps.special.outcome == 'failure')
         run: exit 1
       - name: Screenshots and test results only
         if: always()
