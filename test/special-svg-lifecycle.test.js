@@ -4,7 +4,7 @@ function fixture(){
  const media={matches:false,addEventListener(){},removeEventListener(){}};
  const doc={hidden:false,modal:null,confirm:false,addEventListener(k,f){listeners.set(k,f);},removeEventListener(k){listeners.delete(k);},querySelector(s){return s==='dialog[open]'?this.modal:s.startsWith('#restartConfirm')&&this.confirm?{}:null;},createElement(){return layer();},createElementNS(){return{setAttribute(){},innerHTML:''};}};
  function layer(){const node={dataset:{},style:{setProperty(k,v){this[k]=v;}},append(){},setAttribute(){},removeAttribute(k){if(k==='data-active')delete this.dataset.active;},remove(){this.removed=true;},getAnimations(){return[];}};return node;}
- const face={isConnected:true,blocked:false,closed:false,clientWidth:210,clientHeight:300,offsetWidth:210,offsetHeight:300,style:{},classList:{add(){},remove(){}},getBoundingClientRect(){return{left:0,top:0,right:210,bottom:300,width:210,height:300};},closest(s){return s==='dialog:not([open])'?(this.closed?{}:null):this.blocked?{}:null;},append(node){this.layer=node;}};
+ const face={isConnected:true,blocked:false,closed:false,clientWidth:210,clientHeight:300,offsetWidth:210,offsetHeight:300,style:{},classList:{add(){},remove(){},contains(name){return name==='card-content';}},getBoundingClientRect(){return{left:0,top:0,right:210,bottom:300,width:210,height:300};},closest(s){return s==='dialog:not([open])'?(this.closed?{}:null):this.blocked?{}:null;},append(node){this.layer=node;}};
  const win={addEventListener(k,f){listeners.set(k,f);},removeEventListener(k){listeners.delete(k);}};
  const context={window:win,document:doc,matchMedia:()=>media,innerWidth:390,innerHeight:844,getComputedStyle:()=>({visibility:'visible'}),ResizeObserver:class{observe(){}unobserve(){}disconnect(){}},IntersectionObserver:class{constructor(fn){io=fn;}observe(){}unobserve(){}disconnect(){}},setTimeout(fn){const key=++id;jobs.set(key,fn);return key;},clearTimeout(key){jobs.delete(key);}};
  vm.runInNewContext(fs.readFileSync(require.resolve('../special-svg-motion.js'),'utf8'),context);
@@ -19,4 +19,8 @@ test('offscreen, hidden, reduced motion and pagehide stop without latching a per
 });
 test('closed dialog, another modal and exit confirmation block ambient until dismissed',()=>{
  for(const reason of ['closed','modal','confirm']){const f=fixture();if(reason==='closed')f.face.closed=true;if(reason==='modal')f.doc.modal={contains:()=>false};if(reason==='confirm')f.doc.confirm=true;f.manager.refresh();assert.equal(f.face.layer.dataset.playing,'false',reason);f.face.closed=false;f.doc.modal=null;f.doc.confirm=false;f.manager.refresh();assert.equal(f.face.layer.dataset.playing,'true');f.manager.destroy();}
+});
+
+test('production SVG shares image CSS coordinates instead of transformed viewport measurements',()=>{
+ const f=fixture(),image={parentElement:f.face,closest:()=>f.face};f.manager.attach(f.face,'extra',{imageElement:image});assert.equal(f.face.layer.style.left,'0px');assert.equal(f.face.layer.style.bottom,'0px');assert.equal(f.face.layer.style.top,'auto');assert.equal(f.face.layer.style.width,'100%');assert.equal(f.face.layer.style.height,'var(--card-source-height,100%)');f.manager.destroy();
 });

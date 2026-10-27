@@ -87,6 +87,7 @@ try {
         evidence.specials[kind] = { gallery: await verifyAmbient(gallery, label + ' gallery ' + kind) };
         await gallery.click(); const detail = page.locator('#cardDetailContent .player-card');
         await detail.locator('img').evaluate(img => img.decode());
+        if (kind === 'reset') assert.equal(await detail.locator('.reset-card-back').count(), 3, 'reset visibly circulates three card backs');
         // The old implementation vanished after 1200ms. Sample in the quiet gap
         // between the first (<=1940 + 780ms) and second (>=4400ms) glare pass.
         await page.waitForTimeout(3000);

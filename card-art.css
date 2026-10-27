@@ -1,7 +1,7 @@
 /* Shared physical card and full-size artwork surface. Static header-band extension preserves the complete illustration. */
 .player-card, .battle-grid.many .player-card, .catalogue .player-card, .example-cards .player-card, .extra-reveal .player-card, .step-art .player-card { aspect-ratio: 2 / 3; height: auto; }
 .player-card:not(.hidden):not(.out), .battle-grid.many .player-card:not(.hidden):not(.out) { padding: 0; background: #fff2d6; border: 0; border-radius: 6px; outline: 1px solid #d4b976; outline-offset: -1px; box-shadow: 0 1px 3px #15224130; overflow: hidden; box-sizing: border-box; }
-.player-card .card-art { position: absolute; left: 0; bottom: 0; width: 100%; height: var(--card-source-height,100%); object-fit: contain; object-position: center; clip-path: inset(var(--card-lower-start,35%) 0 0); display: block; z-index: 0; pointer-events: none; }
+.player-card .card-art { position: absolute; left: 0; bottom: 0; width: 100%; height: var(--card-source-height,100%); object-fit: contain; object-position: center; clip-path: inset(calc(var(--card-lower-start,35%) - .5px) 0 0); display: block; z-index: 0; pointer-events: none; }
 .player-card .card-art-cap,.player-card .card-art-band { position:absolute; left:0; width:100%; background-repeat:no-repeat; pointer-events:none; z-index:0; }
 .player-card .card-art-cap { top:0; height:var(--card-cap-height,20%); background-size:100% 500%; background-position:center top; }
 .player-card .card-art-band { top:var(--card-cap-height,20%); height:var(--card-band-height,15%); background-size:100% var(--card-band-size,666.6666667%); background-position:center var(--card-band-position,23.5294118%); }

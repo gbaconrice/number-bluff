@@ -13,6 +13,9 @@
 .nb-special-svg .orb-refraction{stroke:#e9e3ff;stroke-width:8;stroke-dasharray:130 320 40 400;opacity:.75;animation:nbsv-orb-flow 8s linear infinite}
 .nb-special-svg .orb-premonition{stroke:#eeefff;stroke-width:5;fill:#c9c5ff0c;transform-origin:535px 994px;animation:nbsv-orb-card 7s ease-in-out infinite}
 .nb-special-svg .orb-glass{stroke:#fff4ff;stroke-width:11;stroke-dasharray:32 95;opacity:.5;animation:nbsv-orb-glass 5s ease-in-out infinite}
+.nb-special-svg .reset-card-orbit{transform-origin:0 0;animation:nbsv-orb-turn 9s linear infinite}
+.nb-special-svg .reset-card-back{fill:#243b86;fill-opacity:.92;stroke:#d7faff;stroke-width:7}
+.nb-special-svg .reset-card-inlay{fill:#b4d9ff;fill-opacity:.25;stroke:#e5efff;stroke-width:3}
 .nb-special-svg .reset-current{stroke-width:22;stroke-dasharray:210 1700;opacity:.85;animation:nbsv-reset-current 5s linear infinite}
 .nb-special-svg .reset-arrowlight{stroke:#fcffff;stroke-width:12;opacity:.2;animation:nbsv-reset-head 5s ease-in-out infinite}
 .nb-special-svg[data-active=true] .galaxy-stream,.nb-special-svg[data-active=true] .reset-current,.nb-special-svg[data-active=true] .crown-metal-sweep,.nb-special-svg[data-active=true] .crown-trace{animation-duration:var(--special-active-ms,900ms);opacity:.85}
