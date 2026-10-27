@@ -639,19 +639,19 @@ html:has(.nb-background[data-motion="paused"]) .card-illustration,
 .player-card.normal-card[data-art-value="0"] { --scene-tint: #e2c5ef; }
 .player-card.normal-card.negative { --scene-tint: #bcb7de; }
 .player-card.normal-card[data-art-value="10"], .player-card.normal-card[data-art-value="15"], .player-card.normal-card[data-art-value="20"] { --scene-tint: #f5d89d; }
-.normal-art-scene { position: absolute; left: 10%; right: 10%; top: 40%; bottom: 9%; pointer-events: none; z-index: 0; }
-.normal-art-ambience { position: absolute; inset: 0 -2% -3%; border-radius: 50% 50% 35% 35%; background: radial-gradient(ellipse at 50% 65%, var(--scene-tint), transparent 72%); opacity: .75; }
-.normal-art-ambience::after { content: ''; position: absolute; left: 6%; right: 6%; bottom: 1%; height: 12%; border-radius: 50%; background: radial-gradient(ellipse, #9b79a431, transparent 70%); }
+.normal-art-scene { position: absolute; left: 7%; right: 7%; top: 38%; bottom: 8%; pointer-events: none; z-index: 0; }
+.normal-art-ambience { position: absolute; inset: 0 -2% -3%; border-radius: 50% 50% 35% 35%; background: radial-gradient(ellipse at 50% 58%, #7864b6a6 0%, #9d85cb75 42%, var(--scene-tint) 66%, transparent 77%); opacity: .9; }
+.normal-art-ambience::after { content: ''; position: absolute; left: 6%; right: 6%; bottom: 1%; height: 12%; border-radius: 50%; background: radial-gradient(ellipse, #6c4c9859, transparent 70%); }
 .normal-art-figures { position: absolute; inset: 0; }
-.normal-art-figure { position: absolute; display: block; left: var(--figure-x); top: var(--figure-y); width: var(--figure-width); height: var(--figure-height); }
-.normal-art-figure img { display: block; width: 100%; height: 100%; object-fit: contain; transform-origin: 50% 85%; }
-.normal-art-meadow .normal-art-figure img { animation: normal-bunny-hop 4.8s ease-in-out infinite; animation-delay: var(--figure-delay); }
-.normal-art-rest .normal-art-figure img { animation: normal-cat-breathe 5.4s ease-in-out infinite; }
+.normal-art-figure { transform-origin: 50% 85%; position: absolute; display: block; left: var(--figure-x); top: var(--figure-y); width: var(--figure-width); height: var(--figure-height); }
+.normal-art-figure .normal-art-character { display: block; width: 100%; height: 100%; overflow: hidden; transform-origin: 50% 85%; }
+.normal-art-meadow .normal-art-figure .normal-art-character { animation: normal-bunny-hop 4.8s ease-in-out infinite; animation-delay: var(--figure-delay); }
+.normal-art-rest .normal-art-figure .normal-art-character { animation: normal-cat-breathe 5.4s ease-in-out infinite; }
 .normal-art-rest .normal-art-ambience { animation: normal-rest-glow 5.4s ease-in-out infinite; }
 .normal-art-constellation .normal-art-figures { animation: normal-star-breathe 7s ease-in-out infinite; transform-origin: center; }
 .normal-art-constellation .normal-art-figure::after { content: ''; position: absolute; width: 16%; height: 5%; left: 25%; top: 28%; background: white; border-radius: 100%; transform: rotate(-35deg); opacity: 0; animation: normal-star-glint 7s ease-in-out infinite; animation-delay: var(--figure-delay); }
-.normal-art-wind .normal-art-figure img { animation: normal-cloud-sail 6s ease-in-out infinite; }
-.normal-art-storm .normal-art-figure img { animation: normal-cloud-storm 5.5s ease-in-out infinite; }
+.normal-art-wind .normal-art-figure .normal-art-character { animation: normal-cloud-sail 6s ease-in-out infinite; }
+.normal-art-storm .normal-art-figure .normal-art-character { animation: normal-cloud-storm 5.5s ease-in-out infinite; }
 .normal-art-ambience svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .normal-weather-line { fill: none; stroke: #9694be; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .normal-art-wind .normal-weather-line { animation: normal-wind-flow 4s ease-in-out infinite; }
@@ -672,6 +672,9 @@ html:has(.nb-background[data-motion="paused"]) .card-illustration,
 html:has(.nb-background[data-motion="paused"]) .normal-art-scene *,
 html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
 .screen.hide .normal-art-scene *, .screen.hide .normal-art-scene *::after { animation-play-state: paused !important; }
+
+.normal-art-figure::before { content: ""; position: absolute; left: 16%; right: 16%; bottom: 0; height: 9%; border-radius: 50%; background: radial-gradient(ellipse, #59428255, transparent 72%); }
+.normal-art-constellation .normal-art-ambience { background: radial-gradient(ellipse at 50% 53%, #695098bc, #9881c08f 52%, transparent 78%); }
 
 </style></head><body><main>
 <section id="homeScreen" class="screen home"><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""></div><div class="home-actions"><button id="startGame" data-intent="createRoom" class="pill gold">ゲームをはじめる <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button></nav></section>
@@ -1155,10 +1158,47 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
 </script><script>
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.NumberBluffNormalArt = factory();
+  else {
+    root.NumberBluffNormalArt = factory();
+    // Warm public art only; never block engine input or wait for private cards.
+    root.NumberBluffNormalArt.preload(root.Image);
+  }
 })(typeof globalThis === 'object' ? globalThis : this, function () {
   'use strict';
   const assets = Object.freeze({ cloud: 'https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp', cat: 'https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp', bunny: 'https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp', star: 'https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp' });
+  // Alpha > 5 bounds plus a 16px antialiasing margin. SVG crops only empty
+  // source canvas; the canonical raster pixels, colours and face are unchanged.
+  const crops = Object.freeze({
+    bunny: Object.freeze({ width: 1254, height: 1254, viewBox: '137 140 975 959' }),
+    cat: Object.freeze({ width: 1254, height: 1254, viewBox: '127 146 1091 962' }),
+    cloud: Object.freeze({ width: 1584, height: 993, viewBox: '99 160 1393 689' }),
+    star: Object.freeze({ width: 1254, height: 1254, viewBox: '76 132 1104 961' })
+  });
+  let preloadPromise = null;
+  const pendingImages = new Set();
+  function preload(ImageClass) {
+    if (preloadPromise) return preloadPromise;
+    if (typeof ImageClass !== 'function') return Promise.resolve([]);
+    // Each closure retains its Image until decode/load settles, including errors.
+    preloadPromise = Promise.all(Object.values(assets).map(src => new Promise(resolve => {
+      let image;
+      let settled = false;
+      const done = loaded => {
+        if (settled) return;
+        settled = true;
+        if (image) { image.onload = null; image.onerror = null; pendingImages.delete(image); }
+        resolve({ src, loaded });
+      };
+      try {
+        image = new ImageClass(); pendingImages.add(image);
+        image.onload = () => done(true); image.onerror = () => done(false);
+        image.src = src;
+        if (typeof image.decode === 'function') Promise.resolve(image.decode()).then(() => done(true), () => done(false));
+        else if (image.complete) done(image.naturalWidth > 0);
+      } catch { done(false); }
+    })));
+    return preloadPromise;
+  }
   const values = Object.freeze([-10, -5, 0, 1, 2, 3, 4, 5, 10, 15, 20]);
   // Pure, deterministic composition. No seat, card ID, randomness or private state.
   function layout(value) {
@@ -1168,17 +1208,17 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
     let boxes;
     if (character === 'star') {
       const rows = value / 5, height = 20, gap = 3, start = (100 - rows * height - (rows - 1) * gap) / 2;
-      boxes = Array.from({ length: value }, (_, i) => ({ x: 1 + i % 5 * 20, y: start + Math.floor(i / 5) * 23, width: 18, height }));
+      boxes = Array.from({ length: value }, (_, i) => ({ x: .5 + i % 5 * 20, y: start + Math.floor(i / 5) * 23, width: 19, height }));
     } else if (character === 'bunny') {
       const arrangements = {
-        1: [[22, 8, 56, 82]],
-        2: [[5, 18, 43, 70], [52, 18, 43, 70]],
-        3: [[32, 5, 36, 42], [10, 54, 36, 42], [54, 54, 36, 42]],
-        4: [[10, 5, 36, 42], [54, 5, 36, 42], [10, 54, 36, 42], [54, 54, 36, 42]],
+        1: [[7, 8, 86, 85]],
+        2: [[1, 14, 48, 78], [51, 14, 48, 78]],
+        3: [[29, 5, 42, 42], [6, 54, 42, 42], [52, 54, 42, 42]],
+        4: [[6, 5, 42, 42], [52, 5, 42, 42], [6, 54, 42, 42], [52, 54, 42, 42]],
         5: [[17, 5, 31, 42], [52, 5, 31, 42], [0, 54, 31, 42], [34.5, 54, 31, 42], [69, 54, 31, 42]]
       };
       boxes = arrangements[value].map(([x, y, width, height]) => ({ x, y, width, height }));
-    } else boxes = [{ x: 10, y: 12, width: 80, height: 76 }];
+    } else boxes = [{ x: 6, y: 10, width: 88, height: 82 }];
     return Object.freeze({ value, character, mood, asset: assets[character], figures: Object.freeze(boxes.map((box, index) => Object.freeze({ ...box, index, delay: -3.1 - (index % 5) * .28 }))) });
   }
   function create(document, value) {
@@ -1199,13 +1239,18 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
       const holder = document.createElement('span'); holder.className = 'normal-art-figure';
       for (const key of ['x', 'y', 'width', 'height']) holder.style.setProperty('--figure-' + key, figure[key] + '%');
       holder.style.setProperty('--figure-delay', figure.delay + 's');
-      const img = document.createElement('img'); img.src = model.asset; img.alt = ''; img.draggable = false; img.decoding = 'async';
-      holder.append(img); group.append(holder);
+      const ns = 'http:' + '//www.w3.org/2000/svg', crop = crops[model.character];
+      const sprite = document.createElementNS(ns, 'svg');
+      sprite.setAttribute('class', 'normal-art-character');
+      sprite.setAttribute('viewBox', crop.viewBox); sprite.setAttribute('preserveAspectRatio', 'xMidYMid meet'); sprite.setAttribute('focusable', 'false');
+      const image = document.createElementNS(ns, 'image');
+      image.setAttribute('href', model.asset); image.setAttribute('width', crop.width); image.setAttribute('height', crop.height);
+      sprite.append(image); holder.append(sprite); group.append(holder);
     });
     scene.append(group);
     return scene;
   }
-  return Object.freeze({ assets, values, layout, create });
+  return Object.freeze({ assets, crops, values, layout, create, preload });
 });
 
 </script><script>
