@@ -4,6 +4,7 @@ import http from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
+import { decodeScreenshotPNG, illustrationPixelDelta } from './card-motion-pixel-metrics.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = root + 'artifacts/';
 await mkdir(output, { recursive: true });
@@ -65,6 +66,44 @@ async function verifyAmbient(card, label, captureName = null) {
   assert.ok(second.animations.some(a => a.state === 'running' && first.animations.some(b => b.name === a.name && a.time > b.time + 250)), `${label}: SVG animation time must actually advance`);
   return { first, second, ...(captureName ? { pixelFramesDiffer: true, screenshots: [captureName + '-before.png', captureName + '-after.png'] } : {}) };
 }
+async function captureSizedIllustrationMotion(card, name) {
+  const originalStyle = await card.getAttribute('style');
+  const glare = card.locator('.nb-card-glare');
+  const originalGlareVisibility = await glare.evaluate(el => el.style.visibility);
+  const sizes = [];
+  try {
+    // Test-only optical isolation, not a runtime change: keep the scheduler running
+    // but hide its white band so every changed pixel comes from the special artwork effect.
+    await glare.evaluate(el => { el.style.visibility = 'hidden'; });
+    for (const width of [88, 180]) {
+      await card.evaluate((el, width) => { el.style.width = width + 'px'; el.style.height = 'auto'; el.style.maxWidth = 'none'; }, width);
+      await card.page().waitForTimeout(180); // Allow real ResizeObserver layout; do not seek animations.
+      const frames = [], screenshots = [], timings = [];
+      for (const [index, delay] of [0, 450, 550].entries()) {
+        if (delay) await card.page().waitForTimeout(delay);
+        assert.equal(await glare.evaluate(el => getComputedStyle(el).visibility), 'hidden');
+        const filename = `${name}-${width}px-frame-${index}.png`;
+        const bytes = await card.screenshot({ path: output + filename, animations: 'allow' });
+        const decoded = decodeScreenshotPNG(bytes);
+        assert.equal(decoded.width, width, 'measure the requested real card size, not a scaled image');
+        frames.push(decoded); screenshots.push(filename); timings.push(await card.page().evaluate(() => performance.now()));
+      }
+      const comparisons = [];
+      for (let a = 0; a < frames.length; a++) for (let b = a + 1; b < frames.length; b++) comparisons.push({ from: a, to: b, elapsedMs: timings[b] - timings[a], ...illustrationPixelDelta(frames[a], frames[b]) });
+      const strongest = comparisons.reduce((best, current) => current.changedPixels > best.changedPixels ? current : best);
+      // Conservative regression floor only, not a claim of visual luxury/quality.
+      // Persist complete measured area/luminance/spatial results for human calibration.
+      assert.ok(strongest.changedPixels >= Math.max(4, Math.ceil(strongest.pixels * .001)), `${name} ${width}px: illustration must change across a nontrivial pixel area: ${JSON.stringify(strongest)}`);
+      assert.ok(strongest.changedBounds.width >= 2 && strongest.changedBounds.height >= 2, `${name}: motion must occupy a spatial region, not an encoding change`);
+      sizes.push({ width, screenshots, comparisons, regressionFloor: 'At least 0.1% of illustration ROI (minimum 4 pixels), with >=3 luminance or >=8 RGB level change. Not a calibrated aesthetic-quality threshold.' });
+    }
+  } finally {
+    await card.evaluate((el, original) => { if (original === null) el.removeAttribute('style'); else el.setAttribute('style', original); }, originalStyle);
+    await glare.evaluate((el, original) => { el.style.visibility = original; }, originalGlareVisibility);
+    await card.page().waitForTimeout(180);
+  }
+  return sizes;
+}
 async function assertStopped(page, label) {
   await page.waitForTimeout(150);
   assert.equal(await page.locator('.nb-special-svg').evaluateAll(els => els.some(el => el.dataset.playing === 'true' && getComputedStyle(el).visibility !== 'hidden' && getComputedStyle(el).display !== 'none')), false, `${label}: special motion remains visible`);
@@ -87,13 +126,14 @@ try {
         evidence.specials[kind] = { gallery: await verifyAmbient(gallery, label + ' gallery ' + kind) };
         await gallery.click(); const detail = page.locator('#cardDetailContent .player-card');
         await detail.locator('img').evaluate(img => img.decode());
-        if (kind === 'reset') assert.equal(await detail.locator('.reset-card-back').count(), 3, 'reset visibly circulates three card backs');
+        if (kind === 'reset') assert.equal(await detail.locator('.reset-card-back,.reset-orbit-cards,.reset-card-orbit').count(), 0, 'reset must not introduce the rejected three orbiting cards');
         // The old implementation vanished after 1200ms. Sample in the quiet gap
         // between the first (<=1940 + 780ms) and second (>=4400ms) glare pass.
         await page.waitForTimeout(3000);
         assert.equal(await detail.locator('.nb-card-glare').evaluate(el => Number(getComputedStyle(el).opacity)), 0);
         evidence.specials[kind].detail = await verifyAmbient(detail, label + ' detail ' + kind, `${label}-ambient-${kind}`);
         await page.screenshot({ path: output + `${label}-periodic-${kind}.png` });
+        evidence.specials[kind].sizedPixelMotion = await captureSizedIllustrationMotion(detail, `${label}-effect-${kind}`);
         await page.locator('#closeCardDetail').click(); await page.waitForTimeout(150);
         assert.equal(await page.locator('#cardDetail').evaluate(el => el.open), false);
         assert.equal(await page.locator('#cardDetail .nb-special-svg').evaluateAll(els => els.some(el => el.dataset.playing === 'true')), false, 'closed detail must stop');
