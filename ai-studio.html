@@ -633,8 +633,10 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .nb-special-svg .orb-nebula{animation-duration:4.2s;stroke-dasharray:20 80}
 .nb-special-svg .orb-current{animation-duration:3.4s;stroke-dasharray:25 75}
 .nb-special-svg .reset-current{animation-duration:3.6s;stroke-dasharray:24 76}
-.nb-special-svg .reset-current.contrast-track{stroke-width:52;opacity:.32}
-.nb-special-svg .reset-current.light-track{stroke-width:30}
+.nb-special-svg .orb-nebula.contrast-track,.nb-special-svg .orb-current.contrast-track{stroke-width:24;opacity:.18}
+.nb-special-svg .orb-nebula.light-track,.nb-special-svg .orb-current.light-track{opacity:.82}
+.nb-special-svg .reset-current.contrast-track{stroke-width:40;opacity:.16}
+.nb-special-svg .reset-current.light-track{stroke-width:24;opacity:.82}
 .nb-special-svg .crown-metal-sweep{animation:nbsv-crown-sweep 3s linear infinite}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
 .hide .nb-special-svg,.hidden .nb-special-svg,[hidden] .nb-special-svg{visibility:hidden!important}
