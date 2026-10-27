@@ -57,3 +57,12 @@ test('release sources do not retain removed UI hooks or obsolete asset reference
   assert.doesNotMatch(source, /resultCards|hanging-stars|TitleMochiy|title-mochiy\.ttf|hero-platform\.webp|celestial-background\.webp/);
   assert.doesNotMatch(source, /\.(?:home-logo|hero-main|hero-friend|galaxy-pool|entry-row)(?![\w-])/);
 });
+
+
+test('license source comments survive packaging without allowing executable external URLs', async t => {
+  const {root,build,auditHTML}=await fixture(t,{'index.html':'<script src="a.js"></script>','a.js':'/*! Source: https://example.org/license */\nwindow.ok=true;'});
+  assert.ok(build(root).includes('https://example.org/license'));
+  assert.throws(()=>auditHTML('<script>window.url="/* https://evil.example/x */";</script>'),/Unowned runtime URL/);
+  assert.throws(()=>auditHTML('<script src="evil.js"></script>'),/Unresolved external script/);
+  assert.doesNotThrow(()=>auditHTML('<script>URL.createObjectURL(new Blob([]))</script>'));
+});

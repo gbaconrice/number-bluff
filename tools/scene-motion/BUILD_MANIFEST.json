@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-10-27T02:14:46.219Z",
+  "dependencies": [
+    {
+      "name": "number-flow",
+      "version": "0.6.2",
+      "repository": "https://github.com/barvian/number-flow",
+      "tarball": "https://registry.npmjs.org/number-flow/-/number-flow-0.6.2.tgz"
+    },
+    {
+      "name": "canvas-confetti",
+      "version": "1.9.4",
+      "repository": "https://github.com/catdad/canvas-confetti",
+      "tarball": "https://registry.npmjs.org/canvas-confetti/-/canvas-confetti-1.9.4.tgz"
+    },
+    {
+      "name": "esm-env",
+      "version": "1.2.2",
+      "repository": "https://github.com/benmccann/esm-env",
+      "tarball": "https://registry.npmjs.org/esm-env/-/esm-env-1.2.2.tgz"
+    }
+  ],
+  "notes": [
+    "No external runtime imports, network, Worker, or dynamic imports are invoked by the adapter.",
+    "NumberFlow browser condition is bundled with esm-env; continuous plugin is not used.",
+    "All three runtime licenses are included in both JS bundles in full."
+  ],
+  "files": {
+    "component-scene-motion.js": {
+      "bytes": 33568,
+      "gzip9": 11930,
+      "sha256": "c1026c1b5e255a48b7a0db0986354db9b614f9d0e28bee32dd95ed52ad2ee063"
+    },
+    "component-scene-motion.raw.js": {
+      "bytes": 57659,
+      "gzip9": 15001,
+      "sha256": "1c5945e9fce5d7af79a1d1f91f2cce4bcdb93b5db942d80d13222742b5d7188a"
+    },
+    "component-scene-motion.css": {
+      "bytes": 893,
+      "gzip9": 457,
+      "sha256": "78bc969114b0ad7267bf9d5867553c20e20a5c359844e54f85c11fb472afa2d9"
+    }
+  },
+  "bundleInputs": [
+    "node_modules/esm-env/true.js",
+    "node_modules/esm-env/false.js",
+    "node_modules/esm-env/index.js",
+    "node_modules/number-flow/dist/ssr-DvIINv8w.mjs",
+    "node_modules/number-flow/dist/plugins.mjs",
+    "node_modules/number-flow/dist/lite.mjs",
+    "node_modules/number-flow/dist/csp.mjs",
+    "node_modules/number-flow/dist/index.mjs",
+    "node_modules/canvas-confetti/dist/confetti.module.mjs",
+    "component-scene-motion.source.js"
+  ],
+  "unresolvedImports": []
+}

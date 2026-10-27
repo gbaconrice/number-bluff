@@ -21,14 +21,21 @@ function assetURL(value, relativeDir = '') {
 }
 function rewriteCSS(css, relativeDir = '') {
   if (/@import\b/i.test(css)) throw new Error('CSS @import is unsupported; inline the stylesheet first');
-  return css.replace(/url\(\s*(['"]?)([^)'"\s]+)\1\s*\)/gi, (_, quote, value) => `url("${assetURL(value, relativeDir)}")`);
+  return css.replace(/\burl\(\s*(['"]?)([^)'"\s]+)\1\s*\)/gi, (_, quote, value) => `url("${assetURL(value, relativeDir)}")`);
 }
 function rewriteScript(js) {
   if (/\bimport\s*(?:\(|[{'"*])|\brequire\s*\(\s*['"](?!\.\/)/.test(js)) throw new Error('Unresolved module dependency');
   // App assets use string literals or template strings starting with assets/.
   return js.replace(/(['"`])(?:\.\/|\/)?assets\//g, `$1${ASSET_BASE}assets/`);
 }
+// Ignore literal comments only within script/style blocks. Quoted runtime strings
+// remain intact, so a CDN URL cannot evade the ownership audit as a fake comment.
+function withoutCodeComments(source) {
+  return source.replace(/("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|\/\*[\s\S]*?\*\//g, (token, quoted) => quoted || '');
+}
 export function auditHTML(html) {
+  html = html.replace(/<(script|style)\b[^>]*>([\s\S]*?)<\/\1>/gi,
+    (all, tag, code) => all.replace(code, () => withoutCodeComments(code)));
   for (const match of html.matchAll(/https?:\/\/[^\s'"`<>)}]+/gi)) {
     if (!match[0].startsWith(ASSET_BASE)) throw new Error(`Unowned runtime URL: ${match[0]}`);
   }
@@ -38,7 +45,7 @@ export function auditHTML(html) {
   for (const match of html.matchAll(/\b(?:src|poster)\s*=\s*(['"])(.*?)\1/gi)) {
     if (match[2] && !match[2].startsWith(ASSET_BASE)) throw new Error(`Non-owned source: ${match[2]}`);
   }
-  for (const match of html.matchAll(/url\(\s*['"]?([^)'"\s]+)/gi)) {
+  for (const match of html.matchAll(/\burl\(\s*['"]?([^)'"\s]+)/gi)) {
     if (!match[1].startsWith(ASSET_BASE) && !match[1].startsWith('#')) throw new Error(`Unresolved CSS URL: ${match[1]}`);
   }
 }
