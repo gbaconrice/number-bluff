@@ -1,19 +1,26 @@
-/* Number Bluff: repaired PR5 special-only SVG motion. Original artwork is immutable.
- * Source-pixel viewBoxes replace the old 100x100 stretched artwork sub-rectangle.
- * No normal-card motion, WebGL, source-image clone, cat sweat or ambient particles.
+/* Source-art lighting prototype. Original artwork bytes remain immutable.
+ * The overlay samples the identical original image in the shared source box.
+ * Only a feathered luminance selection moves; no visible vector strokes.
  */
 (function(global){'use strict';
 const ns='http://www.w3.org/2000/svg';let serial=0;
 const ART={double:{width:1051,height:1496},extra:{width:1049,height:1500},max0:{width:1049,height:1499},reset:{width:1062,height:1482}};
 function containRect(width,height,sourceWidth,sourceHeight){const scale=Math.min(width/sourceWidth,height/sourceHeight);return{x:(width-sourceWidth*scale)/2,y:(height-sourceHeight*scale)/2,width:sourceWidth*scale,height:sourceHeight*scale,scale};}
 function markup(kind,id){
-// Only painted features are traced. Dash offset moves light, never the geometry.
-const defs=`<defs><linearGradient id="${id}-light"><stop stop-color="#fff8d9"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#daf9ff"/></linearGradient><linearGradient id="${id}-gold"><stop stop-color="#dca333" stop-opacity="0"/><stop offset=".32" stop-color="#fff9c9" stop-opacity=".6"/><stop offset=".5" stop-color="#ffffff"/><stop offset=".7" stop-color="#fff8c0" stop-opacity=".6"/><stop offset="1" stop-color="#dca333" stop-opacity="0"/></linearGradient></defs>`;
-function light(tag,attributes,cls){return `<${tag} class="${cls} painted-track contrast-track" ${attributes}/><${tag} class="${cls} painted-track light-track" ${attributes} stroke="url(#${id}-light)"/>`;}
-if(kind==='double')return defs+`<g transform="translate(535 963) rotate(-28)">${light('ellipse','rx="390" ry="129" pathLength="100"','galaxy-stream')}${light('ellipse','rx="296" ry="98" pathLength="100"','galaxy-stream stream-b')}</g>`;
-if(kind==='max0')return defs+`<defs><clipPath id="${id}-crown"><path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/></clipPath></defs><g clip-path="url(#${id}-crown)"><rect class="crown-metal-sweep" x="408" y="608" width="115" height="165" fill="url(#${id}-gold)"/></g>`;
-if(kind==='extra')return defs+`<defs><clipPath id="${id}-orb"><ellipse cx="535" cy="994" rx="282" ry="286"/></clipPath></defs><g clip-path="url(#${id}-orb)">${light('ellipse','cx="535" cy="994" rx="268" ry="275" pathLength="100"','orb-nebula')}${light('path','d="M411 844 C470 898 641 895 601 973 S435 1070 513 1110" pathLength="100"','orb-current')}</g>`;
-return defs+light('path','d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" pathLength="100"','reset-current');
+const a=ART[kind];
+// The actual artwork supplies every visible pixel. Geometry below is only a
+// feathered selection, never a drawn line, new ornament, or displaced image.
+const region={double:'<ellipse cx="535" cy="963" rx="435" ry="165" transform="rotate(-28 535 963)"/>',extra:'<ellipse cx="535" cy="994" rx="298" ry="300"/>',reset:'<path d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" fill="none" stroke="white" stroke-width="108" stroke-linecap="round"/>',max0:'<path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/>'}[kind];
+const photo=cls=>`<image class="${cls}" x="0" y="0" width="${a.width}" height="${a.height}" preserveAspectRatio="none"/>`;
+return `<defs>
+<filter id="${id}-soft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="${kind==='max0'?3:10}"/></filter>
+<filter id="${id}-bloom" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="7"/></filter>
+<filter id="${id}-luminance" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="0 0 0 .2 .8 1"/><feFuncG type="table" tableValues="0 0 0 .2 .8 1"/><feFuncB type="table" tableValues="0 0 0 .2 .8 1"/></feComponentTransfer></filter>
+<linearGradient id="${id}-sweep"><stop stop-color="black"/><stop offset=".3" stop-color="#888"/><stop offset=".5" stop-color="white"/><stop offset=".7" stop-color="#888"/><stop offset="1" stop-color="black"/></linearGradient>
+<mask id="${id}-region" maskUnits="userSpaceOnUse" x="0" y="0" width="${a.width}" height="${a.height}" style="mask-type:luminance"><g fill="white" filter="url(#${id}-soft)">${region}</g></mask>
+<mask id="${id}-painted-light" maskUnits="userSpaceOnUse" x="0" y="0" width="${a.width}" height="${a.height}" style="mask-type:luminance"><g filter="url(#${id}-luminance)">${photo('art-luminance-source')}</g></mask>
+<mask id="${id}-reveal" maskUnits="userSpaceOnUse" x="0" y="0" width="${a.width}" height="${a.height}" style="mask-type:luminance"><g mask="url(#${id}-region)"><g mask="url(#${id}-painted-light)"><rect class="art-light-sweep" x="-600" y="0" width="650" height="${a.height}" fill="url(#${id}-sweep)"/></g></g></mask>
+</defs><g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity=".45">${photo('art-bloom-source')}</g>${photo('art-sheen-source')}</g>`;
 }
 function createManager(){
 const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false,pageSuspended=false;
@@ -42,7 +49,7 @@ const ro=new ResizeObserver(entries=>{for(const r of records.values())if(entries
 const io=new IntersectionObserver(entries=>{for(const e of entries){const r=records.get(e.target);if(r){r.visible=e.isIntersecting&&e.intersectionRatio>=.35;sync(r);}}},{threshold:[0,.35,1]});
 function attach(el,kind,{faceUp=true,imageElement=null}={}){if(destroyed||!el)return null;if(!faceUp||!ART[kind]){detach(el);return null;}const old=records.get(el);if(old&&old.kind===kind&&old.imageElement===imageElement){measure(old);sync(old);return old.layer;}detach(el);
  const a=ART[kind],layer=document.createElement('span');layer.className='nb-special-svg';layer.dataset.kind=kind;layer.dataset.playing='false';layer.setAttribute('aria-hidden','true');
- const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${a.width} ${a.height}`);svg.setAttribute('preserveAspectRatio','xMidYMid meet');svg.innerHTML=markup(kind,'nbsv-'+(++serial));layer.append(svg);const mountRoot=imageElement?.closest('.card-content')||el;mountRoot.append(layer);el.classList.add('nb-special-svg-host');
+ const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${a.width} ${a.height}`);svg.setAttribute('preserveAspectRatio','xMidYMid meet');svg.innerHTML=markup(kind,'nbsv-'+(++serial));for(const image of svg.querySelectorAll?.('image')||[])image.setAttribute('href',imageElement?.currentSrc||imageElement?.src||new URL('assets/card-'+kind+'.webp',document.baseURI).href);layer.append(svg);const mountRoot=imageElement?.closest('.card-content')||el;mountRoot.append(layer);el.classList.add('nb-special-svg-host');
  const bounds=el.getBoundingClientRect();const visibleWidth=Math.max(0,Math.min(innerWidth,bounds.right)-Math.max(0,bounds.left)),visibleHeight=Math.max(0,Math.min(innerHeight,bounds.bottom)-Math.max(0,bounds.top));
  const initiallyVisible=bounds.width>0&&bounds.height>0&&visibleWidth*visibleHeight/(bounds.width*bounds.height)>=.35;
  const r={el,kind,imageElement,mountRoot,layer,visible:initiallyVisible,timer:0,rect:null};records.set(el,r);measure(r);ro.observe(el);if(imageElement&&imageElement!==el)ro.observe(imageElement);io.observe(el);sync(r);return layer;
