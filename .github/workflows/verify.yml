@@ -46,10 +46,26 @@ jobs:
         id: special
         continue-on-error: true
         run: node tools/special-motion-preview/test-special.cjs
+      - name: Unadopted normal-sky visual review (not wired to game)
+        id: normal_sky
+        continue-on-error: true
+        run: node tools/normal-sky-preview/test-normal-sky.cjs
+      - name: Surface prototype screenshots before full regression
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surface-prototype-preview
+          path: |
+            artifacts/special-prototype-*.png
+            artifacts/normal-sky-*.png
+            artifacts/normal-sky-masks.json
+            artifacts/scene-mobile-components.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Browser regression and responsive checks
         run: node tools/e2e.mjs
       - name: Require early visual checks
-        if: always() && (steps.visual.outcome == 'failure' || steps.scene.outcome == 'failure' || steps.special.outcome == 'failure')
+        if: always() && (steps.visual.outcome == 'failure' || steps.scene.outcome == 'failure' || steps.special.outcome == 'failure' || steps.normal_sky.outcome == 'failure')
         run: exit 1
       - name: Screenshots and test results only
         if: always()

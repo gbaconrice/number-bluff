@@ -6,8 +6,154 @@
       "height": 993,
       "bytes": 70068,
       "sha256": "764fb87d36bb5eb36dee1f141daff167c4faab8dd9b6f5673ea7e88712c99a05",
-      "source": "Built-in image_gen color edit of canonical horizontal cloud; pearly white body with subdued lavender-blue underside, shared by BOT and negative-card scenes",
+      "source": "Built-in image_gen color edit of canonical horizontal cloud; pearly white body with subdued lavender-blue underside; BOT avatar artwork retained",
       "encoding": "WebP quality 90; generated alpha and dimensions retained"
+    },
+    {
+      "file": "card-double.webp",
+      "width": 1051,
+      "height": 1496,
+      "bytes": 576168,
+      "sha256": "30a934fac409ab9794ec0a3ded162a624482bf6b2153974c81d990017287da91",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-extra.webp",
+      "width": 1049,
+      "height": 1500,
+      "bytes": 484230,
+      "sha256": "05b195451d6d2451c17bc7c808e330bd9355514a6b9013d8e1754eb71e63cd57",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-max0.webp",
+      "width": 1049,
+      "height": 1499,
+      "bytes": 492844,
+      "sha256": "d87557aa91617ff2c06d989c34f2bc838c3651658d9d6369491d6d57fc01fcce",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-normal-0.webp",
+      "width": 1061,
+      "height": 1483,
+      "bytes": 332064,
+      "sha256": "429614379f7af5ce2c3acfeed67afd41ad175753a4fb9a636d46d388c7354659",
+      "source": "Built-in image_gen reference-guided original illustration; soft pastel storybook style with an integrated rounded frame",
+      "encoding": "WebP quality 92; format conversion only; no resizing, cropping or pixel composition edits",
+      "character_count": 1
+    },
+    {
+      "file": "card-normal-1.webp",
+      "width": 1061,
+      "height": 1482,
+      "bytes": 356652,
+      "sha256": "a84350e5ce22320abc8394af5d1306a3420129a6fe207419ae733a7a984a4045",
+      "source": "Built-in image_gen reference-guided original illustration; soft pastel storybook style with an integrated rounded frame",
+      "encoding": "WebP quality 95; format conversion only; no resizing, cropping or pixel composition edits",
+      "character_count": 1
+    },
+    {
+      "file": "card-normal-10.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 206170,
+      "sha256": "9a80c1158ac4443adfce3b78544056966e1319743aaa5c2b6df5f86da1a6425e",
+      "source": "Built-in image_gen reference-guided original illustration; soft pastel storybook style with an integrated rounded frame",
+      "encoding": "WebP quality 95; format conversion only; no resizing, cropping or pixel composition edits",
+      "character_count": 10
+    },
+    {
+      "file": "card-normal-15.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 184316,
+      "sha256": "e34a773ea0ad0920fa30f17581868a6fae76c30d300d68281999249000f1913f",
+      "source": "Built-in image_gen reference-guided original illustration; soft pastel storybook style with an integrated rounded frame",
+      "encoding": "WebP quality 95; format conversion only; no resizing, cropping or pixel composition edits",
+      "character_count": 15
+    },
+    {
+      "file": "card-normal-2.webp",
+      "width": 1061,
+      "height": 1483,
+      "bytes": 295480,
+      "sha256": "b3ceac5617a5db8e7e605f63c8e90ad214e95589d22b7166e738e3d39079cdb1",
+      "source": "Built-in image_gen reference-guided original illustration; soft pastel storybook style with an integrated rounded frame",
+      "encoding": "WebP quality 95; format conversion only; no resizing, cropping or pixel composition edits",
+      "character_count": 2
+    },
+    {
+      "file": "card-normal-20.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 222916,
+      "sha256": "8be45d7522c21251eed8fb104b5ce3a1087efc0710502a496b96b4fa30565529",
+      "source": "Built-in image_gen reference-guided original illustration; soft pastel storybook style with an integrated rounded frame",
+      "encoding": "WebP quality 95; format conversion only; no resizing, cropping or pixel composition edits",
+      "character_count": 20
+    },
+    {
+      "file": "card-normal-3.webp",
+      "width": 1061,
+      "height": 1482,
+      "bytes": 329262,
+      "sha256": "01628c216f622d9f42d3c514f01df050b7cad553a39c76bdcf60856af0dae0a2",
+      "source": "Built-in image_gen reference-guided original illustration; soft pastel storybook style with an integrated rounded frame",
+      "encoding": "WebP quality 95; format conversion only; no resizing, cropping or pixel composition edits",
+      "character_count": 3
+    },
+    {
+      "file": "card-normal-4.webp",
+      "width": 1061,
+      "height": 1482,
+      "bytes": 368894,
+      "sha256": "8127568698576593875464b41875963a5968d192c553f0ba8327d02163012ca3",
+      "source": "Built-in image_gen reference-guided original illustration; soft pastel storybook style with an integrated rounded frame",
+      "encoding": "WebP quality 95; format conversion only; no resizing, cropping or pixel composition edits",
+      "character_count": 4
+    },
+    {
+      "file": "card-normal-5.webp",
+      "width": 1061,
+      "height": 1482,
+      "bytes": 332532,
+      "sha256": "987ccc7071ffb6a87d3c0cb3f66b9b314499cddca05569cc8f5d5b2fb8ba11da",
+      "source": "Built-in image_gen reference-guided original illustration; soft pastel storybook style with an integrated rounded frame",
+      "encoding": "WebP quality 95; format conversion only; no resizing, cropping or pixel composition edits",
+      "character_count": 5
+    },
+    {
+      "file": "card-normal-minus10.webp",
+      "width": 1061,
+      "height": 1482,
+      "bytes": 226536,
+      "sha256": "cf899f2a0456273fbb80b975126731e3a9aa1607e83c64e889962ecc2d1078fe",
+      "source": "Built-in image_gen reference-guided original illustration; soft pastel storybook style with an integrated rounded frame",
+      "encoding": "WebP quality 92; format conversion only; no resizing, cropping or pixel composition edits",
+      "character_count": 1
+    },
+    {
+      "file": "card-normal-minus5.webp",
+      "width": 1061,
+      "height": 1482,
+      "bytes": 275018,
+      "sha256": "7555a6337be2e51b880831e1a05ac49697372ac761719d6468ea08633b7be376",
+      "source": "Built-in image_gen reference-guided original illustration; soft pastel storybook style with an integrated rounded frame",
+      "encoding": "WebP quality 92; format conversion only; no resizing, cropping or pixel composition edits",
+      "character_count": 1
+    },
+    {
+      "file": "card-reset.webp",
+      "width": 1062,
+      "height": 1482,
+      "bytes": 317784,
+      "sha256": "99eacc9e011d7d07f02a80b7bd1d4b74e72854a0be50315682c921384aa7b533",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
     },
     {
       "file": "celestial-background-v3.webp",
@@ -38,12 +184,12 @@
     },
     {
       "file": "home-hero.webp",
-      "width": 1448,
-      "height": 1086,
-      "bytes": 148848,
-      "sha256": "776fa19c904b5f874de74af794ae31552ad7cfe084f1970f885330b890d43bf3",
-      "source": "Built-in image generation/editing; central Hoshimochi updated to canonical five-point star while preserving cat, bunny and galaxy composition",
-      "encoding": "WebP quality 90; generated alpha and dimensions retained"
+      "width": 1447,
+      "height": 1087,
+      "bytes": 219062,
+      "sha256": "bffeafb2196cef0c835683f2e82a92075570dbc42b3f6124ea970213a03176ba",
+      "source": "Built-in image_gen reference-guided four-character home illustration; cat anatomy and bunny background corrected",
+      "encoding": "WebP quality 92; original alpha, framing and dimensions preserved; no cropping"
     },
     {
       "file": "home-logo.webp",
@@ -71,141 +217,6 @@
       "sha256": "32bac9c68ee1eb3b7211d7954099b1b99f8ca530629a77bb60b60f912c3e3c46",
       "source": "Built-in image generation/editing; Unified five-point cream-gold Hoshimochi design",
       "encoding": "WebP quality 90; generated alpha and dimensions retained"
-    },
-    {
-      "file": "card-minus10-cloud-rain.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 322258,
-      "sha256": "4ffbc935f129cedd8399defc87c859382fece68d59720cf367207613bd2adf7c",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-minus05-cloud-wind.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 305948,
-      "sha256": "e8662bc463bd5f9cb059bdbe73bef763d6818210fa2a4fe1fd7cb2ff41f6a1d1",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-00-cat-dawnrest.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 311914,
-      "sha256": "78710f42c56533c95f160486b269acf330894be215900a871c8229cedc85b0cd",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-01-bunny-starlight.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 226636,
-      "sha256": "470d678304eac171039acb44e434b1faa7e81829fe8fe674b94f6fe66182610b",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-02-bunny-cloudplay.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 310522,
-      "sha256": "31df183300931266d3e48ac24fa9cde60b3049589839b8e51269ebc754a5e2ee",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-03-bunny-cloudgarden.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 299374,
-      "sha256": "5e703c72f3aeecc7dd6ec21f44db436128f3dc7d7959f37b8fa330d2fb0133ca",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-04-bunny-cloudslide.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 258198,
-      "sha256": "a14abafd43bd82020d582232099574d09e608b65b616eb84cd37bc7a1cc7c63f",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-05-bunny-cloudrest.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 314086,
-      "sha256": "3123549f2c9c03d5217180bff09028d6a08ecba18e5104510632aba14560ebcb",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-10-star-valley-v4.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 267746,
-      "sha256": "b03cd830bc4a4dfbd313ba941a74cb7daa69ee5573b2af9ca08b68313ed18a53",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-15-star-cloudsteps-v2.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 329206,
-      "sha256": "28cd9fbb6fde96606e03488a745d5d60d965196427c6822b661c7b945b6deab0",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-20-star-moon-gathering-v2.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 314464,
-      "sha256": "f99bbe5e7ce304ad72ca84da363b27314bd9b7b109fb29d906df34a8aa82e8cb",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-double.webp",
-      "width": 1051,
-      "height": 1496,
-      "bytes": 576168,
-      "sha256": "30a934fac409ab9794ec0a3ded162a624482bf6b2153974c81d990017287da91",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
-      "file": "card-extra.webp",
-      "width": 1049,
-      "height": 1500,
-      "bytes": 484230,
-      "sha256": "05b195451d6d2451c17bc7c808e330bd9355514a6b9013d8e1754eb71e63cd57",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
-      "file": "card-max0.webp",
-      "width": 1049,
-      "height": 1499,
-      "bytes": 492844,
-      "sha256": "d87557aa91617ff2c06d989c34f2bc838c3651658d9d6369491d6d57fc01fcce",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
-      "file": "card-reset.webp",
-      "width": 1062,
-      "height": 1482,
-      "bytes": 317784,
-      "sha256": "99eacc9e011d7d07f02a80b7bd1d4b74e72854a0be50315682c921384aa7b533",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
     }
   ],
   "notes": [

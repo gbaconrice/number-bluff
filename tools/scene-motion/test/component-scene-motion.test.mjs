@@ -19,7 +19,7 @@ async function fixture({ reducedMotion = 'no-preference' } = {}) {
   const errors = [], requests = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('request', request => requests.push(request.url()));
-  await page.setContent(`<html lang="ja"><head><meta charset="utf-8"><style>${css}
+  await page.setContent(`<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}
     body{background:#201e35;color:#fff8e8;font:20px system-ui;margin:24px}#total{font-size:64px}
     button{font:inherit;padding:12px}header{margin-top:200px}
     </style></head><body><header>計算済みの合計</header><strong id="total">0</strong>

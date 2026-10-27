@@ -1,0 +1,2 @@
+.nb-normal-sky{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;display:none;border-radius:inherit}
+@media(prefers-reduced-motion:reduce){.nb-normal-sky{display:none!important}}

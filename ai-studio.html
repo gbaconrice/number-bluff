@@ -547,9 +547,9 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 </style><style>
 /* Original scenes are displayed whole; illustration animation is not implemented. */
 .player-card, .battle-grid.many .player-card, .catalogue .player-card, .example-cards .player-card, .extra-reveal .player-card, .step-art .player-card { aspect-ratio: 2 / 3; height: auto; }
-.player-card:not(.hidden):not(.out), .battle-grid.many .player-card:not(.hidden):not(.out) { padding: 0; background: #c9b5e9; border: 0; border-radius: 5px; }
+.player-card:not(.hidden):not(.out), .battle-grid.many .player-card:not(.hidden):not(.out) { padding: 0; background: transparent; border: 0; border-radius: 5px; }
 .player-card .card-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; z-index: 0; pointer-events: none; }
-.player-card:not(.hidden):not(.out) .card-value { position: absolute; top: 5%; height: 23%; left: 5%; right: 5%; z-index: 2; display: flex; align-items: center; justify-content: center; color: #19294f; text-shadow: 0 1px 2px #ffffff, 0 0 5px #ffffff; }
+.player-card:not(.hidden):not(.out) .card-value { position: absolute; top: 12%; height: 26%; left: 5%; right: 5%; z-index: 2; display: flex; align-items: center; justify-content: center; color: #19294f; text-shadow: 0 1px 2px #ffffff, 0 0 5px #ffffff; }
 .player-card.kind-extra .card-value { color: #f8f5ed; text-shadow: 0 1px 3px #152241, 0 0 5px #152241; }
 .player-card.kind-reset .card-value { font-size: inherit; }
 .player-card.kind-max0 .card-value { font-size: inherit; }
@@ -571,6 +571,19 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .player-card.special.kind-reset { aspect-ratio: 1062 / 1482; }
 .player-card.special:not(.hidden):not(.out) { background: transparent; }
 .player-card.special:not(.hidden):not(.out) .card-value { top: 12%; height: 26%; left: 7%; right: 7%; color: #fff3d3; text-shadow: 0 2px 4px #0a1949; }
+
+/* Soft framed originals retain their individual source dimensions. */
+.player-card.normal-card[data-art-value="-10"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="-5"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="0"] { aspect-ratio: 1061 / 1483; }
+.player-card.normal-card[data-art-value="1"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="2"] { aspect-ratio: 1061 / 1483; }
+.player-card.normal-card[data-art-value="3"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="4"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="5"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="10"] { aspect-ratio: 1024 / 1536; }
+.player-card.normal-card[data-art-value="15"] { aspect-ratio: 1024 / 1536; }
+.player-card.normal-card[data-art-value="20"] { aspect-ratio: 1024 / 1536; }
 
 </style><style>
 /* Adapted from React Bits Glare Hover (David Haz, 2026).
@@ -1141,7 +1154,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 </script><script>
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.NumberBluffCardArt=factory();})(typeof globalThis==='object'?globalThis:this,function(){
  'use strict';
- const assets=Object.freeze({normal:Object.freeze({"-10": "https://tanabe0422.github.io/number-bluff/assets/card-minus10-cloud-rain.webp", "-5": "https://tanabe0422.github.io/number-bluff/assets/card-minus05-cloud-wind.webp", "0": "https://tanabe0422.github.io/number-bluff/assets/card-00-cat-dawnrest.webp", "1": "https://tanabe0422.github.io/number-bluff/assets/card-01-bunny-starlight.webp", "2": "https://tanabe0422.github.io/number-bluff/assets/card-02-bunny-cloudplay.webp", "3": "https://tanabe0422.github.io/number-bluff/assets/card-03-bunny-cloudgarden.webp", "4": "https://tanabe0422.github.io/number-bluff/assets/card-04-bunny-cloudslide.webp", "5": "https://tanabe0422.github.io/number-bluff/assets/card-05-bunny-cloudrest.webp", "10": "https://tanabe0422.github.io/number-bluff/assets/card-10-star-valley-v4.webp", "15": "https://tanabe0422.github.io/number-bluff/assets/card-15-star-cloudsteps-v2.webp", "20": "https://tanabe0422.github.io/number-bluff/assets/card-20-star-moon-gathering-v2.webp"}),special:Object.freeze({"double": "https://tanabe0422.github.io/number-bluff/assets/card-double.webp", "max0": "https://tanabe0422.github.io/number-bluff/assets/card-max0.webp", "extra": "https://tanabe0422.github.io/number-bluff/assets/card-extra.webp", "reset": "https://tanabe0422.github.io/number-bluff/assets/card-reset.webp"})});
+ const assets=Object.freeze({normal:Object.freeze({"-10": "https://tanabe0422.github.io/number-bluff/assets/card-normal-minus10.webp", "-5": "https://tanabe0422.github.io/number-bluff/assets/card-normal-minus5.webp", "0": "https://tanabe0422.github.io/number-bluff/assets/card-normal-0.webp", "1": "https://tanabe0422.github.io/number-bluff/assets/card-normal-1.webp", "2": "https://tanabe0422.github.io/number-bluff/assets/card-normal-2.webp", "3": "https://tanabe0422.github.io/number-bluff/assets/card-normal-3.webp", "4": "https://tanabe0422.github.io/number-bluff/assets/card-normal-4.webp", "5": "https://tanabe0422.github.io/number-bluff/assets/card-normal-5.webp", "10": "https://tanabe0422.github.io/number-bluff/assets/card-normal-10.webp", "15": "https://tanabe0422.github.io/number-bluff/assets/card-normal-15.webp", "20": "https://tanabe0422.github.io/number-bluff/assets/card-normal-20.webp"}),special:Object.freeze({"double": "https://tanabe0422.github.io/number-bluff/assets/card-double.webp", "max0": "https://tanabe0422.github.io/number-bluff/assets/card-max0.webp", "extra": "https://tanabe0422.github.io/number-bluff/assets/card-extra.webp", "reset": "https://tanabe0422.github.io/number-bluff/assets/card-reset.webp"})});
  function source(card){if(!card)return null;const map=card.kind==='number'?assets.normal:assets.special;const key=card.kind==='number'?String(card.value):card.kind;return Object.prototype.hasOwnProperty.call(map,key)?map[key]:null;}
  function create(doc,card){const src=source(card);if(!src)throw new TypeError('Unknown disclosed card artwork');const image=doc.createElement('img');image.className='card-art';image.src=src;image.alt='';image.draggable=false;image.decoding='async';image.setAttribute('aria-hidden','true');return image;}
  return Object.freeze({assets,source,create});
