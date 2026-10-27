@@ -66,3 +66,16 @@ test('license source comments survive packaging without allowing executable exte
   assert.throws(()=>auditHTML('<script src="evil.js"></script>'),/Unresolved external script/);
   assert.doesNotThrow(()=>auditHTML('<script>URL.createObjectURL(new Blob([]))</script>'));
 });
+
+test('CSS ownership audit does not mistake JavaScript URL constructors for CSS functions',async()=>{
+ const {auditHTML}=await import('../tools/build-single-html.mjs');
+ assert.doesNotThrow(()=>auditHTML('<script>const u=new URL(value); const a=new URL(image.src,document.baseURI)</script>'));
+});
+
+test('the real single HTML preserves URL constructors used by avatar and WebGL CORS checks',async()=>{
+ const {build}=await import('../tools/build-single-html.mjs');
+ const html=build();
+ assert.ok(html.includes('new URL(value)'));
+ assert.ok(html.includes('new URL(image.currentSrc||image.src,document.baseURI)'));
+ assert.ok(!html.includes('new url('));
+});

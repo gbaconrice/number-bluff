@@ -145,7 +145,9 @@ async function originalIllustrationChecks(page){
  // Actual modal surface is canceled on document hiding and OS motion preference.
  await page.locator('#guideContent .kind-extra').click();await readyCardArt(page);await page.clock.runFor(240);await surfaceChecks(page,{pixels:true});
  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));});await surfaceChecks(page,{inactive:true});await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));});await page.locator('#closeCardDetail').click();
- await page.locator('#guideContent .kind-extra').click();await readyCardArt(page);await page.clock.runFor(240);await surfaceChecks(page,{pixels:true});await page.emulateMedia({reducedMotion:'reduce'});await surfaceChecks(page,{inactive:true});await page.locator('#closeCardDetail').click();await page.emulateMedia({reducedMotion:'no-preference'});
+ await page.locator('#guideContent .kind-extra').click();await readyCardArt(page);await page.clock.runFor(240);await surfaceChecks(page,{pixels:true});await page.emulateMedia({reducedMotion:'reduce'});
+ // MediaQueryList change is asynchronously delivered; allow a bounded 50ms of actual app clock/RAF, not an unbounded wait or synthetic change event.
+ await page.clock.runFor(50);await surfaceChecks(page,{inactive:true});await page.locator('#closeCardDetail').click();await page.emulateMedia({reducedMotion:'no-preference'});
  await writeFile(new URL('surface-app-detail.json',output),JSON.stringify({scope:'real app shared renderer, actual WebGL pixels and modal lifecycle',frames:surfaceFrames},null,2));
  // Sample the real app's sole glare manager, not a separate test-only renderer.
  const glareCard=page.locator('#guideContent .normal-card[data-art-value="1"]');

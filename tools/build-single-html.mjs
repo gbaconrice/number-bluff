@@ -45,7 +45,8 @@ export function auditHTML(html) {
   for (const match of html.matchAll(/\b(?:src|poster)\s*=\s*(['"])(.*?)\1/gi)) {
     if (match[2] && !match[2].startsWith(ASSET_BASE)) throw new Error(`Non-owned source: ${match[2]}`);
   }
-  for (const match of html.matchAll(/\burl\(\s*['"]?([^)'"\s]+)/gi)) {
+  const cssMarkup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  for (const match of cssMarkup.matchAll(/\burl\(\s*['"]?([^)'"\s]+)/gi)) {
     if (!match[1].startsWith(ASSET_BASE) && !match[1].startsWith('#')) throw new Error(`Unresolved CSS URL: ${match[1]}`);
   }
 }
@@ -64,7 +65,12 @@ export function build(root = rootDefault) {
     return `<script>\n${js.replace(/<\/script/gi, '<\\/script')}\n</script>`;
   });
   html = html.replace(/\b(src|poster)=(["'])([^"']+)\2/gi, (_, attribute, quote, value) => `${attribute}=${quote}${assetURL(value)}${quote}`);
-  html = rewriteCSS(html);
+  // Never treat JavaScript's URL constructor as CSS url(). Preserve scripts byte-for-byte.
+  html = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>|<style\b[^>]*>([\s\S]*?)<\/style>|<[^>]+>/gi, (tag, css) => {
+    if (/^<script\b/i.test(tag)) return tag;
+    if (css !== undefined) return tag.replace(css, () => rewriteCSS(css));
+    return tag.replace(/\bstyle=(["'])([\s\S]*?)\1/gi, (_, quote, inline) => `style=${quote}${rewriteCSS(inline)}${quote}`);
+  });
   auditHTML(html);
   return html;
 }

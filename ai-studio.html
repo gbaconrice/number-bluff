@@ -1870,7 +1870,7 @@ function create({source,sources={extra:source},duration=1200,strength=.007,maxDp
   // Production reuses the disclosed face's decoded WebP; no all-deck image preload.
   if(useDOMImages&&!textures.has(kind)){
    const image=el?.querySelector('img.card-art');
-   if(!image?.complete||!image.naturalWidth||!sources[kind]||new url("https://tanabe0422.github.io/number-bluff/image.currentSrc||image.src,document.baseURI").href!==new url("https://tanabe0422.github.io/number-bluff/sources[kind],document.baseURI").href)return false;
+   if(!image?.complete||!image.naturalWidth||!sources[kind]||new URL(image.currentSrc||image.src,document.baseURI).href!==new URL(sources[kind],document.baseURI).href)return false;
    try{const tex=gl.createTexture();gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);textures.set(kind,{texture:tex,image,width:0,height:0});}catch{return false;}
   }
   if(!textures.has(kind))return false;activeKind=kind;
@@ -2011,7 +2011,7 @@ global.NumberBluffCardSurfaceMotion=Object.freeze({create,normalSpecs:NORMAL_SPE
   const updateViewport = () => document.documentElement.style.setProperty('--nb-viewport-height', (window.visualViewport?.height || window.innerHeight) + 'px');
   window.addEventListener('resize', updateViewport); window.visualViewport?.addEventListener('resize', updateViewport); updateViewport();
   let human = 'p1', localProfile = { name: 'プレイヤー', avatarUrl: null };
-  const safeAvatar = value => { try { const u = new url("https://tanabe0422.github.io/number-bluff/value"); return u.protocol === 'https:' && !u.username && !u.password ? u.href : null; } catch { return null; } };
+  const safeAvatar = value => { try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password ? u.href : null; } catch { return null; } };
   const difficultyNames = { easy: 'やさしい', normal: '普通', hard: '強い' };
   const avatars = ['https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp', 'https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp', 'https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp', 'https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp'];
   const avatarNames = ['ほしもち', 'ほしねこ', 'もふうさ', 'くもまる'];
@@ -2468,7 +2468,7 @@ global.NumberBluffCardSurfaceMotion=Object.freeze({create,normalSpecs:NORMAL_SPE
   const clone=x=>JSON.parse(JSON.stringify(x));
   const id=x=>typeof x==='string'&&x.length>0&&x.length<=128&&!/[\u0000-\u001f]/.test(x);
   const safeName=x=>typeof x==='string'&&x.trim()?x.trim().slice(0,24):'プレイヤー';
-  function avatar(x){try{const u=new url("https://tanabe0422.github.io/number-bluff/x");return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch{return null;}}
+  function avatar(x){try{const u=new URL(x);return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch{return null;}}
   const profile=p=>({userId:p.userId,name:safeName(p.name),avatarUrl:avatar(p.avatarUrl)});
   function createSession(options){
     const {roomId,userId,hostUserId,sendMessage}=options;
