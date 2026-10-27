@@ -23,7 +23,9 @@ jobs:
       - name: Install browser test dependency (no runtime dependencies)
         run: npm install --no-save --package-lock=false --ignore-scripts --registry=https://registry.npmjs.org playwright@1.57.0
       - name: Install Chromium
-        run: npx --no-install playwright install --with-deps chromium
+        run: npx --no-install playwright install chromium
+      - name: Japanese preview font (host browser libraries are preinstalled)
+        run: sudo apt-get install -y --no-install-recommends -o Acquire::http::Timeout=30 -o Acquire::Retries=1 fonts-ipafont-gothic
       - name: Build single HTML handoff
         run: node tools/build-single-html.mjs
       - name: Online turn deadline and nonblocking countdown
@@ -50,6 +52,8 @@ jobs:
             artifacts/periodic-card-motion.json
           if-no-files-found: ignore
           retention-days: 7
+      - name: Actual source-art motion preview
+        run: node tools/art-glow-preview.mjs
       - name: Early visual preview (full regression remains mandatory)
         id: visual
         continue-on-error: true
@@ -85,6 +89,7 @@ jobs:
         with:
           name: preview-browser-results
           path: |
+            artifacts/art-glow-preview/
             artifacts/*.png
             artifacts/*.json
           if-no-files-found: ignore

@@ -1,23 +1,26 @@
-/* Source-aligned highlights only: fixed geometry, travelling light on the
-   existing painted motif. No free-standing orbit, radiance or expanding wave. */
+/* Immutable source texture, layered optical motion only. */
 .nb-special-svg-host{position:relative}
 .nb-special-svg{position:absolute;z-index:2;pointer-events:none;overflow:hidden;contain:paint;visibility:hidden}
-.nb-special-svg svg{display:block;width:100%;height:100%;fill:none;overflow:hidden;stroke-linecap:round;stroke-linejoin:round}
+.nb-special-svg svg{display:block;width:100%;height:100%;overflow:hidden}
 .nb-special-svg *{pointer-events:none}
-.nb-special-svg .painted-track{stroke-dasharray:16 84;animation:nbsv-painted-light 3.8s linear infinite}
-.nb-special-svg .contrast-track{stroke:#4655a6;stroke-width:30;opacity:.38}
-.nb-special-svg .light-track{stroke-width:16;opacity:.95}
-.nb-special-svg .stream-b{animation-direction:reverse;animation-duration:4.6s;stroke-dasharray:20 80}
-.nb-special-svg .orb-nebula{animation-duration:4.2s;stroke-dasharray:20 80}
-.nb-special-svg .orb-current{animation-duration:3.4s;stroke-dasharray:25 75}
-.nb-special-svg .reset-current{animation-duration:3.6s;stroke-dasharray:24 76}
-.nb-special-svg .orb-nebula.contrast-track,.nb-special-svg .orb-current.contrast-track{stroke-width:24;opacity:.18}
-.nb-special-svg .orb-nebula.light-track,.nb-special-svg .orb-current.light-track{opacity:.82}
-.nb-special-svg .reset-current.contrast-track{stroke-width:40;opacity:.16}
-.nb-special-svg .reset-current.light-track{stroke-width:24;opacity:.82}
-.nb-special-svg .crown-metal-sweep{animation:nbsv-crown-sweep 3s linear infinite}
+.nb-special-svg .art-derived-shadow{opacity:.2}
+.nb-special-svg .art-derived-light{opacity:.95}
+.nb-special-svg .art-derived-specular{opacity:.8}
+.nb-special-svg .art-mask-orbit{transform-origin:0 0;animation:nbsv-mask-orbit 5.4s linear infinite}
+.nb-special-svg .art-mask-orbit.shade-flow{animation-delay:-.9s}
+.nb-special-svg .art-mask-orbit.specular-flow{animation-duration:3.2s;animation-direction:reverse}
+.nb-special-svg[data-kind=reset] .primary-flow,.nb-special-svg[data-kind=reset] .shade-flow{animation-direction:reverse;animation-duration:4.8s}
+.nb-special-svg .art-light-sweep{animation:nbsv-art-light 4.2s linear infinite}
+.nb-special-svg .art-light-sweep.shade-flow{animation-delay:-.65s}
+.nb-special-svg .art-light-sweep.specular-flow{animation-duration:2.7s;animation-direction:reverse}
+.nb-special-svg[data-kind=max0] .art-light-sweep{animation-name:nbsv-crown-light;animation-duration:2.8s}
+.nb-special-svg .art-jewel-light{animation:nbsv-jewel-light 2.8s ease-in-out infinite}
+.nb-special-svg .jewel-1{animation-delay:-.8s}
+.nb-special-svg .jewel-2{animation-delay:-1.6s}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
 .hide .nb-special-svg,.hidden .nb-special-svg,[hidden] .nb-special-svg{visibility:hidden!important}
-@keyframes nbsv-painted-light{to{stroke-dashoffset:-100}}
-@keyframes nbsv-crown-sweep{from{transform:translateX(0)}to{transform:translateX(300px)}}
+@keyframes nbsv-mask-orbit{to{transform:rotate(360deg)}}
+@keyframes nbsv-art-light{from{transform:translateX(150px)}to{transform:translateX(1500px)}}
+@keyframes nbsv-crown-light{from{transform:translateX(0px)}to{transform:translateX(340px)}}
+@keyframes nbsv-jewel-light{0%,30%,70%,100%{opacity:0}48%,52%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.nb-special-svg{display:none!important}.nb-special-svg *{animation:none!important}}

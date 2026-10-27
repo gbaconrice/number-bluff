@@ -159,7 +159,7 @@ async function guideDiagramChecks(page){
  for(const d of diagrams){assert.ok(d.label);assert.equal(d.role,'img');for(const c of d.children){assert.ok(c.text.trim());assert.equal(c.overflow,false,'diagram text must not clip: '+c.text);assert.ok(c.box.left>=d.box.left-.5&&c.box.right<=d.box.right+.5,'diagram content must remain within available width');}}
 }
 async function captureSpecialFrames(page,kind){
- const selector={double:'.galaxy-stream',max0:'.crown-metal-sweep',extra:'.orb-nebula',reset:'.reset-current'}[kind];
+ const selector={double:'.art-mask-orbit.primary-flow',max0:'.art-light-sweep.primary-flow',extra:'.art-light-sweep.primary-flow',reset:'.art-mask-orbit.primary-flow'}[kind];
  const card=page.locator('#cardDetailContent .player-card'),before=await card.locator('.card-value').boundingBox();
  await card.evaluate(async card=>{window.__svgSamples=card.querySelector('.nb-special-svg').getAnimations({subtree:true}).map(a=>({a,time:a.currentTime,state:a.playState}));for(const x of window.__svgSamples){x.a.pause();await x.a.ready;}});
  const frames=[];for(const at of[0,180,350]){await page.evaluate(at=>{for(const x of window.__svgSamples)x.a.currentTime=at;},at);await page.waitForTimeout(50);frames.push(await card.locator(selector).first().evaluate(e=>({transform:getComputedStyle(e).transform,dash:getComputedStyle(e).strokeDashoffset,opacity:getComputedStyle(e).opacity})));assert.deepEqual(await card.locator('.card-value').boundingBox(),before,'numeral never follows internal SVG animation');await page.screenshot({path:fileURLToPath(new URL(`special-${kind}-svg-${at}.png`,output)),fullPage:false});}assert.ok(frames.some(f=>JSON.stringify(f)!==JSON.stringify(frames[0])),'special SVG needs real frame change');
