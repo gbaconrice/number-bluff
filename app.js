@@ -44,7 +44,7 @@
     if (records.some(record => [...record.addedNodes, ...record.removedNodes].some(containsCard))) syncCardMotion();
   });
   motionObserver.observe(document.querySelector('main'), {childList:true,subtree:true});
-  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
+  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null, roomAccessPermission = null;
   const sessionFinishListeners = new Set();
   let connectionBlocked = false, connectionMessage = '';
   const screenListeners = new Set(), screenNames = { homeScreen: 'home', lobbyScreen: 'lobby', battleScreen: 'battle', guidePanel: 'guide', joinPanel: 'join' };
@@ -166,6 +166,12 @@
     paintConnectionStatus();
   }
   async function requestRoom(kind, roomId) {
+    // AI Studio handoff: wire private creation before enabling this branch.
+    // Never silently create a public room while the private option is selected.
+    if (kind === 'create' && $('privateRoom').checked) {
+      $('roomCreateStatus').textContent = 'プライベートルームは準備中です。公開ルームはチェックを外して作成できます。';
+      return;
+    }
     const status = $(kind === 'create' ? 'roomCreateStatus' : 'roomJoinStatus');
     const button = $(kind === 'create' ? 'startGame' : 'joinRoom');
     if (typeof roomActions[kind] !== 'function') { if (kind === 'create' && !roomAdapterExpected) { createLocalHostRoom(); return; } status.textContent = '接続待ち'; return; }
@@ -173,7 +179,7 @@
     try {
       const adapter = await roomActions[kind](...(kind === 'join' ? [roomId] : []));
       if (request !== roomRequest) { adapter?.close?.(); return; }
-      if (adapter) window.NumberBluffClient.connect(adapter);
+      if (adapter) window.NumberBluffClient.connect(adapter, { roomPermission: kind === 'create' ? 0 : null });
       status.textContent = view ? '' : connectionMessage || 'ホストからの情報を待っています…';
     } catch { if (request === roomRequest) status.textContent = '接続できませんでした。もう一度お試しください。'; }
     finally { if (request === roomRequest) button.disabled = false; }
@@ -191,9 +197,18 @@
   }
   function renderLobby() {
     $('playerCount').textContent = view.players.length + '/8';
+    const roomId = typeof view.roomId === 'string' ? view.roomId : '';
+    const permission = view.roomPermission === 0 || view.roomPermission === 1 ? view.roomPermission : roomAccessPermission;
+    const idHeader = !!roomId && permission !== 0;
+    $('lobbyTitle').textContent = !transport ? '練習ルーム' : idHeader ? roomId : '公開ルーム';
+    $('lobbyTitle').classList.toggle('is-room-id', idHeader);
+    $('copyRoomId').classList.toggle('hide', !idHeader);
+    $('lobbyHeaderSpacer').classList.toggle('hide', idHeader);
+    $('roomCopyStatus').textContent = ''; $('roomCopyStatus').classList.add('hide');
+    $('roomCopyFallback').classList.add('hide');
     const manage = canManageLobby(), hostId = transport ? view.hostId : 'p1';
     let clockNote = document.getElementById('onlineTurnRule'); if (!clockNote) { clockNote = el('p', 'turn-rule-note'); clockNote.id = 'onlineTurnRule'; $('roomIdentity').after(clockNote); } clockNote.textContent = view.roomId ? '1手30秒 · 時間切れは前の宣言＋1（初手1）' : ''; clockNote.classList.toggle('hide', !view.roomId);
-    $('roomIdentity').classList.toggle('hide', !view.roomId); $('roomIdentity').textContent = view.roomId ? 'ルームID ' + String(view.roomId) : '';
+    $('roomIdentity').classList.toggle('hide', !roomId || idHeader); $('roomIdentity').textContent = roomId && !idHeader ? 'ルームID ' + roomId : '';
     $('lobbyError').textContent = '';
     const selected = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
     if (!selected) selectedBot = view.players.find(p => p.kind === 'bot')?.id;
@@ -368,9 +383,51 @@
     const button = event.target.closest?.('button');
     if (event.isTrusted && button && !button.disabled && !button.matches('[data-sound-toggle]') && !['declare', 'challenge', 'beginGame', 'next'].includes(button.id)) audio.play('tap');
   });
+  $('copyRoomId').onclick = async () => {
+    const id = typeof view?.roomId === 'string' ? view.roomId : '';
+    if (!id) return;
+    const epoch = roomEpoch;
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(id);
+      if (epoch !== roomEpoch || view?.roomId !== id || screen !== 'lobbyScreen') return;
+      $('roomCopyStatus').textContent = 'ルームIDをコピーしました。';
+    } catch {
+      if (epoch !== roomEpoch || view?.roomId !== id || screen !== 'lobbyScreen') return;
+      $('roomCopyFallback').value = id; $('roomCopyFallback').classList.remove('hide');
+      $('roomCopyFallback').focus(); $('roomCopyFallback').select();
+      $('roomCopyStatus').textContent = '自動コピーできませんでした。選択されたIDをコピーしてください。';
+    }
+    $('roomCopyStatus').classList.remove('hide');
+  };
   $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = () => { const finished = captureSessionFinish(); cancelRoomRequest(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   $('joinForm').onsubmit = event => { event.preventDefault(); const id = $('roomId').value.trim(); if (id) requestRoom('join', id); };
-  $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
+  function selectJoinTab(tab, focus = false) {
+    cancelRoomRequest();
+    const isPublic = tab === 'public';
+    $('joinIdPanel').classList.toggle('hide', isPublic);
+    $('joinPublicPanel').classList.toggle('hide', !isPublic);
+    for (const [id, selected] of [['joinIdTab', !isPublic], ['joinPublicTab', isPublic]]) {
+      $(id).setAttribute('aria-selected', String(selected));
+      $(id).tabIndex = selected ? 0 : -1;
+    }
+    if (focus) $(isPublic ? 'joinPublicTab' : 'joinIdTab').focus();
+  }
+  $('joinIdTab').onclick = () => selectJoinTab('id');
+  $('joinPublicTab').onclick = () => selectJoinTab('public');
+  document.querySelector('.join-tabs').addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const tab = event.key === 'Home' ? 'id' : event.key === 'End' ? 'public' : $('joinIdTab').getAttribute('aria-selected') === 'true' ? 'public' : 'id';
+    selectJoinTab(tab, true);
+  });
+  $('refreshPublicRooms').onclick = () => {
+    // UI scaffold only. No undocumented SDK response mapping or fake rooms.
+    $('publicRoomsList').replaceChildren();
+    $('publicRoomsStatus').textContent = '公開ルーム一覧の取得機能は未接続です。ルームIDで参加できます。';
+  };
+  $('privateRoom').onchange = () => { $('roomCreateStatus').textContent = ''; };
+  $('joinGame').onclick = () => { selectJoinTab('id'); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
   $('addBot').onclick = addBot;
   $('removeBot').onclick = () => { if (transport) { lobbyAction('removeBot', { target: selectedBot }); return; } state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
   document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { if (transport) { lobbyAction('setBotAvatar', { target: selectedBot, avatar: Number(button.dataset.avatar) }); return; } avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
@@ -498,9 +555,9 @@
       localProfile = { name: profile.name.trim().slice(0, 24), avatarUrl: safeAvatar(profile.avatarUrl) };
       if (state) { state = { ...state, players: state.players.map(p => p.id === human ? { ...p, ...localProfile } : p) }; view = G.publicView(state, human); renderLobby(); }
     },
-    connect(adapter) {
+    connect(adapter, access = {}) {
       if (!adapter || typeof adapter.subscribe !== 'function' || typeof adapter.send !== 'function') throw new TypeError('Adapter requires subscribe(onPublicView) and send(action).');
-      timer.cancel(); detachTransport(); transport = adapter; state = null; view = null;
+      timer.cancel(); detachTransport(); transport = adapter; roomAccessPermission = access.roomPermission === 0 || access.roomPermission === 1 ? access.roomPermission : null; state = null; view = null;
       let first = true;
       unsubscribe = adapter.subscribe(publicState => {
         if (transport !== adapter) return;

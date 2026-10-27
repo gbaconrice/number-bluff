@@ -17,6 +17,9 @@
 .nb-special-svg .art-jewel-light{animation:nbsv-jewel-light 2.8s ease-in-out infinite}
 .nb-special-svg .jewel-1{animation-delay:-.8s}
 .nb-special-svg .jewel-2{animation-delay:-1.6s}
+.nb-special-svg .art-eye-light{animation-duration:3.4s}
+.nb-special-svg .jewel-3{animation-delay:-.7s}
+.nb-special-svg .jewel-4{animation-delay:-1.05s}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
 .hide .nb-special-svg,.hidden .nb-special-svg,[hidden] .nb-special-svg{visibility:hidden!important}
 @keyframes nbsv-mask-orbit{to{transform:rotate(360deg)}}

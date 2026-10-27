@@ -50,10 +50,10 @@ test('all four special raster originals remain byte-identical to approved main',
 test('visible glow pixels derive only from the original image, never painted strokes or extra shapes', () => {
   for (const kind of Object.keys(originals)) {
     const rendered=markup(kind), visible=rendered.slice(rendered.lastIndexOf('</defs>')+7);
-    assert.match(visible, /^<g class="art-derived-shadow"/);
+    assert.match(visible, kind==='max0'?/^<g class="art-derived-light"/:/^<g class="art-derived-shadow"/);
     assert.doesNotMatch(rendered, /painted-track|contrast-track|light-track|reset-card|orbit-card|cross.?plane|radiance/);
     assert.doesNotMatch(visible, /<(?:path|ellipse|circle|polygon|polyline|text|use)\b/);
-    assert.equal((visible.match(/<rect /g)||[]).length,1); // black shade only, selected by original-art luminance mask
+    assert.equal((visible.match(/<rect /g)||[]).length,kind==='max0'?0:1); // black shade only, selected by original-art luminance mask
     assert.doesNotMatch(rendered, /art-shadow-source|id="prototype-shade"/);
     assert.match(rendered,/filterUnits="userSpaceOnUse"/);
     const [width,height]=dimensions[kind];
@@ -97,4 +97,12 @@ test('offscreen surfaces are bounded to padded motif bounds, not entire source a
     assert.equal((rendered.match(/filter="url\(#prototype-luminance\)"/g)||[]).length,1);
     assert.equal((rendered.match(/mask="url\(#prototype-region\)"/g)||[]).length,1);
   }
+});
+
+test('black cat has only bright crown/eye reflection, never a shadow pass',()=>{
+ const rendered=markup('max0');
+ assert.doesNotMatch(rendered,/art-derived-shadow|shade-mask|shade-flow/);
+ assert.equal((rendered.match(/art-eye-light/g)||[]).length,2);
+ assert.match(rendered,/cx="407" cy="946"/);
+ assert.match(rendered,/cx="648" cy="984"/);
 });

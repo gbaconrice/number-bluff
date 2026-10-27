@@ -10,11 +10,11 @@ function markup(kind,id){
 const a=ART[kind];
 // Bound offscreen mask/filter surfaces to the painted motif, not the full card.
 // These bounds include feather/blur padding and never alter source coordinates.
-const bounds={double:[90,670,890,580],extra:[205,660,660,670],reset:[235,725,610,560],max0:[480,570,255,215]}[kind];
+const bounds={double:[90,670,890,580],extra:[205,660,660,670],reset:[235,725,610,560],max0:[320,570,420,510]}[kind];
 const [bx,by,bw,bh]=bounds,box=`x="${bx}" y="${by}" width="${bw}" height="${bh}"`;
 // Visible pixels always come from the immutable original. These feathered
 // selections create moving reflection/contrast, not drawn ornamental geometry.
-const region={double:'<ellipse cx="535" cy="963" rx="435" ry="165" transform="rotate(-28 535 963)"/>',extra:'<ellipse cx="535" cy="994" rx="298" ry="300"/>',reset:'<path d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" fill="none" stroke="white" stroke-width="108" stroke-linecap="round"/>',max0:'<path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/><circle cx="518" cy="643" r="16"/><circle cx="614" cy="613" r="20"/><circle cx="697" cy="675" r="16"/>'}[kind];
+const region={double:'<ellipse cx="535" cy="963" rx="435" ry="165" transform="rotate(-28 535 963)"/>',extra:'<ellipse cx="535" cy="994" rx="298" ry="300"/>',reset:'<path d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" fill="none" stroke="white" stroke-width="108" stroke-linecap="round"/>',max0:'<path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/><circle cx="518" cy="643" r="16"/><circle cx="614" cy="613" r="20"/><circle cx="697" cy="675" r="16"/><ellipse cx="407" cy="946" rx="54" ry="59" transform="rotate(18 407 946)"/><ellipse cx="648" cy="984" rx="53" ry="60" transform="rotate(-15 648 984)"/>'}[kind];
 const photo=cls=>`<image class="${cls}" x="0" y="0" width="${a.width}" height="${a.height}" preserveAspectRatio="none"/>`;
 const patches=(radius,rx,ry)=>[0,125,250].map(angle=>`<g transform="rotate(${angle})"><ellipse cx="${radius}" cy="0" rx="${rx}" ry="${ry}" fill="url(#${id}-spot)"/></g>`).join('');
 function field(mode){
@@ -23,21 +23,21 @@ function field(mode){
   const radius=kind==='double'?285:205;
   return `<g transform="${geometry}"><g class="art-mask-orbit ${mode}">${patches(radius,mode==='specular-flow'?65:115,mode==='specular-flow'?150:230)}</g></g>`;
  }
- if(kind==='max0'&&mode==='specular-flow')return [[518,643],[614,613],[697,675]].map(([x,y],i)=>`<ellipse class="art-jewel-light jewel-${i}" cx="${x}" cy="${y}" rx="30" ry="30" fill="url(#${id}-spot)"/>`).join('');
- return `<g transform="${kind==='extra'?'rotate(-20 535 994)':''}"><rect class="art-light-sweep ${mode}" x="${kind==='max0'?400:-500}" y="0" width="${kind==='max0'?110:mode==='specular-flow'?160:300}" height="${a.height}" fill="url(#${id}-sweep)"/></g>`;
+ if(kind==='max0'&&mode==='specular-flow')return [[518,643],[614,613],[697,675],[407,946],[648,984]].map(([x,y],i)=>`<ellipse class="art-jewel-light ${i>2?'art-eye-light':''} jewel-${i}" cx="${x}" cy="${y}" rx="${i>2?52:30}" ry="${i>2?56:30}" fill="url(#${id}-spot)"/>`).join('');
+ return `<g transform="${kind==='extra'?'rotate(-20 535 994)':''}"><rect class="art-light-sweep ${mode}" x="${kind==='max0'?400:-500}" y="0" width="${kind==='max0'?110:mode==='specular-flow'?160:300}" height="${kind==='max0'?800:a.height}" fill="url(#${id}-sweep)"/></g>`;
 }
 const selection=(name,mode,lum='painted-light')=>`<mask id="${id}-${name}" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-${lum})">${field(mode)}</g></mask>`;
 return `<defs>
 <filter id="${id}-soft" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="${kind==='max0'?2:8}"/></filter>
-<filter id="${id}-lightboost" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncG type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncB type="gamma" amplitude="1.7" exponent=".55" offset="0"/></feComponentTransfer></filter>
+<filter id="${id}-lightboost" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncG type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncB type="gamma" amplitude="${kind==='max0'?1.3:1.7}" exponent=".55" offset="0"/></feComponentTransfer></filter>
 <filter id="${id}-bloom" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="6"/></filter>
 <filter id="${id}-luminance" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncG type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncB type="table" tableValues="0 .15 .45 .8 1 1"/></feComponentTransfer></filter>
 <radialGradient id="${id}-spot"><stop stop-color="white"/><stop offset=".3" stop-color="#eee"/><stop offset="1" stop-color="black"/></radialGradient>
 <linearGradient id="${id}-sweep"><stop stop-color="black"/><stop offset=".3" stop-color="#888"/><stop offset=".5" stop-color="white"/><stop offset=".7" stop-color="#888"/><stop offset="1" stop-color="black"/></linearGradient>
 <mask id="${id}-region" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g fill="white" filter="url(#${id}-soft)">${region}</g></mask>
 <mask id="${id}-painted-light" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-region)"><g filter="url(#${id}-luminance)">${photo('art-luminance-source')}</g></g></mask>
-${selection('shade-mask','shade-flow')}${selection('reveal','primary-flow')}${selection('specular-mask','specular-flow')}
-</defs><g class="art-derived-shadow" mask="url(#${id}-shade-mask)"><rect ${box} fill="black"/></g><g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity=".3">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g><g class="art-derived-specular" mask="url(#${id}-specular-mask)" filter="url(#${id}-lightboost)">${photo('art-specular-source')}</g>`;
+${kind==='max0'?'':selection('shade-mask','shade-flow')}${selection('reveal','primary-flow')}${selection('specular-mask','specular-flow')}
+</defs>${kind==='max0'?'':`<g class="art-derived-shadow" mask="url(#${id}-shade-mask)"><rect ${box} fill="black"/></g>`}<g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity=".3">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g><g class="art-derived-specular" mask="url(#${id}-specular-mask)" filter="url(#${id}-lightboost)">${photo('art-specular-source')}</g>`;
 }
 function createManager(){
 const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false,pageSuspended=false;
