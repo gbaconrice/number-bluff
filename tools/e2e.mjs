@@ -164,9 +164,10 @@ async function originalIllustrationChecks(page){
  // Actual finite special activation is canceled on document hiding and OS motion preference.
  await page.locator('#guideContent .kind-extra').click();await readyCardArt(page);await page.clock.runFor(240);await specialChecks(page,{animated:true});
  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));});await specialChecks(page,{inactive:true});await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));});await page.locator('#closeCardDetail').click();
- await page.locator('#guideContent .kind-extra').click();await readyCardArt(page);await page.clock.runFor(240);await specialChecks(page,{animated:true});await page.emulateMedia({reducedMotion:'reduce'});
- // MediaQueryList change is asynchronously delivered; allow a bounded 50ms of actual app clock/RAF, not an unbounded wait or synthetic change event.
- await page.clock.runFor(50);await specialChecks(page,{inactive:true});await page.locator('#closeCardDetail').click();await page.emulateMedia({reducedMotion:'no-preference'});
+ await page.locator('#guideContent .kind-extra').click();await readyCardArt(page);await page.clock.runFor(240);await specialChecks(page,{animated:true});await page.evaluate(()=>{window.__reducedNotification=false;matchMedia('(prefers-reduced-motion:reduce)').addEventListener('change',event=>{if(event.matches)window.__reducedNotification=true;},{once:true});});await page.emulateMedia({reducedMotion:'reduce'});
+ // MediaQueryList change is delivered by the native rendering cycle, not the fake clock.
+ // Give that native event one bounded compositor interval before advancing app timers.
+ await page.waitForTimeout(100);await page.clock.runFor(50);assert.equal(await page.evaluate(()=>matchMedia('(prefers-reduced-motion:reduce)').matches),true);assert.equal(await page.evaluate(()=>window.__reducedNotification),true,'native reduced-motion change must actually be delivered');assert.equal(await page.locator('.nb-special-svg').evaluateAll(els=>els.every(e=>getComputedStyle(e).display==='none')),true,'reduced-motion CSS must hide every special SVG');await specialChecks(page,{inactive:true});await page.locator('#closeCardDetail').click();await page.emulateMedia({reducedMotion:'no-preference'});
  await writeFile(new URL('special-svg-app-detail.json',output),JSON.stringify({scope:'real app source-coordinate SVG, matched original-art bounds and modal lifecycle',frames:specialFrames},null,2));
  // Sample the real app's sole glare manager, not a separate test-only renderer.
  const glareCard=page.locator('#guideContent .normal-card[data-art-value="1"]');
