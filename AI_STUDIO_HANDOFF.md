@@ -10,7 +10,7 @@ GitHub側で36枚ルール、UI・素材・演出に加え、提供されたAgen
 
 - 入力は `ai-studio.html`。HTML/CSS/ゲーム・SDK連携JavaScriptは一体化され、外部JS・CSSは読み込みません。
 - 画像は `https://tanabe0422.github.io/number-bluff/assets/` の絶対URLです。配布先で最新素材がHTTP 200になることを確認してください。
-- 原本は `index.html`、`styles.css`、`engine.js`、`scheduler.js`、`background-motion.js/.css`、`card-presentation.js/.css`、`normal-card-art.js/.css`、`game-audio.js`、`app.js`、`gravity-room-adapter.js`、`gravity-platform.js` です。
+- 原本は `index.html`、`styles.css`、`engine.js`、`scheduler.js`、`background-motion.js/.css`、`card-presentation.js/.css`、`card-art.js/.css`、`game-audio.js`、`app.js`、`gravity-room-adapter.js`、`gravity-platform.js` です。
 - 原本を直し、`npm test` と `node tools/build-single-html.mjs` を実行して単一HTMLを再生成します。生成HTMLだけを修正して原本と分離しないでください。
 - 単体・通信模擬テストは実SDK通信を証明しません。実GRAVITY複数端末テストは未実施です。
 
@@ -130,17 +130,10 @@ UIは認証済み本人席の `viewerId` と固定ホスト席の `hostId` を�
 
 次ラウンドの開始者は、敗者が残っていれば敗者、敗者が脱落した場合はそのラウンドの勝者です。単に次の生存席を選びません（同公式ルール紙面5ページ）。
 
-## 通常カードの共通キャラクターと演出
+## 個別原画の統合（ローカル候補）
 
-通常カードは、BOTと**同一の4枚のキャラクター画像**を `normal-card-art.js` / `normal-card-art.css` で配置します。数字ごとにキャラクターを描き直さず、顔・輪郭・色を揃えます。共通の人物なしフレームは `assets/card-scene-base.webp` です。旧来の数字別一枚絵は使用しません。
+通常11種・特殊4種は、それぞれ独立して描いた原画です。`card-art.js` / `card-art.css` が値・種類と原画の対応を管理し、全1024×1536を2:3・containで表示します。数字は上部5〜28%のDOM領域に置きます。10はvalley-v4、15はcloudsteps-v2、20はmoon-gathering-v2を採用しています。
 
-| 数字 | 絵柄 |
-| --- | --- |
-| −10・−5 | 白〜淡いラベンダーを基調にした雲形のくもまる。−10は嵐、−5は風の演出 |
-| 0 | 元のねこ。静かに休む呼吸と柔らかな光 |
-| 1〜5 | 元のうさぎを数字と同じ1〜5体配置。小さな跳ねる動き |
-| 10・15・20 | 五つの角が明確なほしもちを正確に10・15・20体。5体ずつ2・3・4段に配置 |
+旧キャラ反復グリッド、共通人物なしフレーム、特殊カードのSVG重ね・複製揺れ・白い光の被せは撤去しました。BOT用4画像はそのまま別用途で使用します。配布・めくり・合計計算・効果音は保持しますが、原画内キャラクター固有のアニメーションは未実装です。
 
-BOTと通常カードの元画像は、くも `blue-cloud.webp`、ねこ `moon-cat.webp`、うさぎ `cloud-bunny.webp`、ほし `star-sprite.webp` です。数字の大小を色変更や別キャラクターへの置換で表しません。全カードの斜めに走る白い光と、それぞれの絵柄の動きは別のレイヤーです。数値・説明と外枠は固定し、絵柄だけを動かします。裏向きの本人カードには種類・個数が分かる絵柄を生成しません。
-
-小さい対戦カードでは輪郭と5体単位のまとまりを優先し、顔の細部は大きな図鑑表示でも確認してください。自動テストだけで美しさ・視認性・実端末の滑らかさを保証せず、iOS・GRAVITYで実際の表示と動画を確認する必要があります。
+裏向き・脱落カードは原画URLや種類・値のDOM属性を生成しません。原画の美しさ・構図・顔の読め方・数字との干渉は実画像レビューが必要です。単体テスト合格は絵の品質保証ではありません。この候補は未公開で、ブラウザ・iOS・GRAVITY実機の確認は別工程です。

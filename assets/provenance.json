@@ -10,42 +10,6 @@
       "encoding": "WebP quality 90; generated alpha and dimensions retained"
     },
     {
-      "file": "card-double.webp",
-      "width": 1051,
-      "height": 1496,
-      "bytes": 576168,
-      "sha256": "30a934fac409ab9794ec0a3ded162a624482bf6b2153974c81d990017287da91",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
-      "file": "card-extra.webp",
-      "width": 1049,
-      "height": 1500,
-      "bytes": 484230,
-      "sha256": "05b195451d6d2451c17bc7c808e330bd9355514a6b9013d8e1754eb71e63cd57",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
-      "file": "card-max0.webp",
-      "width": 1049,
-      "height": 1499,
-      "bytes": 492844,
-      "sha256": "d87557aa91617ff2c06d989c34f2bc838c3651658d9d6369491d6d57fc01fcce",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
-      "file": "card-reset.webp",
-      "width": 1062,
-      "height": 1482,
-      "bytes": 317784,
-      "sha256": "99eacc9e011d7d07f02a80b7bd1d4b74e72854a0be50315682c921384aa7b533",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
       "file": "celestial-background-v3.webp",
       "width": 1024,
       "height": 1536,
@@ -109,25 +73,146 @@
       "encoding": "WebP quality 90; generated alpha and dimensions retained"
     },
     {
-      "file": "card-scene-base.webp",
-      "width": 1050,
-      "height": 1498,
-      "bytes": 257068,
-      "sha256": "9a30fd1d5ef763cf069a7e5667cb3591e937bfdc25054d60271fb73d22cf4ea9",
-      "source": "Built-in image_gen edit; character-free pearlescent card frame with quiet central area for exact-count canonical character composition",
-      "encoding": "WebP quality 90; generated alpha and dimensions retained"
+      "file": "card-minus10-cloud-rain.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 322258,
+      "sha256": "4ffbc935f129cedd8399defc87c859382fece68d59720cf367207613bd2adf7c",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-minus05-cloud-wind.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 305948,
+      "sha256": "e8662bc463bd5f9cb059bdbe73bef763d6818210fa2a4fe1fd7cb2ff41f6a1d1",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-00-cat-dawnrest.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 311914,
+      "sha256": "78710f42c56533c95f160486b269acf330894be215900a871c8229cedc85b0cd",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-01-bunny-starlight.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 226636,
+      "sha256": "470d678304eac171039acb44e434b1faa7e81829fe8fe674b94f6fe66182610b",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-02-bunny-cloudplay.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 310522,
+      "sha256": "31df183300931266d3e48ac24fa9cde60b3049589839b8e51269ebc754a5e2ee",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-03-bunny-cloudgarden.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 299374,
+      "sha256": "5e703c72f3aeecc7dd6ec21f44db436128f3dc7d7959f37b8fa330d2fb0133ca",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-04-bunny-cloudslide.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 258198,
+      "sha256": "a14abafd43bd82020d582232099574d09e608b65b616eb84cd37bc7a1cc7c63f",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-05-bunny-cloudrest.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 314086,
+      "sha256": "3123549f2c9c03d5217180bff09028d6a08ecba18e5104510632aba14560ebcb",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-10-star-valley-v4.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 267746,
+      "sha256": "b03cd830bc4a4dfbd313ba941a74cb7daa69ee5573b2af9ca08b68313ed18a53",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-15-star-cloudsteps-v2.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 329206,
+      "sha256": "28cd9fbb6fde96606e03488a745d5d60d965196427c6822b661c7b945b6deab0",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-double-twin-starstreams.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 492058,
+      "sha256": "d9db33289285006f941de646c663805f6b74ee09a09e89275c6d1e926d54aa91",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-max0-mooncat-touch.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 323956,
+      "sha256": "0ea8190da2f4a18c9e463fcf9dac7fdfdf7c0f14c98d83525cb501aa19e9452b",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-extra-jade-oracle.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 351516,
+      "sha256": "6f21ea30ecb1d16e8c57f80f7c3b0a17339e2dba7c30a6aba253a56c8fa4fdac",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-reset-cloud-gather.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 189516,
+      "sha256": "d6b394b72f84a66317915822634422c701834f9758bff331ae3647fcace4934c",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-20-star-moon-gathering-v2.webp",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 314464,
+      "sha256": "f99bbe5e7ce304ad72ca84da363b27314bd9b7b109fb29d906df34a8aa82e8cb",
+      "source": "Built-in image generation; individually illustrated original card scene",
+      "encoding": "WebP quality 90; original dimensions and composition retained"
     }
   ],
   "notes": [
-    "Reference screenshots and personal profile images are not distributed.",
-    "Human profile images/names are supplied by the platform; generated character avatars are for BOTs.",
-    "Card numerals and UI instructions remain DOM text; home logo is decorative artwork with accessible title.",
-    "Background movement is automatic and has no in-game motion setting.",
-    "Normal cards compose the same canonical mascot image files used by BOT avatars over a character-free shared frame; characters are not regenerated per numeric value.",
-    "Kumomaru uses the original white/pale-lavender cloud asset, the cat and bunny retain their original assets, and Hoshimochi uses the cream-gold five-point star asset.",
-    "Approved mapping: -10 and -5 use cloud; 0 uses cat; values 1 through 5 contain exactly that many bunnies; 10, 15 and 20 contain exactly that many stars in rows of five.",
-    "Card numerals, rules and frames stay stationary while character-specific layers animate; a separate diagonal white gloss sweep is shared across cards.",
-    "Face-down cards do not create numeric character compositions. Duplicate copies of each public numeric value share the same layout.",
-    "The decorative home hero is a separate illustration, not a source of BOT or card sprites. Actual iOS and GRAVITY rendering, motion smoothness and audible output require device verification."
+    "All fifteen card faces are independently illustrated scenes; static originals are displayed whole at 2:3.",
+    "Normal card values have unique original artwork rather than repeated mascot grids. BOT avatars remain separate assets.",
+    "Card numerals remain DOM text inside the upper 30% of the image. Hidden and eliminated cards do not attach face images.",
+    "Existing deal, reveal, arithmetic and sound presentation is retained. Character-specific illustration animation is not implemented.",
+    "Actual iOS and GRAVITY rendering and audible output require device verification."
   ]
 }

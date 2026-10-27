@@ -1,0 +1,10 @@
+/* Original scenes are displayed whole; illustration animation is not implemented. */
+.player-card, .battle-grid.many .player-card, .catalogue .player-card, .example-cards .player-card, .extra-reveal .player-card, .step-art .player-card { aspect-ratio: 2 / 3; height: auto; }
+.player-card:not(.hidden):not(.out), .battle-grid.many .player-card:not(.hidden):not(.out) { padding: 0; background: #c9b5e9; border: 0; border-radius: 5px; }
+.player-card .card-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; z-index: 0; pointer-events: none; }
+.player-card:not(.hidden):not(.out) .card-value { position: absolute; top: 5%; height: 23%; left: 5%; right: 5%; z-index: 2; display: flex; align-items: center; justify-content: center; color: #19294f; text-shadow: 0 1px 2px #ffffff, 0 0 5px #ffffff; }
+.player-card.kind-extra .card-value { color: #f8f5ed; text-shadow: 0 1px 3px #152241, 0 0 5px #152241; }
+.player-card.kind-reset .card-value { font-size: .48em; }
+.player-card.kind-max0 .card-value { font-size: .43em; }
+
+.step-art .player-card { transform: none; }

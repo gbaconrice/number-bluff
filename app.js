@@ -82,14 +82,8 @@
     if (card.kind !== 'number') node.classList.add('special');
     if (card.value < 0) node.classList.add('negative');
     node.append(el('span', 'card-value', card.kind === 'reset' ? 'リセット' : card.label));
-    const motion = card.kind === 'number' ? null : window.NumberBluffPresentation.createArtMotion(document, card.kind);
-    if (motion) node.append(motion);
-    if (card.kind === 'number') {
-      node.classList.add('normal-card');
-      // Only public faces reach this point; hidden/out cards returned above.
-      node.dataset.artValue = String(card.value);
-      node.append(window.NumberBluffNormalArt.create(document, card.value));
-    }
+    if (card.kind === 'number') { node.classList.add('normal-card'); node.dataset.artValue = String(card.value); }
+    node.append(window.NumberBluffCardArt.create(document, card));
     return node;
   }
   function clearError() { $('inputError').textContent = ''; $('number').removeAttribute('aria-invalid'); }
