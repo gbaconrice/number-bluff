@@ -3,31 +3,31 @@
 .nb-special-svg{position:absolute;z-index:2;pointer-events:none;overflow:hidden;contain:paint;visibility:hidden}
 .nb-special-svg svg{display:block;width:100%;height:100%;fill:none;overflow:hidden;stroke-linecap:round;stroke-linejoin:round}
 .nb-special-svg *{pointer-events:none}
-.nb-special-svg .galaxy-stream{stroke-width:7;stroke-dasharray:210 95 45 370;animation:nbsv-galaxy-flow 5.5s linear infinite;opacity:.53}
-.nb-special-svg .stream-b{stroke-width:5;stroke-dasharray:160 90 35 280;animation-direction:reverse;animation-duration:7s;opacity:.45}
-.nb-special-svg .galaxy-core-rim{stroke:#aaabff;stroke-width:4;stroke-dasharray:110 570;animation:nbsv-core 5s ease-in-out infinite;opacity:.35}
-.nb-special-svg .crown-metal-sweep{animation:nbsv-crown-sweep 4.8s ease-in-out infinite;opacity:.65}
-.nb-special-svg .crown-trace{stroke:#fff4ba;stroke-width:4;stroke-dasharray:68 210;animation:nbsv-crown-trace 4.8s ease-in-out infinite;opacity:.6}
+.nb-special-svg .galaxy-stream{stroke-width:11;stroke-dasharray:210 95 45 370;animation:nbsv-galaxy-flow 5.5s linear infinite;opacity:.82}
+.nb-special-svg .stream-b{stroke-width:8;stroke-dasharray:160 90 35 280;animation-direction:reverse;animation-duration:6s;opacity:.7}
+.nb-special-svg .galaxy-core-rim{stroke:#aaabff;stroke-width:7;stroke-dasharray:110 570;animation:nbsv-core 5s ease-in-out infinite;opacity:.65}
+.nb-special-svg .crown-metal-sweep{animation:nbsv-crown-sweep 3.8s ease-in-out infinite;opacity:.65}
+.nb-special-svg .crown-trace{stroke:#fff4ba;stroke-width:7;stroke-dasharray:68 210;animation:nbsv-crown-trace 3.8s ease-in-out infinite;opacity:.6}
 .nb-special-svg .orb-nebula{transform-origin:535px 994px;animation:nbsv-orb-turn 18s linear infinite}
-.nb-special-svg .orb-nebula path{stroke-width:7;stroke-dasharray:105 95 25 140;opacity:.45;animation:nbsv-galaxy-flow 7s linear infinite}
-.nb-special-svg .orb-refraction{stroke:#e9e3ff;stroke-width:5;stroke-dasharray:130 320 40 400;opacity:.45;animation:nbsv-orb-flow 8s linear infinite}
+.nb-special-svg .orb-nebula path{stroke-width:11;stroke-dasharray:105 95 25 140;opacity:.75;animation:nbsv-galaxy-flow 7s linear infinite}
+.nb-special-svg .orb-refraction{stroke:#e9e3ff;stroke-width:8;stroke-dasharray:130 320 40 400;opacity:.75;animation:nbsv-orb-flow 8s linear infinite}
 .nb-special-svg .orb-premonition{stroke:#eeefff;stroke-width:5;fill:#c9c5ff0c;transform-origin:535px 994px;animation:nbsv-orb-card 7s ease-in-out infinite}
-.nb-special-svg .orb-glass{stroke:#fff4ff;stroke-width:8;stroke-dasharray:32 95;opacity:.5;animation:nbsv-orb-glass 5s ease-in-out infinite}
-.nb-special-svg .reset-current{stroke-width:22;stroke-dasharray:210 1700;opacity:.55;animation:nbsv-reset-current 5s linear infinite}
+.nb-special-svg .orb-glass{stroke:#fff4ff;stroke-width:11;stroke-dasharray:32 95;opacity:.5;animation:nbsv-orb-glass 5s ease-in-out infinite}
+.nb-special-svg .reset-current{stroke-width:22;stroke-dasharray:210 1700;opacity:.85;animation:nbsv-reset-current 5s linear infinite}
 .nb-special-svg .reset-arrowlight{stroke:#fcffff;stroke-width:12;opacity:.2;animation:nbsv-reset-head 5s ease-in-out infinite}
 .nb-special-svg[data-active=true] .galaxy-stream,.nb-special-svg[data-active=true] .reset-current,.nb-special-svg[data-active=true] .crown-metal-sweep,.nb-special-svg[data-active=true] .crown-trace{animation-duration:var(--special-active-ms,900ms);opacity:.85}
 .nb-special-svg[data-active=true] .orb-premonition{animation:nbsv-orb-reveal var(--special-active-ms,900ms) ease-out both}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
 .hide .nb-special-svg,.hidden .nb-special-svg,[hidden] .nb-special-svg{visibility:hidden!important}
 @keyframes nbsv-galaxy-flow{to{stroke-dashoffset:-720}}
-@keyframes nbsv-core{0%,100%{opacity:.15}50%{opacity:.5}}
-@keyframes nbsv-crown-sweep{0%,20%{transform:translateX(0);opacity:0}45%{opacity:.7}75%,100%{transform:translateX(290px);opacity:0}}
-@keyframes nbsv-crown-trace{0%,100%{stroke-dashoffset:278;opacity:.2}60%{stroke-dashoffset:0;opacity:.65}}
+@keyframes nbsv-core{0%,100%{opacity:.35}50%{opacity:.8}}
+@keyframes nbsv-crown-sweep{0%,20%{transform:translateX(0);opacity:0}45%{opacity:1}75%,100%{transform:translateX(290px);opacity:0}}
+@keyframes nbsv-crown-trace{0%,100%{stroke-dashoffset:278;opacity:.45}60%{stroke-dashoffset:0;opacity:.95}}
 @keyframes nbsv-orb-turn{to{transform:rotate(360deg)}}
 @keyframes nbsv-orb-flow{to{stroke-dashoffset:-890}}
 @keyframes nbsv-orb-card{0%,45%,100%{opacity:0;transform:translateY(30px) scale(.75)}65%,78%{opacity:.45;transform:translateY(-8px) scale(1)}}
 @keyframes nbsv-orb-reveal{from{opacity:0;transform:translateY(30px) scale(.7)}55%{opacity:.75;transform:translateY(-8px) scale(1)}to{opacity:0;transform:translateY(-45px) scale(.95)}}
-@keyframes nbsv-orb-glass{0%,100%{opacity:.2;stroke-dashoffset:0}50%{opacity:.65;stroke-dashoffset:-90}}
+@keyframes nbsv-orb-glass{0%,100%{opacity:.4;stroke-dashoffset:0}50%{opacity:.9;stroke-dashoffset:-90}}
 @keyframes nbsv-reset-current{to{stroke-dashoffset:-1910}}
-@keyframes nbsv-reset-head{0%,100%{opacity:.12}55%{opacity:.7}}
+@keyframes nbsv-reset-head{0%,100%{opacity:.35}55%{opacity:.85}}
 @media(prefers-reduced-motion:reduce){.nb-special-svg{display:none!important}.nb-special-svg *{animation:none!important}}

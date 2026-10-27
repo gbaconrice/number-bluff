@@ -31,14 +31,13 @@
    endTimer=win.setTimeout(stop,ms+50);return true;
   }
   function sync(){if(active&&!eligible(active.node))stop();}
-  function onPointer(event){if(event.pointerType==='touch')return;const node=event.target.closest?.('.player-card');if(node&&!node.contains(event.relatedTarget))play(node);}
   function visibility(){if(doc.hidden||reduced.matches)stop();else if(!active)releaseGlare();}
   function pagehide(){stop();glare.pause();}
   function pageshow(){releaseGlare();}
-  doc.addEventListener('pointerover',onPointer,true);doc.addEventListener('visibilitychange',visibility);
+  doc.addEventListener('visibilitychange',visibility);
   reduced.addEventListener?.('change',visibility);win.addEventListener('pagehide',pagehide);win.addEventListener('pageshow',pageshow);
   Promise.resolve(renderer.ready).then(value=>{if(!disposed)ready=!!value;});
-  return {play,stop,sync,status(){return{ready,active:!!active,kind:active?.kind||null,seen:seen.size};},destroy(){disposed=true;stop();doc.removeEventListener('pointerover',onPointer,true);doc.removeEventListener('visibilitychange',visibility);reduced.removeEventListener?.('change',visibility);win.removeEventListener('pagehide',pagehide);win.removeEventListener('pageshow',pageshow);renderer.destroy();seen.clear();}};
+  return {play,stop,sync,status(){return{ready,active:!!active,kind:active?.kind||null,seen:seen.size};},destroy(){disposed=true;stop();doc.removeEventListener('visibilitychange',visibility);reduced.removeEventListener?.('change',visibility);win.removeEventListener('pagehide',pagehide);win.removeEventListener('pageshow',pageshow);renderer.destroy();seen.clear();}};
  }
  return Object.freeze({create});
 });

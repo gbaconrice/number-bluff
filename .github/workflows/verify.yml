@@ -26,6 +26,8 @@ jobs:
         run: npx --no-install playwright install --with-deps chromium
       - name: Build single HTML handoff
         run: node tools/build-single-html.mjs
+      - name: Automatic card motion on mobile and desktop
+        run: node tools/card-motion-periodic.mjs
       - name: Early visual preview (full regression remains mandatory)
         id: visual
         continue-on-error: true

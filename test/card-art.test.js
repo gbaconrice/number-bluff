@@ -23,8 +23,8 @@ test('static originals keep their ratio and numeral safe area without rejected i
  const css=fs.readFileSync(path.join(__dirname,'../card-art.css'),'utf8');assert.match(css,/aspect-ratio: 2 \/ 3/);assert.match(css,/object-fit: contain/);assert.match(css,/top: 12%; height: 26%/);assert.doesNotMatch(css,/animation:|mask-image|filter:/);
  const effects=fs.readFileSync(path.join(__dirname,'../card-presentation.css'),'utf8');assert.doesNotMatch(effects,/card-art-motion|card-illustration|card-foil-sweep/);assert.match(effects,/card-reveal-rich/);assert.match(effects,/card-deal-rich/);assert.equal(require('../card-presentation').createArtMotion,undefined);
 });
-test('all originals share a 2:3 outer box with an undistorted centered content rectangle',()=>{
- const api=require('../card-art'),doc={createElement(){return {style:{}};}};
- for(const card of engine.FULL_DECK){const box=api.content(doc,card),[w,h]=api.size(card);const cw=parseFloat(box.style.width),ch=parseFloat(box.style.height);assert.ok(cw<=100&&ch<=100);assert.ok(Math.abs(cw/ch*2/3-w/h)<1e-9);assert.ok(cw===100||ch===100);}
- const css=fs.readFileSync(path.join(__dirname,'../card-art.css'),'utf8');assert.equal((css.match(/aspect-ratio:/g)||[]).length,1);assert.match(css,/card-content.*position:absolute/);
+test('all originals fill one 2:3 artwork surface without stretching illustrated lower sections',()=>{
+ const api=require('../card-art'),doc={createElement(){return {style:{setProperty(k,v){this[k]=v;}},children:[],setAttribute(){},append(el){this.children.push(el);}};}};
+ for(const card of engine.FULL_DECK){const box=api.content(doc,card),[w,h]=api.size(card),layout=api.layout(card);assert.equal(box.style.width,'100%');assert.equal(box.style.height,'100%');assert.equal(box.children.length,2);assert.equal(box.children[0].className,'card-art-cap');assert.equal(box.children[1].className,'card-art-band');assert.ok(Math.abs(layout.sourceHeight-h/(w*1.5))<1e-9);assert.ok(Math.abs(layout.capHeight+layout.bandHeight+layout.sourceHeight*.65-1)<1e-9);assert.ok(layout.bandHeight>=.15-1e-9);}
+ const css=fs.readFileSync(path.join(__dirname,'../card-art.css'),'utf8');assert.equal((css.match(/aspect-ratio:/g)||[]).length,1);assert.match(css,/card-content.*position:absolute/);assert.match(css,/clip-path: inset\(35% 0 0\)/);assert.match(css,/card-art-band/);
 });
