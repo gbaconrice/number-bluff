@@ -37,7 +37,7 @@ export function auditHTML(html) {
   html = html.replace(/<(script|style)\b[^>]*>([\s\S]*?)<\/\1>/gi,
     (all, tag, code) => all.replace(code, () => withoutCodeComments(code)));
   for (const match of html.matchAll(/https?:\/\/[^\s'"`<>)}]+/gi)) {
-    if (!match[0].startsWith(ASSET_BASE)) throw new Error(`Unowned runtime URL: ${match[0]}`);
+    if (match[0] !== 'http://www.w3.org/2000/svg' && !match[0].startsWith(ASSET_BASE)) throw new Error(`Unowned runtime URL: ${match[0]}`);
   }
   if (/<script\b[^>]*\bsrc\s*=/i.test(html)) throw new Error('Unresolved external script');
   if (/<link\b[^>]*rel\s*=\s*['"]stylesheet/i.test(html)) throw new Error('Unresolved stylesheet');

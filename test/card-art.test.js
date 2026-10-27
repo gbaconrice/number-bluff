@@ -23,3 +23,8 @@ test('static originals keep their ratio and numeral safe area without rejected i
  const css=fs.readFileSync(path.join(__dirname,'../card-art.css'),'utf8');assert.match(css,/aspect-ratio: 2 \/ 3/);assert.match(css,/object-fit: contain/);assert.match(css,/top: 12%; height: 26%/);assert.doesNotMatch(css,/animation:|mask-image|filter:/);
  const effects=fs.readFileSync(path.join(__dirname,'../card-presentation.css'),'utf8');assert.doesNotMatch(effects,/card-art-motion|card-illustration|card-foil-sweep/);assert.match(effects,/card-reveal-rich/);assert.match(effects,/card-deal-rich/);assert.equal(require('../card-presentation').createArtMotion,undefined);
 });
+test('all originals share a 2:3 outer box with an undistorted centered content rectangle',()=>{
+ const api=require('../card-art'),doc={createElement(){return {style:{}};}};
+ for(const card of engine.FULL_DECK){const box=api.content(doc,card),[w,h]=api.size(card);const cw=parseFloat(box.style.width),ch=parseFloat(box.style.height);assert.ok(cw<=100&&ch<=100);assert.ok(Math.abs(cw/ch*2/3-w/h)<1e-9);assert.ok(cw===100||ch===100);}
+ const css=fs.readFileSync(path.join(__dirname,'../card-art.css'),'utf8');assert.equal((css.match(/aspect-ratio:/g)||[]).length,1);assert.match(css,/card-content.*position:absolute/);
+});

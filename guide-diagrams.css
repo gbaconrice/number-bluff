@@ -1,0 +1,23 @@
+/* In-flow explanations replace unrelated, absolutely positioned mascots. */
+#guideContent[data-tab="rules"] .guide-step { padding: 12px 12px 12px 43px; min-height: 0; }
+.guide-diagram { margin-top: 10px; display: grid; gap: 7px; max-width: 420px; color: #24385b; font-variant-numeric: tabular-nums; }
+.guide-diagram-row { display: flex; align-items: center; justify-content: center; gap: clamp(4px,1.5vw,9px); min-width: 0; }
+.guide-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; padding: 6px 8px; border: 1px solid #aeb2ce; border-radius: 8px; background: #fffdf4; text-align: center; flex: 0 1 auto; }
+.guide-chip small { display: block; font-size: 10px; line-height: 1.3; white-space: nowrap; }
+.guide-chip strong { display: block; font-size: 19px; line-height: 1.15; font-weight: 750; white-space: nowrap; }
+.guide-chip.guide-mini-card { min-width: 43px; min-height: 58px; }
+.guide-chip.is-back { background: #26335a; border-color: #d6c8ed; color: #fff9df; }
+.guide-chip.is-speech { border-radius: 10px 10px 10px 3px; }
+.guide-arrow,.guide-comparison { flex: none; font-size: 15px; line-height: 1; font-weight: 700; }
+.guide-diagram-note { text-align: center; font-size: 12px; line-height: 1.4; }
+.guide-challenge { justify-self: center; padding: 4px 10px; border: 1px solid #8c7496; border-radius: 10px; background: #fff7dc; font-size: 12px; font-weight: 750; }
+.guide-life-loss { flex: 0 1 auto; min-width: 0; white-space: pre-line; text-align: center; color: #963f4c; font-size: 11px; line-height: 1.4; font-weight: 750; }
+@media(max-width:350px){
+ #guideContent[data-tab="rules"] .guide-step { padding: 10px 9px 10px 40px; }
+ .guide-chip { padding: 5px; }
+ .guide-chip small { font-size: 9px; }
+ .guide-chip strong { font-size: 17px; }
+ .guide-diagram-3 .guide-chip { padding: 5px 4px; }
+ .guide-diagram-3 .guide-arrow { font-size: 12px; }
+ .guide-life-loss { font-size: 10px; }
+}

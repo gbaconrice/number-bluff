@@ -73,7 +73,7 @@ SOFTWARE.
     let active = null, raf = 0, timer = 0, paused = false, destroyed = false;
     let lastCard = null, nextAllowed = 0;
     const globallyAllowed = () => !destroyed && !paused && !doc.hidden && !reduced.matches;
-    const eligible = record => globallyAllowed() && record.visible && record.el.isConnected &&
+    const eligible = record => globallyAllowed() && (!doc.querySelector('dialog[open]') || doc.querySelector('dialog[open]').contains(record.el)) && record.visible && record.el.isConnected &&
       !record.el.matches('.hidden, .out, [hidden], [aria-hidden="true"]') &&
       !record.el.closest('[hidden], [inert], [aria-hidden="true"], .screen.hidden, [data-revealed="false"]') &&
       record.el.getClientRects().length > 0 && win.getComputedStyle(record.el).visibility !== 'hidden';
@@ -147,7 +147,7 @@ SOFTWARE.
       overlay.className = 'nb-card-glare'; overlay.setAttribute('aria-hidden', 'true');
       const band = doc.createElement('span'); band.className = 'nb-card-glare__band';
       band.style.background = whiteGradient(opacity); overlay.append(band);
-      el.classList.add('nb-glare-host'); el.append(overlay);
+      el.classList.add('nb-glare-host'); (el.querySelector('.card-content') || el).append(overlay);
       const onEnter = event => { if (event.pointerType !== 'touch') play(el); };
       const onDown = event => { if (event.pointerType !== 'mouse') play(el); };
       const onFocus = event => { if (event.target.matches?.(':focus-visible')) play(el); };
