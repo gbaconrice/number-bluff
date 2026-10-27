@@ -1,30 +1,21 @@
-/* Original source-coordinate light volumes; scale with artwork, never vector-effect.
-   Dark receiving edge + luminous filled band gives depth at small card sizes. */
+/* Source-aligned highlights only: fixed geometry, travelling light on the
+   existing painted motif. No free-standing orbit, radiance or expanding wave. */
 .nb-special-svg-host{position:relative}
 .nb-special-svg{position:absolute;z-index:2;pointer-events:none;overflow:hidden;contain:paint;visibility:hidden}
 .nb-special-svg svg{display:block;width:100%;height:100%;fill:none;overflow:hidden;stroke-linecap:round;stroke-linejoin:round}
 .nb-special-svg *{pointer-events:none}
-.nb-special-svg .effect-shadow{fill:#190e42;opacity:.55}
-.nb-special-svg .galaxy-stream{transform-origin:0 0;animation:nbsv-orbit 5.5s linear infinite}
-.nb-special-svg .stream-b{animation-direction:reverse;animation-duration:7s;opacity:.8}
-.nb-special-svg .stream-cross{animation-direction:reverse;animation-duration:7.6s;opacity:.78}
-.nb-special-svg .galaxy-halo{transform-origin:0 0;animation:nbsv-halo 3.8s ease-in-out infinite}
-.nb-special-svg .crown-radiance{transform-origin:602px 728px;animation:nbsv-radiance 3.6s ease-in-out infinite}
-.nb-special-svg .crown-metal-sweep{animation:nbsv-crown-sweep 3.6s ease-in-out infinite}
-.nb-special-svg .crown-glint{transform-origin:609px 636px;animation:nbsv-glint 3.6s ease-in-out infinite}
-.nb-special-svg .orb-nebula{transform-origin:535px 994px;animation:nbsv-orbit 5.8s linear infinite}
-.nb-special-svg .orb-aura{transform-origin:535px 994px;animation:nbsv-halo 4.2s ease-in-out infinite}
-.nb-special-svg .orb-refraction{stroke-width:22;stroke-dasharray:280 1620;transform-origin:535px 994px;animation:nbsv-orbit 4.6s linear infinite}
-.nb-special-svg .reset-current{transform-origin:0 0;animation:nbsv-orbit 4.5s linear infinite}
-.nb-special-svg .reset-ripple{stroke-width:22;transform-origin:0 0;animation:nbsv-ripple 3.8s ease-out infinite}
-.nb-special-svg .ripple-b{animation-delay:-1.9s}
-.nb-special-svg[data-active=true] .galaxy-halo,.nb-special-svg[data-active=true] .orb-aura{opacity:1}
+.nb-special-svg .painted-track{stroke-dasharray:16 84;animation:nbsv-painted-light 3.8s linear infinite}
+.nb-special-svg .contrast-track{stroke:#4655a6;stroke-width:30;opacity:.38}
+.nb-special-svg .light-track{stroke-width:16;opacity:.95}
+.nb-special-svg .stream-b{animation-direction:reverse;animation-duration:4.6s;stroke-dasharray:20 80}
+.nb-special-svg .orb-nebula{animation-duration:4.2s;stroke-dasharray:20 80}
+.nb-special-svg .orb-current{animation-duration:3.4s;stroke-dasharray:25 75}
+.nb-special-svg .reset-current{animation-duration:3.6s;stroke-dasharray:24 76}
+.nb-special-svg .reset-current.contrast-track{stroke-width:52;opacity:.32}
+.nb-special-svg .reset-current.light-track{stroke-width:30}
+.nb-special-svg .crown-metal-sweep{animation:nbsv-crown-sweep 3s linear infinite}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
 .hide .nb-special-svg,.hidden .nb-special-svg,[hidden] .nb-special-svg{visibility:hidden!important}
-@keyframes nbsv-orbit{to{transform:rotate(360deg)}}
-@keyframes nbsv-halo{0%,100%{transform:scale(.88);opacity:.4}50%{transform:scale(1.08);opacity:.95}}
-@keyframes nbsv-crown-sweep{0%{transform:translateX(0);opacity:.2}45%{opacity:1}100%{transform:translateX(300px);opacity:.2}}
-@keyframes nbsv-radiance{0%,100%{transform:scale(.8, .7);opacity:.25}50%{transform:scale(1.12,1.08);opacity:.85}}
-@keyframes nbsv-glint{0%,100%{transform:scale(.4) rotate(-12deg);opacity:.3}50%{transform:scale(1.12) rotate(12deg);opacity:1}}
-@keyframes nbsv-ripple{0%{transform:scale(.82);opacity:0}18%{opacity:.7}100%{transform:scale(1.48);opacity:0}}
+@keyframes nbsv-painted-light{to{stroke-dashoffset:-100}}
+@keyframes nbsv-crown-sweep{from{transform:translateX(0)}to{transform:translateX(300px)}}
 @media(prefers-reduced-motion:reduce){.nb-special-svg{display:none!important}.nb-special-svg *{animation:none!important}}
