@@ -163,42 +163,6 @@
       "encoding": "WebP quality 90; original dimensions and composition retained"
     },
     {
-      "file": "card-double-twin-starstreams.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 492058,
-      "sha256": "d9db33289285006f941de646c663805f6b74ee09a09e89275c6d1e926d54aa91",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-max0-mooncat-touch.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 323956,
-      "sha256": "0ea8190da2f4a18c9e463fcf9dac7fdfdf7c0f14c98d83525cb501aa19e9452b",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-extra-jade-oracle.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 351516,
-      "sha256": "6f21ea30ecb1d16e8c57f80f7c3b0a17339e2dba7c30a6aba253a56c8fa4fdac",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
-      "file": "card-reset-cloud-gather.webp",
-      "width": 1024,
-      "height": 1536,
-      "bytes": 189516,
-      "sha256": "d6b394b72f84a66317915822634422c701834f9758bff331ae3647fcace4934c",
-      "source": "Built-in image generation; individually illustrated original card scene",
-      "encoding": "WebP quality 90; original dimensions and composition retained"
-    },
-    {
       "file": "card-20-star-moon-gathering-v2.webp",
       "width": 1024,
       "height": 1536,
@@ -206,13 +170,50 @@
       "sha256": "f99bbe5e7ce304ad72ca84da363b27314bd9b7b109fb29d906df34a8aa82e8cb",
       "source": "Built-in image generation; individually illustrated original card scene",
       "encoding": "WebP quality 90; original dimensions and composition retained"
+    },
+    {
+      "file": "card-double.webp",
+      "width": 1051,
+      "height": 1496,
+      "bytes": 576168,
+      "sha256": "30a934fac409ab9794ec0a3ded162a624482bf6b2153974c81d990017287da91",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-extra.webp",
+      "width": 1049,
+      "height": 1500,
+      "bytes": 484230,
+      "sha256": "05b195451d6d2451c17bc7c808e330bd9355514a6b9013d8e1754eb71e63cd57",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-max0.webp",
+      "width": 1049,
+      "height": 1499,
+      "bytes": 492844,
+      "sha256": "d87557aa91617ff2c06d989c34f2bc838c3651658d9d6369491d6d57fc01fcce",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+    },
+    {
+      "file": "card-reset.webp",
+      "width": 1062,
+      "height": 1482,
+      "bytes": 317784,
+      "sha256": "99eacc9e011d7d07f02a80b7bd1d4b74e72854a0be50315682c921384aa7b533",
+      "source": "Built-in image generation/editing; reference-guided original artwork",
+      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
     }
   ],
   "notes": [
-    "All fifteen card faces are independently illustrated scenes; static originals are displayed whole at 2:3.",
-    "Normal card values have unique original artwork rather than repeated mascot grids. BOT avatars remain separate assets.",
-    "Card numerals remain DOM text inside the upper 30% of the image. Hidden and eliminated cards do not attach face images.",
-    "Existing deal, reveal, arithmetic and sound presentation is retained. Character-specific illustration animation is not implemented.",
-    "Actual iOS and GRAVITY rendering and audible output require device verification."
+    "Eleven normal card faces are independently illustrated new scenes displayed whole at 2:3.",
+    "Four special card images are unchanged original main assets, preserving original bytes and intrinsic aspect ratios.",
+    "Rejected SVG overlays, duplicated moving illustrations and gloss have been removed; special illustration animation remains pending redesign.",
+    "Numerals remain DOM text: normal cards use the upper30%, existing specials retain the upper38% slot.",
+    "Hidden and eliminated cards do not attach face images. Deal, reveal, arithmetic and sound presentation is retained.",
+    "BOT images remain separate unchanged assets. Actual device and live GRAVITY validation is still required."
   ]
 }

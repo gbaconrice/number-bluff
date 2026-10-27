@@ -13,8 +13,8 @@ test('disclosed face creates one static image without overlay or game-state attr
  for(const card of engine.FULL_DECK){const img=create(doc,card);assert.equal(img.tag,'img');assert.equal(img.src,source(card));assert.equal(img.className,'card-art');assert.equal(img.alt,'');assert.equal(img.draggable,false);assert.deepEqual(img.attrs,{'aria-hidden':'true'});}
  assert.throws(()=>create(doc,{kind:'hidden'}),TypeError);
 });
-test('every card scene metadata has the whole 2:3 original dimensions',()=>{
- const manifest=require('../assets/provenance.json');for(const file of [...Object.values(assets.normal),...Object.values(assets.special)]){const art=manifest.assets.find(a=>'assets/'+a.file===file);assert.ok(art);assert.equal(art.width,1024);assert.equal(art.height,1536);}
+test('normal scenes use 2:3 and existing special originals retain their exact dimensions',()=>{
+ const manifest=require('../assets/provenance.json');for(const file of [...Object.values(assets.normal),...Object.values(assets.special)]){const art=manifest.assets.find(a=>'assets/'+a.file===file);assert.ok(art);if(Object.values(assets.normal).includes(file)){assert.equal(art.width,1024);assert.equal(art.height,1536);}else{const sizes={'assets/card-double.webp':[1051,1496],'assets/card-extra.webp':[1049,1500],'assets/card-max0.webp':[1049,1499],'assets/card-reset.webp':[1062,1482]};assert.deepEqual([art.width,art.height],sizes[file]);}}
 });
 test('hidden and out returns precede any image or value assignment',()=>{
  const app=fs.readFileSync(path.join(__dirname,'../app.js'),'utf8');const body=app.slice(app.indexOf('function cardNode('),app.indexOf('function clearError('));assert.ok(body.indexOf('if (out)')<body.indexOf('NumberBluffCardArt.create'));assert.ok(body.indexOf('if (hidden || !card)')<body.indexOf('dataset.artValue'));assert.doesNotMatch(body,/createArtMotion|NumberBluffNormalArt/);

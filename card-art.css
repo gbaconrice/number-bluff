@@ -16,3 +16,11 @@
  #battleScreen:not(.is-result)>.battle-grid[data-count="2"] { width: 50%; }
  #battleScreen:not(.is-result)>.battle-grid[data-count="3"] { width: 74%; }
 }
+
+/* Existing special originals are not redrawn, stretched, cropped or overpainted. */
+.player-card.special.kind-double { aspect-ratio: 1051 / 1496; }
+.player-card.special.kind-extra { aspect-ratio: 1049 / 1500; }
+.player-card.special.kind-max0 { aspect-ratio: 1049 / 1499; }
+.player-card.special.kind-reset { aspect-ratio: 1062 / 1482; }
+.player-card.special:not(.hidden):not(.out) { background: transparent; }
+.player-card.special:not(.hidden):not(.out) .card-value { top: 12%; height: 26%; left: 7%; right: 7%; color: #fff3d3; text-shadow: 0 2px 4px #0a1949; }
