@@ -60,3 +60,11 @@ The rule engine carries `currentStreak` and `bestStreak` per player and captures
 According to the latest SDK explanation supplied by the user, `gameOver.score` submits that client's personal-best candidate to GRAVITY's global ranking and interrupts play with a native results popup. Submission therefore belongs to the platform/UI layer at **explicit end/leave**, not to this adapter's snapshots, match completion, rematches, disconnect handling or heartbeat. The UI captures only its own authoritative human player's `bestStreak`, and `gravity-platform.js` submits it once for that local room session. It never sends another human's score or a BOT score. Current streak may be zero after a loss while the submitted best remains positive.
 
 GRAVITY, not an app-owned server or store, is expected to retain the personal best. No ranking-opening API was supplied, so ranking display remains native; there is no independent lobby ranking table or challenge mode. These API/retention claims come from user-provided AI Studio answers and still require actual GRAVITY verification. Do not treat mocked postMessage tests as proof of ranking persistence or native UI behavior.
+
+## オンライン手番期限
+
+オンラインの人間の手番は30秒。残り10秒から小さな残秒表示の色が変わります。入力中の値は送信せず、時間切れはホストが前の宣言＋1（初手1）を一度だけ確定します。BOTの思考時間とローカル練習は変更しません。遊び方表示中でもオンラインの期限は進みます。
+
+期限はホストが手番トークン（セッション・試合・ラウンド・手番・履歴位置）と共に管理。再同期・プロフィール更新では延長しません。手動入力もホスト到着時点で期限確認し、期限以上なら自動宣言を優先します。ゲストの残秒は送信されたホスト時刻との差から表示する目安で、通信遅延はあり得ます。バックグラウンド停止中のタイマー実行は保証せず、復帰・受信・再同期時に期限を確認します。既存のホスト切断停止／参加者退出による無勝敗中断を維持します。
+
+開発上の境界：最大安全整数の宣言後は有効な＋1を作れないため、時間切れ時は勝敗・連勝を付けずロビーへ戻します（自動チャレンジや数値オーバーフローはしません）。実GRAVITY上の遅延・バックグラウンド挙動は未検証です。

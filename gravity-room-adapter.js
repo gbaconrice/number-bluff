@@ -6,7 +6,7 @@
   else root.NumberBluffGravity=factory(root.NumberBluff);
 })(typeof globalThis==='object'?globalThis:this,function(G){
   'use strict';
-  const VERSION=1, LIMIT=48000, DIFFICULTIES=['easy','normal','hard'];
+  const VERSION=1, TURN_MS=30000, LIMIT=48000, DIFFICULTIES=['easy','normal','hard'];
   const clone=x=>JSON.parse(JSON.stringify(x));
   const id=x=>typeof x==='string'&&x.length>0&&x.length<=128&&!/[\u0000-\u001f]/.test(x);
   const safeName=x=>typeof x==='string'&&x.trim()?x.trim().slice(0,24):'プレイヤー';
@@ -26,10 +26,10 @@
     let state=null, latest=null, closed=false, hostLost=false, timer=null, generation=0;
     let epoch=isHost?(options.epoch||String(Date.now())+'-'+String(Math.random()).slice(2)):null;
     let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, scheduledRevision=null;
-    let lastStatus=null;
+    let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0;
     const status=(kind,detail={})=>{lastStatus={kind,...detail};onStatus({...lastStatus});};
     function cancel(){scheduledRevision=null;generation++;if(timer!==null)clear(timer);timer=null;}
-    function emit(v){if(latest&&latest.revision===v.revision)return;latest=v;for(const fn of listeners)fn(clone(v));}
+    function emit(v){if(latest&&latest.revision===v.revision){if(!v.turnClock||v.turnClock.token!==latest.turnClock?.token||v.turnClock.localDeadline===latest.turnClock.localDeadline)return;}latest=v;for(const fn of listeners)fn(clone(v));}
     function transmit(body){
       if(closed||hostLost)return Promise.resolve(false);
       const message=JSON.stringify({protocol:'number-bluff',version:VERSION,roomId,epoch,...body});
@@ -42,7 +42,30 @@
       if(!me)return null;
       const v=clone(wire);v.viewerId=me.id;v.players=v.players.map(p=>({...p,avatarUrl:avatar(p.avatarUrl)}));
       if(v.phase==='play')v.hands[me.id]=null;
+      if(v.turnClock)v.turnClock.localDeadline=now()+Math.max(0,Math.min(TURN_MS,v.turnClock.deadline-v.turnClock.serverNow));
       return v;
+    }
+    function cancelTurn(){turnGeneration++;if(turnTimer!==null)clear(turnTimer);turnTimer=null;}
+    function currentTurnKey(){return state?.phase==='play'&&state.players.find(p=>p.id===state.turn)?.kind==='human'?[epoch,state.game,state.round,state.turn,state.history.length].join(':'):null;}
+    function syncTurn(){
+      if(!isHost||closed||hostLost){cancelTurn();turnClock=null;return;}
+      const token=currentTurnKey();
+      if(!token){cancelTurn();turnClock=null;return;}
+      if(turnClock?.token!==token){cancelTurn();turnClock={token,player:state.turn,deadline:now()+TURN_MS};}
+      if(turnTimer!==null)return;
+      const generation=turnGeneration;
+      turnTimer=later(()=>{if(generation!==turnGeneration||closed||hostLost)return;turnTimer=null;if(!expireTurn())syncTurn();},Math.max(1,turnClock.deadline-now()));
+      if(typeof turnTimer?.unref==='function')turnTimer.unref();
+    }
+    function expireTurn(){
+      if(!isHost||closed||hostLost||!turnClock||turnClock.token!==currentTurnKey()||now()<turnClock.deadline)return false;
+      const player=turnClock.player,value=(state.bid??0)+1;
+      cancelTurn();turnClock=null;
+      // No legal +1 exists beyond JS safe integers. Never fabricate a challenge or loss.
+      if(!Number.isSafeInteger(value)){state=G.returnToLobby(state);publish('turn-number-limit');return true;}
+      const next=G.dispatch(state,{type:'declare',player,value,revision:state.revision},rng);
+      if(next===state)return false;
+      state=next;publish('turn-timeout');return true;
     }
     function scheduleBot(){
       if(timer!==null&&scheduledRevision===state.revision)return;
@@ -55,8 +78,9 @@
       },options.botDelay??650);
     }
     function publish(reason){
+      if(expireTurn())return;syncTurn();
       G.assertInvariant(state);
-      const wire={...G.publicView(state,'__broadcast__'),hostId:state.players[0].id,roomId};delete wire.viewerId;wire.history=wire.history.slice(-100);
+      const wire={...G.publicView(state,'__broadcast__'),hostId:state.players[0].id,roomId,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);
       const own=localize(wire);if(own)emit(own);
       void transmit({type:'snapshot',sequence:++hostSequence,view:wire,reason:reason||null}).catch(()=>{});
       if(reason)status(reason);scheduleBot();
@@ -75,7 +99,7 @@
     }
     function removeMember(uid){
       if(closed)return false;
-      if(uid===hostUserId){hostLost=true;cancel();stopHeartbeat();status('host-lost');return true;}
+      if(uid===hostUserId){hostLost=true;cancel();cancelTurn();turnClock=null;stopHeartbeat();status('host-lost');return true;}
       if(!members.has(uid))return false;members.delete(uid);seen.delete(uid);sequences.delete(uid);
       if(!isHost)return true;
       const seat=seatFor(uid);if(!seat)return true;
@@ -87,7 +111,9 @@
     }
     function processAction(sender,action){
       if(!isHost||closed||hostLost||!members.has(sender)||!action||typeof action!=='object')return false;
+      if(expireTurn())return false;
       const actor=seatFor(sender);if(!actor||actor.kind!=='human'||action.player!==actor.id||action.revision!==state.revision)return false;
+      if(['declare','challenge'].includes(action.type)&&action.turnToken!==undefined&&action.turnToken!==turnClock?.token)return false;
       const manages=sender===hostUserId;let next=state;
       switch(action.type){
         case 'declare': case 'challenge': next=G.dispatch(state,{type:action.type,player:actor.id,value:action.value,revision:state.revision},rng);break;
@@ -105,6 +131,7 @@
     function validSnapshot(v){
       if(!v||!['lobby','play','reveal','finished'].includes(v.phase)||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.players)||v.players.length<1||v.players.length>8)return false;
       if(typeof v.rankingEligible!=='boolean')return false;
+      if(v.turnClock!==undefined&&v.turnClock!==null){const c=v.turnClock;if(v.phase!=='play'||typeof c.token!=='string'||c.token.length>256||c.player!==v.turn||!v.players.some(p=>p.id===c.player&&p.kind==='human')||!Number.isFinite(c.deadline)||!Number.isFinite(c.serverNow)||c.deadline-c.serverNow>TURN_MS)return false;}
       if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;
       if(new Set(v.players.map(p=>p?.id)).size!==v.players.length)return false;
       if(v.players.some(p=>!p||typeof p!=='object'||!/^p[1-8]$/.test(p.id)||!['human','bot'].includes(p.kind)||typeof p.name!=='string'||p.name.length>24||!Number.isInteger(p.life)||p.life<0||p.life>3||!Number.isSafeInteger(p.wins)||p.wins<0))return false;
@@ -164,7 +191,7 @@
         if(isHost){
           for(const uid of Array.from(members.keys()))if(uid!==userId&&now()-(seen.get(uid)??now())>=timeoutMs){removeMember(uid);status('participant-timeout',{userId:uid});}
           publish();
-        }else if(now()-lastHostSeen>=timeoutMs){hostLost=true;cancel();status('host-timeout');return;}
+        }else if(now()-lastHostSeen>=timeoutMs){hostLost=true;cancel();cancelTurn();status('host-timeout');return;}
         else void transmit({type:'ping'}).catch(()=>{});
         heartbeat();
       },heartbeatMs);
@@ -178,7 +205,7 @@
       send(action){if(closed||hostLost)return Promise.reject(new Error('Room is disconnected.'));if(isHost)return Promise.resolve(processAction(userId,action));if(!epoch)return Promise.reject(new Error('Waiting for host.'));return transmit({type:'action',sequence:++commandSequence,action});},
       receive,addMember,removeMember,
       resync(){return isHost?(publish(),Promise.resolve()):transmit({type:'resync'});},
-      close(){if(closed)return;void transmit({type:'bye',revision:latest?.revision}).catch(()=>{});closed=true;cancel();stopHeartbeat();listeners.clear();status('closed');},
+      close(){if(closed)return;void transmit({type:'bye',revision:latest?.revision}).catch(()=>{});closed=true;cancel();cancelTurn();turnClock=null;stopHeartbeat();listeners.clear();status('closed');},
       getStatus(){return {...(lastStatus||{}),roomId,isHost,closed,hostLost,ready:!!latest};}
     };
     if(isHost){for(const member of members.values())if(member.userId!==userId)addMember(member);publish();}
@@ -230,5 +257,5 @@
     client.configureRoomActions({create:()=>enter('create'),join:roomId=>enter('join',roomId)});
     return Object.freeze({resync:()=>active?.resync(),close:()=>{requestGeneration++;listenerGeneration++;active?.close();active=null;},getSession:()=>active});
   }
-  return Object.freeze({createSession,install,protocolVersion:VERSION});
+  return Object.freeze({createSession,install,protocolVersion:VERSION,turnDurationMs:TURN_MS});
 });

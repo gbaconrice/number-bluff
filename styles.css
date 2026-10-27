@@ -445,3 +445,8 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .topbar h1:not(.sr-only) { font-family: "Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif; font-size: clamp(20px,5.6vw,24px); font-weight: 700; font-synthesis: none; line-height: 1.3; letter-spacing: .02em; color: #fff; padding: 5px 8px; border-radius: 10px; background: #101f43e8; text-shadow: none; }
 .battle-meta { color: #fff; text-shadow: 0 1px 3px #071126,0 0 5px #071126; }
 /* Value-specific normal faces share the existing four-character mapping. */
+
+/* Online turn clock is informative, never an input-blocking overlay. */
+.turn-countdown{display:inline-block;font:600 11px/1.4 system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#fff8e9;white-space:nowrap;background:#102449;border-radius:5px;padding:1px 6px}
+.turn-countdown.is-urgent{color:#ffe3a3;background:#412b19}
+.turn-rule-note{font-size:12px;line-height:1.6;color:#344565;margin:8px 0}
