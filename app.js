@@ -9,6 +9,7 @@
   for (const [value,src] of Object.entries(window.NumberBluffCardArt.assets.normal)) surfaceSources['normal'+value.replace('-', 'Minus')] = src;
   const surfaceRenderer = window.NumberBluffCardSurfaceMotion.create({sources:surfaceSources,useDOMImages:true});
   const cardSurface = window.NumberBluffCardSurfaceController.create({renderer:surfaceRenderer,glare:cardMotion,busy:()=>presenter.active});
+  let detailSurfaceEpoch = 0;
   const motionCards = new Set();
   function syncCardMotion() {
     cardSurface.sync();
@@ -95,7 +96,7 @@
   function show(id, focus = null) {
     if (screen === 'battleScreen' && id !== screen) { audio.stop(); cancelPresentation(true); }
     for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
-    cardSurface.stop(); screen = id; cardReveal.settleAll(); cardMotion.pause(); cardMotion.resume(); syncCardMotion(); window.scrollTo(0, 0);
+    stopDetailSurface(); screen = id; cardReveal.settleAll(); cardMotion.pause(); cardMotion.resume(); syncCardMotion(); window.scrollTo(0, 0);
     for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
     if (focus) $(focus).focus({ preventScroll: true });
   }
@@ -397,15 +398,19 @@
     }
     container.focus({ preventScroll: true });
   }
+  function stopDetailSurface() { detailSurfaceEpoch++; cardSurface.stop(); }
   function cardDetail(card, count) {
+    const detailEpoch = ++detailSurfaceEpoch;
     const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。例：(3 + 5 − 5) × 2 = 6。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
-    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); cardSurface.stop(); cardMotion.pause(); $('cardDetail').showModal(); $('closeCardDetail').focus(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if($('cardDetail').open&&detailFace.isConnected)cardSurface.play(detailFace,{priority:true});}).catch(()=>{});
+    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); cardSurface.stop(); cardMotion.pause(); $('cardDetail').showModal(); $('closeCardDetail').focus(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailSurfaceEpoch&&$('cardDetail').open&&detailFace.isConnected)cardSurface.play(detailFace,{priority:true});}).catch(()=>{});
   }
-  $('closeCardDetail').onclick = () => $('cardDetail').close();
+  $('closeCardDetail').onclick = () => { stopDetailSurface(); $('cardDetail').close(); };
+  $('cardDetail').addEventListener('cancel', stopDetailSurface);
+  $('cardDetail').addEventListener('beforetoggle', event => { if(event.newState==='closed')stopDetailSurface(); });
   document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
-  $('cardDetail').addEventListener('close', () => { cardSurface.stop(); cardMotion.resume(); });
+  $('cardDetail').addEventListener('close', () => { stopDetailSurface(); cardMotion.resume(); });
   window.addEventListener('pageshow', () => { cardMotion.resume(); syncCardMotion(); });
-  window.addEventListener('pagehide', () => { cardMotion.pause(); timer.cancel(); cancelPresentation(true); });
+  window.addEventListener('pagehide', () => { stopDetailSurface(); cardMotion.pause(); timer.cancel(); cancelPresentation(true); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });
   // The SDK bridge provides the normalized stream; the UI never runs remote authority.
   function paintConnectionStatus() {

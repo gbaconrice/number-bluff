@@ -245,7 +245,7 @@ function create({source,sources={extra:source},duration=1200,strength=.007,maxDp
  let program,buffer,texture,progressLoc,strengthLoc,kindLoc,cssSizeLoc,skyBottomLoc,skyExcludeLoc;let cssWidth=1,cssHeight=1;const textures=new Map();const staging=document.createElement('canvas');const staging2d=staging.getContext('2d');const kinds={extra:0,double:1,max0:2,reset:3,...Object.fromEntries(Object.entries(NORMAL_SPECS).map(([key,spec])=>[key,spec.id]))};let activeKind='extra',activeDuration=duration;
  function stop(){cancelAnimationFrame(raf);raf=0;canvas.style.display='none';if(host)observer?.unobserve(host);host=null;canvas.remove();}
  const observer=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>{for(const e of entries)if(e.target===host){visible=e.isIntersecting&&e.intersectionRatio>=.4;if(!visible)stop();}},{threshold:[0,.4,1]}):null;
- function allowed(){return !disabled&&!disposed&&!paused&&loaded&&!document.hidden&&!reduced.matches&&host?.isConnected&&!host.closest('.hide,.hidden,.out,[hidden],[inert],[aria-hidden="true"],[data-revealed="false"]')&&getComputedStyle(host).visibility!=='hidden';}
+ function allowed(){return !disabled&&!disposed&&!paused&&loaded&&!document.hidden&&!reduced.matches&&host?.isConnected&&host.getClientRects().length>0&&!host.closest('.hide,.hidden,.out,[hidden],[inert],[aria-hidden="true"],[data-revealed="false"]')&&getComputedStyle(host).visibility!=='hidden';}
  function draw(progress){
   if(!allowed())return false;
   gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
