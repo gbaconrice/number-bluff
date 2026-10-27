@@ -1804,7 +1804,8 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       button.setAttribute('aria-pressed', String(muted));
       button.setAttribute('aria-label', muted ? '音をオンにする' : '音をオフにする');
       button.title = muted ? '音をオンにする' : '音をオフにする';
-      button.textContent = '♪';
+      const icon = button.querySelector('b');
+      if (icon) icon.textContent = '♪'; else button.textContent = '♪';
       button.classList.toggle('is-muted', muted);
     });
   }

@@ -29,6 +29,9 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
   assert.equal(await page.evaluate(() => window.__audioStartCount), 0, 'no automatic sound before interaction');
   const button = page.locator('#homeSoundToggle');
+  assert.equal(await button.locator('b').count(),1,'HOME retains its circular sound icon');
+  assert.equal(await button.locator('.icon-caption').textContent(),'音');
+  const soundBox = await button.boundingBox(); assert.ok(soundBox.width>=40 && soundBox.height>=40,'sound target remains tappable');
   await button.click(); // mute
   assert.equal(await button.getAttribute('aria-pressed'), 'true');
   const mutedCount = await page.evaluate(() => window.__audioStartCount);
@@ -40,6 +43,8 @@ try {
   assert.equal(await button.getAttribute('aria-pressed'), 'false');
   await button.click(); await page.reload();
   assert.equal(await button.getAttribute('aria-pressed'), 'true', 'mute preference survives reload');
+  assert.equal(await button.locator('b').count(),1);
+  assert.equal(await button.locator('.icon-caption').textContent(),'音');
   assert.equal(await page.evaluate(() => window.__audioStartCount), 0, 'muted reload does not autoplay');
   const rendered = await page.evaluate(async () => {
     const results = [];

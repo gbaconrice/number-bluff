@@ -20,3 +20,5 @@ test('result presentation preserves the round, survivors and timer header childr
  assert.doesNotMatch(source,/\$\('battleTitle'\)\.textContent\s*=/);
  assert.match(source,/\$\('resultTitle'\)\.textContent = \$\('battlePhase'\)\.textContent/);
 });
+
+test('sound update preserves HOME icon and caption markup',()=>{assert.match(fs.readFileSync(path.join(root,'app.js'),'utf8'),/if \(icon\) icon\.textContent = '♪'; else button\.textContent/);});
