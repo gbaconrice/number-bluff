@@ -50,7 +50,7 @@ try {
       const geometry = await page.evaluate(async width => {
         document.documentElement.style.setProperty('--preview-card-width', width + 'px');
         const holder = document.querySelector('#artGlowCards'), cards = [];
-        for (const [kind, label] of [['double','×2'], ['extra','?'], ['max0','MAX→0'], ['reset','リセット']]) {
+        for (const [kind, label] of [['double','×2'], ['extra','?'], ['max0','MAX→0'], ['reset','リセット（0）']]) {
           const card = {kind,label}, node = document.createElement('div'); node.className = `player-card special kind-${kind}`;
           const content = NumberBluffCardArt.content(document,card), value = document.createElement('span'); value.className = 'card-value'; value.textContent = label;
           const image = NumberBluffCardArt.create(document,card); content.append(value,image); node.append(content); holder.append(node); cards.push({kind,node,image});

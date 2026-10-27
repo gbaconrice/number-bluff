@@ -144,6 +144,7 @@
     for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
     if (focus) $(focus).focus({ preventScroll: true });
   }
+  function cardLabel(card) { return card.kind === 'reset' ? 'リセット（0）' : card.label; }
   function cardNode(card, hidden = false, out = false) {
     const node = el('div', 'player-card');
     if (out) { node.classList.add('out'); node.textContent = '脱落'; return node; }
@@ -152,7 +153,7 @@
     if (card.kind !== 'number') node.classList.add('special');
     if (card.value < 0) node.classList.add('negative');
     const content = window.NumberBluffCardArt.content(document, card);
-    content.append(el('span', 'card-value', card.kind === 'reset' ? 'リセット' : card.label));
+    content.append(el('span', 'card-value', cardLabel(card)));
     if (card.kind === 'number') { node.classList.add('normal-card'); node.dataset.artValue = String(card.value); }
     content.append(window.NumberBluffCardArt.create(document, card));
     node.append(content);
@@ -478,7 +479,7 @@
       steps.forEach(([title, text], index) => {
         const section = el('section', 'guide-step');
         section.append(el('b', 'step-number', index + 1), el('h3', '', title), el('p', '', text));
-        section.append(window.NumberBluffGuideDiagrams.create(document, index)); if (index === 1) section.append(el('p', 'turn-rule-note', '人間の手番は1手30秒。時間切れは前の宣言＋1（初手は1）を自動宣言します。入力途中の数字は送信しません。計算演出の後、10秒で次のラウンドに進みます。優勝結果では自動再戦しません。')); container.append(section);
+        section.append(window.NumberBluffGuideDiagrams.create(document, index)); if (index === 1) section.append(el('p', 'turn-rule-note', '1手30秒。時間切れは前の宣言＋1（初手は1）を自動宣言します。入力途中の数字は送信しません。計算演出の後、10秒で次のラウンドに進みます。優勝結果では自動再戦しません。')); container.append(section);
       });
 
     } else if (tab === 'cards') {
@@ -488,7 +489,7 @@
       [...grouped.values()].filter(x => x.card.kind === 'number').sort((a, b) => a.card.value - b.card.value).forEach(({ card, count }) => { const item = el('button', 'catalogue-item'); item.type = 'button'; item.setAttribute('aria-label', card.label + ' の効果・' + count + '枚'); item.onclick = () => cardDetail(card, count); item.append(cardNode(card), el('small', '', '×' + count)); catalogue.append(item); });
       container.append(catalogue, el('h3', '', '特殊カード 4枚（各1枚）'));
       const specials = el('div', 'catalogue special-catalogue');
-      [...grouped.values()].filter(x => x.card.kind !== 'number').forEach(({ card, count }) => { const item = el('button', 'catalogue-item'); item.type = 'button'; item.setAttribute('aria-label', card.label + ' の効果'); item.onclick = () => cardDetail(card, count); item.append(cardNode(card), el('small', '', '×1')); specials.append(item); }); container.append(specials);
+      [...grouped.values()].filter(x => x.card.kind !== 'number').forEach(({ card, count }) => { const item = el('button', 'catalogue-item'); item.type = 'button'; item.setAttribute('aria-label', cardLabel(card) + ' の効果'); item.onclick = () => cardDetail(card, count); item.append(cardNode(card), el('small', '', '×1')); specials.append(item); }); container.append(specials);
     } else if (tab === 'bots') {
 
       const descriptions = ['判断にゆらぎが多め。','見えているカードと公開済みの情報からバランスよく判断。','公開情報から合計の可能性を比較し、慎重に挑戦します。'];
@@ -516,7 +517,7 @@
   function cardDetail(card, count) {
     const detailEpoch = ++detailEffectEpoch;
     const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。例：(3 + 5 − 5) × 2 = 6。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
-    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); specialEffects.stop(); $('cardDetail').showModal(); $('closeCardDetail').focus(); syncCardMotion(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailEffectEpoch&&$('cardDetail').open&&detailFace.isConnected&&!detailFace.classList.contains('normal-card'))specialEffects.play(detailFace,{priority:true});}).catch(()=>{});
+    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', cardLabel(card) + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); specialEffects.stop(); $('cardDetail').showModal(); $('closeCardDetail').focus(); syncCardMotion(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailEffectEpoch&&$('cardDetail').open&&detailFace.isConnected&&!detailFace.classList.contains('normal-card'))specialEffects.play(detailFace,{priority:true});}).catch(()=>{});
   }
   $('closeCardDetail').onclick = () => { stopDetailEffect(); $('cardDetail').close(); specialSVG.refresh(); };
   $('cardDetail').addEventListener('cancel', stopDetailEffect);
