@@ -92,7 +92,7 @@ test('offscreen surfaces are bounded to padded motif bounds, not entire source a
     const rendered=markup(kind), [w,h]=dimensions[kind];
     for(const [,x,y,width,height] of rendered.matchAll(/(?:maskUnits|filterUnits)="userSpaceOnUse" x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)) {
       assert.ok(+x>=0 && +y>=0 && +x + +width<=w && +y + +height<=h,kind);
-      assert.ok(+width * +height < w*h*.4,kind+' bounded surface');
+      assert.ok(+width * +height < w*h*(kind==='max0'?.55:.4),kind+' bounded surface');
     }
     assert.equal((rendered.match(/filter="url\(#prototype-luminance\)"/g)||[]).length,1);
     assert.equal((rendered.match(/mask="url\(#prototype-region\)"/g)||[]).length,1);
@@ -125,4 +125,16 @@ test('black cat reflects across the original irises rather than pulsing the whol
  assert.match(rendered, /tableValues="0 .5 .8 1 1 1"/);
  assert.match(rendered, /offset="0.22"/);
  assert.doesNotMatch(rendered, /art-derived-shadow/);
+});
+
+test('MAX0 reflection includes painted surrounding stars and cloud rims, not extra rendered shapes',()=>{
+ const rendered=markup('max0');
+ assert.match(rendered,/class="art-painted-surroundings"/);
+ assert.match(rendered,/id="prototype-surrounding-region"/);
+ assert.equal((rendered.match(/class="art-surrounding-flow /g)||[]).length,2);
+ assert.match(rendered,/cx="112" cy="1018" r="64"/);
+ assert.match(css,/nbsv-surrounding-light 4s linear infinite/);
+ const visible=rendered.slice(rendered.lastIndexOf('</defs>')+7);
+ assert.doesNotMatch(visible,/<(?:path|ellipse|circle|polygon|use)\b/);
+ assert.doesNotMatch(rendered,/art-derived-shadow/);
 });

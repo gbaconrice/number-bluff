@@ -21,11 +21,14 @@
 .nb-special-svg .art-eye-light{animation-name:nbsv-eye-light;animation-duration:2.2s}
 .nb-special-svg .jewel-3{animation-delay:-.25s}
 .nb-special-svg .jewel-4{animation-delay:-.4s}
+.nb-special-svg[data-kind=max0] .art-surrounding-flow{animation:nbsv-surrounding-light 4s linear infinite}
+.nb-special-svg[data-kind=max0] .art-surrounding-flow.specular-flow{animation-duration:5.4s;animation-direction:reverse;animation-delay:-1.7s;opacity:.55}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
 .hide .nb-special-svg,.hidden .nb-special-svg,[hidden] .nb-special-svg{visibility:hidden!important}
 @keyframes nbsv-mask-orbit{to{transform:rotate(360deg)}}
 @keyframes nbsv-art-light{from{transform:translateX(150px)}to{transform:translateX(1500px)}}
 @keyframes nbsv-crown-light{0%{transform:translateX(-60px)}80%,100%{transform:translateX(350px)}}
+@keyframes nbsv-surrounding-light{from{transform:translateX(0)}to{transform:translateX(1370px)}}
 @keyframes nbsv-eye-light{0%,12%{opacity:0;transform:translateX(-55px)}25%{opacity:1}65%{opacity:1}78%,100%{opacity:0;transform:translateX(55px)}}
 @keyframes nbsv-jewel-light{0%,30%,70%,100%{opacity:0}48%,52%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.nb-special-svg{display:none!important}.nb-special-svg *{animation:none!important}}
