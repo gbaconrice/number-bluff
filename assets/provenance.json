@@ -168,10 +168,10 @@
       "file": "cloud-bunny.webp",
       "width": 1254,
       "height": 1254,
-      "bytes": 112172,
-      "sha256": "cf88c5f556d6b72b12629c39e8d94eb6ea6321fd6ada9854d579920521e8aef4",
-      "source": "Built-in image_gen reference-guided bunny anatomy consistency edit; two front paws and two distinct padded hind feet matching normal card and home character",
-      "encoding": "WebP quality 92; original dimensions and alpha retained"
+      "bytes": 115672,
+      "sha256": "bb9a66cd012e9db9f48d0955085fc87742c16f16724c1c5951d80e1abe1e2ae8",
+      "source": "Built-in image editing; approved silhouette cleanup preserving character identity and composition",
+      "encoding": "WebP; approved original dimensions and alpha retained"
     },
     {
       "file": "cloud-foreground.webp",
@@ -184,12 +184,12 @@
     },
     {
       "file": "home-hero.webp",
-      "width": 1446,
-      "height": 1087,
-      "bytes": 237812,
-      "sha256": "c3dff544ec64e4854c9a24ef93550a684200b4874c79332857fd063dab2f6399",
-      "source": "Built-in image_gen reference-guided four-friend illustration; bunny anatomy aligned to normal cards with two front paws and two distinct hind feet",
-      "encoding": "WebP quality 92; original dimensions and alpha retained"
+      "width": 1448,
+      "height": 1086,
+      "bytes": 248294,
+      "sha256": "be827e6cbabc4fdbd107fda4960027718ddfc8a329cdaa9263ce290b1c23f4bb",
+      "source": "Built-in image editing; approved silhouette cleanup preserving character identity and composition",
+      "encoding": "WebP; approved original dimensions and alpha retained"
     },
     {
       "file": "home-logo.webp",
@@ -204,10 +204,10 @@
       "file": "moon-cat.webp",
       "width": 1254,
       "height": 1254,
-      "bytes": 104694,
-      "sha256": "5bd5cbaf558809cdb2378e17ce0b00800d16d9302b756086d35313c3004c5589",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+      "bytes": 110364,
+      "sha256": "180b3611339bd34d3a240eafc1fed9ee51df97f3bb84e62179427c6424df4c8b",
+      "source": "Built-in image editing; approved silhouette cleanup preserving character identity and composition",
+      "encoding": "WebP; approved original dimensions and alpha retained"
     },
     {
       "file": "star-sprite.webp",
@@ -217,12 +217,21 @@
       "sha256": "32bac9c68ee1eb3b7211d7954099b1b99f8ca530629a77bb60b60f912c3e3c46",
       "source": "Built-in image generation/editing; Unified five-point cream-gold Hoshimochi design",
       "encoding": "WebP quality 90; generated alpha and dimensions retained"
+    },
+    {
+      "file": "component-galaxy-star.png",
+      "width": 128,
+      "height": 128,
+      "bytes": 2660,
+      "sha256": "76fd1eb6d42d005ad09bc72b9d300db3bff66a694c25d943a8b5d0b4d46ab9f1",
+      "source": "Offline optical sprite derived from React Bits Galaxy Star(); see THIRD_PARTY_NOTICES.top-motion.txt",
+      "encoding": "PNG RGBA; application integration only"
     }
   ],
   "notes": [
-    "All original faces are shown whole with object-fit contain and their individual source aspect ratios.",
+    "All fifteen faces share one 2:3 paper silhouette. Unmodified original images are centered with contain; content, numerals and special SVG use the same original-aspect rectangle.",
     "Normal eleven faces use independent soft framed scenes; earlier purple-gold draft assets are not included.",
-    "Special four original image bytes remain unchanged. Rejected duplicate-art and SVG layers are removed; one restrained licensed glare layer may appear above artwork and below numerals.",
+    "Special four original image bytes remain unchanged. Source-pixel-aligned finite SVG is limited to specials, without cat sweat or duplicated artwork. All cards support one restrained glare pass below numerals; normal illustration motion is disabled.",
     "Numeral areas occupy the upper 12–38 percent. Hidden and out cards receive no face image or value attribute.",
     "Home artwork retains the approved four-friend composition with a four-limb bunny consistency revision; existing home animation is unchanged."
   ]

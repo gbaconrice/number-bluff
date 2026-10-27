@@ -40,7 +40,7 @@ test('release asset manifest contains only available, hash-verified runtime artw
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'assets/provenance.json'), 'utf8'));
   assert.equal(new Set(manifest.assets.map(a => a.file)).size, manifest.assets.length);
   for (const asset of manifest.assets) {
-    assert.match(asset.file, /^[a-z0-9-]+\.webp$/);
+    assert.match(asset.file, /^[a-z0-9-]+\.(?:webp|png)$/);
     const bytes = fs.readFileSync(path.join(root, 'assets', asset.file));
     assert.equal(bytes.length, asset.bytes, asset.file + ' byte count');
     assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'), asset.sha256, asset.file + ' hash');
@@ -72,10 +72,11 @@ test('CSS ownership audit does not mistake JavaScript URL constructors for CSS f
  assert.doesNotThrow(()=>auditHTML('<script>const u=new URL(value); const a=new URL(image.src,document.baseURI)</script>'));
 });
 
-test('the real single HTML preserves URL constructors used by avatar and WebGL CORS checks',async()=>{
+test('the real single HTML preserves URL constructors used by avatar resolution',async()=>{
  const {build}=await import('../tools/build-single-html.mjs');
  const html=build();
  assert.ok(html.includes('new URL(value)'));
- assert.ok(html.includes('new URL(image.currentSrc||image.src,document.baseURI)'));
  assert.ok(!html.includes('new url('));
 });
+
+test('SVG namespace identifiers are not runtime network dependencies',async()=>{const {auditHTML}=await import('../tools/build-single-html.mjs');assert.doesNotThrow(()=>auditHTML("<script>const ns='http://www.w3.org/2000/svg';</script>"));assert.throws(()=>auditHTML("<img src='http://www.w3.org/2000/svg/evil.png'>"),/Unowned runtime URL/);});

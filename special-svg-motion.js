@@ -1,0 +1,50 @@
+/* Number Bluff: repaired PR5 special-only SVG motion. Original artwork is immutable.
+ * Source-pixel viewBoxes replace the old 100x100 stretched artwork sub-rectangle.
+ * No normal-card motion, WebGL, source-image clone, cat sweat or ambient particles.
+ */
+(function(global){'use strict';
+const ns='http://www.w3.org/2000/svg';let serial=0;
+const ART={double:{width:1051,height:1496},extra:{width:1049,height:1500},max0:{width:1049,height:1499},reset:{width:1062,height:1482}};
+function containRect(width,height,sourceWidth,sourceHeight){const scale=Math.min(width/sourceWidth,height/sourceHeight);return{x:(width-sourceWidth*scale)/2,y:(height-sourceHeight*scale)/2,width:sourceWidth*scale,height:sourceHeight*scale,scale};}
+function markup(kind,id){
+const defs=`<defs><linearGradient id="${id}-ice"><stop stop-color="#bdeaff" stop-opacity=".12"/><stop offset=".48" stop-color="#f8fdff" stop-opacity=".88"/><stop offset="1" stop-color="#d7bcff" stop-opacity=".18"/></linearGradient><linearGradient id="${id}-gold"><stop stop-color="#fff3bd" stop-opacity="0"/><stop offset=".5" stop-color="#fff9d6" stop-opacity=".7"/><stop offset="1" stop-color="#fff3bd" stop-opacity="0"/></linearGradient></defs>`;
+if(kind==='double')return defs+`<g class="galaxy-plane" transform="translate(535 963) rotate(-28)"><ellipse class="galaxy-stream stream-a" rx="390" ry="129" stroke="url(#${id}-ice)"/><ellipse class="galaxy-stream stream-b" rx="296" ry="98" stroke="url(#${id}-ice)"/><ellipse class="galaxy-core-rim" rx="164" ry="54"/></g>`;
+if(kind==='max0')return defs+`<defs><clipPath id="${id}-crown"><path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/></clipPath></defs><g clip-path="url(#${id}-crown)"><rect class="crown-metal-sweep" x="430" y="608" width="75" height="165" fill="url(#${id}-gold)"/><path class="crown-trace" d="M514 721 L520 662 L550 686 L609 638 L645 701 L681 690 L668 739"/></g>`;
+if(kind==='extra')return defs+`<defs><clipPath id="${id}-orb"><ellipse cx="535" cy="994" rx="282" ry="286"/></clipPath></defs><g clip-path="url(#${id}-orb)"><g class="orb-nebula"><path d="M408 1118 C282 950 615 758 692 899 S394 1196 481 975 S749 982 611 1152" stroke="url(#${id}-ice)"/></g><ellipse class="orb-refraction" cx="535" cy="994" rx="268" ry="275"/><g class="orb-premonition"><rect x="485" y="916" width="100" height="145" rx="18"/></g></g><path class="orb-glass" d="M361 799 Q400 748 455 747"/>`;
+return defs+`<path class="reset-current" d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" stroke="url(#${id}-ice)"/><path class="reset-arrowlight" d="M465 763 L390 817 L471 859"/>`;
+}
+function createManager(){
+const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false;
+function allowed(r){return !destroyed&&!paused&&!r.stopped&&!reduced.matches&&!document.hidden&&r.visible&&r.el.isConnected&&!r.el.closest('.hide,.hidden,.out,[hidden],[inert],[aria-hidden="true"],[data-revealed="false"]')&&getComputedStyle(r.el).visibility!=='hidden';}
+function sync(r){const on=allowed(r);r.layer.dataset.playing=String(on);r.layer.style.visibility=on?'visible':'hidden';if(!on){clearTimeout(r.timer);r.layer.removeAttribute('data-active');r.stopped=true;}}
+function measure(r){
+ const el=r.mountRoot,img=r.imageElement||r.el,hostRect=el.getBoundingClientRect(),rect=img.getBoundingClientRect();const style=getComputedStyle(el),imgStyle=getComputedStyle(img);
+ const hostBorderX=parseFloat(style.borderLeftWidth)||0,hostBorderY=parseFloat(style.borderTopWidth)||0;
+ const imageBorderX=parseFloat(imgStyle.borderLeftWidth)||0,imageBorderY=parseFloat(imgStyle.borderTopWidth)||0;
+ // background-origin padding-box / object-fit contain; img padding is excluded.
+ const isImage=img.tagName==='IMG';const padL=isImage?(parseFloat(imgStyle.paddingLeft)||0):0,padR=isImage?(parseFloat(imgStyle.paddingRight)||0):0,padT=isImage?(parseFloat(imgStyle.paddingTop)||0):0,padB=isImage?(parseFloat(imgStyle.paddingBottom)||0):0;
+ const width=img.clientWidth-padL-padR,height=img.clientHeight-padT-padB;const a=ART[r.kind];const fit=containRect(width,height,a.width,a.height);
+ const sx=hostRect.width/(el.offsetWidth||hostRect.width)||1,sy=hostRect.height/(el.offsetHeight||hostRect.height)||1;
+ const x=(rect.left-hostRect.left)/sx-hostBorderX+imageBorderX+padL+fit.x,y=(rect.top-hostRect.top)/sy-hostBorderY+imageBorderY+padT+fit.y;
+ Object.assign(r.layer.style,{left:x+'px',top:y+'px',width:fit.width+'px',height:fit.height+'px'});r.rect={x,y,width:fit.width,height:fit.height,scale:fit.scale};
+}
+const ro=new ResizeObserver(entries=>{for(const r of records.values())if(entries.some(e=>e.target===r.el||e.target===r.imageElement))measure(r);});
+const io=new IntersectionObserver(entries=>{for(const e of entries){const r=records.get(e.target);if(r){r.visible=e.isIntersecting&&e.intersectionRatio>=.35;sync(r);}}},{threshold:[0,.35,1]});
+function attach(el,kind,{faceUp=true,imageElement=null}={}){if(destroyed||!el)return null;if(!faceUp||!ART[kind]){detach(el);return null;}const old=records.get(el);if(old&&old.kind===kind&&old.imageElement===imageElement){measure(old);sync(old);return old.layer;}detach(el);
+ const a=ART[kind],layer=document.createElement('span');layer.className='nb-special-svg';layer.dataset.kind=kind;layer.dataset.playing='false';layer.setAttribute('aria-hidden','true');
+ const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${a.width} ${a.height}`);svg.setAttribute('preserveAspectRatio','xMidYMid meet');svg.innerHTML=markup(kind,'nbsv-'+(++serial));layer.append(svg);const mountRoot=imageElement?.closest('.card-content')||el;mountRoot.append(layer);el.classList.add('nb-special-svg-host');
+ const bounds=el.getBoundingClientRect();const visibleWidth=Math.max(0,Math.min(innerWidth,bounds.right)-Math.max(0,bounds.left)),visibleHeight=Math.max(0,Math.min(innerHeight,bounds.bottom)-Math.max(0,bounds.top));
+ const initiallyVisible=bounds.width>0&&bounds.height>0&&visibleWidth*visibleHeight/(bounds.width*bounds.height)>=.35;
+ const r={el,kind,imageElement,mountRoot,layer,visible:initiallyVisible,stopped:true,timer:0,rect:null};records.set(el,r);measure(r);ro.observe(el);if(imageElement&&imageElement!==el)ro.observe(imageElement);io.observe(el);return layer;
+}
+function detach(el){const r=records.get(el);if(!r)return;clearTimeout(r.timer);io.unobserve(el);ro.unobserve(el);if(r.imageElement&&r.imageElement!==el)ro.unobserve(r.imageElement);r.layer.remove();el.classList.remove('nb-special-svg-host');records.delete(el);}
+function activate(el,{duration=900}={}){const r=records.get(el);if(!r)return false;r.stopped=false;sync(r);if(!allowed(r)){r.stopped=true;sync(r);return false;}clearTimeout(r.timer);r.layer.style.setProperty('--special-active-ms',Math.max(250,duration)+'ms');r.layer.dataset.active='true';r.timer=setTimeout(()=>{r.stopped=true;sync(r);},Math.max(250,duration));return true;}
+function refresh(){for(const r of records.values()){measure(r);sync(r);}}
+function pagehide(){for(const r of records.values()){r.stopped=true;sync(r);}}
+document.addEventListener('visibilitychange',refresh);global.addEventListener('pagehide',pagehide);global.addEventListener('pageshow',refresh);reduced.addEventListener('change',refresh);
+return{attach,detach,activate,play(el,options={}){return activate(el,options);},stop(el){for(const r of records.values())if(!el||r.el===el){r.stopped=true;sync(r);}},status(){return{attached:records.size,active:[...records.values()].some(r=>r.layer.dataset.active==='true'),paused};},getActiveHost(){return [...records.values()].find(r=>r.layer.dataset.active==='true')?.el||null;},refresh,pause(){paused=true;refresh();},resume(){paused=false;refresh();},rect(el){return records.get(el)?.rect||null;},
+ renderAt(el,ms){const r=records.get(el);if(!r)return false;r.stopped=false;sync(r);if(!allowed(r))return false;for(const animation of r.layer.getAnimations({subtree:true})){animation.pause();animation.currentTime=ms;}return true;},
+ destroy(){destroyed=true;for(const el of [...records.keys()])detach(el);ro.disconnect();io.disconnect();document.removeEventListener('visibilitychange',refresh);global.removeEventListener('pagehide',pagehide);global.removeEventListener('pageshow',refresh);reduced.removeEventListener('change',refresh);}}
+}
+global.NumberBluffSpecialSVG=Object.freeze({createManager,containRect,art:ART});
+})(window);
