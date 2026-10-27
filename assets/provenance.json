@@ -2,12 +2,12 @@
   "assets": [
     {
       "file": "blue-cloud.webp",
-      "width": 1254,
-      "height": 1254,
-      "bytes": 62346,
-      "sha256": "ff352e9312c461b0ac73fc86b46361226ad7af7510073cb32a6e940dfcef9b27",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+      "width": 1584,
+      "height": 993,
+      "bytes": 70068,
+      "sha256": "764fb87d36bb5eb36dee1f141daff167c4faab8dd9b6f5673ea7e88712c99a05",
+      "source": "Built-in image_gen color edit of canonical horizontal cloud; pearly white body with subdued lavender-blue underside, shared by BOT and negative-card scenes",
+      "encoding": "WebP quality 90; generated alpha and dimensions retained"
     },
     {
       "file": "card-double.webp",

@@ -10,7 +10,7 @@ GitHub側で36枚ルール、UI・素材・演出に加え、提供されたAgen
 
 - 入力は `ai-studio.html`。HTML/CSS/ゲーム・SDK連携JavaScriptは一体化され、外部JS・CSSは読み込みません。
 - 画像は `https://tanabe0422.github.io/number-bluff/assets/` の絶対URLです。配布先で最新素材がHTTP 200になることを確認してください。
-- 原本は `index.html`、`styles.css`、`engine.js`、`scheduler.js`、`background-motion.js/.css`、`card-presentation.js/.css`、`game-audio.js`、`app.js`、`gravity-room-adapter.js`、`gravity-platform.js` です。
+- 原本は `index.html`、`styles.css`、`engine.js`、`scheduler.js`、`background-motion.js/.css`、`card-presentation.js/.css`、`normal-card-art.js/.css`、`game-audio.js`、`app.js`、`gravity-room-adapter.js`、`gravity-platform.js` です。
 - 原本を直し、`npm test` と `node tools/build-single-html.mjs` を実行して単一HTMLを再生成します。生成HTMLだけを修正して原本と分離しないでください。
 - 単体・通信模擬テストは実SDK通信を証明しません。実GRAVITY複数端末テストは未実施です。
 
@@ -136,7 +136,7 @@ UIは認証済み本人席の `viewerId` と固定ホスト席の `hostId` を�
 
 | 数字 | 絵柄 |
 | --- | --- |
-| −10・−5 | 元の白〜淡いラベンダーのくもまる。−10は嵐、−5は風の演出 |
+| −10・−5 | 白〜淡いラベンダーを基調にした雲形のくもまる。−10は嵐、−5は風の演出 |
 | 0 | 元のねこ。静かに休む呼吸と柔らかな光 |
 | 1〜5 | 元のうさぎを数字と同じ1〜5体配置。小さな跳ねる動き |
 | 10・15・20 | 五つの角が明確なほしもちを正確に10・15・20体。5体ずつ2・3・4段に配置 |
