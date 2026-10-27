@@ -192,7 +192,11 @@ async function revealCheck(page){
   // '?' is a real extra-card face in the 36-card deck, not always a card back.
   assert.ok(!ownClass.includes('hidden'),'revealed card still uses hidden/back state');
   assert.equal(await own.locator('.card-value').count(),1,'reveal requires an actual face label');
-  assert.match(await own.evaluate(e=>getComputedStyle(e).backgroundImage),/assets\/card-[^/]+\.webp/,'reveal requires actual generated frame artwork');
+  const original=own.locator('img.card-art');assert.equal(await original.count(),1,'reveal requires exactly one original illustration');
+  const decoded=await original.evaluate(async image=>{await image.decode();return{src:image.getAttribute('src'),width:image.naturalWidth,height:image.naturalHeight};});
+  const kind=ownClass.split(/\s+/).find(name=>name.startsWith('kind-'))?.slice(5),value=await own.getAttribute('data-art-value');
+  const expected=kind==='number'?faceByValue[value]:specialByKind[kind];assert.ok(expected,'revealed face must have an approved original-art mapping');assert.ok(decoded.src.endsWith('/'+expected+'.webp'),'revealed original must match its card identity');assert.deepEqual([decoded.width,decoded.height],[1024,1536],'revealed original must be fully decoded at the approved 2:3 dimensions');
+  assert.equal(await own.evaluate(e=>getComputedStyle(e).backgroundImage),'none','obsolete background artwork must not remain behind revealed original');
   assert.doesNotMatch(await own.getAttribute('aria-label'),/非公開/);
   if((await own.locator('.card-value').textContent()).trim()==='?')assert.ok(ownClass.includes('kind-extra'),'question-mark face must identify the extra-card kind');
  }
