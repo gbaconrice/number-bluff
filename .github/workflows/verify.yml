@@ -24,12 +24,15 @@ jobs:
       - run: node tools/build-single-html.mjs
       - name: Real-time source-art lighting frames
         run: node tools/card-motion-periodic.mjs
+      - name: Six-second actual artwork lighting clips
+        run: node tools/art-glow-preview.mjs
       - name: Prototype evidence only
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: art-glow-prototype-frames
           path: |
+            artifacts/art-glow-preview/
             artifacts/*effect-*.png
             artifacts/*ambient*.png
             artifacts/periodic-card-motion.json

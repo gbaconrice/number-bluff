@@ -64,7 +64,7 @@ test('luminance and feathered selection are masks, not visible geometry', () => 
     assert.match(rendered, /<mask id="prototype-painted-light"[^>]*style="mask-type:luminance">/);
     assert.match(rendered, /<feColorMatrix type="saturate" values="0"\/>/);
     assert.match(rendered, /<mask id="prototype-region"[^>]*style="mask-type:luminance">/);
-    assert.match(rendered, /<rect class="art-light-sweep"/);
+    assert.match(rendered, kind==='double'||kind==='reset'?/class="art-mask-orbit"/:/<rect class="art-light-sweep"/);
     assert.match(rendered, /<g mask="url\(#prototype-region\)"><g mask="url\(#prototype-painted-light\)">/);
   }
 });
