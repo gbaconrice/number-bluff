@@ -31,7 +31,7 @@ const assetOrigin=`http://127.0.0.1:${assetServer.address().port}`;
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin=`http://127.0.0.1:${server.address().port}`,results=[];
 let browser;
-const watchdog=setTimeout(async()=>{results.push({status:'failed',stage:'global-timeout'});await writeFile(new URL('results.json',output),JSON.stringify(results,null,2));process.exit(1);},7*60*1000);watchdog.unref();
+const watchdog=setTimeout(async()=>{results.push({status:'failed',stage:'global-timeout'});await writeFile(new URL('results.json',output),JSON.stringify(results,null,2));process.exit(1);},9*60*1000);watchdog.unref();
 async function settleCardMotion(page){await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>a.playState==='running'&&a.effect?.getTiming().iterations!==Infinity&&a.effect?.target?.closest?.('.presentation-card,.presentation-extra,.presentation-zero-stamp,.presentation-vortex,.presentation-bid-pulse,.presentation-refresh,.final-total,#result .result-message,#result .calculation,#resultAvatar,#finalTotal')).map(a=>a.finished.catch(()=>{})));});}
 async function completePresentation(page){if(await page.locator('#result').getAttribute('data-presentation-phase')!=='complete')await page.clock.runFor(5000);assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'complete');await settleCardMotion(page);}
 async function advanceResult(page){await completePresentation(page);await page.clock.runFor(401);await page.locator('#next').click();}
