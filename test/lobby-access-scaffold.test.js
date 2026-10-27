@@ -29,7 +29,7 @@ test('scaffold does not call undocumented list or invitation SDK APIs',()=>{
 test('lobby names known public rooms and otherwise shows ID without guessing privacy',()=>{
  assert.match(html,/id="lobbyTitle">公開ルーム/);assert.match(html,/id="copyRoomId"/);
  assert.match(app,/const idHeader = !!roomId && permission !== 0/);
- assert.match(app,/!transport \? '練習ルーム' : idHeader \? roomId : '公開ルーム'/);
+ assert.match(app,/!transport \? 'ルーム' : idHeader \? roomId : '公開ルーム'/);
  assert.match(app,/connect\(adapter, access = \{\}\)/);
 });
 test('copy feedback only claims success after awaited clipboard write, with selection fallback',()=>{
