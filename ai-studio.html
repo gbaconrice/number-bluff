@@ -251,7 +251,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .player-name { font-size: 11px; line-height: 15px; font-weight: 800; }
 .player-info .person-placeholder, .player-info img.avatar { width: 35px; height: 35px; margin: 0 auto 3px; }
 .hearts { font-size: 12px; letter-spacing: 0; line-height: 14px; }
-.battle-grid.many .player-card, .player-card { height: auto; aspect-ratio: .70; border-radius: 8px; font-size: clamp(30px,8vw,41px); padding-top: 13px; box-shadow: inset 0 0 0 2px #fff8e1aa,0 0 8px #cbb3ff55; }
+.battle-grid.many .player-card, .player-card { height: auto; aspect-ratio: 2 / 3; border-radius: 8px; font-size: clamp(30px,8vw,41px); padding-top: 13px; box-shadow: inset 0 0 0 2px #fff8e1aa,0 0 8px #cbb3ff55; }
 .battle-grid.many .player-card.hidden, .player-card.hidden { padding-top: 25%; font-size: 40px; }
 .player-card.special { background: radial-gradient(ellipse at 50% 80%,#8991ed,#13265e 68%); }
 .battle-grid.many .player-card.kind-max0, .player-card.kind-max0 { font-size: clamp(12px,3.2vw,17px); }
@@ -290,7 +290,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .result-message img { width: 48px; height: 48px; }
 .result-message p { font-size: 12px; line-height: 1.6; }
 .extra-reveal { margin-bottom: 6px; }
-.extra-reveal .player-card { width: 43px; height: auto; aspect-ratio: .70; font-size: 21px; }
+.extra-reveal .player-card { width: 43px; height: auto; aspect-ratio: 2 / 3; font-size: 21px; }
 .extra-reveal>span { font-size: 10px; }
 #guideContent { padding: 6px 3px 12px; background: none; border: 0; box-shadow: none; color: #172c59; min-height: 0; }
 .guide-tabs { margin: 5px 0 3px; gap: 4px; }
@@ -301,11 +301,11 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .guide-step b.step-number { width: 29px; height: 29px; left: 8px; top: 11px; font-size: 19px; }
 .step-art { top: 16px; right: 5px; width: 59px; height: 60px; }
 .step-art img { width: 59px; height: 63px; }
-.step-art .player-card { width: 39px; height: 56px; }
+.step-art .player-card { width: 39px; height: auto; }
 #guideContent>h3, .catalogue-label { color: #fff4d5; font-size: 12px; margin: 8px 2px; }
 .catalogue { gap: 7px 6px; margin: 6px 0 10px; }
 .catalogue-item { background: none; border: 0; box-shadow: none; padding: 0; min-width: 0; min-height: 44px; }
-.catalogue .player-card { height: auto; aspect-ratio: .70; font-size: 29px; }
+.catalogue .player-card { height: auto; aspect-ratio: 2 / 3; font-size: 29px; }
 .catalogue .kind-reset, .catalogue .kind-max0 { font-size: 12px; }
 .catalogue small { color: #fff5e4; font-size: 10px; margin-top: 3px; }
 .guide-bot { background: linear-gradient(120deg,#fff5d7,#fce8d7); padding: 12px; margin: 8px 0; align-items: center; }
@@ -317,7 +317,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .example h3 { font-size: 14px; margin-bottom: 8px; }
 .example-visual { margin: 6px 0; gap: 8px; }
 .example-cards { gap: 4px; }
-.example-cards .player-card { height: auto; aspect-ratio: .70; padding-top: 8px; font-size: 23px; }
+.example-cards .player-card { height: auto; aspect-ratio: 2 / 3; padding-top: 8px; font-size: 23px; }
 .example-cards .kind-reset, .example-cards .kind-max0 { font-size: 10px; }
 .example-expression { font-size: 13px; margin-top: 5px; }
 .example-total { width: 58px; }
@@ -383,9 +383,6 @@ main { position: relative; z-index: 1; }
 .home-icons, .home-actions { position: relative; z-index: 1; flex-shrink: 0; }
 .player-card:not(.hidden):not(.out) { background-color: transparent; background-size: 100% 100%; background-repeat: no-repeat; border: 0; box-shadow: 0 2px 5px #08132e44; overflow: hidden; }
 .player-card:not(.hidden):not(.out):before { display: none; }
-.player-card.kind-double { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-double.webp"); }
-.player-card.kind-max0 { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-max0.webp"); }
-.player-card.kind-reset { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-reset.webp"); }
 .card-value { position: relative; z-index: 1; display: block; text-align: center; font-weight: 900; text-shadow: 0 1px 0 #ffffff70; }
 .player-card.special .card-value { text-shadow: 0 2px 4px #0a1949; }
 .battle-grid.many .player-card.kind-reset, .player-card.kind-reset, .battle-grid.many .player-card.kind-max0, .player-card.kind-max0 { padding-top: 20%; }
@@ -396,7 +393,6 @@ main { position: relative; z-index: 1; }
   .home-scene { width: 122%; left: -11%; bottom: -8%; }
   .home-icons { margin-top: 14px; }
 }
-.player-card.kind-extra { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-extra.webp"); }
 /* One bounded label slot: never share the frame edge or the illustration field. */
 .player-card:not(.hidden):not(.out) .card-value { position: absolute; top: 12%; left: 7%; right: 7%; height: 26%; display: flex; align-items: center; justify-content: center; line-height: 1; font-size: inherit; white-space: nowrap; }
 .battle-grid.many .player-card.kind-number, .player-card.kind-number { font-size: clamp(26px,7.3vw,34px); }
@@ -512,14 +508,8 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
  .presentation-card,.presentation-zero-stamp,.presentation-extra,.presentation-vortex,.presentation-bid-pulse,.presentation-refresh,#result #finalTotal { animation:none!important;transition:none!important; }
 }
 
-/* One shared white diagonal gloss for every disclosed face. It sweeps across
-   the artwork, not through the label. No rainbow tint, blend filter, or flash.
-   The same effect is independent of each character/special-card animation. */
 .player-card:not(.hidden):not(.out) { isolation:isolate; overflow:hidden; }
-.player-card:not(.hidden):not(.out)::after { content:''; position:absolute; inset:-30% -70%; z-index:3; pointer-events:none; background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,0) 44%,rgba(255,255,255,.16) 47%,rgba(255,255,255,.58) 50%,rgba(255,255,255,.16) 53%,rgba(255,255,255,0) 56%,transparent 60%); transform:translateX(-55%); opacity:0; animation:card-foil-sweep 7.2s ease-in-out -1.3s infinite; }
 .player-card .card-value { z-index:4; }
-.battle-player:nth-child(2n) .player-card::after { animation-delay:-3.4s; }
-.battle-player:nth-child(3n) .player-card::after { animation-delay:-5.5s; }
 .presentation-card.is-revealing { animation:card-reveal-rich 470ms cubic-bezier(.15,.75,.2,1) both; }
 .presentation-card.is-dealing { animation:card-deal-rich 420ms cubic-bezier(.15,.8,.24,1) both; }
 .presentation-card.is-adding { animation:card-contribute-rich 320ms ease-out both; }
@@ -539,7 +529,6 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 #result[data-presentation-phase="reset"] #resultAvatar,
 #result[data-presentation-phase="outcome"] #resultAvatar,
 #result[data-presentation-phase="complete"] #resultAvatar { animation:avatar-celebrate 620ms ease-out both; }
-@keyframes card-foil-sweep { 0%,8% {opacity:0;transform:translateX(-55%)} 15% {opacity:.78} 28% {opacity:.78} 36%,100% {opacity:0;transform:translateX(55%)} }
 @keyframes card-deal-rich { 0% {opacity:0;transform:translate3d(8px,-28px,0) rotate(-7deg) scale(.88)} 72% {opacity:1;transform:translate3d(0,3px,0) rotate(1deg) scale(1.025)} 100% {opacity:1;transform:none} }
 @keyframes card-reveal-rich { 0% {opacity:.12;transform:rotateY(-88deg) translateY(12px) scale(.92)} 68% {opacity:1;transform:rotateY(8deg) translateY(-4px) scale(1.025)} 100% {opacity:1;transform:none} }
 @keyframes card-contribute-rich { 45% {transform:translateY(-7px) scale(1.05)} 100% {transform:none} }
@@ -551,130 +540,161 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 @keyframes outcome-sparkles { from {opacity:0;transform:translateY(18px) scale(.9)} 25% {opacity:.8} to {opacity:0;transform:translateY(-24px) scale(1.15)} }
 @keyframes avatar-celebrate { 0% {transform:scale(.8) rotate(-8deg)} 55% {transform:scale(1.12) rotate(5deg)} 100% {transform:none} }
 @media (prefers-reduced-motion:reduce) {
- .player-card::after,.presentation-card,.presentation-vortex,.presentation-bid-pulse,.presentation-bid-pulse::after,#result .calculation,#result .result-message,#result .result-message::after,#result #resultAvatar {animation:none!important;transition:none!important}
- .player-card::after,.presentation-vortex,#result .result-message::after {display:none!important}
-}
-
-/* Illustration-local light: the printed frame and numeric label never rotate.
-   This bounded, non-interactive layer is emitted only for disclosed faces. */
-.player-card .card-art-motion { position:absolute; inset:40% 5% 5%; z-index:1; overflow:hidden; border-radius:8%; pointer-events:none; contain:paint; }
-.player-card.hidden .card-art-motion,.player-card.out .card-art-motion { display:none; }
-.card-art-motion::before,.card-art-motion::after { content:''; position:absolute; pointer-events:none; }
-/* Normal character scenes live in normal-card-art.css, not this layer. */
-
-/* The illustration itself moves underneath the effects; the printed frame,
-   upper value field and surrounding page never move with it. Feathered masks
-   keep the original illustration's contour instead of exposing a cut-out edge. */
-.card-illustration {position:absolute;inset:0;z-index:0;pointer-events:none;background-image:inherit;background-size:100% 100%;background-repeat:no-repeat;-webkit-mask-image:radial-gradient(ellipse 43% 29% at 50% 68%,#000 57%,transparent 100%);mask-image:radial-gradient(ellipse 43% 29% at 50% 68%,#000 57%,transparent 100%);transform-origin:50% 68%;}
-.kind-double .card-illustration {animation:galaxy-art-turn 8s ease-in-out -2s infinite alternate;}
-.kind-max0 .card-illustration {animation:royal-art-breathe 4.8s ease-in-out -1s infinite;}
-.kind-extra .card-illustration {animation:crystal-art-float 5s ease-in-out -1.25s infinite;}
-.kind-reset .card-illustration {animation:reset-art-charge 4.4s ease-in-out -1.1s infinite;}
-.card-art-motion svg {position:absolute;inset:0;width:100%;height:100%;overflow:hidden;fill:none;stroke-linecap:round;stroke-linejoin:round;}
-.card-art-motion svg * {vector-effect:non-scaling-stroke;}
-.card-art-motion svg g {transform-box:view-box;}
-.galaxy-stream {stroke:#b9f7ff;stroke-width:1.4;stroke-dasharray:30 10 8 38;animation:galaxy-flow 3.8s linear infinite;}
-.galaxy-stream.stream-b {stroke:#f4cfff;stroke-width:1.8;stroke-dasharray:24 9 4 26;animation-direction:reverse;animation-duration:3s;}
-.galaxy-travellers {fill:#f1ffff;transform-origin:0 0;animation:galaxy-travel 4s linear infinite;}
-.galaxy-infall {stroke:#baeaff;stroke-width:1;stroke-dasharray:4 20;animation:galaxy-flow 2.8s linear infinite;opacity:.7;}
-.galaxy-core {fill:#d9faff;stroke:none;transform-origin:50px 51px;animation:galaxy-core-beat 3.5s ease-in-out infinite;}
-.crown-trace {stroke:#fff2a9;stroke-width:1.8;stroke-dasharray:16 50;animation:crown-gold-run 3.5s ease-in-out infinite;}
-.crown-rays {stroke:#ffe8a3;stroke-width:1.2;transform-origin:60px 15px;animation:crown-rays-rise 3.5s ease-out infinite;}
-.crown-gems {fill:#fff6cf;stroke:none;transform-origin:60px 10px;animation:crown-jewels 3.5s ease-in-out infinite;}
-.royal-stardust {stroke:#ffe9aa;stroke-width:1;stroke-dasharray:2 14;animation:royal-fall 5s linear infinite;}
-.royal-star {fill:#fff0bc;stroke:none;transform-origin:50px 55px;animation:royal-star-float 4.5s ease-in-out infinite;}
-.orb-nebula {stroke:#a4efff;stroke-width:2.2;opacity:.7;transform-origin:50px 51px;animation:orb-nebula-turn 10s linear infinite;}
-.orb-nebula path {stroke-dasharray:14 12 3 20;animation:galaxy-flow 4s linear infinite;}
-.orb-refraction {stroke:#e2ddff;stroke-width:1.2;stroke-dasharray:12 30 5 50;animation:orb-refraction-flow 4s linear infinite;}
-.orb-seeds {fill:#f2ffff;stroke:none;transform-origin:50px 51px;animation:orb-seed-gather 4.6s ease-in infinite;}
-.orb-premonition {stroke:#f2f5ff;stroke-width:1.2;fill:#536ccc22;transform-origin:50px 51px;animation:orb-card-appear 4.6s ease-in-out infinite;}
-.orb-premonition path {fill:#e8faff;stroke:none;}
-.orb-glass {stroke:#fffaff;stroke-width:2.2;opacity:.85;animation:orb-glass-shimmer 5s ease-in-out infinite;}
-.reset-current {stroke:#c8fbff;stroke-width:2.8;stroke-dasharray:28 160;animation:reset-current-run 3.2s linear infinite;}
-.reset-arrowlight {stroke:#fffde2;stroke-width:1.8;animation:reset-arrow-beat 3.2s ease-in-out infinite;}
-.reset-deck-cards {fill:#c2bcf766;stroke:#f1fcff;stroke-width:1;transform-origin:0 0;animation:reset-deck-orbit 7s linear infinite;}
-.reset-startrail {stroke:#e5eeff;stroke-width:1;stroke-dasharray:3 20;animation:royal-fall 4s linear infinite;}
-/* Effect activation is attached to the already-authorized result phase. Idle
-   art is restrained; these short surges explain the effect that just occurred. */
-body:has(#result[data-presentation-phase="multiply"]) .kind-double .galaxy-stream {animation-duration:.65s;stroke-width:2.5;}
-body:has(#result[data-presentation-phase="multiply"]) .kind-double .galaxy-core {animation:galaxy-core-activate 400ms ease-out both;}
-body:has(#result[data-presentation-phase="max"]) .kind-max0 .crown-rays {animation:crown-rays-rise 400ms ease-out both;stroke-width:2.4;}
-body:has(#result[data-presentation-phase="extra"]) .kind-extra .orb-premonition {animation:orb-card-reveal 400ms ease-out both;}
-body:has(#result[data-presentation-phase="reset"]) .kind-reset .reset-current {animation-duration:.65s;stroke-width:3.5;}
-body:has(#result[data-presentation-phase="reset"]) .kind-reset .reset-deck-cards {animation-duration:1.2s;}
-@keyframes galaxy-art-turn {from {transform:rotate(-4deg) scale(1.025)} to {transform:rotate(4deg) scale(1.055)}}
-@keyframes royal-art-breathe {0%,100% {transform:translateY(.7%) scale(1)} 50% {transform:translateY(-1.3%) scale(1.028)}}
-@keyframes crystal-art-float {0%,100% {transform:translateY(1.2%) rotate(-2deg)} 50% {transform:translateY(-1.6%) rotate(2deg)}}
-@keyframes reset-art-charge {0%,100% {transform:scale(1);filter:brightness(1)} 50% {transform:scale(1.04);filter:brightness(1.12)}}
-@keyframes galaxy-flow {to {stroke-dashoffset:-172}}
-@keyframes galaxy-travel {to {transform:rotate(360deg)}}
-@keyframes galaxy-core-beat {0%,100% {opacity:.15;transform:scale(.55)} 50% {opacity:.65;transform:scale(1.4)}}
-@keyframes crown-gold-run {0% {stroke-dashoffset:66;opacity:.3} 60% {opacity:.95} 100% {stroke-dashoffset:0;opacity:.3}}
-@keyframes crown-rays-rise {0% {opacity:0;transform:scale(.5)} 30% {opacity:.9} 100% {opacity:0;transform:scale(1.5)}}
-@keyframes crown-jewels {0%,100% {opacity:.4;transform:scale(.8)} 45% {opacity:1;transform:scale(1.15)}}
-@keyframes royal-fall {to {stroke-dashoffset:-96}}
-@keyframes royal-star-float {0%,100% {opacity:.35;transform:translateY(3px)} 50% {opacity:.9;transform:translateY(-3px)}}
-@keyframes orb-nebula-turn {to {transform:rotate(360deg)}}
-@keyframes orb-refraction-flow {to {stroke-dashoffset:194}}
-@keyframes orb-seed-gather {0% {opacity:0;transform:rotate(-30deg) scale(1.15)} 20% {opacity:1} 75%,100% {opacity:0;transform:rotate(55deg) scale(.2)}}
-@keyframes orb-card-appear {0%,48%,100% {opacity:0;transform:translateY(6px) scale(.6) rotate(-10deg)} 70%,82% {opacity:.9;transform:translateY(-2px) scale(1) rotate(5deg)}}
-@keyframes orb-glass-shimmer {0%,100% {opacity:.25;stroke-dasharray:3 22} 50% {opacity:.9;stroke-dasharray:22 3}}
-@keyframes reset-current-run {to {stroke-dashoffset:-188}}
-@keyframes reset-arrow-beat {0%,100% {opacity:.25} 60% {opacity:1}}
-@keyframes reset-deck-orbit {to {transform:rotate(-360deg)}}
-@keyframes galaxy-core-activate {from {opacity:.8;transform:scale(.6)} 45% {opacity:.9;transform:scale(2.5)} to {opacity:0;transform:scale(5)}}
-@keyframes orb-card-reveal {from {opacity:.4;transform:scale(.35)} 45% {opacity:1;transform:scale(1.15)} to {opacity:0;transform:translateY(-15px) scale(.9)}}
-html:has(.nb-background[data-motion="paused"]) .player-card::after,
-html:has(.nb-background[data-motion="paused"]) .card-art-motion *,
-html:has(.nb-background[data-motion="paused"]) .card-illustration,
-.screen.hide .player-card::after,.screen.hide .card-art-motion *,.screen.hide .card-illustration {animation-play-state:paused!important;}
-@media (prefers-reduced-motion:reduce) {
- .card-art-motion,.card-illustration {display:none!important}
- .card-art-motion *,.card-art-motion::before,.card-art-motion::after,.card-illustration {animation:none!important}
+ .presentation-card,.presentation-bid-pulse,.presentation-bid-pulse::after,#result .calculation,#result .result-message,#result .result-message::after,#result #resultAvatar { animation:none!important; transition:none!important; }
+ #result .result-message::after { display:none!important; }
 }
 
 </style><style>
-/* One pearl frame; canonical characters are never recoloured or redrawn. */
-.player-card.normal-card { --scene-tint: #e6ccfb; background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-scene-base.webp"); background-color: #fff6ec; isolation: isolate; }
-.player-card.normal-card[data-art-value="0"] { --scene-tint: #e2c5ef; }
-.player-card.normal-card.negative { --scene-tint: #bcb7de; }
-.player-card.normal-card[data-art-value="10"], .player-card.normal-card[data-art-value="15"], .player-card.normal-card[data-art-value="20"] { --scene-tint: #f5d89d; }
-.normal-art-scene { position: absolute; left: 7%; right: 7%; top: 38%; bottom: 8%; pointer-events: none; z-index: 0; }
-.normal-art-ambience { position: absolute; inset: 0 -2% -3%; border-radius: 50% 50% 35% 35%; background: radial-gradient(ellipse at 50% 58%, #7864b6a6 0%, #9d85cb75 42%, var(--scene-tint) 66%, transparent 77%); opacity: .9; }
-.normal-art-ambience::after { content: ''; position: absolute; left: 6%; right: 6%; bottom: 1%; height: 12%; border-radius: 50%; background: radial-gradient(ellipse, #6c4c9859, transparent 70%); }
-.normal-art-figures { position: absolute; inset: 0; }
-.normal-art-figure { transform-origin: 50% 85%; position: absolute; display: block; left: var(--figure-x); top: var(--figure-y); width: var(--figure-width); height: var(--figure-height); }
-.normal-art-figure .normal-art-character { display: block; width: 100%; height: 100%; overflow: hidden; transform-origin: 50% 85%; }
-.normal-art-meadow .normal-art-figure .normal-art-character { animation: normal-bunny-hop 4.8s ease-in-out infinite; animation-delay: var(--figure-delay); }
-.normal-art-rest .normal-art-figure .normal-art-character { animation: normal-cat-breathe 5.4s ease-in-out infinite; }
-.normal-art-rest .normal-art-ambience { animation: normal-rest-glow 5.4s ease-in-out infinite; }
-.normal-art-constellation .normal-art-figures { animation: normal-star-breathe 7s ease-in-out infinite; transform-origin: center; }
-.normal-art-constellation .normal-art-figure::after { content: ''; position: absolute; width: 16%; height: 5%; left: 25%; top: 28%; background: white; border-radius: 100%; transform: rotate(-35deg); opacity: 0; animation: normal-star-glint 7s ease-in-out infinite; animation-delay: var(--figure-delay); }
-.normal-art-wind .normal-art-figure .normal-art-character { animation: normal-cloud-sail 6s ease-in-out infinite; }
-.normal-art-storm .normal-art-figure .normal-art-character { animation: normal-cloud-storm 5.5s ease-in-out infinite; }
-.normal-art-ambience svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.normal-weather-line { fill: none; stroke: #9694be; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.normal-art-wind .normal-weather-line { animation: normal-wind-flow 4s ease-in-out infinite; }
-.normal-art-wind .weather-1 { animation-delay: -2s; }
-.normal-art-storm .weather-0 { stroke-dasharray: 6 3; animation: normal-rain 1.8s linear infinite; }
-.normal-art-storm .weather-1 { stroke: #c9abdc; animation: normal-lightning 6s ease-in-out infinite; }
-@keyframes normal-bunny-hop { 0%, 65%, 100% { transform: translateY(0); } 73% { transform: translateY(-8%); } 82% { transform: translateY(0) scale(.985,1.02); } 90% { transform: translateY(-3%); } }
-@keyframes normal-cat-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025,1.03); } }
-@keyframes normal-rest-glow { 0%,100% { opacity: .55; } 50% { opacity: .85; } }
-@keyframes normal-star-breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3%); } }
-@keyframes normal-star-glint { 0%,62%,78%,100% { opacity: 0; } 69% { opacity: .9; } }
-@keyframes normal-cloud-sail { 0%,100% { transform: translateX(-4%); } 50% { transform: translateX(4%); } }
-@keyframes normal-cloud-storm { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-3%) rotate(2deg); } }
-@keyframes normal-wind-flow { 0%,100% { opacity: .25; transform: translateX(-2px); } 50% { opacity: .8; transform: translateX(2px); } }
-@keyframes normal-rain { to { stroke-dashoffset: -9; } }
-@keyframes normal-lightning { 0%,68%,76%,100% { opacity: .25; } 72% { opacity: .85; } }
-@media (prefers-reduced-motion: reduce) { .normal-art-scene *, .normal-art-scene *::after { animation: none !important; } }
-html:has(.nb-background[data-motion="paused"]) .normal-art-scene *,
-html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
-.screen.hide .normal-art-scene *, .screen.hide .normal-art-scene *::after { animation-play-state: paused !important; }
+/* Original scenes are displayed whole; illustration animation is not implemented. */
+.player-card, .battle-grid.many .player-card, .catalogue .player-card, .example-cards .player-card, .extra-reveal .player-card, .step-art .player-card { aspect-ratio: 2 / 3; height: auto; }
+.player-card:not(.hidden):not(.out), .battle-grid.many .player-card:not(.hidden):not(.out) { padding: 0; background: transparent; border: 0; border-radius: 5px; }
+.player-card .card-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; z-index: 0; pointer-events: none; }
+.player-card:not(.hidden):not(.out) .card-value { position: absolute; top: 12%; height: 26%; left: 5%; right: 5%; z-index: 2; display: flex; align-items: center; justify-content: center; color: #19294f; text-shadow: 0 1px 2px #ffffff, 0 0 5px #ffffff; }
+.player-card.kind-extra .card-value { color: #f8f5ed; text-shadow: 0 1px 3px #152241, 0 0 5px #152241; }
+.player-card.kind-reset .card-value { font-size: inherit; }
+.player-card.kind-max0 .card-value { font-size: inherit; }
 
-.normal-art-figure::before { content: ""; position: absolute; left: 16%; right: 16%; bottom: 0; height: 9%; border-radius: 50%; background: radial-gradient(ellipse, #59428255, transparent 72%); }
-.normal-art-constellation .normal-art-ambience { background: radial-gradient(ellipse at 50% 53%, #695098bc, #9881c08f 52%, transparent 78%); }
+.step-art .player-card { transform: none; }
+/* Preserve full identity + portrait cards in the two tight supported layouts. */
+@media (max-width:350px) {
+ #battleScreen:not(.is-result)>.battle-grid:not([data-count="2"]):not([data-count="3"]) { width: 96%; margin-left: auto; margin-right: auto; }
+}
+@media (min-width:650px) and (max-height:500px) {
+ #battleScreen:not(.is-result)>.battle-grid[data-count="2"] { width: 50%; }
+ #battleScreen:not(.is-result)>.battle-grid[data-count="3"] { width: 74%; }
+}
+
+/* Existing special originals are not redrawn, stretched, cropped or overpainted. */
+.player-card.special.kind-double { aspect-ratio: 1051 / 1496; }
+.player-card.special.kind-extra { aspect-ratio: 1049 / 1500; }
+.player-card.special.kind-max0 { aspect-ratio: 1049 / 1499; }
+.player-card.special.kind-reset { aspect-ratio: 1062 / 1482; }
+.player-card.special:not(.hidden):not(.out) { background: transparent; }
+.player-card.special:not(.hidden):not(.out) .card-value { top: 12%; height: 26%; left: 7%; right: 7%; color: #fff3d3; text-shadow: 0 2px 4px #0a1949; }
+
+/* Soft framed originals retain their individual source dimensions. */
+.player-card.normal-card[data-art-value="-10"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="-5"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="0"] { aspect-ratio: 1061 / 1483; }
+.player-card.normal-card[data-art-value="1"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="2"] { aspect-ratio: 1061 / 1483; }
+.player-card.normal-card[data-art-value="3"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="4"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="5"] { aspect-ratio: 1061 / 1482; }
+.player-card.normal-card[data-art-value="10"] { aspect-ratio: 1024 / 1536; }
+.player-card.normal-card[data-art-value="15"] { aspect-ratio: 1024 / 1536; }
+.player-card.normal-card[data-art-value="20"] { aspect-ratio: 1024 / 1536; }
+
+</style><style>
+.nb-special-refraction{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;border-radius:inherit;display:none;}
+@media(prefers-reduced-motion:reduce){.nb-special-refraction{display:none!important}}
+
+</style><style>
+/* Adapted from React Bits Glare Hover (David Haz, 2026).
+   MIT + Commons Clause: see THIRD_PARTY_NOTICES.card-motion.txt. */
+.nb-glare-host { position:relative; isolation:isolate; }
+.nb-card-glare { position:absolute; inset:0; overflow:hidden; border-radius:inherit;
+  z-index:3; opacity:0; pointer-events:none; contain:paint; }
+.nb-card-glare__band { position:absolute; top:50%; left:50%; pointer-events:none; }
+/* Numbers stay outside the light layer. Existing absolute positioning is retained. */
+.player-card.nb-glare-host:not(.hidden):not(.out) .card-value { z-index:4; }
+/* Defensive: never light an unrevealed/out card if its class changes before detach. */
+.nb-glare-host.hidden > .nb-card-glare,
+.nb-glare-host.out > .nb-card-glare,
+.nb-glare-host[hidden] > .nb-card-glare { display:none; }
+@media (prefers-reduced-motion:reduce) { .nb-card-glare { display:none; } }
+
+</style><style>
+/*
+ * Source: https://uiverse.io/Javierrocadev/funny-cobra-5
+ * https://github.com/uiverse-io/galaxy/blob/main/Cards/Javierrocadev_funny-cobra-5.html
+ * MIT License
+ * Copyright - 2026 Javierrocadev (Javier Roca)
+ *
+ * Source: https://www.vengenceui.com/components/glow-border-card
+ * https://github.com/Ashutoshx7/VengeanceUI/blob/main/src/app/globals.css
+ * https://github.com/Ashutoshx7/VengeanceUI/blob/main/public/r/glow-border-card.json
+ * MIT License
+ * Copyright (c) 2025-2026 Ashutoshx7
+ *
+ * The following MIT terms apply to both sources above:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Modifications: Uiverse's 1.1s hover flip/25deg roll/UNO styling replaced with
+ * a public-event-only 400ms Y flip of the existing nodes. Vengeance's thick,
+ * blurred, rainbow infinite border replaced with a 1.5px gold-only masked rim,
+ * GPU-transform rotation and a single 650ms pass. No third-party artwork used.
+ * All geometry/opacity motion is finite. Images/numerals are not transformed
+ * independently, filtered, repainted, recolored, or replaced.
+ */
+.nb-card-reveal-stage { width:100%; perspective:1000px; }
+.nb-card-reveal-rotor { width:100%; position:relative; transform-style:preserve-3d; transform:rotateY(-180deg); }
+/* Front retains the original card's responsive size AND its exact art ratio. */
+.nb-card-reveal-rotor > .nb-card-reveal-face {
+  position:relative; display:block; width:100%; margin:0;
+  transform:rotateY(0deg)!important; animation:none!important;
+  -webkit-backface-visibility:hidden; backface-visibility:hidden;
+}
+.nb-card-reveal-rotor > .nb-card-reveal-back {
+  position:absolute!important; inset:0; width:100%; height:100%!important;
+  aspect-ratio:auto!important; margin:0;
+  transform:rotateY(180deg)!important; animation:none!important;
+  -webkit-backface-visibility:hidden; backface-visibility:hidden;
+  pointer-events:none;
+}
+/* Mask keeps light on the narrow edge, never across the illustration/numeral. */
+.nb-card-gold-rim {
+  position:absolute; inset:0; z-index:8; display:block; padding:1.5px;
+  border-radius:inherit; overflow:hidden; pointer-events:none;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  mask-composite:exclude;
+}
+.nb-card-gold-light {
+  position:absolute; inset:-80%; display:block; pointer-events:none; opacity:0;
+  background:conic-gradient(from 0deg,transparent 0deg 230deg,#d49a4c66 270deg,#f8d994 307deg,#fff1c6 324deg,transparent 350deg);
+}
+/* Fallback is absence of decoration, never an opaque rectangle over the art. */
+@supports not ((mask-composite:exclude) or (-webkit-mask-composite:xor)) {
+  .nb-card-gold-rim { display:none; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .nb-card-reveal-rotor { transform:none!important; }
+  .nb-card-reveal-back,.nb-card-gold-rim { display:none!important; }
+}
+
+</style><style>
+/* Number Bluff adapter. Existing illustrated art, colors and layout are retained. */
+.nb-scene-number { display: inline-flex; align-items: baseline; font-variant-numeric: tabular-nums; }
+.nb-scene-number__visual { display: inline-block; font: inherit; line-height: inherit; color: inherit; }
+.nb-scene-number[data-number-motion="ready"] > .nb-scene-number__fallback {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+.nb-scene-number[data-number-motion="fallback"] > .nb-scene-number__visual { display: none; }
+.nb-scene-confetti {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 20; pointer-events: none !important; user-select: none;
+  visibility: hidden; contain: strict;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nb-scene-confetti { display: none !important; }
+}
 
 </style></head><body><main>
 <section id="homeScreen" class="screen home"><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""></div><div class="home-actions"><button id="startGame" data-intent="createRoom" class="pill gold">ゲームをはじめる <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button></nav></section>
@@ -1030,27 +1050,7 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
     function destroy() { if (destroyed) return; cancel(); destroyed = true; seen.clear(); }
     return {play, skip, cancel, destroy, get active(){return active;}, get state(){return current;}};
   }
-  // Fixed, decorative scene fragments. No card values, IDs, or game state enter
-  // this markup. The caller only invokes this after its hidden/out early return.
-  const artScenes = Object.freeze({
-    double: `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><g class="galaxy-plane" transform="translate(50 51) rotate(-30) scale(1 .48)"><ellipse class="galaxy-stream stream-a" rx="43" ry="37"/><ellipse class="galaxy-stream stream-b" rx="32" ry="27"/><g class="galaxy-travellers"><circle cx="43" cy="0" r="2.3"/><circle cx="-32" cy="0" r="1.8"/><circle cx="0" cy="-37" r="1"/></g></g><path class="galaxy-infall" d="M12 20 Q62 5 53 50 M87 83 Q34 98 48 53"/><circle class="galaxy-core" cx="50" cy="51" r="5"/></svg>`,
-    max0: `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="crown-trace" d="M46 18 L48 5 L55 11 L61 1 L65 13 L70 9 L68 22 Z"/><g class="crown-rays"><path d="M48 3 L43 -5 M61 0 L62 -9 M71 8 L80 2"/></g><g class="crown-gems"><path d="M48 1 L49 4 L52 5 L49 6 L48 9 L47 6 L44 5 L47 4Z"/><path d="M61 -3 L62 0 L65 1 L62 2 L61 5 L60 2 L57 1 L60 0Z"/><path d="M70 5 L71 8 L74 9 L71 10 L70 13 L69 10 L66 9 L69 8Z"/></g><path class="royal-stardust" d="M28 30 Q9 48 25 75 M79 28 Q97 50 78 80"/><g class="royal-star"><path d="M20 52 L22 57 L27 59 L22 61 L20 66 L18 61 L13 59 L18 57Z"/><path d="M83 67 L85 70 L88 72 L85 74 L83 77 L81 74 L78 72 L81 70Z"/></g></svg>`,
-    extra: `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><g class="orb-nebula"><path d="M30 65 C12 35 64 15 71 43 S25 78 40 42 S83 40 64 69"/></g><ellipse class="orb-refraction" cx="50" cy="51" rx="28" ry="35"/><g class="orb-seeds"><circle cx="25" cy="65" r="2"/><circle cx="76" cy="36" r="1.5"/><circle cx="67" cy="78" r="1"/></g><g class="orb-premonition"><rect x="42" y="40" width="16" height="23" rx="3"/><path d="M50 45 L52 49 L56 51 L52 53 L50 57 L48 53 L44 51 L48 49Z"/></g><path class="orb-glass" d="M29 33 Q35 21 46 22"/></svg>`,
-    reset: `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="reset-current" d="M31 30 C62 10 91 45 73 72 C57 96 18 76 22 49"/><path class="reset-arrowlight" d="M31 30 L44 23 M31 30 L41 39"/><g class="reset-card-orbit" transform="translate(50 53)"><g class="reset-deck-cards"><rect x="-4" y="-45" width="8" height="12" rx="1.5"/><rect x="33" y="12" width="8" height="12" rx="1.5" transform="rotate(30 37 18)"/><rect x="-40" y="17" width="8" height="12" rx="1.5" transform="rotate(-30 -36 23)"/></g></g><path class="reset-startrail" d="M12 38 Q3 77 42 92 M88 64 Q96 23 58 14"/></svg>`
-  });
-  function createArtMotion(doc, kind) {
-    const motion = doc.createElement('span');
-    motion.className = 'card-art-motion'; motion.setAttribute('aria-hidden', 'true');
-    if (!Object.prototype.hasOwnProperty.call(artScenes, kind)) return motion;
-    motion.innerHTML = artScenes[kind];
-    const fragment = doc.createDocumentFragment();
-    const illustration = doc.createElement('span');
-    illustration.className = 'card-illustration'; illustration.setAttribute('aria-hidden', 'true');
-    fragment.append(illustration, motion);
-    return fragment;
-  }
-
-  return {plan, createPresenter, createArtMotion};
+  return {plan, createPresenter};
 });
 
 </script><script>
@@ -1156,101 +1156,829 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
 });
 
 </script><script>
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.NumberBluffCardArt=factory();})(typeof globalThis==='object'?globalThis:this,function(){
+ 'use strict';
+ const assets=Object.freeze({normal:Object.freeze({"-10": "https://tanabe0422.github.io/number-bluff/assets/card-normal-minus10.webp", "-5": "https://tanabe0422.github.io/number-bluff/assets/card-normal-minus5.webp", "0": "https://tanabe0422.github.io/number-bluff/assets/card-normal-0.webp", "1": "https://tanabe0422.github.io/number-bluff/assets/card-normal-1.webp", "2": "https://tanabe0422.github.io/number-bluff/assets/card-normal-2.webp", "3": "https://tanabe0422.github.io/number-bluff/assets/card-normal-3.webp", "4": "https://tanabe0422.github.io/number-bluff/assets/card-normal-4.webp", "5": "https://tanabe0422.github.io/number-bluff/assets/card-normal-5.webp", "10": "https://tanabe0422.github.io/number-bluff/assets/card-normal-10.webp", "15": "https://tanabe0422.github.io/number-bluff/assets/card-normal-15.webp", "20": "https://tanabe0422.github.io/number-bluff/assets/card-normal-20.webp"}),special:Object.freeze({"double": "https://tanabe0422.github.io/number-bluff/assets/card-double.webp", "max0": "https://tanabe0422.github.io/number-bluff/assets/card-max0.webp", "extra": "https://tanabe0422.github.io/number-bluff/assets/card-extra.webp", "reset": "https://tanabe0422.github.io/number-bluff/assets/card-reset.webp"})});
+ function source(card){if(!card)return null;const map=card.kind==='number'?assets.normal:assets.special;const key=card.kind==='number'?String(card.value):card.kind;return Object.prototype.hasOwnProperty.call(map,key)?map[key]:null;}
+ function create(doc,card){const src=source(card);if(!src)throw new TypeError('Unknown disclosed card artwork');const image=doc.createElement('img');image.className='card-art';image.crossOrigin='anonymous';image.src=src;image.alt='';image.draggable=false;image.decoding='async';image.setAttribute('aria-hidden','true');return image;}
+ return Object.freeze({assets,source,create});
+});
+
+</script><script>
+/*!
+React Bits Glare Hover — used within Number Bluff, not distributed as a standalone component.
+Retrieved: 2026-10-27 UTC
+Source JS: https://raw.githubusercontent.com/DavidHDev/react-bits/main/src/content/Animations/GlareHover/GlareHover.jsx
+Source CSS: https://raw.githubusercontent.com/DavidHDev/react-bits/main/src/content/Animations/GlareHover/GlareHover.css
+License: https://raw.githubusercontent.com/DavidHDev/react-bits/main/LICENSE.md
+Adaptations: vanilla lifecycle; shared one-pass scheduler; white-only low-opacity band; visibility/reduced-motion cleanup; no rim; no pointer interception.
+
+MIT + Commons Clause License Condition v1.0
+
+Copyright (c) 2026 David Haz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, and distribute the Software **as part of an application, website, or product**, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+## Commons Clause Restriction
+
+You may use this Software, including for any commercial purpose, **so long as you do not sell, sublicense, or redistribute the components themselves-whether alone, in a bundle, or as a ported version.**
+
+The same restriction covers the React Bits tools (Background Studio, Texture Lab, Shape Magic, Center Stage, Sound Lab and any tools added later) and the sounds in the sound library. **You may not sell, sublicense, or redistribute the tools or the sounds themselves, or offer the tools or a substantially similar copy of them as a hosted service-whether alone, in a bundle, or as a ported version.**
+
+What you make with the tools is yours to use. You can use exported code, images, videos, and audio files in any personal or commercial application, website, or product, including paid ones. **You may not sell or redistribute the exports on their own, either individually or as the product itself, such as a sound, texture, background, or template pack.**
+
+## No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+/* Number Bluff integration adapted from React Bits Glare Hover, David Haz (2026).
+ * Source: https://github.com/DavidHDev/react-bits/tree/main/src/content/Animations/GlareHover
+ * MIT + Commons Clause; full notice: THIRD_PARTY_NOTICES.card-motion.txt.
+ * Retains original profile/easing/diagonal geometry; replaces React lifecycle with
+ * one shared vanilla manager. Only embed as part of the game, not a component pack.
+ */
+(function (global) {
+  'use strict';
+  const smootherstep = t => t * t * t * (t * (t * 6 - 15) + 10);
+  const bump = (t, center, half) => {
+    const distance = Math.abs(t - center);
+    return distance >= half ? 0 : smootherstep(1 - distance / half);
+  };
+  const ease = t => (1 - Math.cos(Math.PI * t)) / 2;
+  // Same 33-sample streak profile as upstream; rgba avoids color-mix dependency.
+  function whiteGradient(opacity) {
+    const stops = Array.from({ length: 33 }, (_, i) => {
+      const t = i / 32;
+      const profile = bump(t, .5, .06 + .16 * .6) + .32 * bump(t, .5, .5);
+      const alpha = Math.round(Math.min(1, profile * opacity) * 1000) / 1000;
+      return `rgba(255,255,255,${alpha}) ${(t * 100).toFixed(1)}%`;
+    });
+    return `linear-gradient(90deg, ${stops.join(', ')})`;
+  }
+  function createManager(options = {}) {
+    const doc = options.document || document;
+    const win = doc.defaultView || global;
+    const reduced = win.matchMedia('(prefers-reduced-motion: reduce)');
+    const touch = win.matchMedia('(hover: none), (pointer: coarse)');
+    const cards = new Map();
+    const duration = Math.max(480, Math.min(1200, options.duration || 780));
+    const interval = Math.max(2000, options.touchInterval || 3500);
+    const opacity = Math.max(0, Math.min(.24, options.opacity ?? .17));
+    let active = null, raf = 0, timer = 0, paused = false, destroyed = false;
+    let lastCard = null, nextAllowed = 0;
+    const globallyAllowed = () => !destroyed && !paused && !doc.hidden && !reduced.matches;
+    const eligible = record => globallyAllowed() && record.visible && record.el.isConnected &&
+      !record.el.matches('.hidden, .out, [hidden], [aria-hidden="true"]') &&
+      !record.el.closest('[hidden], [inert], [aria-hidden="true"], .screen.hidden, [data-revealed="false"]') &&
+      record.el.getClientRects().length > 0 && win.getComputedStyle(record.el).visibility !== 'hidden';
+    function stop() {
+      win.cancelAnimationFrame(raf); raf = 0;
+      if (active) { active.record.overlay.style.opacity = '0'; active.record.band.style.willChange = ''; }
+      active = null;
+    }
+    function clearTimer() { win.clearTimeout(timer); timer = 0; }
+    function measure(record) {
+      const width = record.el.clientWidth, height = record.el.clientHeight;
+      const angle = -45, radians = angle * Math.PI / 180;
+      const diagonal = Math.hypot(width, height), band = Math.max(8, diagonal * .26);
+      const reach = (Math.abs(width * Math.sin(radians)) + Math.abs(height * -Math.cos(radians))) / 2 + band / 2 + 2;
+      record.reach = reach;
+      record.band.style.width = `${band}px`;
+      record.band.style.height = `${diagonal + band}px`;
+    }
+    function frame(now) {
+      if (!active || !eligible(active.record)) { stop(); schedule(); return; }
+      const t = Math.min(1, (now - active.start) / duration);
+      const position = -active.record.reach + 2 * active.record.reach * ease(t);
+      active.record.band.style.transform = `translate(-50%, -50%) rotate(-135deg) translateX(${position.toFixed(2)}px)`;
+      // Fade the outer 12% of the pass; white profile itself remains below 0.24.
+      active.record.overlay.style.opacity = String(Math.min(1, t / .12, (1 - t) / .12));
+      if (t < 1) raf = win.requestAnimationFrame(frame);
+      else { stop(); schedule(); }
+    }
+    function play(el) {
+      const record = cards.get(el);
+      if (!record || !eligible(record) || active || win.performance.now() < nextAllowed) return false;
+      measure(record);
+      if (!record.el.clientWidth || !record.el.clientHeight) return false;
+      clearTimer();
+      active = { record, start: win.performance.now() };
+      lastCard = el;
+      nextAllowed = active.start + duration + 500;
+      record.band.style.willChange = 'transform';
+      raf = win.requestAnimationFrame(frame);
+      return true;
+    }
+    function schedule() {
+      clearTimer();
+      if (!globallyAllowed() || !touch.matches || active) return;
+      if (![...cards.values()].some(eligible)) return;
+      timer = win.setTimeout(() => {
+        timer = 0;
+        for (const [el] of cards) if (!el.isConnected) detach(el);
+        const candidates = [...cards.values()].filter(eligible);
+        if (!candidates.length) return;
+        const index = candidates.findIndex(r => r.el === lastCard);
+        if (!play(candidates[(index + 1) % candidates.length].el)) schedule();
+      }, interval);
+    }
+    const intersection = typeof win.IntersectionObserver === 'function' ? new win.IntersectionObserver(entries => {
+      for (const entry of entries) {
+        const record = cards.get(entry.target);
+        if (record) record.visible = entry.isIntersecting && entry.intersectionRatio >= .4;
+      }
+      if (active && !eligible(active.record)) stop();
+      schedule();
+    }, { threshold: [0, .4, 1] }) : null;
+    const resize = typeof win.ResizeObserver === 'function' ? new win.ResizeObserver(entries => {
+      for (const entry of entries) { const record = cards.get(entry.target); if (record) measure(record); }
+    }) : null;
+    function attach(el, { faceUp = true } = {}) {
+      if (destroyed || !el) return;
+      if (!faceUp) { detach(el); return; }
+      if (cards.has(el)) return;
+      const overlay = doc.createElement('span');
+      overlay.className = 'nb-card-glare'; overlay.setAttribute('aria-hidden', 'true');
+      const band = doc.createElement('span'); band.className = 'nb-card-glare__band';
+      band.style.background = whiteGradient(opacity); overlay.append(band);
+      el.classList.add('nb-glare-host'); el.append(overlay);
+      const onEnter = event => { if (event.pointerType !== 'touch') play(el); };
+      const onDown = event => { if (event.pointerType !== 'mouse') play(el); };
+      const onFocus = event => { if (event.target.matches?.(':focus-visible')) play(el); };
+      const record = { el, overlay, band, visible: !intersection, reach: 0, onEnter, onDown, onFocus };
+      cards.set(el, record);
+      el.addEventListener('pointerenter', onEnter, { passive: true });
+      el.addEventListener('pointerdown', onDown, { passive: true });
+      el.addEventListener('focusin', onFocus);
+      measure(record); intersection?.observe(el); resize?.observe(el); schedule();
+    }
+    function detach(el) {
+      const record = cards.get(el); if (!record) return;
+      if (active?.record === record) stop();
+      intersection?.unobserve(el); resize?.unobserve(el);
+      el.removeEventListener('pointerenter', record.onEnter);
+      el.removeEventListener('pointerdown', record.onDown);
+      el.removeEventListener('focusin', record.onFocus);
+      record.overlay.remove(); el.classList.remove('nb-glare-host'); cards.delete(el);
+      schedule();
+    }
+    function refresh() { if (!globallyAllowed()) stop(); schedule(); }
+    const listen = (media, cb) => media.addEventListener ? media.addEventListener('change', cb) : media.addListener(cb);
+    const unlisten = (media, cb) => media.removeEventListener ? media.removeEventListener('change', cb) : media.removeListener(cb);
+    listen(reduced, refresh); listen(touch, refresh); doc.addEventListener('visibilitychange', refresh);
+    return {
+      attach, detach, play,
+      pause() { paused = true; stop(); clearTimer(); },
+      resume() { paused = false; refresh(); },
+      destroy() {
+        destroyed = true; stop(); clearTimer();
+        for (const el of [...cards.keys()]) detach(el);
+        intersection?.disconnect(); resize?.disconnect();
+        unlisten(reduced, refresh); unlisten(touch, refresh); doc.removeEventListener('visibilitychange', refresh);
+      },
+      // Diagnostic only: no card values or identities are read by this module.
+      status() { return { attached: cards.size, active: !!active, scheduled: !!timer, reduced: reduced.matches, paused }; }
+    };
+  }
+  global.NumberBluffCardMotion = Object.freeze({ createManager });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script><script>
+/*!
+
+Source: https://uiverse.io/Javierrocadev/funny-cobra-5
+https://github.com/uiverse-io/galaxy/blob/main/Cards/Javierrocadev_funny-cobra-5.html
+MIT License
+Copyright - 2026 Javierrocadev (Javier Roca)
+ *
+Source: https://www.vengenceui.com/components/glow-border-card
+https://github.com/Ashutoshx7/VengeanceUI/blob/main/src/app/globals.css
+https://github.com/Ashutoshx7/VengeanceUI/blob/main/public/r/glow-border-card.json
+MIT License
+Copyright (c) 2025-2026 Ashutoshx7
+ *
+The following MIT terms apply to both sources above:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ *
+Modifications: Uiverse's 1.1s hover flip/25deg roll/UNO styling replaced with
+a public-event-only 400ms Y flip of the existing nodes. Vengeance's thick,
+blurred, rainbow infinite border replaced with a 1.5px gold-only masked rim,
+GPU-transform rotation and a single 650ms pass. No third-party artwork used.
+All geometry/opacity motion is finite. Images/numerals are not transformed
+independently, filtered, repainted, recolored, or replaced.
+ 
+
+*/
+/*
+ * Number Bluff: event-only card reveal and one-card gold rim.
+ * Source and full MIT notices: component-card-reveal.css and THIRD_PARTY_NOTICES.txt.
+ * Uiverse Javierrocadev: https://uiverse.io/Javierrocadev/funny-cobra-5
+ * Vengeance UI: https://www.vengenceui.com/components/glow-border-card
+ * Adaptation: no React, Tailwind, hover trigger, logo, raster processing, or rule logic.
+ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
-  else {
-    root.NumberBluffNormalArt = factory();
-    // Warm public art only; never block engine input or wait for private cards.
-    root.NumberBluffNormalArt.preload(root.Image);
-  }
+  else root.NumberBluffCardReveal = factory();
 })(typeof globalThis === 'object' ? globalThis : this, function () {
   'use strict';
-  const assets = Object.freeze({ cloud: 'https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp', cat: 'https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp', bunny: 'https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp', star: 'https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp' });
-  // Alpha > 5 bounds plus a 16px antialiasing margin. SVG crops only empty
-  // source canvas; the canonical raster pixels, colours and face are unchanged.
-  const crops = Object.freeze({
-    bunny: Object.freeze({ width: 1254, height: 1254, viewBox: '137 140 975 959' }),
-    cat: Object.freeze({ width: 1254, height: 1254, viewBox: '127 146 1091 962' }),
-    cloud: Object.freeze({ width: 1584, height: 993, viewBox: '99 160 1393 689' }),
-    star: Object.freeze({ width: 1254, height: 1254, viewBox: '76 132 1104 961' })
-  });
-  let preloadPromise = null;
-  const pendingImages = new Set();
-  function preload(ImageClass) {
-    if (preloadPromise) return preloadPromise;
-    if (typeof ImageClass !== 'function') return Promise.resolve([]);
-    // Each closure retains its Image until decode/load settles, including errors.
-    preloadPromise = Promise.all(Object.values(assets).map(src => new Promise(resolve => {
-      let image;
-      let settled = false;
-      const done = loaded => {
-        if (settled) return;
-        settled = true;
-        if (image) { image.onload = null; image.onerror = null; pendingImages.delete(image); }
-        resolve({ src, loaded });
-      };
-      try {
-        image = new ImageClass(); pendingImages.add(image);
-        image.onload = () => done(true); image.onerror = () => done(false);
-        image.src = src;
-        if (typeof image.decode === 'function') Promise.resolve(image.decode()).then(() => done(true), () => done(false));
-        else if (image.complete) done(image.naturalWidth > 0);
-      } catch { done(false); }
-    })));
-    return preloadPromise;
-  }
-  const values = Object.freeze([-10, -5, 0, 1, 2, 3, 4, 5, 10, 15, 20]);
-  // Pure, deterministic composition. No seat, card ID, randomness or private state.
-  function layout(value) {
-    if (!values.includes(value)) throw new RangeError('Unsupported normal card value');
-    const character = value < 0 ? 'cloud' : value === 0 ? 'cat' : value <= 5 ? 'bunny' : 'star';
-    const mood = value === -10 ? 'storm' : value === -5 ? 'wind' : value === 0 ? 'rest' : character === 'bunny' ? 'meadow' : 'constellation';
-    let boxes;
-    if (character === 'star') {
-      const rows = value / 5, height = 20, gap = 3, start = (100 - rows * height - (rows - 1) * gap) / 2;
-      boxes = Array.from({ length: value }, (_, i) => ({ x: .5 + i % 5 * 20, y: start + Math.floor(i / 5) * 23, width: 19, height }));
-    } else if (character === 'bunny') {
-      const arrangements = {
-        1: [[7, 8, 86, 85]],
-        2: [[1, 14, 48, 78], [51, 14, 48, 78]],
-        3: [[29, 5, 42, 42], [6, 54, 42, 42], [52, 54, 42, 42]],
-        4: [[6, 5, 42, 42], [52, 5, 42, 42], [6, 54, 42, 42], [52, 54, 42, 42]],
-        5: [[17, 5, 31, 42], [52, 5, 31, 42], [0, 54, 31, 42], [34.5, 54, 31, 42], [69, 54, 31, 42]]
-      };
-      boxes = arrangements[value].map(([x, y, width, height]) => ({ x, y, width, height }));
-    } else boxes = [{ x: 6, y: 10, width: 88, height: 82 }];
-    return Object.freeze({ value, character, mood, asset: assets[character], figures: Object.freeze(boxes.map((box, index) => Object.freeze({ ...box, index, delay: -3.1 - (index % 5) * .28 }))) });
-  }
-  function create(document, value) {
-    const model = layout(value), scene = document.createElement('span');
-    scene.className = 'normal-art-scene normal-art-' + model.mood;
-    scene.setAttribute('aria-hidden', 'true');
-    scene.dataset.character = model.character;
-    const ambience = document.createElement('span'); ambience.className = 'normal-art-ambience';
-    if (value < 0) {
-      const ns = 'http:' + '//www.w3.org/2000/svg';
-      const svg = document.createElementNS(ns, 'svg'); svg.setAttribute('viewBox', '0 0 100 100'); svg.setAttribute('focusable', 'false');
-      const paths = value === -10 ? ['M15 72l-4 9m25-5l-4 9m32-8l-4 9m24-14l-4 9', 'M62 60l-7 14h9l-7 15'] : ['M6 68c12-7 21 7 35 0s20-7 29-2', 'M25 82c13-6 26 5 43-1s22-4 24-2'];
-      paths.forEach((d, i) => { const p = document.createElementNS(ns, 'path'); p.setAttribute('d', d); p.setAttribute('class', 'normal-weather-line weather-' + i); svg.append(p); }); ambience.append(svg);
+  const REVEAL_MS = 400, GOLD_MS = 650;
+  function createController(options = {}) {
+    const doc = options.document || (typeof document !== 'undefined' ? document : null);
+    const win = options.window || doc?.defaultView;
+    const clock = options.clock || win || globalThis;
+    const set = clock.setTimeout.bind(clock), clear = clock.clearTimeout.bind(clock);
+    const media = win?.matchMedia?.('(prefers-reduced-motion: reduce)');
+    const seenReveal = new Set(), seenGold = new Set(), active = new Set();
+    let destroyed = false, goldEffect = null;
+    const quiet = () => destroyed || !doc || doc.hidden || options.reducedMotion === true || !!media?.matches;
+    const validKey = key => (typeof key === 'string' && key.length > 0) || typeof key === 'number';
+    const attached = node => node && node.isConnected !== false && !!node.parentNode;
+    function settleAll() { for (const effect of [...active]) effect.settle(); }
+    function watch(animation, effect, ms) {
+      // Timer is a bound, not a new presentation phase. The game never awaits us.
+      effect.timer = set(() => effect.settle(), ms);
+      if (animation) {
+        effect.animation = animation;
+        animation.onfinish = () => effect.settle();
+        animation.oncancel = () => effect.settle();
+      }
     }
-    scene.append(ambience);
-    const group = document.createElement('span'); group.className = 'normal-art-figures';
-    model.figures.forEach(figure => {
-      const holder = document.createElement('span'); holder.className = 'normal-art-figure';
-      for (const key of ['x', 'y', 'width', 'height']) holder.style.setProperty('--figure-' + key, figure[key] + '%');
-      holder.style.setProperty('--figure-delay', figure.delay + 's');
-      const ns = 'http:' + '//www.w3.org/2000/svg', crop = crops[model.character];
-      const sprite = document.createElementNS(ns, 'svg');
-      sprite.setAttribute('class', 'normal-art-character');
-      sprite.setAttribute('viewBox', crop.viewBox); sprite.setAttribute('preserveAspectRatio', 'xMidYMid meet'); sprite.setAttribute('focusable', 'false');
-      const image = document.createElementNS(ns, 'image');
-      image.setAttribute('href', model.asset); image.setAttribute('width', crop.width); image.setAttribute('height', crop.height);
-      sprite.append(image); holder.append(sprite); group.append(holder);
-    });
-    scene.append(group);
-    return scene;
+    function reveal({ key, back, face, authorized = false } = {}) {
+      // The caller must have received the public reveal event. There is no card
+      // data input, image lookup, pre-rendered secret face, or engine reference.
+      if (destroyed || !validKey(key) || !authorized || !back || !face || back === face ||
+          face.parentNode || !attached(back) || !back.classList.contains('hidden') ||
+          face.classList.contains('hidden') || face.classList.contains('out') ||
+          face.dataset.revealed !== 'true') return false;
+      const duplicate = seenReveal.has(key);
+      seenReveal.add(key);
+      if (duplicate || quiet() || typeof face.animate !== 'function') {
+        back.replaceWith(face); return false;
+      }
+      // Do not carry a gold ring onto the rear face or duplicate its effect.
+      if (goldEffect?.node === back) goldEffect.settle();
+      const stage = doc.createElement('div'), rotor = doc.createElement('div');
+      stage.className = 'nb-card-reveal-stage'; rotor.className = 'nb-card-reveal-rotor';
+      // The actual front node stays first: existing .player-card lookups still
+      // find the live face, including numeral and later zero-stamp updates.
+      back.replaceWith(stage);
+      back.removeAttribute('id'); back.setAttribute('aria-hidden', 'true');
+      back.removeAttribute('aria-label'); back.removeAttribute('tabindex');
+      back.classList.add('nb-card-reveal-back'); face.classList.add('nb-card-reveal-face');
+      stage.append(rotor); rotor.append(face, back);
+      const effect = { settled: false, timer: null, animation: null, settle() {
+        if (effect.settled) return;
+        effect.settled = true; active.delete(effect);
+        if (effect.timer !== null) clear(effect.timer);
+        if (effect.animation) {
+          effect.animation.onfinish = null; effect.animation.oncancel = null;
+          effect.animation.cancel();
+        }
+        face.classList.remove('nb-card-reveal-face');
+        if (stage.parentNode) stage.replaceWith(face);
+        // A rerender may have discarded the stage; never replace a newer node.
+        back.remove();
+      }};
+      active.add(effect);
+      try {
+        const animation = rotor.animate([
+          { transform: 'rotateY(-180deg)' },
+          { transform: 'rotateY(0deg)' }
+        ], { duration: REVEAL_MS, easing: 'cubic-bezier(.22,.68,.18,1)', fill: 'both' });
+        watch(animation, effect, REVEAL_MS);
+      } catch (_) { effect.settle(); return false; }
+      return true;
+    }
+    function gold({ key, node } = {}) {
+      // Caller chooses exactly the turn/challenge card; this controller never
+      // searches for every card or derives a private value from its appearance.
+      if (destroyed || !validKey(key) || !attached(node) ||
+          !node.classList.contains('player-card') || node.classList.contains('out')) return false;
+      if (seenGold.has(key)) {
+        // A replacement rerender must not leave an orphaned old-node animation.
+        if (goldEffect && goldEffect.node !== node) goldEffect.settle();
+        return false;
+      }
+      seenGold.add(key);
+      if (goldEffect) goldEffect.settle();
+      if (quiet() || typeof node.animate !== 'function') return false;
+      const rim = doc.createElement('span'), light = doc.createElement('span');
+      rim.className = 'nb-card-gold-rim'; light.className = 'nb-card-gold-light';
+      rim.setAttribute('aria-hidden', 'true'); rim.append(light); node.append(rim);
+      const effect = { node, settled: false, timer: null, animation: null, settle() {
+        if (effect.settled) return;
+        effect.settled = true; active.delete(effect);
+        if (goldEffect === effect) goldEffect = null;
+        if (effect.timer !== null) clear(effect.timer);
+        if (effect.animation) {
+          effect.animation.onfinish = null; effect.animation.oncancel = null;
+          effect.animation.cancel();
+        }
+        rim.remove();
+      }};
+      active.add(effect); goldEffect = effect;
+      try {
+        const animation = light.animate([
+          { transform: 'rotate(0deg)', opacity: 0, offset: 0 },
+          { transform: 'rotate(30deg)', opacity: .85, offset: .1 },
+          { transform: 'rotate(300deg)', opacity: .65, offset: .83 },
+          { transform: 'rotate(360deg)', opacity: 0, offset: 1 }
+        ], { duration: GOLD_MS, easing: 'linear', fill: 'both' });
+        watch(animation, effect, GOLD_MS);
+      } catch (_) { effect.settle(); return false; }
+      return true;
+    }
+    const onVisibility = () => { if (doc.hidden) settleAll(); };
+    const onPreference = () => { if (media.matches) settleAll(); };
+    doc?.addEventListener?.('visibilitychange', onVisibility);
+    if (media?.addEventListener) media.addEventListener('change', onPreference);
+    else media?.addListener?.(onPreference);
+    function destroy() {
+      if (destroyed) return;
+      destroyed = true; settleAll();
+      doc?.removeEventListener?.('visibilitychange', onVisibility);
+      if (media?.removeEventListener) media.removeEventListener('change', onPreference);
+      else media?.removeListener?.(onPreference);
+      seenReveal.clear(); seenGold.clear();
+    }
+    return Object.freeze({ reveal, gold, settleAll, destroy, get activeCount() { return active.size; } });
   }
-  return Object.freeze({ assets, crops, values, layout, create, preload });
+  return Object.freeze({ createController, REVEAL_MS, GOLD_MS });
+});
+
+</script><script>
+/*!
+Number Bluff component scene motion: third-party license notices.
+number-flow@0.6.2
+Source: https://github.com/barvian/number-flow
+
+MIT License
+
+Copyright (c) 2024 Maxwell Barvian
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+========================================================================
+
+canvas-confetti@1.9.4
+Source: https://github.com/catdad/canvas-confetti
+
+ISC License
+
+Copyright (c) 2020, Kiril Vatev
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+
+========================================================================
+
+esm-env@1.2.2
+Source: https://github.com/benmccann/esm-env
+
+Copyright 2022 Benjamin McCann
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*/
+(()=>{var z=!0;var gt=String.raw,_e=String.raw,Pe=z&&(()=>{try{document.createElement("div").animate({opacity:0},{easing:"linear(0, 1)"})}catch{return!1}return!0})(),Ne=z&&typeof CSS<"u"&&CSS.supports&&CSS.supports("line-height","mod(1,1)"),le=z&&typeof matchMedia<"u"?matchMedia("(prefers-reduced-motion: reduce)"):null,te="--_number-flow-d-opacity",ce="--_number-flow-d-width",ee="--_number-flow-dx",he="--_number-flow-d",Le=(()=>{try{return CSS.registerProperty({name:te,syntax:"<number>",inherits:!1,initialValue:"0"}),CSS.registerProperty({name:ee,syntax:"<length>",inherits:!0,initialValue:"0px"}),CSS.registerProperty({name:ce,syntax:"<number>",inherits:!1,initialValue:"0"}),CSS.registerProperty({name:he,syntax:"<number>",inherits:!0,initialValue:"0"}),!0}catch{return!1}})(),oe="round(nearest, calc(var(--number-flow-mask-height, 0.25em) / 2), 1px)",H=`calc(${oe} * 2)`,we="var(--number-flow-mask-width, 0.5em)",K=`calc(${we} / var(--scale-x))`,se="#000 0, transparent 71%",ue=_e`:host{display:inline-block;direction:ltr;white-space:nowrap;isolation:isolate;line-height:1}.number,.number__inner{display:inline-block;transform-origin:left top}:host([data-will-change]) :is(.number,.number__inner,.section,.digit,.digit__num,.symbol){will-change:transform}.number{--scale-x:calc(1 + var(${ce}) / var(--width));transform:translateX(var(${ee})) scaleX(var(--scale-x));margin:0 calc(-1 * ${we});position:relative;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 ${K},#000 calc(100% - ${K}),transparent ),linear-gradient(to bottom,transparent 0,#000 ${H},#000 calc(100% - ${H}),transparent 100% ),radial-gradient(at bottom right,${se}),radial-gradient(at bottom left,${se}),radial-gradient(at top left,${se}),radial-gradient(at top right,${se});-webkit-mask-size:100% calc(100% - ${H} * 2),calc(100% - ${K} * 2) 100%,${K} ${H},${K} ${H},${K} ${H},${K} ${H};-webkit-mask-position:center,center,top left,top right,bottom right,bottom left;-webkit-mask-repeat:no-repeat}.number__inner{padding:${oe} ${we};transform:scaleX(calc(1 / var(--scale-x))) translateX(calc(-1 * var(${ee})))}:host > :not(.number){z-index:5}.section,.symbol{display:inline-block;position:relative;isolation:isolate}.section::after{content:'\200b';display:inline-block}.section--justify-left{transform-origin:center left}.section--justify-right{transform-origin:center right}.section > [inert],.symbol > [inert]{margin:0 !important;position:absolute !important;z-index:-1}.digit{display:inline-block;position:relative;--c:var(--current) + var(${he})}.digit__num,.number .section::after{padding:${oe} 0}.digit__num{display:inline-block;--offset-raw:mod(var(--length) + var(--n) - mod(var(--c),var(--length)),var(--length));--offset:calc( var(--offset-raw) - var(--length) * round(down,var(--offset-raw) / (var(--length) / 2),1) );--y:clamp(-100%,var(--offset) * 100%,100%);transform:translateY(var(--y))}.digit__num[inert]{position:absolute;top:0;left:50%;transform:translateX(-50%) translateY(var(--y))}.digit:not(.is-spinning) .digit__num[inert]{display:none}.symbol__value{display:inline-block;mix-blend-mode:plus-lighter;white-space:pre}.section--justify-left .symbol > [inert]{left:0}.section--justify-right .symbol > [inert]{right:0}.animate-presence{opacity:calc(1 + var(${te}))}`,Ie=z&&typeof HTMLElement<"u"?HTMLElement:class{},Fe=_e`:host{display:inline-block;direction:ltr;white-space:nowrap;line-height:1}span{display:inline-block}:host([data-will-change]) span{will-change:transform}.number,.digit{padding:${oe} 0}.symbol{white-space:pre}`;var Ue=(o="")=>_e`:where(number-flow${o}){line-height:1}number-flow${o} > span{font-kerning:none;display:inline-block;padding:${H} 0}`;var X=(o,t,i)=>{let a=document.createElement(o),[r,m]=Array.isArray(t)?[void 0,t]:[t,i];return r&&Object.assign(a,r),m?.forEach(p=>a.appendChild(p)),a},at=(o,t)=>{var i;return t==="left"?o.offsetLeft:(((i=o.offsetParent instanceof HTMLElement?o.offsetParent:null)==null?void 0:i.offsetWidth)??0)-o.offsetWidth-o.offsetLeft},rt=o=>o.offsetWidth>0&&o.offsetHeight>0,je=(o,t)=>{z&&typeof HTMLElement<"u"&&typeof customElements<"u"&&!customElements.get(o)&&customElements.define(o,t)};function st(o,t,{reverse:i=!1}={}){let a=o.length;for(let r=i?a-1:0;i?r>=0:r<a;i?r--:r++)t(o[r],r)}function Be(o,t,i,a){let r=t.formatToParts(o);i&&r.unshift({type:"prefix",value:i}),a&&r.push({type:"suffix",value:a});let m=[],p=[],u=[],w=[],x={},k=S=>`${S}:${x[S]=(x[S]??-1)+1}`,A="",N=!1,I=!1;for(let S of r){A+=S.value;let h=S.type==="minusSign"||S.type==="plusSign"?"sign":S.type;h==="integer"?(N=!0,p.push(...S.value.split("").map(L=>({type:h,value:parseInt(L)})))):h==="group"?p.push({type:h,value:S.value}):h==="decimal"?(I=!0,u.push({type:h,value:S.value,key:k(h)})):h==="fraction"?u.push(...S.value.split("").map(L=>({type:h,value:parseInt(L),key:k(h),pos:-1-x[h]}))):(N||I?w:m).push({type:h,value:S.value,key:k(h)})}let Z=[];for(let S=p.length-1;S>=0;S--){let h=p[S];Z.unshift(h.type==="integer"?{...h,key:k(h.type),pos:x[h.type]}:{...h,key:k(h.type)})}return{pre:m,integer:Z,fraction:u,post:w,valueAsString:A,value:typeof o=="string"?parseFloat(o):o}}var G=Ne&&Pe&&Le,ne=class extends Ie{constructor(){super(),this.created=!1,this.batched=!1,this._preUpdated=!1;let{animated:t,...i}=this.constructor.defaultProps;this._animated=this.computedAnimated=t,Object.assign(this,i)}get animated(){return this._animated}set animated(t){var i;this.animated!==t&&(this._animated=t,(i=this.shadowRoot)==null||i.getAnimations().forEach(a=>a.finish()))}set data(t){var i,a;if(t==null||t===this._data)return;let{pre:r,integer:m,fraction:p,post:u,value:w}=t;if(this.created){let x=this._data;this._data=t,this.computedTrend=typeof this.trend=="function"?this.trend(x.value,w):this.trend,this.computedAnimated=G&&this._animated&&(!this.respectMotionPreference||!((i=le)!=null&&i.matches))&&rt(this)&&this.ownerDocument.visibilityState==="visible",(a=this.plugins)==null||a.forEach(k=>{var A;return(A=k.onUpdate)==null?void 0:A.call(k,t,x,this)}),this.batched||this.willUpdate(),this._pre.update(r),this._num.update({integer:m,fraction:p}),this._post.update(u),this.batched||this.didUpdate()}else{this._data=t,this.attachShadow({mode:"open"});try{this._internals??(this._internals=this.attachInternals()),this._internals.role="img"}catch{}let x=document.createElement("style");this.nonce&&(x.nonce=this.nonce),x.textContent=ue,this.shadowRoot.appendChild(x),this._pre=new pe(this,r,{justify:"right",part:"left"}),this.shadowRoot.appendChild(this._pre.el),this._num=new Me(this,m,p),this.shadowRoot.appendChild(this._num.el),this._post=new pe(this,u,{justify:"left",part:"right"}),this.shadowRoot.appendChild(this._post.el),this.created=!0}try{this._internals.ariaLabel=t.valueAsString}catch{}}willUpdate(){var t;this._preUpdated=G&&this._animated&&(!this.respectMotionPreference||!((t=le)!=null&&t.matches))&&this.ownerDocument.visibilityState==="visible",this._preUpdated&&(this._pre.willUpdate(),this._num.willUpdate(),this._post.willUpdate())}didUpdate(){if(!this.computedAnimated||!this._preUpdated)return;this._abortAnimationsFinish?this._abortAnimationsFinish.abort():this.dispatchEvent(new Event("animationsstart")),this._pre.didUpdate(),this._num.didUpdate(),this._post.didUpdate();let t=new AbortController;Promise.all(this.shadowRoot.getAnimations().map(i=>i.finished)).then(()=>{t.signal.aborted||(this.dispatchEvent(new Event("animationsfinish")),this._abortAnimationsFinish=void 0)}),this._abortAnimationsFinish=t}};ne.defaultProps={transformTiming:{duration:900,easing:"linear(0,.005,.019,.039,.066,.096,.129,.165,.202,.24,.278,.316,.354,.39,.426,.461,.494,.526,.557,.586,.614,.64,.665,.689,.711,.731,.751,.769,.786,.802,.817,.831,.844,.856,.867,.877,.887,.896,.904,.912,.919,.925,.931,.937,.942,.947,.951,.955,.959,.962,.965,.968,.971,.973,.976,.978,.98,.981,.983,.984,.986,.987,.988,.989,.99,.991,.992,.992,.993,.994,.994,.995,.995,.996,.996,.9963,.9967,.9969,.9972,.9975,.9977,.9979,.9981,.9982,.9984,.9985,.9987,.9988,.9989,1)"},spinTiming:void 0,opacityTiming:{duration:450,easing:"ease-out"},animated:!0,trend:(o,t)=>Math.sign(t-o),respectMotionPreference:!0,plugins:void 0,digits:void 0};var Me=class{constructor(t,i,a,{className:r,...m}={}){this.flow=t,this._integer=new fe(t,i,{justify:"right",part:"integer"}),this._fraction=new fe(t,a,{justify:"left",part:"fraction"}),this._inner=X("span",{className:"number__inner"},[this._integer.el,this._fraction.el]),this.el=X("span",{...m,part:"number",className:`number ${r??""}`},[this._inner])}willUpdate(){this._prevWidth=this.el.offsetWidth,this._prevLeft=this.el.getBoundingClientRect().left,this._integer.willUpdate(),this._fraction.willUpdate()}update({integer:t,fraction:i}){this._integer.update(t),this._fraction.update(i)}didUpdate(){let t=this.el.getBoundingClientRect();this._integer.didUpdate(),this._fraction.didUpdate();let i=this._prevLeft-t.left,a=this.el.offsetWidth,r=this._prevWidth-a;this.el.style.setProperty("--width",String(a)),this.el.animate({[ee]:[`${i}px`,"0px"],[ce]:[r,0]},{...this.flow.transformTiming,composite:"accumulate"})}},de=class{constructor(t,i,{justify:a,className:r,...m},p){this.flow=t,this.children=new Map,this.onCharRemove=w=>()=>{this.children.delete(w)},this.justify=a;let u=i.map(w=>this.addChar(w).el);this.el=X("span",{...m,className:`section section--justify-${a} ${r??""}`},p?p(u):u)}addChar(t,{startDigitsAtZero:i=!1,...a}={}){let r=t.type==="integer"||t.type==="fraction"?new ae(this,t.type,i?0:t.value,t.pos,{...a,onRemove:this.onCharRemove(t.key)}):new Ce(this,t.type,t.value,{...a,onRemove:this.onCharRemove(t.key)});return this.children.set(t.key,r),r}unpop(t){t.el.removeAttribute("inert"),t.el.style.top="",t.el.style[this.justify]=""}pop(t){t.forEach(i=>{i.el.style.top=`${i.el.offsetTop}px`,i.el.style[this.justify]=`${at(i.el,this.justify)}px`}),t.forEach(i=>{i.el.setAttribute("inert",""),i.present=!1})}addNewAndUpdateExisting(t){let i=new Map,a=new Map,r=this.justify==="left",m=r?"prepend":"append";if(st(t,p=>{let u;this.children.has(p.key)?(u=this.children.get(p.key),a.set(p,u),this.unpop(u),u.present=!0):(u=this.addChar(p,{startDigitsAtZero:!0,animateIn:!0}),i.set(p,u)),this.el[m](u.el)},{reverse:r}),this.flow.computedAnimated){let p=this.el.getBoundingClientRect();i.forEach(u=>{u.willUpdate(p)})}i.forEach((p,u)=>{p.update(u.value)}),a.forEach((p,u)=>{p.update(u.value)})}willUpdate(){let t=this.el.getBoundingClientRect();this._prevOffset=t[this.justify],this.children.forEach(i=>i.willUpdate(t))}didUpdate(){let t=this.el.getBoundingClientRect();this.children.forEach(r=>r.didUpdate(t));let i=t[this.justify],a=this._prevOffset-i;a&&this.children.size&&this.el.animate({transform:[`translateX(${a}px)`,"none"]},{...this.flow.transformTiming,composite:"accumulate"})}},fe=class extends de{update(t){let i=new Map;this.children.forEach((a,r)=>{t.find(m=>m.key===r)||i.set(r,a),this.unpop(a)}),this.addNewAndUpdateExisting(t),i.forEach(a=>{a instanceof ae&&a.update(0)}),this.pop(i)}},pe=class extends de{update(t){let i=new Map;this.children.forEach((a,r)=>{t.find(m=>m.key===r)||i.set(r,a)}),this.pop(i),this.addNewAndUpdateExisting(t)}},ie=class{constructor(t,i,{onRemove:a,animateIn:r=!1}={}){this.flow=t,this.el=i,this._present=!0,this._remove=()=>{var m;this.el.remove(),(m=this._onRemove)==null||m.call(this)},this.el.classList.add("animate-presence"),this.flow.computedAnimated&&r&&this.el.animate({[te]:[-.9999,0]},{...this.flow.opacityTiming,composite:"accumulate"}),this._onRemove=a}get present(){return this._present}set present(t){if(this._present!==t){if(this._present=t,t?this.el.removeAttribute("inert"):this.el.setAttribute("inert",""),!this.flow.computedAnimated){t||this._remove();return}this.el.style.setProperty("--_number-flow-d-opacity",t?"0":"-.999"),this.el.animate({[te]:t?[-.9999,0]:[.999,0]},{...this.flow.opacityTiming,composite:"accumulate"}),t?this.flow.removeEventListener("animationsfinish",this._remove):this.flow.addEventListener("animationsfinish",this._remove,{once:!0})}}},me=class extends ie{constructor(t,i,a,r){super(t.flow,a,r),this.section=t,this.value=i,this.el=a}},ae=class extends me{constructor(t,i,a,r,m){var p,u;let w=(((u=(p=t.flow.digits)==null?void 0:p[r])==null?void 0:u.max)??9)+1,x=Array.from({length:w}).map((A,N)=>{let I=X("span",{className:"digit__num"},[document.createTextNode(String(N))]);return N!==a&&I.setAttribute("inert",""),I.style.setProperty("--n",String(N)),I}),k=X("span",{part:`digit ${i}-digit`,className:"digit"},x);k.style.setProperty("--current",String(a)),k.style.setProperty("--length",String(w)),super(t,a,k,m),this.pos=r,this._onAnimationsFinish=()=>{this.el.classList.remove("is-spinning")},this._numbers=x,this.length=w}willUpdate(t){let i=this.el.getBoundingClientRect();this._prevValue=this.value;let a=i[this.section.justify]-t[this.section.justify],r=i.width/2;this._prevCenter=this.section.justify==="left"?a+r:a-r}update(t){this.el.style.setProperty("--current",String(t)),this._numbers.forEach((i,a)=>a===t?i.removeAttribute("inert"):i.setAttribute("inert","")),this.value=t}didUpdate(t){let i=this.el.getBoundingClientRect(),a=i[this.section.justify]-t[this.section.justify],r=i.width/2,m=this.section.justify==="left"?a+r:a-r,p=this._prevCenter-m;p&&this.el.animate({transform:[`translateX(${p}px)`,"none"]},{...this.flow.transformTiming,composite:"accumulate"});let u=this.getDelta();u&&(this.el.classList.add("is-spinning"),this.el.animate({[he]:[-u,0]},{...this.flow.spinTiming??this.flow.transformTiming,composite:"accumulate"}),this.flow.addEventListener("animationsfinish",this._onAnimationsFinish,{once:!0}))}getDelta(){var t;if(this.flow.plugins)for(let r of this.flow.plugins){let m=(t=r.getDelta)==null?void 0:t.call(r,this.value,this._prevValue,this);if(m!=null)return m}let i=this.value-this._prevValue,a=this.flow.computedTrend||Math.sign(i);return a<0&&this.value>this._prevValue?this.value-this.length-this._prevValue:a>0&&this.value<this._prevValue?this.length-this._prevValue+this.value:i}},Ce=class extends me{constructor(t,i,a,r){let m=X("span",{className:"symbol__value",textContent:a});super(t,a,X("span",{part:`symbol ${i}`,className:"symbol"},[m]),r),this.type=i,this._children=new Map,this._onChildRemove=p=>()=>{this._children.delete(p)},this._children.set(a,new ie(this.flow,m,{onRemove:this._onChildRemove(a)}))}willUpdate(t){if(this.type==="decimal")return;let i=this.el.getBoundingClientRect();this._prevOffset=i[this.section.justify]-t[this.section.justify]}update(t){if(this.value!==t){let i=this._children.get(this.value);i&&(i.present=!1);let a=this._children.get(t);if(a)a.present=!0;else{let r=X("span",{className:"symbol__value",textContent:t});this.el.appendChild(r),this._children.set(t,new ie(this.flow,r,{animateIn:!0,onRemove:this._onChildRemove(t)}))}}this.value=t}didUpdate(t){if(this.type==="decimal")return;let i=this.el.getBoundingClientRect()[this.section.justify]-t[this.section.justify],a=this._prevOffset-i;a&&this.el.animate({transform:[`translateX(${a}px)`,"none"]},{...this.flow.transformTiming,composite:"accumulate"})}};var Oe=o=>[Fe,Ue(o),ue];var Lt=Oe(),ot="number-flow-connect",lt="number-flow-update";var Ee=class extends ne{constructor(){super(...arguments),this.connected=!1}connectedCallback(){this.connected=!0,this.dispatchEvent(new Event(ot,{bubbles:!0}))}disconnectedCallback(){this.connected=!1}get value(){return this._value}update(t){(!this._formatter||this._prevFormat!==this.format||this._prevLocales!==this.locales)&&(this._formatter=new Intl.NumberFormat(this.locales,this.format),this._prevFormat=this.format,this._prevLocales=this.locales),t!=null&&(this._value=t),this.dispatchEvent(new Event(lt,{bubbles:!0})),this.data=Be(this._value,this._formatter,this.numberPrefix,this.numberSuffix)}};je("number-flow",Ee);var xe={};(function o(t,i,a,r){var m=!!(t.Worker&&t.Blob&&t.Promise&&t.OffscreenCanvas&&t.OffscreenCanvasRenderingContext2D&&t.HTMLCanvasElement&&t.HTMLCanvasElement.prototype.transferControlToOffscreen&&t.URL&&t.URL.createObjectURL),p=typeof Path2D=="function"&&typeof DOMMatrix=="function",u=(function(){if(!t.OffscreenCanvas)return!1;try{var n=new OffscreenCanvas(1,1),e=n.getContext("2d");e.fillRect(0,0,1,1);var s=n.transferToImageBitmap();e.createPattern(s,"no-repeat")}catch{return!1}return!0})();function w(){}function x(n){var e=i.exports.Promise,s=e!==void 0?e:t.Promise;return typeof s=="function"?new s(n):(n(w,w),null)}var k=(function(n,e){return{transform:function(s){if(n)return s;if(e.has(s))return e.get(s);var c=new OffscreenCanvas(s.width,s.height),v=c.getContext("2d");return v.drawImage(s,0,0),e.set(s,c),c},clear:function(){e.clear()}}})(u,new Map),A=(function(){var n=Math.floor(16.666666666666668),e,s,c={},v=0;return typeof requestAnimationFrame=="function"&&typeof cancelAnimationFrame=="function"?(e=function(g){var y=Math.random();return c[y]=requestAnimationFrame(function l(b){v===b||v+n-1<b?(v=b,delete c[y],g()):c[y]=requestAnimationFrame(l)}),y},s=function(g){c[g]&&cancelAnimationFrame(c[g])}):(e=function(g){return setTimeout(g,n)},s=function(g){return clearTimeout(g)}),{frame:e,cancel:s}})(),N=(function(){var n,e,s={};function c(v){function g(y,l){v.postMessage({options:y||{},callback:l})}v.init=function(l){var b=l.transferControlToOffscreen();v.postMessage({canvas:b},[b])},v.fire=function(l,b,M){if(e)return g(l,null),e;var T=Math.random().toString(36).slice(2);return e=x(function(E){function $(R){R.data.callback===T&&(delete s[T],v.removeEventListener("message",$),e=null,k.clear(),M(),E())}v.addEventListener("message",$),g(l,T),s[T]=$.bind(null,{data:{callback:T}})}),e},v.reset=function(){v.postMessage({reset:!0});for(var l in s)s[l](),delete s[l]}}return function(){if(n)return n;if(!a&&m){var v=["var CONFETTI, SIZE = {}, module = {};","("+o.toString()+")(this, module, true, SIZE);","onmessage = function(msg) {","  if (msg.data.options) {","    CONFETTI(msg.data.options).then(function () {","      if (msg.data.callback) {","        postMessage({ callback: msg.data.callback });","      }","    });","  } else if (msg.data.reset) {","    CONFETTI && CONFETTI.reset();","  } else if (msg.data.resize) {","    SIZE.width = msg.data.resize.width;","    SIZE.height = msg.data.resize.height;","  } else if (msg.data.canvas) {","    SIZE.width = msg.data.canvas.width;","    SIZE.height = msg.data.canvas.height;","    CONFETTI = module.exports.create(msg.data.canvas);","  }","}"].join(`
+`);try{n=new Worker(URL.createObjectURL(new Blob([v])))}catch(g){return typeof console<"u"&&typeof console.warn=="function"&&console.warn("\u{1F38A} Could not load worker",g),null}c(n)}return n}})(),I={particleCount:50,angle:90,spread:45,startVelocity:45,decay:.9,gravity:1,drift:0,ticks:200,x:.5,y:.5,shapes:["square","circle"],zIndex:100,colors:["#26ccff","#a25afd","#ff5e7e","#88ff5a","#fcff42","#ffa62d","#ff36ff"],disableForReducedMotion:!1,scalar:1};function Z(n,e){return e?e(n):n}function S(n){return n!=null}function h(n,e,s){return Z(n&&S(n[e])?n[e]:I[e],s)}function L(n){return n<0?0:Math.floor(n)}function re(n,e){return Math.floor(Math.random()*(e-n))+n}function V(n){return parseInt(n,16)}function ve(n){return n.map(ge)}function ge(n){var e=String(n).replace(/[^0-9a-f]/gi,"");return e.length<6&&(e=e[0]+e[0]+e[1]+e[1]+e[2]+e[2]),{r:V(e.substring(0,2)),g:V(e.substring(2,4)),b:V(e.substring(4,6))}}function Y(n){var e=h(n,"origin",Object);return e.x=h(e,"x",Number),e.y=h(e,"y",Number),e}function d(n){n.width=document.documentElement.clientWidth,n.height=document.documentElement.clientHeight}function C(n){var e=n.getBoundingClientRect();n.width=e.width,n.height=e.height}function B(n){var e=document.createElement("canvas");return e.style.position="fixed",e.style.top="0px",e.style.left="0px",e.style.pointerEvents="none",e.style.zIndex=n,e}function f(n,e,s,c,v,g,y,l,b){n.save(),n.translate(e,s),n.rotate(g),n.scale(c,v),n.arc(0,0,1,y,l,b),n.restore()}function F(n){var e=n.angle*(Math.PI/180),s=n.spread*(Math.PI/180);return{x:n.x,y:n.y,wobble:Math.random()*10,wobbleSpeed:Math.min(.11,Math.random()*.1+.05),velocity:n.startVelocity*.5+Math.random()*n.startVelocity,angle2D:-e+(.5*s-Math.random()*s),tiltAngle:(Math.random()*(.75-.25)+.25)*Math.PI,color:n.color,shape:n.shape,tick:0,totalTicks:n.ticks,decay:n.decay,drift:n.drift,random:Math.random()+2,tiltSin:0,tiltCos:0,wobbleX:0,wobbleY:0,gravity:n.gravity*3,ovalScalar:.6,scalar:n.scalar,flat:n.flat}}function We(n,e){e.x+=Math.cos(e.angle2D)*e.velocity+e.drift,e.y+=Math.sin(e.angle2D)*e.velocity+e.gravity,e.velocity*=e.decay,e.flat?(e.wobble=0,e.wobbleX=e.x+10*e.scalar,e.wobbleY=e.y+10*e.scalar,e.tiltSin=0,e.tiltCos=0,e.random=1):(e.wobble+=e.wobbleSpeed,e.wobbleX=e.x+10*e.scalar*Math.cos(e.wobble),e.wobbleY=e.y+10*e.scalar*Math.sin(e.wobble),e.tiltAngle+=.1,e.tiltSin=Math.sin(e.tiltAngle),e.tiltCos=Math.cos(e.tiltAngle),e.random=Math.random()+2);var s=e.tick++/e.totalTicks,c=e.x+e.random*e.tiltCos,v=e.y+e.random*e.tiltSin,g=e.wobbleX+e.random*e.tiltCos,y=e.wobbleY+e.random*e.tiltSin;if(n.fillStyle="rgba("+e.color.r+", "+e.color.g+", "+e.color.b+", "+(1-s)+")",n.beginPath(),p&&e.shape.type==="path"&&typeof e.shape.path=="string"&&Array.isArray(e.shape.matrix))n.fill(ze(e.shape.path,e.shape.matrix,e.x,e.y,Math.abs(g-c)*.1,Math.abs(y-v)*.1,Math.PI/10*e.wobble));else if(e.shape.type==="bitmap"){var l=Math.PI/10*e.wobble,b=Math.abs(g-c)*.1,M=Math.abs(y-v)*.1,T=e.shape.bitmap.width*e.scalar,E=e.shape.bitmap.height*e.scalar,$=new DOMMatrix([Math.cos(l)*b,Math.sin(l)*b,-Math.sin(l)*M,Math.cos(l)*M,e.x,e.y]);$.multiplySelf(new DOMMatrix(e.shape.matrix));var R=n.createPattern(k.transform(e.shape.bitmap),"no-repeat");R.setTransform($),n.globalAlpha=1-s,n.fillStyle=R,n.fillRect(e.x-T/2,e.y-E/2,T,E),n.globalAlpha=1}else if(e.shape==="circle")n.ellipse?n.ellipse(e.x,e.y,Math.abs(g-c)*e.ovalScalar,Math.abs(y-v)*e.ovalScalar,Math.PI/10*e.wobble,0,2*Math.PI):f(n,e.x,e.y,Math.abs(g-c)*e.ovalScalar,Math.abs(y-v)*e.ovalScalar,Math.PI/10*e.wobble,0,2*Math.PI);else if(e.shape==="star")for(var _=Math.PI/2*3,P=4*e.scalar,U=8*e.scalar,j=e.x,W=e.y,q=5,O=Math.PI/q;q--;)j=e.x+Math.cos(_)*U,W=e.y+Math.sin(_)*U,n.lineTo(j,W),_+=O,j=e.x+Math.cos(_)*P,W=e.y+Math.sin(_)*P,n.lineTo(j,W),_+=O;else n.moveTo(Math.floor(e.x),Math.floor(e.y)),n.lineTo(Math.floor(e.wobbleX),Math.floor(v)),n.lineTo(Math.floor(g),Math.floor(y)),n.lineTo(Math.floor(c),Math.floor(e.wobbleY));return n.closePath(),n.fill(),e.tick<e.totalTicks}function Ve(n,e,s,c,v){var g=e.slice(),y=n.getContext("2d"),l,b,M=x(function(T){function E(){l=b=null,y.clearRect(0,0,c.width,c.height),k.clear(),v(),T()}function $(){a&&!(c.width===r.width&&c.height===r.height)&&(c.width=n.width=r.width,c.height=n.height=r.height),!c.width&&!c.height&&(s(n),c.width=n.width,c.height=n.height),y.clearRect(0,0,c.width,c.height),g=g.filter(function(R){return We(y,R)}),g.length?l=A.frame($):E()}l=A.frame($),b=E});return{addFettis:function(T){return g=g.concat(T),M},canvas:n,promise:M,reset:function(){l&&A.cancel(l),b&&b()}}}function Se(n,e){var s=!n,c=!!h(e||{},"resize"),v=!1,g=h(e,"disableForReducedMotion",Boolean),y=m&&!!h(e||{},"useWorker"),l=y?N():null,b=s?d:C,M=n&&l?!!n.__confetti_initialized:!1,T=typeof matchMedia=="function"&&matchMedia("(prefers-reduced-motion)").matches,E;function $(_,P,U){for(var j=h(_,"particleCount",L),W=h(_,"angle",Number),q=h(_,"spread",Number),O=h(_,"startVelocity",Number),Ze=h(_,"decay",Number),qe=h(_,"gravity",Number),Ke=h(_,"drift",Number),$e=h(_,"colors",ve),Je=h(_,"ticks",Number),ke=h(_,"shapes"),Ye=h(_,"scalar"),Ge=!!h(_,"flat"),Re=Y(_),Ae=j,be=[],Qe=n.width*Re.x,et=n.height*Re.y;Ae--;)be.push(F({x:Qe,y:et,angle:W,spread:q,startVelocity:O,color:$e[Ae%$e.length],shape:ke[re(0,ke.length)],ticks:Je,decay:Ze,gravity:qe,drift:Ke,scalar:Ye,flat:Ge}));return E?E.addFettis(be):(E=Ve(n,be,b,P,U),E.promise)}function R(_){var P=g||h(_,"disableForReducedMotion",Boolean),U=h(_,"zIndex",Number);if(P&&T)return x(function(O){O()});s&&E?n=E.canvas:s&&!n&&(n=B(U),document.body.appendChild(n)),c&&!M&&b(n);var j={width:n.width,height:n.height};l&&!M&&l.init(n),M=!0,l&&(n.__confetti_initialized=!0);function W(){if(l){var O={getBoundingClientRect:function(){if(!s)return n.getBoundingClientRect()}};b(O),l.postMessage({resize:{width:O.width,height:O.height}});return}j.width=j.height=null}function q(){E=null,c&&(v=!1,t.removeEventListener("resize",W)),s&&n&&(document.body.contains(n)&&document.body.removeChild(n),n=null,M=!1)}return c&&!v&&(v=!0,t.addEventListener("resize",W,!1)),l?l.fire(_,j,q):$(_,j,q)}return R.reset=function(){l&&l.reset(),E&&E.reset()},R}var ye;function Te(){return ye||(ye=Se(null,{useWorker:!0,resize:!0})),ye}function ze(n,e,s,c,v,g,y){var l=new Path2D(n),b=new Path2D;b.addPath(l,new DOMMatrix(e));var M=new Path2D;return M.addPath(b,new DOMMatrix([Math.cos(y)*v,Math.sin(y)*v,-Math.sin(y)*g,Math.cos(y)*g,s,c])),M}function He(n){if(!p)throw new Error("path confetti are not supported in this browser");var e,s;typeof n=="string"?e=n:(e=n.path,s=n.matrix);var c=new Path2D(e),v=document.createElement("canvas"),g=v.getContext("2d");if(!s){for(var y=1e3,l=y,b=y,M=0,T=0,E,$,R=0;R<y;R+=2)for(var _=0;_<y;_+=2)g.isPointInPath(c,R,_,"nonzero")&&(l=Math.min(l,R),b=Math.min(b,_),M=Math.max(M,R),T=Math.max(T,_));E=M-l,$=T-b;var P=10,U=Math.min(P/E,P/$);s=[U,0,0,U,-Math.round(E/2+l)*U,-Math.round($/2+b)*U]}return{type:"path",path:e,matrix:s}}function Xe(n){var e,s=1,c="#000000",v='"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", "Twemoji Mozilla", "system emoji", sans-serif';typeof n=="string"?e=n:(e=n.text,s="scalar"in n?n.scalar:s,v="fontFamily"in n?n.fontFamily:v,c="color"in n?n.color:c);var g=10*s,y=""+g+"px "+v,l=new OffscreenCanvas(g,g),b=l.getContext("2d");b.font=y;var M=b.measureText(e),T=Math.ceil(M.actualBoundingBoxRight+M.actualBoundingBoxLeft),E=Math.ceil(M.actualBoundingBoxAscent+M.actualBoundingBoxDescent),$=2,R=M.actualBoundingBoxLeft+$,_=M.actualBoundingBoxAscent+$;T+=$+$,E+=$+$,l=new OffscreenCanvas(T,E),b=l.getContext("2d"),b.font=y,b.fillStyle=c,b.fillText(e,R,_);var P=1/s;return{type:"bitmap",bitmap:l.transferToImageBitmap(),matrix:[P,0,0,P,-T*P/2,-E*P/2]}}i.exports=function(){return Te().apply(this,arguments)},i.exports.reset=function(){Te().reset()},i.exports.create=Se,i.exports.shapeFromPath=He,i.exports.shapeFromText=Xe})((function(){return typeof window<"u"?window:typeof self<"u"?self:this||{}})(),xe,!1);var De=xe.exports,Ft=xe.exports.create;var Q=window,D=document;Q.NumberBluffSceneMotion&&Q.NumberBluffSceneMotion.destroy();var J=null;function ct(){if(J&&!J.state.destroyed)return J;let o=Q.matchMedia("(prefers-reduced-motion: reduce)"),t=new Map,i=new Set,a=null,r=!1,m=!1,p=!0,u=!1,w=null,x=null,k=0,A=!1,N=0,I=()=>!u&&p&&r&&!m&&!o.matches&&!D.hidden,Z=d=>typeof d=="string"&&d.length>0;function S(){N+=1,x&&x.reset(),A=!1,w&&(w.style.visibility="hidden")}function h(){for(let d of t.values())d.flow&&(d.flow.animated=!1)}function L(){m=!0,S(),h()}function re(){D.hidden&&L()}function V(){o.matches&&L()}function ve(){for(let[d,C]of t)d.isConnected||(C.flow&&(C.flow.animated=!1),t.delete(d))}function ge(d,C){let B=D.createElement("span");B.className="nb-scene-number__fallback",B.textContent=C;let f=G?D.createElement("number-flow"):null;f&&(f.setAttribute("aria-hidden","true"),f.className="nb-scene-number__visual",f.respectMotionPreference=!0,f.trend=0,f.transformTiming={duration:180,easing:"cubic-bezier(.22,1,.36,1)"},f.spinTiming={duration:180,easing:"cubic-bezier(.22,1,.36,1)"},f.opacityTiming={duration:100,easing:"ease-out"},f.plugins=[]),d.classList.add("nb-scene-number"),d.replaceChildren(B),f&&d.append(f);let F={fallback:B,flow:f,value:null,text:C};return t.set(d,F),F}let Y={begin(d){return u||!Z(d)?!1:(a!==d&&(S(),h(),a=d,m=!1),r=!0,!0)},setNumber(d,C,{instant:B=!1}={}){if(u||!d||d.ownerDocument!==D||!d.isConnected||C!==null&&!Number.isSafeInteger(C))return!1;ve();let f=t.get(d);(!f||f.fallback.parentNode!==d||f.flow&&f.flow.parentNode!==d)&&(f?.flow&&(f.flow.animated=!1),f=ge(d,C===null?"\u2026":String(C)));let F=C===null?"\u2026":String(C);if(f.fallback.textContent=F,f.text=F,!f.flow||C===null)return f.flow&&(f.flow.animated=!1,f.flow.style.display="none"),d.dataset.numberMotion="fallback",f.value=C,!0;try{f.flow.style.display="",f.flow.animated=!B&&I()&&f.value!==null,f.value!==C&&f.flow.update(C),d.dataset.numberMotion="ready",f.value=C}catch{f.flow.animated=!1,f.flow.remove(),f.flow=null,d.dataset.numberMotion="fallback",f.value=C}return!0},celebrate({key:d,confirmed:C=!1,won:B=!1}={}){if(u||C!==!0||B!==!0||!Z(d)||a!==d||i.has(d)||(i.add(d),!I()))return!1;if(!w){if(w=D.createElement("canvas"),w.className="nb-scene-confetti",w.setAttribute("aria-hidden","true"),w.setAttribute("role","presentation"),w.style.pointerEvents="none",D.body.append(w),!w.getContext("2d"))return w.remove(),w=null,!1;x=De.create(w,{resize:!0,useWorker:!1,disableForReducedMotion:!0})}let f=++N;w.style.visibility="visible",A=!0,k+=1;let F=x({particleCount:34,spread:64,angle:90,startVelocity:23,gravity:.83,decay:.925,ticks:110,scalar:.72,origin:{x:.5,y:.64},colors:["#E9C46A","#FFF8E8","#BBA6ED"],shapes:["star","circle"],disableForReducedMotion:!0});return F&&typeof F.then=="function"&&F.then(()=>{u||N!==f||(A=!1,w.style.visibility="hidden")}),!0},skip(){u||L()},leave(){u||(L(),r=!1)},reset(){if(!u){L(),r=!1,a=null;for(let[d,C]of t)C.fallback.parentNode===d&&(d.textContent=C.text),d.classList.remove("nb-scene-number"),delete d.dataset.numberMotion;t.clear()}},setEnabled(d){p=!!d,p||L()},destroy(){u||(Y.reset(),u=!0,D.removeEventListener("visibilitychange",re),Q.removeEventListener("pagehide",Y.leave),o.removeEventListener?o.removeEventListener("change",V):o.removeListener(V),w&&w.remove(),w=null,x=null,i.clear())},get state(){return Object.freeze({key:a,active:r,suppressed:m,enabled:p,destroyed:u,reducedMotion:o.matches,hidden:D.hidden,canAnimate:G,numberCount:t.size,canvasCount:w?1:0,running:A,burstCount:k,seenWinCount:i.size})}};return D.addEventListener("visibilitychange",re),Q.addEventListener("pagehide",Y.leave),o.addEventListener?o.addEventListener("change",V):o.addListener(V),J=Object.freeze(Y),J}Q.NumberBluffSceneMotion=Object.freeze({create:ct,destroy(){J&&J.destroy()},version:"1.0.0"});})();
+
+</script><script>
+/*!
+Number Bluff localized orb prototype.
+Derived from official React Bits RippleDistortion waveFragment and compositeFragment.
+Source: https://raw.githubusercontent.com/DavidHDev/react-bits/main/src/content/Animations/RippleDistortion/RippleDistortion.jsx
+Retrieved 2026-10-27 UTC.
+Changes: fused brush and image sampling into one WebGL pass; one finite wave; masked original orb interior; removed grayscale, tint, chromatic dispersion, added glints, pointer-driven global ripples, and OGL/React runtime. License still retained for derived shader code.
+
+MIT + Commons Clause License Condition v1.0
+
+Copyright (c) 2026 David Haz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, and distribute the Software **as part of an application, website, or product**, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+## Commons Clause Restriction
+
+You may use this Software, including for any commercial purpose, **so long as you do not sell, sublicense, or redistribute the components themselves-whether alone, in a bundle, or as a ported version.**
+
+The same restriction covers the React Bits tools (Background Studio, Texture Lab, Shape Magic, Center Stage, Sound Lab and any tools added later) and the sounds in the sound library. **You may not sell, sublicense, or redistribute the tools or the sounds themselves, or offer the tools or a substantially similar copy of them as a hosted service-whether alone, in a bundle, or as a ported version.**
+
+What you make with the tools is yours to use. You can use exported code, images, videos, and audio files in any personal or commercial application, website, or product, including paid ones. **You may not sell or redistribute the exports on their own, either individually or as the product itself, such as a sound, texture, background, or template pack.**
+
+## No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+The extra/orb branch derives from the cited React Bits wave/displacement equations.
+Double ellipse sampling, crown polygon/material mask, reset surface mask,
+scheduling, single-canvas integration and fallback code are Number Bluff-specific
+adaptations/additions. They are not represented as verbatim upstream components.
+
+*/
+/* Number Bluff normal-sky + special shared-context prototype: localized original-art refraction.
+ * Brush and composite displacement adapted from React Bits RippleDistortion,
+ * Copyright (c) 2026 David Haz, MIT + Commons Clause. See THIRD_PARTY_NOTICES.txt.
+ * Fused a single wave into one render pass; no React/OGL runtime or new artwork.
+ */
+(function(global){
+'use strict';
+const NORMAL_SPECS={
+  "normal0": {
+    "id": 7,
+    "value": "0",
+    "file": "card-00-soft.png",
+    "width": 1061,
+    "height": 1483,
+    "bottom": 0.37,
+    "reason": "cat ear begins near .40; reserve .03 margin"
+  },
+  "normal1": {
+    "id": 4,
+    "value": "1",
+    "file": "card-01-soft.png",
+    "width": 1061,
+    "height": 1482,
+    "bottom": 0.33,
+    "reason": "highest rabbit ear begins near .35"
+  },
+  "normal2": {
+    "id": 8,
+    "value": "2",
+    "file": "card-02-soft.png",
+    "width": 1061,
+    "height": 1483,
+    "bottom": 0.35,
+    "reason": "paired rabbit ear begins near .38"
+  },
+  "normal3": {
+    "id": 9,
+    "value": "3",
+    "file": "card-03-soft.png",
+    "width": 1061,
+    "height": 1482,
+    "bottom": 0.33,
+    "reason": "rear rabbit ear begins near .35"
+  },
+  "normal4": {
+    "id": 5,
+    "value": "4",
+    "file": "card-04-soft.png",
+    "width": 1061,
+    "height": 1482,
+    "bottom": 0.37,
+    "exclude": [
+      0.62,
+      0.27
+    ],
+    "reason": "upper-right ear begins near .30; exclude right early"
+  },
+  "normal5": {
+    "id": 10,
+    "value": "5",
+    "file": "card-05-soft.png",
+    "width": 1061,
+    "height": 1482,
+    "bottom": 0.35,
+    "reason": "upper rabbit ear begins near .37"
+  },
+  "normalMinus5": {
+    "id": 11,
+    "value": "-5",
+    "file": "card-minus05-soft.png",
+    "width": 1061,
+    "height": 1482,
+    "bottom": 0.38,
+    "reason": "cloud character entirely below .50"
+  },
+  "normalMinus10": {
+    "id": 12,
+    "value": "-10",
+    "file": "card-minus10-soft.png",
+    "width": 1061,
+    "height": 1482,
+    "bottom": 0.38,
+    "reason": "cloud character entirely below .49"
+  },
+  "normal10": {
+    "id": 13,
+    "value": "10",
+    "file": "card-10-soft-v3.png",
+    "width": 1024,
+    "height": 1536,
+    "bottom": 0.38,
+    "reason": "highest star character begins near .44"
+  },
+  "normal15": {
+    "id": 14,
+    "value": "15",
+    "file": "card-15-soft.png",
+    "width": 1024,
+    "height": 1536,
+    "bottom": 0.31,
+    "reason": "highest rear star begins near .34; stricter top bound"
+  },
+  "normal20": {
+    "id": 6,
+    "value": "20",
+    "file": "card-20-soft-v2.png",
+    "width": 1024,
+    "height": 1536,
+    "bottom": 0.36,
+    "exclude": [
+      0.73,
+      0.31
+    ],
+    "reason": "highest character near .39; preserve upper-right moon too"
+  }
+};
+const VERTEX=`attribute vec2 position;varying vec2 vUv;void main(){vUv=position*.5+.5;gl_Position=vec4(position,0.,1.);}`;
+const FRAGMENT=`precision highp float;
+varying vec2 vUv;uniform sampler2D uTexture;uniform float uProgress;uniform float uStrength;uniform int uKind;uniform vec2 uCssSize;uniform float uSkyBottom;uniform vec2 uSkyExclude;
+const float PI=3.141592653589793;const float EDGE=.006737947;
+float triangle(vec2 p,vec2 a,vec2 b,vec2 c){
+ vec2 v0=c-a,v1=b-a,v2=p-a;float den=v0.x*v1.y-v1.x*v0.y;
+ float u=(v2.x*v1.y-v1.x*v2.y)/den;float v=(v0.x*v2.y-v2.x*v0.y)/den;
+ return smoothstep(0.,.025,min(min(u,v),1.-u-v));
+}
+float crownMask(vec2 p){
+ vec2 points[7];points[0]=vec2(518.,664.);points[1]=vec2(550.,686.);points[2]=vec2(610.,637.);points[3]=vec2(646.,701.);points[4]=vec2(685.,687.);points[5]=vec2(669.,739.);points[6]=vec2(518.,718.);
+ bool inside=false;float distance=10000.;vec2 previous=points[6];
+ for(int i=0;i<7;i++){vec2 current=points[i];vec2 edge=current-previous;float t=clamp(dot(p-previous,edge)/dot(edge,edge),0.,1.);distance=min(distance,length(p-(previous+t*edge)));if((current.y>p.y)!=(previous.y>p.y)){float crossX=(previous.x-current.x)*(p.y-current.y)/(previous.y-current.y)+current.x;if(p.x<crossX)inside=!inside;}previous=current;}
+ return inside?smoothstep(0.,3.,distance):0.;
+}
+void main(){
+ vec2 uv=vec2(vUv.x,1.-vUv.y);vec4 original=texture2D(uTexture,uv);
+ float envelope=sin(PI*clamp(uProgress,0.,1.));
+ if(uProgress<=0.||uProgress>=1.){gl_FragColor=vec4(0.);return;}
+ float mask=0.;vec3 color=original.rgb;
+ if(uKind==0){
+  vec2 orb=(uv-vec2(.51,.66))/vec2(.29,.205);float radius=length(orb);
+  mask=1.-smoothstep(.70,.88,radius);
+  float scale=.22+uProgress*1.18;vec2 p=(orb-vec2(-.08,.03))/scale;float r=dot(p,p);float brush=0.;
+  if(r<1.){brush=(exp(-r*5.)-EDGE)/(1.-EDGE);brush*=.55+.45*cos(sqrt(r)*PI*2.*2.);}
+  float amount=brush*envelope*envelope;float theta=amount*.18*PI*2.;
+  vec2 push=vec2(sin(theta),cos(theta))*amount*uStrength*vec2(1.,.70)*mask;
+  color=texture2D(uTexture,uv+push).rgb;
+ }else if(uKind==1){
+  // Original x2 ellipse, measured in source pixels; rotation is not applied to card.
+  vec2 px=uv*vec2(1051.,1496.)-vec2(520.,958.);
+  float c=cos(-.485),s=sin(-.485);vec2 q=vec2(c*px.x+s*px.y,-s*px.x+c*px.y)/vec2(440.,155.);
+  float radius=length(q);mask=smoothstep(.28,.43,radius)*(1.-smoothstep(.82,1.01,radius));
+  float turn=.07*envelope*mask;float ct=cos(turn),st=sin(turn);
+  vec2 warped=vec2(ct*q.x-st*q.y,st*q.x+ct*q.y)*vec2(440.,155.);
+  vec2 samplePx=vec2(c*warped.x-s*warped.y,s*warped.x+c*warped.y)+vec2(520.,958.);
+  color=texture2D(uTexture,samplePx/vec2(1051.,1496.)).rgb;
+ }else if(uKind==2){
+  // Inner crown facets only, excluding top beads, ears, forehead and eyes.
+  vec2 p=uv*vec2(1049.,1499.);
+  mask=crownMask(p);
+  mask*=smoothstep(.10,.23,original.g-original.b)*smoothstep(.62,.83,original.r);
+  float band=exp(-pow((uv.x-(.47+.22*uProgress))/.033,2.));
+  color=original.rgb*(1.+.19*band*envelope); // reflected original gold; no white glyph.
+ }else if(uKind==3){
+  // Existing reset arrow face: ring section + its triangular arrowhead.
+  vec2 px=uv*vec2(1062.,1482.);vec2 q=(px-vec2(540.,1000.))/vec2(276.,278.);
+  float radius=length(q);float angle=atan(q.y,q.x);
+  float ring=smoothstep(.58,.66,radius)*(1.-smoothstep(.96,1.01,radius));
+  // Exclude upper-left gap; head supplied by the measured original triangle.
+  float gap=1.-smoothstep(-2.85,-2.62,angle)*(1.-smoothstep(-1.73,-1.56,angle));
+  float head=triangle(px,vec2(353.,809.),vec2(496.,719.),vec2(505.,906.));
+  mask=max(ring*gap,head);
+  mask*=smoothstep(.60,.84,min(original.r,original.g));
+  float travel=-1.65+uProgress*5.9;float angular=atan(sin(angle-travel),cos(angle-travel));
+  float band=exp(-pow(angular/.34,2.));
+  // Reflections darken/lighten existing facet slightly, retaining luminous texture.
+  color=original.rgb*(1.+.13*band*envelope);
+ }
+ else if(uKind>=4){
+  // Normal sky only: original illustration samples, no new stars/lines/particles.
+  float bottom=uSkyBottom;
+  mask=smoothstep(.055,.08,uv.y)*(1.-smoothstep(bottom-.04,bottom,uv.y));
+  mask*=smoothstep(.065,.095,uv.x)*(1.-smoothstep(.905,.935,uv.x));
+  if(uSkyExclude.x<1.){ // Per-art exclusion, starts fading before protected silhouette.
+   mask*=1.-smoothstep(uSkyExclude.x-.03,uSkyExclude.x,uv.x)*smoothstep(uSkyExclude.y-.025,uSkyExclude.y,uv.y);
+  }
+  vec2 pixel=1./max(uCssSize,vec2(1.));
+  float time=uProgress*PI*2.;
+  vec2 breeze=vec2(sin(uv.y*7.+time*.7)*1.4,cos(uv.x*6.+time*.5)*.65)*pixel;
+  vec2 shift=breeze*envelope*mask;
+  color=texture2D(uTexture,uv+shift).rgb;
+  // Wide low-contrast illumination, not a sweeping white band or a new sparkle.
+  float light=sin(uv.x*3.+uv.y*2.-time*.65)*.028*envelope;
+  color*=1.+light;
+ }
+ if(mask<=0.){gl_FragColor=vec4(0.);return;}
+ gl_FragColor=vec4(color,mask*original.a*envelope);
+}`;
+function create({source,sources={extra:source},duration=1200,strength=.007,maxDpr=1.5,useDOMImages=false}={}){
+ const canvas=document.createElement('canvas');canvas.className='nb-special-refraction';canvas.setAttribute('aria-hidden','true');
+ const gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:false,antialias:false,depth:false,stencil:false,preserveDrawingBuffer:true});
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+ let host=null,raf=0,start=0,last=0,slow=0,disabled=!gl,disposed=false,loaded=false,visible=false,paused=false,readyResolve;
+ const ready=new Promise(resolve=>readyResolve=resolve);
+ let program,buffer,texture,progressLoc,strengthLoc,kindLoc,cssSizeLoc,skyBottomLoc,skyExcludeLoc;let cssWidth=1,cssHeight=1;const textures=new Map();const staging=document.createElement('canvas');const staging2d=staging.getContext('2d');const kinds={extra:0,double:1,max0:2,reset:3,...Object.fromEntries(Object.entries(NORMAL_SPECS).map(([key,spec])=>[key,spec.id]))};let activeKind='extra',activeDuration=duration;
+ function stop(){cancelAnimationFrame(raf);raf=0;canvas.style.display='none';if(host)observer?.unobserve(host);host=null;canvas.remove();}
+ const observer=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>{for(const e of entries)if(e.target===host){visible=e.isIntersecting&&e.intersectionRatio>=.4;if(!visible)stop();}},{threshold:[0,.4,1]}):null;
+ function allowed(){return !disabled&&!disposed&&!paused&&loaded&&!document.hidden&&!reduced.matches&&host?.isConnected&&host.getClientRects().length>0&&!host.closest('.hide,.hidden,.out,[hidden],[inert],[aria-hidden="true"],[data-revealed="false"]')&&getComputedStyle(host).visibility!=='hidden';}
+ function draw(progress){
+  if(!allowed())return false;
+  gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.useProgram(program);gl.bindTexture(gl.TEXTURE_2D,textures.get(activeKind).texture);gl.uniform1i(kindLoc,kinds[activeKind]);gl.uniform2f(cssSizeLoc,cssWidth,cssHeight);const spec=NORMAL_SPECS[activeKind];gl.uniform1f(skyBottomLoc,spec?.bottom||0);gl.uniform2f(skyExcludeLoc,spec?.exclude?.[0]??2,spec?.exclude?.[1]??2);gl.uniform1f(progressLoc,Math.max(0,Math.min(1,progress)));gl.uniform1f(strengthLoc,Math.max(0,Math.min(.01,strength)));
+  gl.drawArrays(gl.TRIANGLES,0,3);return true;
+ }
+ function frame(now){
+  if(!allowed()){stop();return;}
+  if(last&&now-last<1000/30){raf=requestAnimationFrame(frame);return;}
+  if(last&&now-last>120)slow++;else slow=Math.max(0,slow-1);
+  if(slow>=4){disabled=true;stop();return;}
+  last=now;const progress=(now-start)/activeDuration;
+  if(progress>=1){stop();return;}
+  draw(progress);raf=requestAnimationFrame(frame);
+ }
+ function mount(el,kind){
+  if(!(kind in kinds))return false;
+  // Production reuses the disclosed face's decoded WebP; no all-deck image preload.
+  if(useDOMImages&&!textures.has(kind)){
+   const image=el?.querySelector('img.card-art');
+   if(!image?.complete||!image.naturalWidth||!sources[kind]||new URL(image.currentSrc||image.src,document.baseURI).href!==new URL(sources[kind],document.baseURI).href)return false;
+   try{const tex=gl.createTexture();gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);textures.set(kind,{texture:tex,image,width:0,height:0});}catch{return false;}
+  }
+  if(!textures.has(kind))return false;activeKind=kind;
+  if(!el||disabled||disposed||paused||!loaded||document.hidden||reduced.matches)return false;
+  const rect=el.getBoundingClientRect();
+  if(!rect.width||!rect.height||rect.bottom<=0||rect.top>=innerHeight||rect.right<=0||rect.left>=innerWidth)return false;
+  stop();host=el;
+  if(!allowed()){stop();return false;}
+  cssWidth=rect.width;cssHeight=rect.height;const dpr=Math.min(devicePixelRatio||1,maxDpr);canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));
+  // Prefilter the unchanged original to actual render resolution before any UV sampling.
+  // Prevents native-resolution NPOT minification from introducing high-frequency sparkle.
+  const entry=textures.get(kind);
+  if(entry.width!==canvas.width||entry.height!==canvas.height){
+   try{staging.width=canvas.width;staging.height=canvas.height;staging2d.imageSmoothingEnabled=true;staging2d.imageSmoothingQuality='high';staging2d.clearRect(0,0,staging.width,staging.height);staging2d.drawImage(entry.image,0,0,staging.width,staging.height);gl.bindTexture(gl.TEXTURE_2D,entry.texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,staging);entry.width=canvas.width;entry.height=canvas.height;}catch{stop();return false;}
+  }
+  el.append(canvas);canvas.style.display='block';visible=true;observer?.observe(el);return true;
+ }
+ function shader(type,sourceCode){const s=gl.createShader(type);gl.shaderSource(s,sourceCode);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
+ if(gl){try{
+  const vs=shader(gl.VERTEX_SHADER,VERTEX),fs=shader(gl.FRAGMENT_SHADER,FRAGMENT);
+  program=gl.createProgram();gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);gl.deleteShader(vs);gl.deleteShader(fs);
+  if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+  buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const pos=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+  skyBottomLoc=gl.getUniformLocation(program,'uSkyBottom');skyExcludeLoc=gl.getUniformLocation(program,'uSkyExclude');cssSizeLoc=gl.getUniformLocation(program,'uCssSize');kindLoc=gl.getUniformLocation(program,'uKind');progressLoc=gl.getUniformLocation(program,'uProgress');strengthLoc=gl.getUniformLocation(program,'uStrength');
+  const entries=Object.entries(sources).filter(([kind,url])=>kind in kinds&&url);
+  let pending=entries.length;if(!pending){disabled=true;readyResolve(false);}
+  if(useDOMImages&&pending){loaded=true;readyResolve(true);}
+  for(const [kind,url] of (useDOMImages?[]:entries)){
+   const image=new Image();image.crossOrigin='anonymous';image.decoding='async';
+   const finish=()=>{pending--;if(!pending){loaded=textures.size>0;disabled=!loaded;readyResolve(loaded);}};
+   image.onload=()=>{if(disposed)return;try{
+    const tex=gl.createTexture();gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    textures.set(kind,{texture:tex,image,width:0,height:0});
+   }catch{}finish();};image.onerror=finish;image.src=url;
+  }
+  gl.uniform1i(gl.getUniformLocation(program,'uTexture'),0);
+ }catch{disabled=true;readyResolve(false);}}else readyResolve(false);
+ function visibility(){if(document.hidden||reduced.matches)stop();}
+ function lost(event){event.preventDefault();disabled=true;stop();}
+ document.addEventListener('visibilitychange',visibility);global.addEventListener('pagehide',stop);reduced.addEventListener?.('change',visibility);canvas.addEventListener('webglcontextlost',lost);
+ return {ready,play(el,kind="extra",options={}){if(!mount(el,kind))return false;const requested=Number(options.duration);activeDuration=Number.isFinite(requested)&&requested>0?Math.max(200,Math.min(12000,requested)):(kinds[kind]>=4?8000:duration);start=performance.now();last=0;slow=0;raf=requestAnimationFrame(frame);return true;},stop,pause(){paused=true;stop();},resume(){paused=false;},
+  // Deterministic review frame; still obeys face visibility / reduced-motion gates.
+  renderAt(el,kind,progress){if(typeof kind==="number"){progress=kind;kind="extra";}return mount(el,kind)&&draw(progress);},
+  readPixels(){if(!gl)return null;const pixels=new Uint8Array(canvas.width*canvas.height*4);gl.readPixels(0,0,canvas.width,canvas.height,gl.RGBA,gl.UNSIGNED_BYTE,pixels);return {width:canvas.width,height:canvas.height,pixels};},
+  getActiveHost(){return host;},
+  status(){return{loaded,disabled,active:!!raf,kind:host?activeKind:null,activeKind:host?activeKind:null,paused,canvasCount:1,duration:activeDuration};},
+  destroy(){disposed=true;stop();readyResolve(false);observer?.disconnect();document.removeEventListener('visibilitychange',visibility);global.removeEventListener('pagehide',stop);reduced.removeEventListener?.('change',visibility);canvas.removeEventListener('webglcontextlost',lost);if(gl){gl.deleteBuffer(buffer);for(const entry of textures.values())gl.deleteTexture(entry.texture);textures.clear();gl.deleteProgram(program);gl.getExtension('WEBGL_lose_context')?.loseContext();}canvas.remove();}
+ };
+}
+global.NumberBluffCardSurfaceMotion=Object.freeze({create,normalSpecs:NORMAL_SPECS});
+})(window);
+
+</script><script>
+/* Presentation-only orchestration. Reads disclosed DOM faces, never game state. */
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.NumberBluffCardSurfaceController=factory();})(typeof globalThis==='object'?globalThis:this,function(){
+ 'use strict';
+ function create({renderer,glare,document:doc=document,window:win=window,busy=()=>false}={}){
+  const reduced=win.matchMedia('(prefers-reduced-motion: reduce)');
+  let ready=false,disposed=false,active=null,endTimer=0,idleTimer=0,lastNormal=null,nextAllowed=0;
+  const seen=new Set();
+  const blocked=()=>disposed||doc.hidden||reduced.matches||!!doc.querySelector('#restartConfirm:not(.hide)');
+  function kindOf(node){
+   if(!node?.querySelector('img.card-art')||node.matches('.hidden,.out')||node.closest('.hide,[hidden],[inert],[data-revealed="back"],[data-revealed="false"]'))return null;
+   if(node.classList.contains('normal-card'))return 'normal'+node.dataset.artValue.replace('-', 'Minus');
+   return ['extra','double','max0','reset'].find(kind=>node.classList.contains('kind-'+kind))||null;
+  }
+  function eligible(node){
+   if(blocked()||!node?.isConnected||!kindOf(node)||!node.getClientRects().length)return false;
+   const modal=doc.querySelector('dialog[open]');if(modal&&!modal.contains(node))return false;
+   const r=node.getBoundingClientRect();return r.width>0&&r.height>0&&r.bottom>0&&r.top<win.innerHeight&&r.right>0&&r.left<win.innerWidth;
+  }
+  function releaseGlare(){if(!blocked()&&!doc.querySelector('dialog[open]'))glare.resume();}
+  function stop(){win.clearTimeout(endTimer);endTimer=0;renderer.stop();active=null;releaseGlare();}
+  function play(node,{key=null,duration=null,priority=false}={}){
+   if(!ready||!eligible(node)||(key&&seen.has(key)))return false;
+   if(!priority&&(busy()||active||win.performance.now()<nextAllowed))return false;
+   const kind=kindOf(node),ms=duration??(kind.startsWith('normal')?8000:1200);
+   if(priority)stop();
+   glare.pause();
+   if(!renderer.play(node,kind,{duration:ms})){releaseGlare();return false;}
+   if(key){seen.add(key);if(seen.size>128)seen.delete(seen.values().next().value);}
+   active={node,kind};nextAllowed=win.performance.now()+ms+1500;
+   endTimer=win.setTimeout(stop,ms+50);return true;
+  }
+  function schedule(){
+   win.clearTimeout(idleTimer);idleTimer=0;if(disposed)return;
+   idleTimer=win.setTimeout(()=>{
+    if(ready&&!blocked()&&!busy()&&!active&&!doc.querySelector('dialog[open]')){
+     const nodes=[...doc.querySelectorAll('.screen:not(.hide) .normal-card')].filter(eligible);
+     if(nodes.length){const index=nodes.indexOf(lastNormal);const node=nodes[(index+1)%nodes.length];if(play(node))lastNormal=node;}
+    }
+    schedule();
+   },11000);
+  }
+  function sync(){if(active&&!eligible(active.node))stop();}
+  function onPointer(event){if(event.pointerType==='touch')return;const node=event.target.closest?.('.player-card');if(node&&!node.contains(event.relatedTarget))play(node);}
+  function visibility(){if(doc.hidden||reduced.matches)stop();else if(!active)releaseGlare();}
+  function pagehide(){stop();glare.pause();win.clearTimeout(idleTimer);idleTimer=0;}
+  function pageshow(){schedule();}
+  doc.addEventListener('pointerover',onPointer,true);doc.addEventListener('visibilitychange',visibility);
+  reduced.addEventListener?.('change',visibility);win.addEventListener('pagehide',pagehide);win.addEventListener('pageshow',pageshow);
+  Promise.resolve(renderer.ready).then(value=>{if(!disposed)ready=!!value;});schedule();
+  return {play,stop,sync,status(){return{ready,active:!!active,kind:active?.kind||null,seen:seen.size};},destroy(){disposed=true;stop();win.clearTimeout(idleTimer);doc.removeEventListener('pointerover',onPointer,true);doc.removeEventListener('visibilitychange',visibility);reduced.removeEventListener?.('change',visibility);win.removeEventListener('pagehide',pagehide);win.removeEventListener('pageshow',pageshow);renderer.destroy();seen.clear();}};
+ }
+ return Object.freeze({create});
 });
 
 </script><script>
@@ -1258,6 +1986,24 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
   'use strict';
   const G = window.NumberBluff, timer = window.NumberBluffScheduler(), $ = id => document.getElementById(id);
   const audio = window.NumberBluffAudio.create();
+  const cardMotion = window.NumberBluffCardMotion.createManager();
+  const cardReveal = window.NumberBluffCardReveal.createController();
+  const sceneMotion = window.NumberBluffSceneMotion.create();
+  const surfaceSources = {...window.NumberBluffCardArt.assets.special};
+  for (const [value,src] of Object.entries(window.NumberBluffCardArt.assets.normal)) surfaceSources['normal'+value.replace('-', 'Minus')] = src;
+  const surfaceRenderer = window.NumberBluffCardSurfaceMotion.create({sources:surfaceSources,useDOMImages:true});
+  const cardSurface = window.NumberBluffCardSurfaceController.create({renderer:surfaceRenderer,glare:cardMotion,busy:()=>presenter.active});
+  let detailSurfaceEpoch = 0;
+  const motionCards = new Set();
+  function syncCardMotion() {
+    cardSurface.sync();
+    for (const node of motionCards) if (!node.isConnected) { cardMotion.detach(node); motionCards.delete(node); }
+    for (const node of document.querySelectorAll('.screen:not(.hide) .player-card:not(.hidden):not(.out)')) {
+      if (!motionCards.has(node)) { cardMotion.attach(node, { faceUp: true }); motionCards.add(node); }
+    }
+  }
+  const motionObserver = new MutationObserver(syncCardMotion);
+  motionObserver.observe(document.querySelector('main'), {childList:true,subtree:true});
   let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
   const sessionFinishListeners = new Set();
   let connectionBlocked = false, connectionMessage = '';
@@ -1265,7 +2011,7 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
   const updateViewport = () => document.documentElement.style.setProperty('--nb-viewport-height', (window.visualViewport?.height || window.innerHeight) + 'px');
   window.addEventListener('resize', updateViewport); window.visualViewport?.addEventListener('resize', updateViewport); updateViewport();
   let human = 'p1', localProfile = { name: 'プレイヤー', avatarUrl: null };
-  const safeAvatar = value => { try { const u = new url("https://tanabe0422.github.io/number-bluff/value"); return u.protocol === 'https:' && !u.username && !u.password ? u.href : null; } catch { return null; } };
+  const safeAvatar = value => { try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password ? u.href : null; } catch { return null; } };
   const difficultyNames = { easy: 'やさしい', normal: '普通', hard: '強い' };
   const avatars = ['https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp', 'https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp', 'https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp', 'https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp'];
   const avatarNames = ['ほしもち', 'ほしねこ', 'もふうさ', 'くもまる'];
@@ -1297,11 +2043,13 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
   });
   function cancelPresentation(settle = false) {
     if (presenter.active) audio.stop();
+    cardSurface.stop(); cardReveal.settleAll(); sceneMotion.leave();
     presenter.cancel(); presentationFrame = null; presentationPrevious = null;
     if (settle && view?.result && view.phase !== 'play' && view.phase !== 'lobby') { renderPlayers(); renderResult(); }
   }
   function paintPresentationFrame(frame, key) {
     if (key !== presentationKey || !view?.result || view.phase === 'play' || view.phase === 'lobby') return;
+    cardSurface.stop();
     const hadOutcome = presentationFrame?.outcomeVisible;
     const phaseSound = { hold: 'challenge', reveal: 'reveal', extra: 'extra', max: 'max', sum: 'sum', multiply: 'multiply', reset: 'reset', compare: 'compare' };
     if (frame.outcomeVisible && !hadOutcome) audio.play(view.result.winner === human ? 'win' : view.result.loser === human ? 'loss' : 'outcome');
@@ -1313,20 +2061,26 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
       const block = [...$('playerGrid').children].find(n => n.dataset.player === p.id); if (!block) continue;
       let node = block.querySelector('.player-card');
       if (frame.revealedIds.includes(card.id) && node.classList.contains('hidden')) {
-        const face = cardNode(card); face.classList.add('presentation-card', 'is-revealing'); face.dataset.cardId = card.id; face.dataset.revealed = 'true';
-        if (p.id === human) face.id = 'humanCard'; face.setAttribute('aria-label', name(p.id) + 'のカード ' + card.label); node.replaceWith(face); node = face;
+        const face = cardNode(card); face.classList.add('presentation-card'); face.dataset.cardId = card.id; face.dataset.revealed = 'true';
+        if (p.id === human) face.id = 'humanCard'; face.setAttribute('aria-label', name(p.id) + 'のカード ' + card.label); cardReveal.reveal({ key: key + ':' + card.id, back: node, face, authorized: true }); node = face;
       }
       node.classList.toggle('is-adding', frame.phase === 'sum' && frame.cardId === card.id);
       node.classList.toggle('is-zeroed', frame.removedCardId === card.id);
       if (frame.removedCardId === card.id && !node.querySelector('.presentation-zero-stamp')) node.append(el('span', 'presentation-zero-stamp', '0'));
     }
     renderResult();
+    const surfaceKind = {extra:'extra',max:'max0',multiply:'double',reset:'reset'}[frame.phase];
+    if (surfaceKind && !frame.complete) {
+      const node = [...document.querySelectorAll('#battleScreen .player-card.kind-'+surfaceKind)].find(n=>!n.classList.contains('hidden'));
+      cardSurface.play(node,{key:key+':surface:'+frame.phase,duration:frame.phase==='reset'?350:400,priority:true});
+    }
+    if (frame.outcomeVisible && !hadOutcome) sceneMotion.celebrate({ key, confirmed: true, won: view.result.winner === human });
     if (frame.outcomeVisible && !hadOutcome) $('resultAnnouncement').textContent = '最終合計 ' + view.result.sum + '。' + $('resultText').textContent;
   }
   function show(id, focus = null) {
     if (screen === 'battleScreen' && id !== screen) { audio.stop(); cancelPresentation(true); }
     for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
-    screen = id; window.scrollTo(0, 0);
+    stopDetailSurface(); screen = id; cardReveal.settleAll(); cardMotion.pause(); cardMotion.resume(); syncCardMotion(); window.scrollTo(0, 0);
     for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
     if (focus) $(focus).focus({ preventScroll: true });
   }
@@ -1338,14 +2092,8 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
     if (card.kind !== 'number') node.classList.add('special');
     if (card.value < 0) node.classList.add('negative');
     node.append(el('span', 'card-value', card.kind === 'reset' ? 'リセット' : card.label));
-    const motion = card.kind === 'number' ? null : window.NumberBluffPresentation.createArtMotion(document, card.kind);
-    if (motion) node.append(motion);
-    if (card.kind === 'number') {
-      node.classList.add('normal-card');
-      // Only public faces reach this point; hidden/out cards returned above.
-      node.dataset.artValue = String(card.value);
-      node.append(window.NumberBluffNormalArt.create(document, card.value));
-    }
+    if (card.kind === 'number') { node.classList.add('normal-card'); node.dataset.artValue = String(card.value); }
+    node.append(window.NumberBluffCardArt.create(document, card));
     return node;
   }
   function clearError() { $('inputError').textContent = ''; $('number').removeAttribute('aria-invalid'); }
@@ -1419,6 +2167,7 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
   }
   function addBot() { if (transport) { lobbyAction('addBot', { difficulty: nextDifficulty }); return; } if (!state) return; const next = G.addBot(state, nextDifficulty); if (next === state) return; selectedBot = next.players.find(p => !state.players.some(old => old.id === p.id)).id; state = next; view = G.publicView(state, human); renderLobby(); }
   function renderPlayers() {
+    cardReveal.settleAll();
     const grid = $('playerGrid'), scrollTop = grid.scrollTop; grid.replaceChildren(); grid.classList.toggle('many', view.players.length > 4); grid.dataset.count = view.players.length;
     const held = presentationFrame && !presentationFrame.outcomeVisible;
     for (const player of view.players) {
@@ -1451,7 +2200,7 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
     if (f.terms.length) line('', f.terms.map(t => t.value < 0 ? '(' + t.value + ')' : String(t.value)).join(' + ') + ' = ' + (f.multiplierApplied ? r.baseSum : f.runningTotal));
     if (f.multiplierApplied) line('×2', r.baseSum + ' × 2 = ' + r.sum);
     if (f.compareVisible) line(name(r.bidder) + 'の宣言', r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum);
-    $('totalLabel').textContent = f.compareVisible ? '最終合計' : '計算中'; $('finalTotal').textContent = f.compareVisible ? r.sum : '…';
+    $('totalLabel').textContent = f.compareVisible ? '最終合計' : '計算中'; sceneMotion.setNumber($('finalTotal'), f.compareVisible ? r.sum : f.runningTotal ?? null);
     $('resultAvatar').replaceChildren(playerAvatar(f.outcomeVisible ? r.winner || r.loser : r.challenger));
     const loser = view.players.find(p => p.id === r.loser);
     $('resultText').textContent = f.outcomeVisible ? r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') : name(r.challenger) + '「グラビティ！」';
@@ -1475,7 +2224,7 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
     line('数字の合計', (numeric.map(c => c.id === r.removedCard?.id ? '0' : c.value < 0 ? '(' + c.value + ')' : String(c.value)).join(' + ') || '0') + ' = ' + r.baseSum);
     if (r.multiplier !== 1) line('×2 の効果', r.baseSum + ' × 2 = ' + r.sum);
     if (r.reset) $('calculationSteps').append(el('div', 'calc-line', 'リセット：この判定後、全36枚を混ぜ直します。'));
-    $('finalTotal').textContent = r.sum;
+    sceneMotion.setNumber($('finalTotal'), r.sum, { instant: !presenter.active });
     const loser = view.players.find(p => p.id === r.loser);
     $('resultAvatar').replaceChildren(playerAvatar(r.winner || r.loser));
     $('resultText').textContent = r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') + '　' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum;
@@ -1489,7 +2238,7 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
     else if (view.result) {
       const key = roomEpoch + ':' + view.game + ':' + view.round;
       if (key !== presentationKey) {
-        cancelPresentation(); presentationKey = key;
+        cancelPresentation(); presentationKey = key; sceneMotion.begin(key);
         if (previous?.phase === 'play' && screen === 'battleScreen') { presentationPrevious = previous.players; presentationFrame = window.NumberBluffPresentation.plan(view.result, view.players)[0]; startPresentation = true; }
       }
     }
@@ -1512,6 +2261,7 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
       audio.play('declare');
       const panel = document.querySelector('.bid-panel'); panel.classList.remove('presentation-bid-pulse'); void panel.offsetWidth; panel.classList.add('presentation-bid-pulse');
     }
+    if (active) { const target = [...$('playerGrid').children].find(n => n.dataset.player === view.turn)?.querySelector('.player-card'); cardReveal.gold({key: roomEpoch + ':' + view.game + ':' + view.round + ':' + view.turn + ':' + view.bid, node: target?.classList.contains('hidden') ? null : target}); }
     if (startPresentation) { presenter.play(presentationKey, view.result, view.players); if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) presenter.skip(); }
     if (screen === 'battleScreen' && $('restartConfirm').classList.contains('hide')) {
       if (!active && previous?.phase === 'play') $('resultTitle').focus();
@@ -1562,7 +2312,7 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
     if (value === null || !action('declare', value)) { fail('前より大きな1以上の整数を入力してください（最大9007199254740991）。'); $('number').focus(); }
   };
   $('challenge').onclick = () => action('challenge');
-  $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; audio.stop(); presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
+  $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; audio.stop(); cardSurface.stop(); cardReveal.settleAll(); sceneMotion.skip(); presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
   document.querySelectorAll('[data-digit]').forEach(button => { button.onclick = () => {
     if ($('number').disabled) return;
     const prior = suggested ? '' : $('number').value, next = prior === '0' ? button.dataset.digit : prior + button.dataset.digit;
@@ -1572,8 +2322,8 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
   $('backspace').onclick = () => { if (!$('number').disabled) { $('number').value = $('number').value.slice(0, -1); suggested = false; clearError(); } };
   $('number').addEventListener('input', () => { suggested = false; clearError(); });
   $('number').addEventListener('keydown', event => { if (event.key === 'Enter' && !$('declare').disabled) { event.preventDefault(); $('declare').click(); } });
-  function confirmExit() { $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
-  function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); }
+  function confirmExit() { cardSurface.stop(); cardMotion.pause(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
+  function closeConfirm() { cardMotion.resume(); $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); }
   $('homeBtn').onclick = confirmExit; $('cancelRestart').onclick = closeConfirm;
   $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); const finished = captureSessionFinish(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   function overlay(id, trigger) { if (screen === 'homeScreen' || screen === 'joinPanel') cancelRoomRequest(); overlayReturn = { screen, trigger }; show(id); }
@@ -1632,13 +2382,19 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
     }
     container.focus({ preventScroll: true });
   }
+  function stopDetailSurface() { detailSurfaceEpoch++; cardSurface.stop(); }
   function cardDetail(card, count) {
+    const detailEpoch = ++detailSurfaceEpoch;
     const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。例：(3 + 5 − 5) × 2 = 6。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
-    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); $('cardDetail').showModal(); $('closeCardDetail').focus();
+    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); cardSurface.stop(); cardMotion.pause(); $('cardDetail').showModal(); $('closeCardDetail').focus(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailSurfaceEpoch&&$('cardDetail').open&&detailFace.isConnected)cardSurface.play(detailFace,{priority:true});}).catch(()=>{});
   }
-  $('closeCardDetail').onclick = () => $('cardDetail').close();
+  $('closeCardDetail').onclick = () => { stopDetailSurface(); $('cardDetail').close(); };
+  $('cardDetail').addEventListener('cancel', stopDetailSurface);
+  $('cardDetail').addEventListener('beforetoggle', event => { if(event.newState==='closed')stopDetailSurface(); });
   document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
-  window.addEventListener('pagehide', () => { timer.cancel(); cancelPresentation(true); });
+  $('cardDetail').addEventListener('close', () => { stopDetailSurface(); cardMotion.resume(); });
+  window.addEventListener('pageshow', () => { cardMotion.resume(); syncCardMotion(); });
+  window.addEventListener('pagehide', () => { stopDetailSurface(); cardMotion.pause(); timer.cancel(); cancelPresentation(true); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });
   // The SDK bridge provides the normalized stream; the UI never runs remote authority.
   function paintConnectionStatus() {
@@ -1712,7 +2468,7 @@ html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
   const clone=x=>JSON.parse(JSON.stringify(x));
   const id=x=>typeof x==='string'&&x.length>0&&x.length<=128&&!/[\u0000-\u001f]/.test(x);
   const safeName=x=>typeof x==='string'&&x.trim()?x.trim().slice(0,24):'プレイヤー';
-  function avatar(x){try{const u=new url("https://tanabe0422.github.io/number-bluff/x");return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch{return null;}}
+  function avatar(x){try{const u=new URL(x);return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch{return null;}}
   const profile=p=>({userId:p.userId,name:safeName(p.name),avatarUrl:avatar(p.avatarUrl)});
   function createSession(options){
     const {roomId,userId,hostUserId,sendMessage}=options;

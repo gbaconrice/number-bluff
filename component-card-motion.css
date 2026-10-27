@@ -1,0 +1,13 @@
+/* Adapted from React Bits Glare Hover (David Haz, 2026).
+   MIT + Commons Clause: see THIRD_PARTY_NOTICES.card-motion.txt. */
+.nb-glare-host { position:relative; isolation:isolate; }
+.nb-card-glare { position:absolute; inset:0; overflow:hidden; border-radius:inherit;
+  z-index:3; opacity:0; pointer-events:none; contain:paint; }
+.nb-card-glare__band { position:absolute; top:50%; left:50%; pointer-events:none; }
+/* Numbers stay outside the light layer. Existing absolute positioning is retained. */
+.player-card.nb-glare-host:not(.hidden):not(.out) .card-value { z-index:4; }
+/* Defensive: never light an unrevealed/out card if its class changes before detach. */
+.nb-glare-host.hidden > .nb-card-glare,
+.nb-glare-host.out > .nb-card-glare,
+.nb-glare-host[hidden] > .nb-card-glare { display:none; }
+@media (prefers-reduced-motion:reduce) { .nb-card-glare { display:none; } }

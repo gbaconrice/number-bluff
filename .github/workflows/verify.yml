@@ -9,7 +9,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,10 +38,36 @@ jobs:
           path: artifacts/visual-preview/
           if-no-files-found: ignore
           retention-days: 7
+      - name: Isolated official number and victory components
+        id: scene
+        continue-on-error: true
+        run: node --test tools/scene-motion/test/component-scene-motion.test.mjs
+      - name: Production special surface visual review
+        id: special
+        continue-on-error: true
+        run: node tools/special-motion-preview/test-special.cjs
+      - name: Production eleven normal surfaces and lifecycle guards
+        id: normal_sky
+        continue-on-error: true
+        run: node tools/normal-flow-preview/test-normal-flow.cjs
+      - name: Surface screenshots before full regression
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surface-prototype-preview
+          path: |
+            artifacts/special-prototype-*.png
+            artifacts/special-temporal-evidence.json
+            artifacts/normal-flow-*.png
+            artifacts/surface-special-*.png
+            artifacts/surface-normal-runtime.json
+            artifacts/scene-mobile-components.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Browser regression and responsive checks
         run: node tools/e2e.mjs
       - name: Require early visual checks
-        if: always() && steps.visual.outcome == 'failure'
+        if: always() && (steps.visual.outcome == 'failure' || steps.scene.outcome == 'failure' || steps.special.outcome == 'failure' || steps.normal_sky.outcome == 'failure')
         run: exit 1
       - name: Screenshots and test results only
         if: always()

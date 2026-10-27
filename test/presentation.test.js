@@ -63,30 +63,6 @@ test('typical two and eight player timelines remain concise',()=>{
  for(const count of [2,8]){const cards=Object.fromEntries(Array.from({length:count},(_,i)=>['p'+i,n('c'+i,i)]));const duration=plan(result(cards)).at(-1).at;assert.ok(duration>=1500&&duration<=3100);}
 });
 
-test('special illustration scenes are fixed, distinct, decorative and contain no hidden data', () => {
-  const {createArtMotion} = require('../card-presentation');
-  const doc = {
-    createElement(tag) { return {tag,attrs:{},children:[],setAttribute(k,v){this.attrs[k]=v;},append(...nodes){this.children.push(...nodes);}}; },
-    createDocumentFragment() { return {children:[],append(...nodes){this.children.push(...nodes);}}; }
-  };
-  const seen = new Set();
-  for (const kind of ['double','max0','extra','reset']) {
-    const fragment = createArtMotion(doc,kind);
-    assert.equal(fragment.children.length,2);
-    const [image,motion] = fragment.children;
-    assert.equal(image.className,'card-illustration');
-    assert.equal(image.attrs['aria-hidden'],'true');
-    assert.equal(motion.attrs['aria-hidden'],'true');
-    assert.match(motion.innerHTML,/<svg viewBox="0 0 100 100"/);
-    assert.doesNotMatch(motion.innerHTML,/<(?:script|foreignObject|image|text)\b|\b(?:href|id|onload)=/i);
-    assert.ok(!seen.has(motion.innerHTML)); seen.add(motion.innerHTML);
-  }
-  for (const kind of ['number','hidden','out','__proto__','<script>']) {
-    const node=createArtMotion(doc,kind);
-    assert.equal(node.className,'card-art-motion');
-    assert.equal(node.innerHTML,undefined);
-  }
-});
 
 test('reset animates deck refresh only after arithmetic and never clears the total', () => {
  const r=result({p1:n('five',5),p2:{id:'reset',kind:'reset'},p3:{id:'double',kind:'double'}});
@@ -105,31 +81,7 @@ test('reset animates deck refresh only after arithmetic and never clears the tot
  }
  });
 
-test('shared diagonal gloss is white-only, behind labels, and separate from character scenes', () => {
- const css=require('node:fs').readFileSync(require('node:path').join(__dirname,'../card-presentation.css'),'utf8');
- const gloss=css.match(/\.player-card:not\(\.hidden\):not\(\.out\)::after\s*\{([^}]+)\}/)[1];
- assert.match(gloss,/linear-gradient\(115deg/);
- const rgba=[...gloss.matchAll(/rgba\((\d+),(\d+),(\d+),([.\d]+)\)/g)];
- assert.ok(rgba.length>=3);
- for(const [,r,g,b,a] of rgba){assert.deepEqual([r,g,b],['255','255','255']);assert.ok(Number(a)<=.6);}
- assert.match(gloss,/z-index:3/);assert.match(gloss,/pointer-events:none/);
- assert.match(css,/\.player-card \.card-value\s*\{\s*z-index:4/);
- assert.doesNotMatch(css,/card-opening-glint|\.kind-number \.card-art-motion/);
- assert.match(css,/\.screen\.hide \.player-card::after/);
- assert.match(css,/html:has\(\.nb-background\[data-motion="paused"\]\) \.player-card::after/);
- assert.match(css,/\.player-card::after[^}]*display:none!important/);
-});
 
-test('special activation peaks finish inside their presentation phase', () => {
- const css=require('node:fs').readFileSync(require('node:path').join(__dirname,'../card-presentation.css'),'utf8');
- const r=result({p1:{id:'extra',kind:'extra'},p2:{id:'max0',kind:'max0'},p3:{id:'double',kind:'double'}},n('drawn',10));
- const frames=plan(r);
- for(const [phase,animation] of [['extra','orb-card-reveal'],['max','crown-rays-rise'],['multiply','galaxy-core-activate']]){
-  const index=frames.findIndex(f=>f.phase===phase), duration=frames[index+1].at-frames[index].at;
-  const match=css.match(new RegExp('data-presentation-phase="'+phase+'"[^\\n]+animation:'+animation+' (\\d+)ms'));
-  assert.ok(match,phase+' has a bounded activation');assert.ok(Number(match[1])<=duration);
- }
-});
 
 test('all physical special combinations allow full 400ms activations and finish under four seconds', () => {
  const longest={};

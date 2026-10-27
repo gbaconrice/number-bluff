@@ -1,0 +1,16 @@
+/* Number Bluff adapter. Existing illustrated art, colors and layout are retained. */
+.nb-scene-number { display: inline-flex; align-items: baseline; font-variant-numeric: tabular-nums; }
+.nb-scene-number__visual { display: inline-block; font: inherit; line-height: inherit; color: inherit; }
+.nb-scene-number[data-number-motion="ready"] > .nb-scene-number__fallback {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+.nb-scene-number[data-number-motion="fallback"] > .nb-scene-number__visual { display: none; }
+.nb-scene-confetti {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 20; pointer-events: none !important; user-select: none;
+  visibility: hidden; contain: strict;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nb-scene-confetti { display: none !important; }
+}

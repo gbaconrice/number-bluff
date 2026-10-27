@@ -250,7 +250,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .player-name { font-size: 11px; line-height: 15px; font-weight: 800; }
 .player-info .person-placeholder, .player-info img.avatar { width: 35px; height: 35px; margin: 0 auto 3px; }
 .hearts { font-size: 12px; letter-spacing: 0; line-height: 14px; }
-.battle-grid.many .player-card, .player-card { height: auto; aspect-ratio: .70; border-radius: 8px; font-size: clamp(30px,8vw,41px); padding-top: 13px; box-shadow: inset 0 0 0 2px #fff8e1aa,0 0 8px #cbb3ff55; }
+.battle-grid.many .player-card, .player-card { height: auto; aspect-ratio: 2 / 3; border-radius: 8px; font-size: clamp(30px,8vw,41px); padding-top: 13px; box-shadow: inset 0 0 0 2px #fff8e1aa,0 0 8px #cbb3ff55; }
 .battle-grid.many .player-card.hidden, .player-card.hidden { padding-top: 25%; font-size: 40px; }
 .player-card.special { background: radial-gradient(ellipse at 50% 80%,#8991ed,#13265e 68%); }
 .battle-grid.many .player-card.kind-max0, .player-card.kind-max0 { font-size: clamp(12px,3.2vw,17px); }
@@ -289,7 +289,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .result-message img { width: 48px; height: 48px; }
 .result-message p { font-size: 12px; line-height: 1.6; }
 .extra-reveal { margin-bottom: 6px; }
-.extra-reveal .player-card { width: 43px; height: auto; aspect-ratio: .70; font-size: 21px; }
+.extra-reveal .player-card { width: 43px; height: auto; aspect-ratio: 2 / 3; font-size: 21px; }
 .extra-reveal>span { font-size: 10px; }
 #guideContent { padding: 6px 3px 12px; background: none; border: 0; box-shadow: none; color: #172c59; min-height: 0; }
 .guide-tabs { margin: 5px 0 3px; gap: 4px; }
@@ -300,11 +300,11 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .guide-step b.step-number { width: 29px; height: 29px; left: 8px; top: 11px; font-size: 19px; }
 .step-art { top: 16px; right: 5px; width: 59px; height: 60px; }
 .step-art img { width: 59px; height: 63px; }
-.step-art .player-card { width: 39px; height: 56px; }
+.step-art .player-card { width: 39px; height: auto; }
 #guideContent>h3, .catalogue-label { color: #fff4d5; font-size: 12px; margin: 8px 2px; }
 .catalogue { gap: 7px 6px; margin: 6px 0 10px; }
 .catalogue-item { background: none; border: 0; box-shadow: none; padding: 0; min-width: 0; min-height: 44px; }
-.catalogue .player-card { height: auto; aspect-ratio: .70; font-size: 29px; }
+.catalogue .player-card { height: auto; aspect-ratio: 2 / 3; font-size: 29px; }
 .catalogue .kind-reset, .catalogue .kind-max0 { font-size: 12px; }
 .catalogue small { color: #fff5e4; font-size: 10px; margin-top: 3px; }
 .guide-bot { background: linear-gradient(120deg,#fff5d7,#fce8d7); padding: 12px; margin: 8px 0; align-items: center; }
@@ -316,7 +316,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .example h3 { font-size: 14px; margin-bottom: 8px; }
 .example-visual { margin: 6px 0; gap: 8px; }
 .example-cards { gap: 4px; }
-.example-cards .player-card { height: auto; aspect-ratio: .70; padding-top: 8px; font-size: 23px; }
+.example-cards .player-card { height: auto; aspect-ratio: 2 / 3; padding-top: 8px; font-size: 23px; }
 .example-cards .kind-reset, .example-cards .kind-max0 { font-size: 10px; }
 .example-expression { font-size: 13px; margin-top: 5px; }
 .example-total { width: 58px; }
@@ -382,9 +382,6 @@ main { position: relative; z-index: 1; }
 .home-icons, .home-actions { position: relative; z-index: 1; flex-shrink: 0; }
 .player-card:not(.hidden):not(.out) { background-color: transparent; background-size: 100% 100%; background-repeat: no-repeat; border: 0; box-shadow: 0 2px 5px #08132e44; overflow: hidden; }
 .player-card:not(.hidden):not(.out):before { display: none; }
-.player-card.kind-double { background-image: url('assets/card-double.webp'); }
-.player-card.kind-max0 { background-image: url('assets/card-max0.webp'); }
-.player-card.kind-reset { background-image: url('assets/card-reset.webp'); }
 .card-value { position: relative; z-index: 1; display: block; text-align: center; font-weight: 900; text-shadow: 0 1px 0 #ffffff70; }
 .player-card.special .card-value { text-shadow: 0 2px 4px #0a1949; }
 .battle-grid.many .player-card.kind-reset, .player-card.kind-reset, .battle-grid.many .player-card.kind-max0, .player-card.kind-max0 { padding-top: 20%; }
@@ -395,7 +392,6 @@ main { position: relative; z-index: 1; }
   .home-scene { width: 122%; left: -11%; bottom: -8%; }
   .home-icons { margin-top: 14px; }
 }
-.player-card.kind-extra { background-image: url('assets/card-extra.webp'); }
 /* One bounded label slot: never share the frame edge or the illustration field. */
 .player-card:not(.hidden):not(.out) .card-value { position: absolute; top: 12%; left: 7%; right: 7%; height: 26%; display: flex; align-items: center; justify-content: center; line-height: 1; font-size: inherit; white-space: nowrap; }
 .battle-grid.many .player-card.kind-number, .player-card.kind-number { font-size: clamp(26px,7.3vw,34px); }
