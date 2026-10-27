@@ -19,8 +19,13 @@ try{browser=await chromium.launch({headless:true,args:['--no-sandbox']});for(con
  });
  const delay=await page.evaluate(()=>__round.views.h.roundClock.readyAt-Date.now());assert.ok(delay>0);
  await page.clock.runFor(delay);assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'complete');assert.match(await page.locator('#next').textContent(),/10秒/);assert.equal(await page.locator('#next').isEnabled(),true);
+ await page.locator('#playerGrid img.card-art').evaluateAll(images=>Promise.all(images.map(image=>image.decode())));
+ await page.evaluate(()=>document.fonts.ready);
+ // Flush the reveal renderer after async image decoding; the clock is otherwise paused.
+ await page.clock.runFor(32);
  await page.screenshot({path:output+`round-clock-${width}-10s.png`});
  await page.evaluate(()=>{__round.act('g','nextRound');});assert.equal(await page.evaluate(()=>__round.views.h.phase),'reveal');
- await page.clock.runFor(9999);assert.equal(await page.evaluate(()=>__round.views.h.round),1);await page.clock.runFor(1);assert.equal(await page.evaluate(()=>__round.views.h.round),2);assert.equal(await page.locator('#gamePanel').isVisible(),true);
+ const remaining=await page.evaluate(()=>__round.views.h.roundClock.deadline-Date.now());
+ await page.clock.runFor(remaining-1);assert.equal(await page.evaluate(()=>__round.views.h.round),1);await page.clock.runFor(1);assert.equal(await page.evaluate(()=>__round.views.h.round),2);assert.equal(await page.locator('#gamePanel').isVisible(),true);
  await page.evaluate(()=>NumberBluffClient.disconnect());report.push({width,status:'passed',presentationProtected:true,tenSecondAdvance:true,guestCannotAdvance:true});await page.close();
 }}finally{await browser?.close();await new Promise(resolve=>server.close(resolve));await writeFile(output+'round-advance-preview.json',JSON.stringify(report,null,2));}
