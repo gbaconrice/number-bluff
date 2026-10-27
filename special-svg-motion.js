@@ -11,13 +11,22 @@ const defs=`<defs><linearGradient id="${id}-ice"><stop stop-color="#bdeaff" stop
 if(kind==='double')return defs+`<g class="galaxy-plane" transform="translate(535 963) rotate(-28)"><ellipse class="galaxy-stream stream-a" rx="390" ry="129" stroke="url(#${id}-ice)"/><ellipse class="galaxy-stream stream-b" rx="296" ry="98" stroke="url(#${id}-ice)"/><ellipse class="galaxy-core-rim" rx="164" ry="54"/></g>`;
 if(kind==='max0')return defs+`<defs><clipPath id="${id}-crown"><path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/></clipPath></defs><g clip-path="url(#${id}-crown)"><rect class="crown-metal-sweep" x="430" y="608" width="75" height="165" fill="url(#${id}-gold)"/><path class="crown-trace" d="M514 721 L520 662 L550 686 L609 638 L645 701 L681 690 L668 739"/></g>`;
 if(kind==='extra')return defs+`<defs><clipPath id="${id}-orb"><ellipse cx="535" cy="994" rx="282" ry="286"/></clipPath></defs><g clip-path="url(#${id}-orb)"><g class="orb-nebula"><path d="M408 1118 C282 950 615 758 692 899 S394 1196 481 975 S749 982 611 1152" stroke="url(#${id}-ice)"/></g><ellipse class="orb-refraction" cx="535" cy="994" rx="268" ry="275"/><g class="orb-premonition"><rect x="485" y="916" width="100" height="145" rx="18"/></g></g><path class="orb-glass" d="M361 799 Q400 748 455 747"/>`;
-return defs+`<path class="reset-current" d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" stroke="url(#${id}-ice)"/><path class="reset-arrowlight" d="M465 763 L390 817 L471 859"/>`;
+const orbitCards=[0,120,240].map(angle=>`<g transform="rotate(${angle}) translate(0 -205) rotate(-12)"><rect class="reset-card-back" x="-35" y="-49" width="70" height="98" rx="10"/><path class="reset-card-inlay" d="M-22 -35 H22 V35 H-22Z M0 -13 L10 0 L0 13 L-10 0Z"/></g>`).join('');
+return defs+`<g transform="translate(535 1005)"><g class="reset-card-orbit">${orbitCards}</g></g><path class="reset-current" d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" stroke="url(#${id}-ice)"/><path class="reset-arrowlight" d="M465 763 L390 817 L471 859"/>`;
 }
 function createManager(){
-const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false;
-function allowed(r){return !destroyed&&!paused&&!r.stopped&&!reduced.matches&&!document.hidden&&r.visible&&r.el.isConnected&&!r.el.closest('.hide,.hidden,.out,[hidden],[inert],[aria-hidden="true"],[data-revealed="false"]')&&getComputedStyle(r.el).visibility!=='hidden';}
-function sync(r){const on=allowed(r);r.layer.dataset.playing=String(on);r.layer.style.visibility=on?'visible':'hidden';if(!on){clearTimeout(r.timer);r.layer.removeAttribute('data-active');r.stopped=true;}}
+const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false,pageSuspended=false;
+function allowed(r){return !destroyed&&!paused&&!pageSuspended&&!reduced.matches&&!document.hidden&&r.visible&&r.el.isConnected&&!r.el.closest('.hide,.hidden,.out,[hidden],[inert],[aria-hidden="true"],[data-revealed="back"],[data-revealed="false"]')&&!r.el.closest('dialog:not([open])')&&(!document.querySelector('dialog[open]')||document.querySelector('dialog[open]').contains(r.el))&&!document.querySelector('#restartConfirm:not(.hide)')&&getComputedStyle(r.el).visibility!=='hidden';}
+function sync(r){const on=allowed(r);r.layer.dataset.playing=String(on);r.layer.style.visibility=on?'visible':'hidden';if(!on){clearTimeout(r.timer);r.layer.removeAttribute('data-active');}}
 function measure(r){
+ // Production card art and SVG are siblings in the same full 2:3 surface.
+ // Share CSS geometry directly: viewport rectangles during deal/flip transforms
+ // include perspective and integer clientWidth rounding, not local coordinates.
+ if(r.imageElement?.parentElement===r.mountRoot&&r.mountRoot.classList.contains('card-content')){
+  Object.assign(r.layer.style,{left:'0px',top:'auto',bottom:'0px',width:'100%',height:'var(--card-source-height,100%)'});
+  const imageStyle=getComputedStyle(r.imageElement),hostStyle=getComputedStyle(r.mountRoot),width=parseFloat(imageStyle.width)||0,height=parseFloat(imageStyle.height)||0;
+  r.rect={x:0,y:(parseFloat(hostStyle.height)||0)-height,width,height,scale:width/ART[r.kind].width};return;
+ }
  const el=r.mountRoot,img=r.imageElement||r.el,hostRect=el.getBoundingClientRect(),rect=img.getBoundingClientRect();const style=getComputedStyle(el),imgStyle=getComputedStyle(img);
  const hostBorderX=parseFloat(style.borderLeftWidth)||0,hostBorderY=parseFloat(style.borderTopWidth)||0;
  const imageBorderX=parseFloat(imgStyle.borderLeftWidth)||0,imageBorderY=parseFloat(imgStyle.borderTopWidth)||0;
@@ -35,16 +44,17 @@ function attach(el,kind,{faceUp=true,imageElement=null}={}){if(destroyed||!el)re
  const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${a.width} ${a.height}`);svg.setAttribute('preserveAspectRatio','xMidYMid meet');svg.innerHTML=markup(kind,'nbsv-'+(++serial));layer.append(svg);const mountRoot=imageElement?.closest('.card-content')||el;mountRoot.append(layer);el.classList.add('nb-special-svg-host');
  const bounds=el.getBoundingClientRect();const visibleWidth=Math.max(0,Math.min(innerWidth,bounds.right)-Math.max(0,bounds.left)),visibleHeight=Math.max(0,Math.min(innerHeight,bounds.bottom)-Math.max(0,bounds.top));
  const initiallyVisible=bounds.width>0&&bounds.height>0&&visibleWidth*visibleHeight/(bounds.width*bounds.height)>=.35;
- const r={el,kind,imageElement,mountRoot,layer,visible:initiallyVisible,stopped:true,timer:0,rect:null};records.set(el,r);measure(r);ro.observe(el);if(imageElement&&imageElement!==el)ro.observe(imageElement);io.observe(el);return layer;
+ const r={el,kind,imageElement,mountRoot,layer,visible:initiallyVisible,timer:0,rect:null};records.set(el,r);measure(r);ro.observe(el);if(imageElement&&imageElement!==el)ro.observe(imageElement);io.observe(el);sync(r);return layer;
 }
 function detach(el){const r=records.get(el);if(!r)return;clearTimeout(r.timer);io.unobserve(el);ro.unobserve(el);if(r.imageElement&&r.imageElement!==el)ro.unobserve(r.imageElement);r.layer.remove();el.classList.remove('nb-special-svg-host');records.delete(el);}
-function activate(el,{duration=900}={}){const r=records.get(el);if(!r)return false;r.stopped=false;sync(r);if(!allowed(r)){r.stopped=true;sync(r);return false;}clearTimeout(r.timer);r.layer.style.setProperty('--special-active-ms',Math.max(250,duration)+'ms');r.layer.dataset.active='true';r.timer=setTimeout(()=>{r.stopped=true;sync(r);},Math.max(250,duration));return true;}
+function activate(el,{duration=900}={}){const r=records.get(el);if(!r)return false;sync(r);if(!allowed(r))return false;clearTimeout(r.timer);r.layer.style.setProperty('--special-active-ms',Math.max(250,duration)+'ms');r.layer.dataset.active='true';r.timer=setTimeout(()=>{r.layer.removeAttribute('data-active');sync(r);},Math.max(250,duration));return true;}
 function refresh(){for(const r of records.values()){measure(r);sync(r);}}
-function pagehide(){for(const r of records.values()){r.stopped=true;sync(r);}}
-document.addEventListener('visibilitychange',refresh);global.addEventListener('pagehide',pagehide);global.addEventListener('pageshow',refresh);reduced.addEventListener('change',refresh);
-return{attach,detach,activate,play(el,options={}){return activate(el,options);},stop(el){for(const r of records.values())if(!el||r.el===el){r.stopped=true;sync(r);}},status(){return{attached:records.size,active:[...records.values()].some(r=>r.layer.dataset.active==='true'),paused};},getActiveHost(){return [...records.values()].find(r=>r.layer.dataset.active==='true')?.el||null;},refresh,pause(){paused=true;refresh();},resume(){paused=false;refresh();},rect(el){return records.get(el)?.rect||null;},
- renderAt(el,ms){const r=records.get(el);if(!r)return false;r.stopped=false;sync(r);if(!allowed(r))return false;for(const animation of r.layer.getAnimations({subtree:true})){animation.pause();animation.currentTime=ms;}return true;},
- destroy(){destroyed=true;for(const el of [...records.keys()])detach(el);ro.disconnect();io.disconnect();document.removeEventListener('visibilitychange',refresh);global.removeEventListener('pagehide',pagehide);global.removeEventListener('pageshow',refresh);reduced.removeEventListener('change',refresh);}}
+function pagehide(){pageSuspended=true;refresh();}
+function pageshow(){pageSuspended=false;refresh();}
+document.addEventListener('visibilitychange',refresh);global.addEventListener('pagehide',pagehide);global.addEventListener('pageshow',pageshow);reduced.addEventListener('change',refresh);
+return{attach,detach,activate,play(el,options={}){return activate(el,options);},stop(el){for(const r of records.values())if(!el||r.el===el){clearTimeout(r.timer);r.layer.removeAttribute('data-active');sync(r);}},status(){return{attached:records.size,active:[...records.values()].some(r=>r.layer.dataset.active==='true'),paused};},getActiveHost(){return [...records.values()].find(r=>r.layer.dataset.active==='true')?.el||null;},refresh,pause(){paused=true;refresh();},resume(){paused=false;refresh();},rect(el){return records.get(el)?.rect||null;},
+ renderAt(el,ms){const r=records.get(el);if(!r)return false;sync(r);if(!allowed(r))return false;for(const animation of r.layer.getAnimations({subtree:true})){animation.pause();animation.currentTime=ms;}return true;},
+ destroy(){destroyed=true;for(const el of [...records.keys()])detach(el);ro.disconnect();io.disconnect();document.removeEventListener('visibilitychange',refresh);global.removeEventListener('pagehide',pagehide);global.removeEventListener('pageshow',pageshow);reduced.removeEventListener('change',refresh);}}
 }
 global.NumberBluffSpecialSVG=Object.freeze({createManager,containRect,art:ART});
 })(window);

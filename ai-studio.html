@@ -21,7 +21,6 @@ h3 { font-size: 12px; margin-bottom: 7px; }
 .pill { display: block; width: 100%; border-radius: 30px; position: relative; }
 .pill>span { position: absolute; right: 19px; font-size: 25px; top: 8px; color: #8c6581; }
 .circle { flex-shrink: 0; padding: 0; border-radius: 50%; font-size: 24px; background: #112653b3; }
-.decorative { display: grid; place-items: center; }
 .topbar { align-items: center; justify-content: space-between; margin-bottom: 7px; }
 .topbar h1 { margin: 0; line-height: 1.1; color: #ffedc6; text-shadow: 0 0 9px #ffe1a955; }
 .topbar h1 small { display: block; font-size: 8px; letter-spacing: .12em; margin-top: 4px; color: #f4e8ff; }
@@ -369,7 +368,7 @@ main { position: relative; z-index: 1; }
 .topbar { display: grid; grid-template-columns: 44px minmax(0,1fr) 44px; gap: 7px; }
 .topbar h1 { grid-column: 2; text-align: center; width: 100%; min-width: 0; }
 .topbar>button:first-child { grid-column: 1; }
-.topbar>.decorative, .topbar>button:last-child:not(:first-child) { grid-column: 3; }
+.topbar>button:last-child:not(:first-child) { grid-column: 3; }
 .room-status { font-size: 12px; line-height: 1.5; margin: 5px 0 0; text-align: center; color: #fff2d6; }
 .room-status:empty { display: none; }
 .join-form { margin-top: 22px; display: grid; gap: 13px; padding: 20px; }
@@ -449,28 +448,44 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 /* Value-specific normal faces share the existing four-character mapping. */
 
 </style><style>
-/* In-flow explanations replace unrelated, absolutely positioned mascots. */
+/* In-flow game examples: real cards and portraits always belong to a clear role. */
 #guideContent[data-tab="rules"] .guide-step { padding: 12px 12px 12px 43px; min-height: 0; }
-.guide-diagram { margin-top: 10px; display: grid; gap: 7px; max-width: 420px; color: #24385b; font-variant-numeric: tabular-nums; }
-.guide-diagram-row { display: flex; align-items: center; justify-content: center; gap: clamp(4px,1.5vw,9px); min-width: 0; }
+.guide-diagram { margin-top: 12px; display: grid; gap: 9px; max-width: 420px; color: #24385b; font-variant-numeric: tabular-nums; }
+.guide-diagram-row { display: flex; align-items: center; justify-content: center; gap: clamp(5px,1.5vw,10px); min-width: 0; }
 .guide-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; padding: 6px 8px; border: 1px solid #aeb2ce; border-radius: 8px; background: #fffdf4; text-align: center; flex: 0 1 auto; }
-.guide-chip small { display: block; font-size: 10px; line-height: 1.3; white-space: nowrap; }
+.guide-chip small,.guide-card-example>small,.guide-actor small { display: block; font-size: 10px; line-height: 1.3; white-space: nowrap; }
 .guide-chip strong { display: block; font-size: 19px; line-height: 1.15; font-weight: 750; white-space: nowrap; }
-.guide-chip.guide-mini-card { min-width: 43px; min-height: 58px; }
-.guide-chip.is-back { background: #26335a; border-color: #d6c8ed; color: #fff9df; }
 .guide-chip.is-speech { border-radius: 10px 10px 10px 3px; }
 .guide-arrow,.guide-comparison { flex: none; font-size: 15px; line-height: 1; font-weight: 700; }
 .guide-diagram-note { text-align: center; font-size: 12px; line-height: 1.4; }
-.guide-challenge { justify-self: center; padding: 4px 10px; border: 1px solid #8c7496; border-radius: 10px; background: #fff7dc; font-size: 12px; font-weight: 750; }
-.guide-life-loss { flex: 0 1 auto; min-width: 0; white-space: pre-line; text-align: center; color: #963f4c; font-size: 11px; line-height: 1.4; font-weight: 750; }
+.guide-card-example { display: grid; justify-items: center; gap: 5px; flex: 0 1 70px; min-width: 0; }
+.guide-card-example .player-card.guide-card-face { width: 100%; max-width: 70px; min-width: 0; margin: 0; aspect-ratio: 2/3; height: auto; font-size: 25px; transform: none; }
+.guide-card-example .player-card.hidden { display: flex; align-items: center; justify-content: center; padding: 0; font-size: 25px; }
+.guide-speaker { display: grid; justify-items: center; gap: 5px; min-width: 0; }
+.guide-actor { display: grid; justify-items: center; gap: 2px; flex: 0 0 auto; }
+.guide-avatar { display: block; width: 43px; height: 43px; object-fit: contain; }
+.guide-challenger { gap: 9px; }
+.guide-challenge { padding: 8px 10px; border: 1px solid #8c7496; border-radius: 10px 10px 10px 3px; background: #fff7dc; font-size: 12px; font-weight: 750; }
+.guide-diagram-3 { grid-template-columns: 1fr 1fr; gap: 8px; }
+.guide-verdict { display: grid; gap: 6px; padding: 8px 4px; background: #ffffff50; border-radius: 10px; min-width: 0; }
+.guide-verdict .guide-chip { border: 0; background: transparent; padding: 0; }
+.guide-verdict .guide-diagram-row { gap: 5px; }
+.guide-verdict-outcome { border-top: 1px solid #aeb2ce60; padding-top: 5px; flex-wrap: wrap; }
+.guide-life-loss { min-width: 0; white-space: nowrap; text-align: center; color: #963f4c; font-size: 11px; line-height: 1.4; font-weight: 750; }
+.guide-hearts { color: #c45168; font-size: 17px; white-space: nowrap; }
+.guide-hearts .is-lost { color: #a5a1b3; opacity: .65; }
 @media(max-width:350px){
  #guideContent[data-tab="rules"] .guide-step { padding: 10px 9px 10px 40px; }
  .guide-chip { padding: 5px; }
- .guide-chip small { font-size: 9px; }
+ .guide-chip small,.guide-card-example>small,.guide-actor small { font-size: 9px; }
  .guide-chip strong { font-size: 17px; }
- .guide-diagram-3 .guide-chip { padding: 5px 4px; }
- .guide-diagram-3 .guide-arrow { font-size: 12px; }
+ .guide-card-example { flex-basis: 60px; }
+ .guide-verdict { padding: 7px 2px; }
+ .guide-verdict .guide-chip strong { font-size: 17px; }
+ .guide-verdict .guide-comparison { font-size: 12px; }
  .guide-life-loss { font-size: 10px; }
+ .guide-avatar { width: 37px; height: 37px; }
+ .guide-hearts { font-size: 15px; }
 }
 
 </style><style>
@@ -575,10 +590,13 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 }
 
 </style><style>
-/* Shared physical card; each unchanged original is contained in its own content rectangle. */
+/* Shared physical card and full-size artwork surface. Static header-band extension preserves the complete illustration. */
 .player-card, .battle-grid.many .player-card, .catalogue .player-card, .example-cards .player-card, .extra-reveal .player-card, .step-art .player-card { aspect-ratio: 2 / 3; height: auto; }
 .player-card:not(.hidden):not(.out), .battle-grid.many .player-card:not(.hidden):not(.out) { padding: 0; background: #fff2d6; border: 0; border-radius: 6px; outline: 1px solid #d4b976; outline-offset: -1px; box-shadow: 0 1px 3px #15224130; overflow: hidden; box-sizing: border-box; }
-.player-card .card-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; z-index: 0; pointer-events: none; }
+.player-card .card-art { position: absolute; left: 0; bottom: 0; width: 100%; height: var(--card-source-height,100%); object-fit: contain; object-position: center; clip-path: inset(calc(var(--card-lower-start,35%) - .5px) 0 0); display: block; z-index: 0; pointer-events: none; }
+.player-card .card-art-cap,.player-card .card-art-band { position:absolute; left:0; width:100%; background-repeat:no-repeat; pointer-events:none; z-index:0; }
+.player-card .card-art-cap { top:0; height:var(--card-cap-height,20%); background-size:100% 500%; background-position:center top; }
+.player-card .card-art-band { top:var(--card-cap-height,20%); height:var(--card-band-height,15%); background-size:100% var(--card-band-size,666.6666667%); background-position:center var(--card-band-position,23.5294118%); }
 .player-card:not(.hidden):not(.out) .card-value { position: absolute; top: 12%; height: 26%; left: 5%; right: 5%; z-index: 2; display: flex; align-items: center; justify-content: center; color: #19294f; text-shadow: 0 1px 2px #ffffff, 0 0 5px #ffffff; }
 .player-card.kind-extra .card-value { color: #f8f5ed; text-shadow: 0 1px 3px #152241, 0 0 5px #152241; }
 .player-card.kind-reset .card-value { font-size: inherit; }
@@ -597,7 +615,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 /* Existing special originals are not redrawn, stretched, cropped or overpainted. */
 .player-card.special:not(.hidden):not(.out) .card-value { top: 12%; height: 26%; left: 7%; right: 7%; color: #fff3d3; text-shadow: 0 2px 4px #0a1949; }
 
-/* Every outer card has identical dimensions; the unchanged original is centered inside. */
+/* All artwork now fills the same 2:3 surface, not a smaller contain rectangle. */
 
 .player-card .card-content { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); isolation:isolate; pointer-events:none; }
 
@@ -607,33 +625,36 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .nb-special-svg{position:absolute;z-index:2;pointer-events:none;overflow:hidden;contain:paint;visibility:hidden}
 .nb-special-svg svg{display:block;width:100%;height:100%;fill:none;overflow:hidden;stroke-linecap:round;stroke-linejoin:round}
 .nb-special-svg *{pointer-events:none}
-.nb-special-svg .galaxy-stream{stroke-width:7;stroke-dasharray:210 95 45 370;animation:nbsv-galaxy-flow 5.5s linear infinite;opacity:.53}
-.nb-special-svg .stream-b{stroke-width:5;stroke-dasharray:160 90 35 280;animation-direction:reverse;animation-duration:7s;opacity:.45}
-.nb-special-svg .galaxy-core-rim{stroke:#aaabff;stroke-width:4;stroke-dasharray:110 570;animation:nbsv-core 5s ease-in-out infinite;opacity:.35}
-.nb-special-svg .crown-metal-sweep{animation:nbsv-crown-sweep 4.8s ease-in-out infinite;opacity:.65}
-.nb-special-svg .crown-trace{stroke:#fff4ba;stroke-width:4;stroke-dasharray:68 210;animation:nbsv-crown-trace 4.8s ease-in-out infinite;opacity:.6}
+.nb-special-svg .galaxy-stream{stroke-width:11;stroke-dasharray:210 95 45 370;animation:nbsv-galaxy-flow 5.5s linear infinite;opacity:.82}
+.nb-special-svg .stream-b{stroke-width:8;stroke-dasharray:160 90 35 280;animation-direction:reverse;animation-duration:6s;opacity:.7}
+.nb-special-svg .galaxy-core-rim{stroke:#aaabff;stroke-width:7;stroke-dasharray:110 570;animation:nbsv-core 5s ease-in-out infinite;opacity:.65}
+.nb-special-svg .crown-metal-sweep{animation:nbsv-crown-sweep 3.8s ease-in-out infinite;opacity:.65}
+.nb-special-svg .crown-trace{stroke:#fff4ba;stroke-width:7;stroke-dasharray:68 210;animation:nbsv-crown-trace 3.8s ease-in-out infinite;opacity:.6}
 .nb-special-svg .orb-nebula{transform-origin:535px 994px;animation:nbsv-orb-turn 18s linear infinite}
-.nb-special-svg .orb-nebula path{stroke-width:7;stroke-dasharray:105 95 25 140;opacity:.45;animation:nbsv-galaxy-flow 7s linear infinite}
-.nb-special-svg .orb-refraction{stroke:#e9e3ff;stroke-width:5;stroke-dasharray:130 320 40 400;opacity:.45;animation:nbsv-orb-flow 8s linear infinite}
+.nb-special-svg .orb-nebula path{stroke-width:11;stroke-dasharray:105 95 25 140;opacity:.75;animation:nbsv-galaxy-flow 7s linear infinite}
+.nb-special-svg .orb-refraction{stroke:#e9e3ff;stroke-width:8;stroke-dasharray:130 320 40 400;opacity:.75;animation:nbsv-orb-flow 8s linear infinite}
 .nb-special-svg .orb-premonition{stroke:#eeefff;stroke-width:5;fill:#c9c5ff0c;transform-origin:535px 994px;animation:nbsv-orb-card 7s ease-in-out infinite}
-.nb-special-svg .orb-glass{stroke:#fff4ff;stroke-width:8;stroke-dasharray:32 95;opacity:.5;animation:nbsv-orb-glass 5s ease-in-out infinite}
-.nb-special-svg .reset-current{stroke-width:22;stroke-dasharray:210 1700;opacity:.55;animation:nbsv-reset-current 5s linear infinite}
+.nb-special-svg .orb-glass{stroke:#fff4ff;stroke-width:11;stroke-dasharray:32 95;opacity:.5;animation:nbsv-orb-glass 5s ease-in-out infinite}
+.nb-special-svg .reset-card-orbit{transform-origin:0 0;animation:nbsv-orb-turn 9s linear infinite}
+.nb-special-svg .reset-card-back{fill:#243b86;fill-opacity:.92;stroke:#d7faff;stroke-width:7}
+.nb-special-svg .reset-card-inlay{fill:#b4d9ff;fill-opacity:.25;stroke:#e5efff;stroke-width:3}
+.nb-special-svg .reset-current{stroke-width:22;stroke-dasharray:210 1700;opacity:.85;animation:nbsv-reset-current 5s linear infinite}
 .nb-special-svg .reset-arrowlight{stroke:#fcffff;stroke-width:12;opacity:.2;animation:nbsv-reset-head 5s ease-in-out infinite}
 .nb-special-svg[data-active=true] .galaxy-stream,.nb-special-svg[data-active=true] .reset-current,.nb-special-svg[data-active=true] .crown-metal-sweep,.nb-special-svg[data-active=true] .crown-trace{animation-duration:var(--special-active-ms,900ms);opacity:.85}
 .nb-special-svg[data-active=true] .orb-premonition{animation:nbsv-orb-reveal var(--special-active-ms,900ms) ease-out both}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
 .hide .nb-special-svg,.hidden .nb-special-svg,[hidden] .nb-special-svg{visibility:hidden!important}
 @keyframes nbsv-galaxy-flow{to{stroke-dashoffset:-720}}
-@keyframes nbsv-core{0%,100%{opacity:.15}50%{opacity:.5}}
-@keyframes nbsv-crown-sweep{0%,20%{transform:translateX(0);opacity:0}45%{opacity:.7}75%,100%{transform:translateX(290px);opacity:0}}
-@keyframes nbsv-crown-trace{0%,100%{stroke-dashoffset:278;opacity:.2}60%{stroke-dashoffset:0;opacity:.65}}
+@keyframes nbsv-core{0%,100%{opacity:.35}50%{opacity:.8}}
+@keyframes nbsv-crown-sweep{0%,20%{transform:translateX(0);opacity:0}45%{opacity:1}75%,100%{transform:translateX(290px);opacity:0}}
+@keyframes nbsv-crown-trace{0%,100%{stroke-dashoffset:278;opacity:.45}60%{stroke-dashoffset:0;opacity:.95}}
 @keyframes nbsv-orb-turn{to{transform:rotate(360deg)}}
 @keyframes nbsv-orb-flow{to{stroke-dashoffset:-890}}
 @keyframes nbsv-orb-card{0%,45%,100%{opacity:0;transform:translateY(30px) scale(.75)}65%,78%{opacity:.45;transform:translateY(-8px) scale(1)}}
 @keyframes nbsv-orb-reveal{from{opacity:0;transform:translateY(30px) scale(.7)}55%{opacity:.75;transform:translateY(-8px) scale(1)}to{opacity:0;transform:translateY(-45px) scale(.95)}}
-@keyframes nbsv-orb-glass{0%,100%{opacity:.2;stroke-dashoffset:0}50%{opacity:.65;stroke-dashoffset:-90}}
+@keyframes nbsv-orb-glass{0%,100%{opacity:.4;stroke-dashoffset:0}50%{opacity:.9;stroke-dashoffset:-90}}
 @keyframes nbsv-reset-current{to{stroke-dashoffset:-1910}}
-@keyframes nbsv-reset-head{0%,100%{opacity:.12}55%{opacity:.7}}
+@keyframes nbsv-reset-head{0%,100%{opacity:.35}55%{opacity:.85}}
 @media(prefers-reduced-motion:reduce){.nb-special-svg{display:none!important}.nb-special-svg *{animation:none!important}}
 
 </style><style>
@@ -747,7 +768,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 <section id="homeScreen" class="screen home"><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""></div><div class="home-actions"><button id="startGame" data-intent="createRoom" class="pill gold">ゲームをはじめる <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button></nav></section>
 <section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><button id="lobbyBack" class="circle" aria-label="ホームへ戻る">‹</button><h1>ルームロビー</h1><span class="topbar-spacer" aria-hidden="true"></span></header><p id="roomIdentity" class="room-identity hide"></p><p id="onlineLobbyStatus" class="room-status hide" role="status" aria-live="polite"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button></section>
 <section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">‹</button><h1 id="battleTitle">対戦中</h1><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><div class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></div><p id="onlineBattleStatus" class="room-status hide" role="status" aria-live="polite"></p><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" tabindex="0" aria-label="プレイヤーとカード（上下にスクロール）"></div><section id="gamePanel"><div class="bid-panel glass"><div id="bidActor" aria-hidden="true"></div><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" class="sr-only" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><div class="declare-region gold"><label class="sr-only" for="number">宣言する数字</label><input id="number" type="text" inputmode="none" autocomplete="off" spellcheck="false" aria-describedby="inputHint inputError"><button id="declare">宣言</button></div><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="sr-only">前より大きな1以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><div id="resultAnnouncement" class="sr-only" role="status" aria-live="polite"></div><section id="result" class="hide"><h2 id="resultTitle" class="sr-only" tabindex="-1">ラウンド結果</h2><section class="calculation glass" aria-live="off"><div><h3 id="calculationHeading">計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span id="totalLabel">最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><div id="resultAvatar" aria-hidden="true"></div><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button></section></section>
-<section id="guidePanel" class="screen hide" aria-label="ゲームガイド"><header class="topbar"><button id="closeGuide" class="circle" aria-label="ガイドを閉じる">‹</button><h1 id="guideTitle" class="sr-only">遊び方</h1><span class="circle decorative" aria-hidden="true">✦</span></header><div class="guide-tabs" role="tablist" aria-label="ガイド"><button data-tab="rules" role="tab">遊び方</button><button data-tab="cards" role="tab">カード図鑑</button><button data-tab="bots" role="tab">BOT</button><button data-tab="examples" role="tab">計算例</button></div><article id="guideContent" tabindex="-1"></article><dialog id="cardDetail"><button id="closeCardDetail" class="circle" aria-label="カード詳細を閉じる">×</button><div id="cardDetailContent"></div></dialog></section>
+<section id="guidePanel" class="screen hide" aria-label="ゲームガイド"><header class="topbar"><button id="closeGuide" class="circle" aria-label="ガイドを閉じる">‹</button><h1 id="guideTitle" class="sr-only">遊び方</h1></header><div class="guide-tabs" role="tablist" aria-label="ガイド"><button data-tab="rules" role="tab">遊び方</button><button data-tab="cards" role="tab">カード図鑑</button><button data-tab="bots" role="tab">BOT</button><button data-tab="examples" role="tab">計算例</button></div><article id="guideContent" tabindex="-1"></article><dialog id="cardDetail"><button id="closeCardDetail" class="circle" aria-label="カード詳細を閉じる">×</button><div id="cardDetailContent"></div></dialog></section>
 <section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><button id="closeJoin" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="joinTitle">ルームに参加</h1></header><form id="joinForm" class="join-form glass"><label class="sr-only" for="roomId">ルームID</label><input id="roomId" name="roomId" placeholder="ルームID" autocomplete="off" maxlength="64" required><button id="joinRoom" data-intent="joinRoom" class="pill blue" type="submit">参加する</button><p id="roomJoinStatus" class="room-status" role="status" aria-live="polite"></p></form></section>
 </main><script>
 (function (root, factory) {
@@ -1295,10 +1316,14 @@ SOFTWARE.
  const assets=Object.freeze({normal:Object.freeze({"-10": "https://tanabe0422.github.io/number-bluff/assets/card-normal-minus10.webp", "-5": "https://tanabe0422.github.io/number-bluff/assets/card-normal-minus5.webp", "0": "https://tanabe0422.github.io/number-bluff/assets/card-normal-0.webp", "1": "https://tanabe0422.github.io/number-bluff/assets/card-normal-1.webp", "2": "https://tanabe0422.github.io/number-bluff/assets/card-normal-2.webp", "3": "https://tanabe0422.github.io/number-bluff/assets/card-normal-3.webp", "4": "https://tanabe0422.github.io/number-bluff/assets/card-normal-4.webp", "5": "https://tanabe0422.github.io/number-bluff/assets/card-normal-5.webp", "10": "https://tanabe0422.github.io/number-bluff/assets/card-normal-10.webp", "15": "https://tanabe0422.github.io/number-bluff/assets/card-normal-15.webp", "20": "https://tanabe0422.github.io/number-bluff/assets/card-normal-20.webp"}),special:Object.freeze({"double": "https://tanabe0422.github.io/number-bluff/assets/card-double.webp", "max0": "https://tanabe0422.github.io/number-bluff/assets/card-max0.webp", "extra": "https://tanabe0422.github.io/number-bluff/assets/card-extra.webp", "reset": "https://tanabe0422.github.io/number-bluff/assets/card-reset.webp"})});
  const dimensions=Object.freeze({double:[1051,1496],max0:[1049,1499],extra:[1049,1500],reset:[1062,1482]});
  function size(card){return card.kind==='number'?(card.value>=10?[1024,1536]:[1061,[0,2].includes(card.value)?1483:1482]):dimensions[card.kind];}
- function content(doc,card){const box=doc.createElement('div');box.className='card-content';const [w,h]=size(card),ratio=w/h,outer=2/3;box.style.width=(ratio>=outer?100:ratio/outer*100)+'%';box.style.height=(ratio>=outer?outer/ratio*100:100)+'%';return box;}
+ function layout(card){const [w,h]=size(card),sourceHeight=h/(w*1.5),lowerStart=card.kind==='number'&&card.value===4?.28:.35,bandSize=lowerStart-.2;return {sourceHeight,lowerStart,bandSize,capHeight:sourceHeight*.2,bandHeight:1-sourceHeight*(1-bandSize)};}
+ function content(doc,card){const box=doc.createElement('div');box.className='card-content';const parts=layout(card);box.style.width='100%';box.style.height='100%';box.style.setProperty('--card-source-height',parts.sourceHeight*100+'%');box.style.setProperty('--card-cap-height',parts.capHeight*100+'%');box.style.setProperty('--card-band-height',parts.bandHeight*100+'%');box.style.setProperty('--card-lower-start',parts.lowerStart*100+'%');box.style.setProperty('--card-band-size',100/parts.bandSize+'%');box.style.setProperty('--card-band-position',.2/(1-parts.bandSize)*100+'%');
+  // Extend only the empty numeral backdrop. The frame cap and illustrated lower
+  // section retain a uniform source-pixel scale, with no character stretching.
+  for(const part of ['cap','band']){const slice=doc.createElement('span');slice.className='card-art-'+part;slice.setAttribute('aria-hidden','true');slice.style.backgroundImage='url("'+source(card)+'")';box.append(slice);}return box;}
  function source(card){if(!card)return null;const map=card.kind==='number'?assets.normal:assets.special;const key=card.kind==='number'?String(card.value):card.kind;return Object.prototype.hasOwnProperty.call(map,key)?map[key]:null;}
  function create(doc,card){const src=source(card);if(!src)throw new TypeError('Unknown disclosed card artwork');const image=doc.createElement('img');image.className='card-art';image.crossOrigin='anonymous';image.src=src;image.alt='';image.draggable=false;image.decoding='async';image.setAttribute('aria-hidden','true');return image;}
- return Object.freeze({assets,source,create,size,content});
+ return Object.freeze({assets,source,create,size,layout,content});
 });
 
 </script><script>
@@ -1308,7 +1333,7 @@ Retrieved: 2026-10-27 UTC
 Source JS: https://raw.githubusercontent.com/DavidHDev/react-bits/main/src/content/Animations/GlareHover/GlareHover.jsx
 Source CSS: https://raw.githubusercontent.com/DavidHDev/react-bits/main/src/content/Animations/GlareHover/GlareHover.css
 License: https://raw.githubusercontent.com/DavidHDev/react-bits/main/LICENSE.md
-Adaptations: vanilla lifecycle; shared one-pass scheduler; white-only low-opacity band; visibility/reduced-motion cleanup; no rim; no pointer interception.
+Adaptations: vanilla lifecycle; shared periodic scheduler; white-only low-opacity band; visibility/reduced-motion cleanup; no rim; no pointer interception.
 
 MIT + Commons Clause License Condition v1.0
 
@@ -1345,7 +1370,7 @@ SOFTWARE.
  * Source: https://github.com/DavidHDev/react-bits/tree/main/src/content/Animations/GlareHover
  * MIT + Commons Clause; full notice: THIRD_PARTY_NOTICES.card-motion.txt.
  * Retains original profile/easing/diagonal geometry; replaces React lifecycle with
- * one shared vanilla manager. Only embed as part of the game, not a component pack.
+ * one shared periodic vanilla manager. Only embed as part of the game, not a component pack.
  */
 (function (global) {
   'use strict';
@@ -1369,26 +1394,29 @@ SOFTWARE.
     const doc = options.document || document;
     const win = doc.defaultView || global;
     const reduced = win.matchMedia('(prefers-reduced-motion: reduce)');
-    const touch = win.matchMedia('(hover: none), (pointer: coarse)');
     const cards = new Map();
     const duration = Math.max(480, Math.min(1200, options.duration || 780));
-    const interval = Math.max(2000, options.touchInterval || 3500);
-    const opacity = Math.max(0, Math.min(.24, options.opacity ?? .17));
-    let active = null, raf = 0, timer = 0, paused = false, destroyed = false;
-    let lastCard = null, nextAllowed = 0;
-    const globallyAllowed = () => !destroyed && !paused && !doc.hidden && !reduced.matches;
+    const interval = Math.max(2000, options.interval || options.touchInterval || 4000);
+    const opacity = Math.max(0, Math.min(.24, options.opacity ?? .22));
+    // Each visible card has its own deadline. One shared rAF paints the brief passes;
+    // one timeout sleeps between them. No hover dependency or long round-robin wait.
+    const active = new Map();
+    let raf = 0, timer = 0, paused = false, destroyed = false, serial = 0, pageSuspended = false;
+    const globallyAllowed = () => !destroyed && !paused && !pageSuspended && !doc.hidden && !reduced.matches;
     const eligible = record => globallyAllowed() && (!doc.querySelector('dialog[open]') || doc.querySelector('dialog[open]').contains(record.el)) && record.visible && record.el.isConnected &&
       !record.el.matches('.hidden, .out, [hidden], [aria-hidden="true"]') &&
-      !record.el.closest('[hidden], [inert], [aria-hidden="true"], .screen.hidden, [data-revealed="false"]') &&
+      !record.el.closest('dialog:not([open]), .hide, [hidden], [inert], [aria-hidden="true"], .screen.hidden, [data-revealed="back"], [data-revealed="false"]') &&
       record.el.getClientRects().length > 0 && win.getComputedStyle(record.el).visibility !== 'hidden';
-    function stop() {
-      win.cancelAnimationFrame(raf); raf = 0;
-      if (active) { active.record.overlay.style.opacity = '0'; active.record.band.style.willChange = ''; }
-      active = null;
+    function stop(record) {
+      for (const item of [...active.keys()]) if (!record || record === item) {
+        item.overlay.style.opacity = '0'; item.band.style.willChange = ''; active.delete(item);
+      }
+      if (!active.size) { win.cancelAnimationFrame(raf); raf = 0; }
     }
     function clearTimer() { win.clearTimeout(timer); timer = 0; }
     function measure(record) {
-      const width = record.el.clientWidth, height = record.el.clientHeight;
+      const surface = record.el.querySelector('.card-content') || record.el;
+      const width = surface.clientWidth, height = surface.clientHeight;
       const angle = -45, radians = angle * Math.PI / 180;
       const diagonal = Math.hypot(width, height), band = Math.max(8, diagonal * .26);
       const reach = (Math.abs(width * Math.sin(radians)) + Math.abs(height * -Math.cos(radians))) / 2 + band / 2 + 2;
@@ -1397,47 +1425,53 @@ SOFTWARE.
       record.band.style.height = `${diagonal + band}px`;
     }
     function frame(now) {
-      if (!active || !eligible(active.record)) { stop(); schedule(); return; }
-      const t = Math.min(1, (now - active.start) / duration);
-      const position = -active.record.reach + 2 * active.record.reach * ease(t);
-      active.record.band.style.transform = `translate(-50%, -50%) rotate(-135deg) translateX(${position.toFixed(2)}px)`;
-      // Fade the outer 12% of the pass; white profile itself remains below 0.24.
-      active.record.overlay.style.opacity = String(Math.min(1, t / .12, (1 - t) / .12));
-      if (t < 1) raf = win.requestAnimationFrame(frame);
-      else { stop(); schedule(); }
+      raf = 0;
+      for (const [record, start] of [...active]) {
+        if (!eligible(record)) { stop(record); continue; }
+        const t = Math.min(1, (now - start) / duration);
+        const position = -record.reach + 2 * record.reach * ease(t);
+        record.band.style.transform = `translate(-50%, -50%) rotate(-135deg) translateX(${position.toFixed(2)}px)`;
+        record.overlay.style.opacity = String(Math.min(1, t / .12, (1 - t) / .12));
+        if (t >= 1) stop(record);
+      }
+      if (active.size) raf = win.requestAnimationFrame(frame);
+      schedule();
     }
     function play(el) {
-      const record = cards.get(el);
-      if (!record || !eligible(record) || active || win.performance.now() < nextAllowed) return false;
+      const record = cards.get(el), now = win.performance.now();
+      if (!record || !eligible(record) || active.has(record) || now < record.cooldown) return false;
       measure(record);
       if (!record.el.clientWidth || !record.el.clientHeight) return false;
-      clearTimer();
-      active = { record, start: win.performance.now() };
-      lastCard = el;
-      nextAllowed = active.start + duration + 500;
+      active.set(record, now);
+      record.nextAt = now + interval;
+      record.cooldown = now + duration + 500;
       record.band.style.willChange = 'transform';
-      raf = win.requestAnimationFrame(frame);
+      if (!raf) raf = win.requestAnimationFrame(frame);
+      schedule();
       return true;
     }
     function schedule() {
       clearTimer();
-      if (!globallyAllowed() || !touch.matches || active) return;
-      if (![...cards.values()].some(eligible)) return;
+      if (!globallyAllowed()) return;
+      const candidates = [...cards.values()].filter(record => eligible(record) && !active.has(record));
+      if (!candidates.length) return;
+      const next = Math.min(...candidates.map(record => Math.max(record.nextAt, record.cooldown)));
       timer = win.setTimeout(() => {
         timer = 0;
-        for (const [el] of cards) if (!el.isConnected) detach(el);
-        const candidates = [...cards.values()].filter(eligible);
-        if (!candidates.length) return;
-        const index = candidates.findIndex(r => r.el === lastCard);
-        if (!play(candidates[(index + 1) % candidates.length].el)) schedule();
-      }, interval);
+        const now = win.performance.now();
+        for (const record of [...cards.values()]) {
+          if (!record.el.isConnected) { detach(record.el); continue; }
+          if (eligible(record) && record.nextAt <= now && record.cooldown <= now) play(record.el);
+        }
+        schedule();
+      }, Math.max(16, next - win.performance.now()));
     }
     const intersection = typeof win.IntersectionObserver === 'function' ? new win.IntersectionObserver(entries => {
       for (const entry of entries) {
         const record = cards.get(entry.target);
         if (record) record.visible = entry.isIntersecting && entry.intersectionRatio >= .4;
       }
-      if (active && !eligible(active.record)) stop();
+      for (const record of active.keys()) if (!eligible(record)) stop(record);
       schedule();
     }, { threshold: [0, .4, 1] }) : null;
     const resize = typeof win.ResizeObserver === 'function' ? new win.ResizeObserver(entries => {
@@ -1452,42 +1486,37 @@ SOFTWARE.
       const band = doc.createElement('span'); band.className = 'nb-card-glare__band';
       band.style.background = whiteGradient(opacity); overlay.append(band);
       el.classList.add('nb-glare-host'); (el.querySelector('.card-content') || el).append(overlay);
-      const onEnter = event => { if (event.pointerType !== 'touch') play(el); };
-      const onDown = event => { if (event.pointerType !== 'mouse') play(el); };
-      const onFocus = event => { if (event.target.matches?.(':focus-visible')) play(el); };
-      const record = { el, overlay, band, visible: !intersection, reach: 0, onEnter, onDown, onFocus };
+      const record = { el, overlay, band, visible: !intersection, reach: 0, nextAt: win.performance.now() + 400 + (serial++ % 12) * 140, cooldown: 0 };
       cards.set(el, record);
-      el.addEventListener('pointerenter', onEnter, { passive: true });
-      el.addEventListener('pointerdown', onDown, { passive: true });
-      el.addEventListener('focusin', onFocus);
       measure(record); intersection?.observe(el); resize?.observe(el); schedule();
     }
     function detach(el) {
       const record = cards.get(el); if (!record) return;
-      if (active?.record === record) stop();
+      stop(record);
       intersection?.unobserve(el); resize?.unobserve(el);
-      el.removeEventListener('pointerenter', record.onEnter);
-      el.removeEventListener('pointerdown', record.onDown);
-      el.removeEventListener('focusin', record.onFocus);
       record.overlay.remove(); el.classList.remove('nb-glare-host'); cards.delete(el);
       schedule();
     }
-    function refresh() { if (!globallyAllowed()) stop(); schedule(); }
+    function refresh() { for (const record of active.keys()) if (!eligible(record)) stop(record); schedule(); }
+    function pagehide() { pageSuspended = true; stop(); clearTimer(); }
+    function pageshow() { pageSuspended = false; refresh(); }
     const listen = (media, cb) => media.addEventListener ? media.addEventListener('change', cb) : media.addListener(cb);
     const unlisten = (media, cb) => media.removeEventListener ? media.removeEventListener('change', cb) : media.removeListener(cb);
-    listen(reduced, refresh); listen(touch, refresh); doc.addEventListener('visibilitychange', refresh);
+    listen(reduced, refresh); doc.addEventListener('visibilitychange', refresh);
+    win.addEventListener('pagehide', pagehide); win.addEventListener('pageshow', pageshow);
     return {
-      attach, detach, play,
+      attach, detach,
       pause() { paused = true; stop(); clearTimer(); },
       resume() { paused = false; refresh(); },
       destroy() {
         destroyed = true; stop(); clearTimer();
         for (const el of [...cards.keys()]) detach(el);
         intersection?.disconnect(); resize?.disconnect();
-        unlisten(reduced, refresh); unlisten(touch, refresh); doc.removeEventListener('visibilitychange', refresh);
+        unlisten(reduced, refresh); doc.removeEventListener('visibilitychange', refresh);
+        win.removeEventListener('pagehide', pagehide); win.removeEventListener('pageshow', pageshow);
       },
       // Diagnostic only: no card values or identities are read by this module.
-      status() { return { attached: cards.size, active: !!active, scheduled: !!timer, reduced: reduced.matches, paused }; }
+      status() { return { attached: cards.size, active: active.size > 0, activeCount: active.size, interval, scheduled: !!timer, reduced: reduced.matches, paused }; }
     };
   }
   global.NumberBluffCardMotion = Object.freeze({ createManager });
@@ -1752,13 +1781,22 @@ const defs=`<defs><linearGradient id="${id}-ice"><stop stop-color="#bdeaff" stop
 if(kind==='double')return defs+`<g class="galaxy-plane" transform="translate(535 963) rotate(-28)"><ellipse class="galaxy-stream stream-a" rx="390" ry="129" stroke="url(#${id}-ice)"/><ellipse class="galaxy-stream stream-b" rx="296" ry="98" stroke="url(#${id}-ice)"/><ellipse class="galaxy-core-rim" rx="164" ry="54"/></g>`;
 if(kind==='max0')return defs+`<defs><clipPath id="${id}-crown"><path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/></clipPath></defs><g clip-path="url(#${id}-crown)"><rect class="crown-metal-sweep" x="430" y="608" width="75" height="165" fill="url(#${id}-gold)"/><path class="crown-trace" d="M514 721 L520 662 L550 686 L609 638 L645 701 L681 690 L668 739"/></g>`;
 if(kind==='extra')return defs+`<defs><clipPath id="${id}-orb"><ellipse cx="535" cy="994" rx="282" ry="286"/></clipPath></defs><g clip-path="url(#${id}-orb)"><g class="orb-nebula"><path d="M408 1118 C282 950 615 758 692 899 S394 1196 481 975 S749 982 611 1152" stroke="url(#${id}-ice)"/></g><ellipse class="orb-refraction" cx="535" cy="994" rx="268" ry="275"/><g class="orb-premonition"><rect x="485" y="916" width="100" height="145" rx="18"/></g></g><path class="orb-glass" d="M361 799 Q400 748 455 747"/>`;
-return defs+`<path class="reset-current" d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" stroke="url(#${id}-ice)"/><path class="reset-arrowlight" d="M465 763 L390 817 L471 859"/>`;
+const orbitCards=[0,120,240].map(angle=>`<g transform="rotate(${angle}) translate(0 -205) rotate(-12)"><rect class="reset-card-back" x="-35" y="-49" width="70" height="98" rx="10"/><path class="reset-card-inlay" d="M-22 -35 H22 V35 H-22Z M0 -13 L10 0 L0 13 L-10 0Z"/></g>`).join('');
+return defs+`<g transform="translate(535 1005)"><g class="reset-card-orbit">${orbitCards}</g></g><path class="reset-current" d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" stroke="url(#${id}-ice)"/><path class="reset-arrowlight" d="M465 763 L390 817 L471 859"/>`;
 }
 function createManager(){
-const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false;
-function allowed(r){return !destroyed&&!paused&&!r.stopped&&!reduced.matches&&!document.hidden&&r.visible&&r.el.isConnected&&!r.el.closest('.hide,.hidden,.out,[hidden],[inert],[aria-hidden="true"],[data-revealed="false"]')&&getComputedStyle(r.el).visibility!=='hidden';}
-function sync(r){const on=allowed(r);r.layer.dataset.playing=String(on);r.layer.style.visibility=on?'visible':'hidden';if(!on){clearTimeout(r.timer);r.layer.removeAttribute('data-active');r.stopped=true;}}
+const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false,pageSuspended=false;
+function allowed(r){return !destroyed&&!paused&&!pageSuspended&&!reduced.matches&&!document.hidden&&r.visible&&r.el.isConnected&&!r.el.closest('.hide,.hidden,.out,[hidden],[inert],[aria-hidden="true"],[data-revealed="back"],[data-revealed="false"]')&&!r.el.closest('dialog:not([open])')&&(!document.querySelector('dialog[open]')||document.querySelector('dialog[open]').contains(r.el))&&!document.querySelector('#restartConfirm:not(.hide)')&&getComputedStyle(r.el).visibility!=='hidden';}
+function sync(r){const on=allowed(r);r.layer.dataset.playing=String(on);r.layer.style.visibility=on?'visible':'hidden';if(!on){clearTimeout(r.timer);r.layer.removeAttribute('data-active');}}
 function measure(r){
+ // Production card art and SVG are siblings in the same full 2:3 surface.
+ // Share CSS geometry directly: viewport rectangles during deal/flip transforms
+ // include perspective and integer clientWidth rounding, not local coordinates.
+ if(r.imageElement?.parentElement===r.mountRoot&&r.mountRoot.classList.contains('card-content')){
+  Object.assign(r.layer.style,{left:'0px',top:'auto',bottom:'0px',width:'100%',height:'var(--card-source-height,100%)'});
+  const imageStyle=getComputedStyle(r.imageElement),hostStyle=getComputedStyle(r.mountRoot),width=parseFloat(imageStyle.width)||0,height=parseFloat(imageStyle.height)||0;
+  r.rect={x:0,y:(parseFloat(hostStyle.height)||0)-height,width,height,scale:width/ART[r.kind].width};return;
+ }
  const el=r.mountRoot,img=r.imageElement||r.el,hostRect=el.getBoundingClientRect(),rect=img.getBoundingClientRect();const style=getComputedStyle(el),imgStyle=getComputedStyle(img);
  const hostBorderX=parseFloat(style.borderLeftWidth)||0,hostBorderY=parseFloat(style.borderTopWidth)||0;
  const imageBorderX=parseFloat(imgStyle.borderLeftWidth)||0,imageBorderY=parseFloat(imgStyle.borderTopWidth)||0;
@@ -1776,16 +1814,17 @@ function attach(el,kind,{faceUp=true,imageElement=null}={}){if(destroyed||!el)re
  const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${a.width} ${a.height}`);svg.setAttribute('preserveAspectRatio','xMidYMid meet');svg.innerHTML=markup(kind,'nbsv-'+(++serial));layer.append(svg);const mountRoot=imageElement?.closest('.card-content')||el;mountRoot.append(layer);el.classList.add('nb-special-svg-host');
  const bounds=el.getBoundingClientRect();const visibleWidth=Math.max(0,Math.min(innerWidth,bounds.right)-Math.max(0,bounds.left)),visibleHeight=Math.max(0,Math.min(innerHeight,bounds.bottom)-Math.max(0,bounds.top));
  const initiallyVisible=bounds.width>0&&bounds.height>0&&visibleWidth*visibleHeight/(bounds.width*bounds.height)>=.35;
- const r={el,kind,imageElement,mountRoot,layer,visible:initiallyVisible,stopped:true,timer:0,rect:null};records.set(el,r);measure(r);ro.observe(el);if(imageElement&&imageElement!==el)ro.observe(imageElement);io.observe(el);return layer;
+ const r={el,kind,imageElement,mountRoot,layer,visible:initiallyVisible,timer:0,rect:null};records.set(el,r);measure(r);ro.observe(el);if(imageElement&&imageElement!==el)ro.observe(imageElement);io.observe(el);sync(r);return layer;
 }
 function detach(el){const r=records.get(el);if(!r)return;clearTimeout(r.timer);io.unobserve(el);ro.unobserve(el);if(r.imageElement&&r.imageElement!==el)ro.unobserve(r.imageElement);r.layer.remove();el.classList.remove('nb-special-svg-host');records.delete(el);}
-function activate(el,{duration=900}={}){const r=records.get(el);if(!r)return false;r.stopped=false;sync(r);if(!allowed(r)){r.stopped=true;sync(r);return false;}clearTimeout(r.timer);r.layer.style.setProperty('--special-active-ms',Math.max(250,duration)+'ms');r.layer.dataset.active='true';r.timer=setTimeout(()=>{r.stopped=true;sync(r);},Math.max(250,duration));return true;}
+function activate(el,{duration=900}={}){const r=records.get(el);if(!r)return false;sync(r);if(!allowed(r))return false;clearTimeout(r.timer);r.layer.style.setProperty('--special-active-ms',Math.max(250,duration)+'ms');r.layer.dataset.active='true';r.timer=setTimeout(()=>{r.layer.removeAttribute('data-active');sync(r);},Math.max(250,duration));return true;}
 function refresh(){for(const r of records.values()){measure(r);sync(r);}}
-function pagehide(){for(const r of records.values()){r.stopped=true;sync(r);}}
-document.addEventListener('visibilitychange',refresh);global.addEventListener('pagehide',pagehide);global.addEventListener('pageshow',refresh);reduced.addEventListener('change',refresh);
-return{attach,detach,activate,play(el,options={}){return activate(el,options);},stop(el){for(const r of records.values())if(!el||r.el===el){r.stopped=true;sync(r);}},status(){return{attached:records.size,active:[...records.values()].some(r=>r.layer.dataset.active==='true'),paused};},getActiveHost(){return [...records.values()].find(r=>r.layer.dataset.active==='true')?.el||null;},refresh,pause(){paused=true;refresh();},resume(){paused=false;refresh();},rect(el){return records.get(el)?.rect||null;},
- renderAt(el,ms){const r=records.get(el);if(!r)return false;r.stopped=false;sync(r);if(!allowed(r))return false;for(const animation of r.layer.getAnimations({subtree:true})){animation.pause();animation.currentTime=ms;}return true;},
- destroy(){destroyed=true;for(const el of [...records.keys()])detach(el);ro.disconnect();io.disconnect();document.removeEventListener('visibilitychange',refresh);global.removeEventListener('pagehide',pagehide);global.removeEventListener('pageshow',refresh);reduced.removeEventListener('change',refresh);}}
+function pagehide(){pageSuspended=true;refresh();}
+function pageshow(){pageSuspended=false;refresh();}
+document.addEventListener('visibilitychange',refresh);global.addEventListener('pagehide',pagehide);global.addEventListener('pageshow',pageshow);reduced.addEventListener('change',refresh);
+return{attach,detach,activate,play(el,options={}){return activate(el,options);},stop(el){for(const r of records.values())if(!el||r.el===el){clearTimeout(r.timer);r.layer.removeAttribute('data-active');sync(r);}},status(){return{attached:records.size,active:[...records.values()].some(r=>r.layer.dataset.active==='true'),paused};},getActiveHost(){return [...records.values()].find(r=>r.layer.dataset.active==='true')?.el||null;},refresh,pause(){paused=true;refresh();},resume(){paused=false;refresh();},rect(el){return records.get(el)?.rect||null;},
+ renderAt(el,ms){const r=records.get(el);if(!r)return false;sync(r);if(!allowed(r))return false;for(const animation of r.layer.getAnimations({subtree:true})){animation.pause();animation.currentTime=ms;}return true;},
+ destroy(){destroyed=true;for(const el of [...records.keys()])detach(el);ro.disconnect();io.disconnect();document.removeEventListener('visibilitychange',refresh);global.removeEventListener('pagehide',pagehide);global.removeEventListener('pageshow',pageshow);reduced.removeEventListener('change',refresh);}}
 }
 global.NumberBluffSpecialSVG=Object.freeze({createManager,containRect,art:ART});
 })(window);
@@ -1824,21 +1863,20 @@ global.NumberBluffSpecialSVG=Object.freeze({createManager,containRect,art:ART});
    endTimer=win.setTimeout(stop,ms+50);return true;
   }
   function sync(){if(active&&!eligible(active.node))stop();}
-  function onPointer(event){if(event.pointerType==='touch')return;const node=event.target.closest?.('.player-card');if(node&&!node.contains(event.relatedTarget))play(node);}
   function visibility(){if(doc.hidden||reduced.matches)stop();else if(!active)releaseGlare();}
   function pagehide(){stop();glare.pause();}
   function pageshow(){releaseGlare();}
-  doc.addEventListener('pointerover',onPointer,true);doc.addEventListener('visibilitychange',visibility);
+  doc.addEventListener('visibilitychange',visibility);
   reduced.addEventListener?.('change',visibility);win.addEventListener('pagehide',pagehide);win.addEventListener('pageshow',pageshow);
   Promise.resolve(renderer.ready).then(value=>{if(!disposed)ready=!!value;});
-  return {play,stop,sync,status(){return{ready,active:!!active,kind:active?.kind||null,seen:seen.size};},destroy(){disposed=true;stop();doc.removeEventListener('pointerover',onPointer,true);doc.removeEventListener('visibilitychange',visibility);reduced.removeEventListener?.('change',visibility);win.removeEventListener('pagehide',pagehide);win.removeEventListener('pageshow',pageshow);renderer.destroy();seen.clear();}};
+  return {play,stop,sync,status(){return{ready,active:!!active,kind:active?.kind||null,seen:seen.size};},destroy(){disposed=true;stop();doc.removeEventListener('visibilitychange',visibility);reduced.removeEventListener?.('change',visibility);win.removeEventListener('pagehide',pagehide);win.removeEventListener('pageshow',pageshow);renderer.destroy();seen.clear();}};
  }
  return Object.freeze({create});
 });
 
 </script><script>
-/* Static instructional diagrams; no game state or character decoration. */
-(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.NumberBluffGuideDiagrams=factory();})(typeof globalThis==='object'?globalThis:this,function(){
+/* Static examples use the actual card artwork and BOT portraits as named actors. */
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./card-art'));else root.NumberBluffGuideDiagrams=factory(root.NumberBluffCardArt);})(typeof globalThis==='object'?globalThis:this,function(cardArt){
  'use strict';
  const labels=[
   '自分のカードは裏向き。他の人の3と5は見える。自分を含む合計を予想する。',
@@ -1847,18 +1885,23 @@ global.NumberBluffSpecialSVG=Object.freeze({createManager,containRect,art:ART});
   '判定の例。実際の合計が10のとき、宣言12なら宣言者がライフを1失う。宣言10なら疑った側がライフを1失う。',
   '負けた人のライフは3から2へ。0で脱落し、最後に残った1人が優勝。'
  ];
+ const portraits={bunny:'https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp',cat:'https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp',star:'https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp'};
  function create(doc,index){
   if(!Number.isInteger(index)||index<0||index>=labels.length)throw new RangeError('Unknown guide step');
   const node=(tag,cls,text)=>{const n=doc.createElement(tag);n.className=cls;if(text!==undefined)n.textContent=text;return n;};
   const root=node('div','guide-diagram guide-diagram-'+index);root.setAttribute('role','img');root.setAttribute('aria-label',labels[index]);
   const row=()=>node('div','guide-diagram-row');
+  const image=(src,cls)=>{const n=node('img',cls);n.src=src;n.alt='';n.draggable=false;n.decoding='async';n.setAttribute('aria-hidden','true');return n;};
   const chip=(label,value,cls='')=>{const c=node('span','guide-chip '+cls);c.append(node('small','',label),node('strong','',value));return c;};
+  const actor=(who,label)=>{const c=node('span','guide-actor');c.append(image(portraits[who],'guide-avatar'));if(label)c.append(node('small','',label));return c;};
+  const speech=(who,label,value)=>{const c=node('div','guide-speaker');c.append(chip(label,value,'is-speech'),actor(who,null));return c;};
   const arrow=()=>node('span','guide-arrow','→');
-  if(index===0){const r=row();r.append(chip('自分','？','guide-mini-card is-back'),chip('他の人','3','guide-mini-card'),chip('他の人','5','guide-mini-card'));root.append(r,node('span','guide-diagram-note','？ ＋ 3 ＋ 5 ＝ 合計は？'));}
-  if(index===1){const r=row();r.append(chip('宣言','8','is-speech'),arrow(),chip('次の人','9','is-speech'),arrow(),chip('その次','12','is-speech'));root.append(r);}
-  if(index===2){const r=row();r.append(chip('直前の宣言','12','is-speech'),node('span','guide-comparison','> ?'),chip('自分の予想','10くらい'));root.append(r,node('span','guide-challenge','グラビティ！'));}
-  if(index===3){for(const [bid,sign,loser] of [['12','>','宣言者'],['10','＝','疑った側']]){const r=row();r.append(chip('宣言',bid),node('span','guide-comparison',sign),chip('実合計','10'),arrow(),node('span','guide-life-loss',loser+'\nライフ −1'));root.append(r);}}
-  if(index===4){const r=row();r.append(chip('負けた人','3 → 2'),chip('0になると','脱落'),chip('残り1人','優勝'));root.append(r);}
+  const card=(label,value)=>{const c=node('div','guide-card-example'),face=node('span','player-card guide-card-face'+(value===null?' hidden':' kind-number normal-card'));c.append(node('small','',label));if(value===null)face.textContent='？';else{face.setAttribute('data-art-value',String(value));const disclosed={kind:'number',value},content=cardArt.content(doc,disclosed);content.append(node('strong','card-value',String(value)),cardArt.create(doc,disclosed));face.append(content);}c.append(face);return c;};
+  if(index===0){const r=row();r.append(card('自分',null),card('他の人',3),card('他の人',5));root.append(r,node('span','guide-diagram-note','？ ＋ 3 ＋ 5 ＝ 合計は？'));}
+  if(index===1){const r=row();r.append(speech('bunny','宣言','8'),arrow(),speech('cat','次の人','9'),arrow(),speech('star','その次','12'));root.append(r);}
+  if(index===2){const r=row();r.append(speech('bunny','直前の宣言','12'),node('span','guide-comparison','> ?'),chip('自分の予想','10くらい'));const challenge=row();challenge.className+=' guide-challenger';challenge.append(actor('cat','疑う人'),node('span','guide-challenge','グラビティ！'));root.append(r,challenge);}
+  if(index===3){for(const [bid,sign,loser,who] of [['12','>','宣言者','bunny'],['10','＝','疑った側','cat']]){const example=node('div','guide-verdict'),r=row(),outcome=row();r.append(chip('宣言',bid),node('span','guide-comparison',sign),chip('実合計','10'));outcome.className+=' guide-verdict-outcome';outcome.append(actor(who,loser),node('span','guide-life-loss','ライフ −1'));example.append(r,outcome);root.append(example);}}
+  if(index===4){const r=row();r.append(actor('bunny','負けた人'),chip('ライフ','3 → 2','guide-life-chip'));const hearts=node('span','guide-hearts');hearts.append(node('span','','♥ ♥ '),node('span','is-lost','♥'));r.append(hearts);root.append(r,node('span','guide-diagram-note','0になると脱落。残った1人が優勝！'));}
   return root;
  }
  return Object.freeze({create,labels:Object.freeze(labels)});
@@ -1882,7 +1925,10 @@ global.NumberBluffSpecialSVG=Object.freeze({createManager,containRect,art:ART});
     for (const node of motionCards) if (!node.isConnected) { cardMotion.detach(node); specialSVG.detach(node); motionCards.delete(node); }
     for (const node of document.querySelectorAll('.screen:not(.hide) .player-card:not(.hidden):not(.out), dialog[open] .player-card:not(.hidden):not(.out)')) {
       if (!motionCards.has(node)) { cardMotion.attach(node, { faceUp: true }); motionCards.add(node); }
+      const kind = ['extra','double','max0','reset'].find(value => node.classList.contains('kind-' + value));
+      if (kind) specialSVG.attach(node, kind, { faceUp: true, imageElement: node.querySelector('img.card-art') });
     }
+    specialSVG.refresh();
   }
   const motionObserver = new MutationObserver(syncCardMotion);
   motionObserver.observe(document.querySelector('main'), {childList:true,subtree:true});
@@ -2206,8 +2252,8 @@ global.NumberBluffSpecialSVG=Object.freeze({createManager,containRect,art:ART});
   $('backspace').onclick = () => { if (!$('number').disabled) { $('number').value = $('number').value.slice(0, -1); suggested = false; clearError(); } };
   $('number').addEventListener('input', () => { suggested = false; clearError(); });
   $('number').addEventListener('keydown', event => { if (event.key === 'Enter' && !$('declare').disabled) { event.preventDefault(); $('declare').click(); } });
-  function confirmExit() { specialEffects.stop(); cardMotion.pause(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
-  function closeConfirm() { cardMotion.resume(); $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); }
+  function confirmExit() { specialEffects.stop(); cardMotion.pause(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); specialSVG.refresh(); }
+  function closeConfirm() { cardMotion.resume(); $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); syncCardMotion(); }
   $('homeBtn').onclick = confirmExit; $('cancelRestart').onclick = closeConfirm;
   $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); const finished = captureSessionFinish(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   function overlay(id, trigger) { if (screen === 'homeScreen' || screen === 'joinPanel') cancelRoomRequest(); overlayReturn = { screen, trigger }; show(id); }
@@ -2259,17 +2305,17 @@ global.NumberBluffSpecialSVG=Object.freeze({createManager,containRect,art:ART});
     }
     container.focus({ preventScroll: true });
   }
-  function stopDetailEffect() { detailEffectEpoch++; specialEffects.stop(); }
+  function stopDetailEffect() { detailEffectEpoch++; specialEffects.stop(); specialSVG.refresh(); }
   function cardDetail(card, count) {
     const detailEpoch = ++detailEffectEpoch;
     const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。例：(3 + 5 − 5) × 2 = 6。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
-    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); specialEffects.stop(); cardMotion.pause(); $('cardDetail').showModal(); $('closeCardDetail').focus(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailEffectEpoch&&$('cardDetail').open&&detailFace.isConnected){if(detailFace.classList.contains('normal-card')){cardMotion.resume();syncCardMotion();cardMotion.play(detailFace);}else specialEffects.play(detailFace,{priority:true});}}).catch(()=>{});
+    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); specialEffects.stop(); cardMotion.pause(); $('cardDetail').showModal(); $('closeCardDetail').focus(); cardMotion.resume(); syncCardMotion(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailEffectEpoch&&$('cardDetail').open&&detailFace.isConnected){if(detailFace.classList.contains('normal-card')){cardMotion.resume();syncCardMotion();}else specialEffects.play(detailFace,{priority:true});}}).catch(()=>{});
   }
-  $('closeCardDetail').onclick = () => { stopDetailEffect(); $('cardDetail').close(); };
+  $('closeCardDetail').onclick = () => { stopDetailEffect(); $('cardDetail').close(); specialSVG.refresh(); };
   $('cardDetail').addEventListener('cancel', stopDetailEffect);
   $('cardDetail').addEventListener('beforetoggle', event => { if(event.newState==='closed')stopDetailEffect(); });
   document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
-  $('cardDetail').addEventListener('close', () => { stopDetailEffect(); cardMotion.resume(); });
+  $('cardDetail').addEventListener('close', () => { stopDetailEffect(); cardMotion.resume(); syncCardMotion(); });
   window.addEventListener('pageshow', () => { cardMotion.resume(); syncCardMotion(); });
   window.addEventListener('pagehide', () => { stopDetailEffect(); cardMotion.pause(); timer.cancel(); cancelPresentation(true); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });

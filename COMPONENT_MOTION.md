@@ -3,7 +3,7 @@
 This preview integrates React Bits Glare Hover (vanilla port), Uiverse's card flip and Vengeance UI's narrow gold rim, NumberFlow 0.6.2 and canvas-confetti 1.9.4.
 
 - Original card image bytes and approved reveal ordering are unchanged. Artwork itself is not animated by these modules.
-- A single shared glare manager permits one finite pass. Normal cards use glare only: no floating characters or sky-texture flow. Special cards may combine glare with a finite SVG effect aligned to the unchanged original image. Rejected duplicate-art motion, sweat-like white marks and unrelated orbiting ornaments do not return.
+- A single shared glare manager gives every visible card a 780ms white diagonal pass every 4 seconds, staggered across cards on desktop and touch devices. Normal cards use glare only: no floating characters or sky-texture flow. Special cards combine glare with ambient SVG motion aligned to the unchanged original image; finite result/detail emphasis is separate from ambient visibility. Hidden, offscreen and closed-dialog faces stop, then resume on return (except OS reduced motion). Rejected duplicate-art motion, sweat-like white marks and unrelated orbiting ornaments do not return.
 - Flip begins only when the presenter authorizes that card's reveal. Skip, rerender and page hiding settle the real face.
 - The subtotal displays only authorized presenter values, never interpolated game arithmetic. Victory particles occur once for a confirmed local winner; reconnect does not replay them.
 - Existing background scene/cloud movement is retained. A separate component-derived optical-star/meteor overlay refines the TOP effect; its source adaptations and complete licenses are in THIRD_PARTY_NOTICES.top-motion.txt.

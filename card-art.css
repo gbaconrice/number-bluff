@@ -1,7 +1,10 @@
-/* Shared physical card; each unchanged original is contained in its own content rectangle. */
+/* Shared physical card and full-size artwork surface. Static header-band extension preserves the complete illustration. */
 .player-card, .battle-grid.many .player-card, .catalogue .player-card, .example-cards .player-card, .extra-reveal .player-card, .step-art .player-card { aspect-ratio: 2 / 3; height: auto; }
 .player-card:not(.hidden):not(.out), .battle-grid.many .player-card:not(.hidden):not(.out) { padding: 0; background: #fff2d6; border: 0; border-radius: 6px; outline: 1px solid #d4b976; outline-offset: -1px; box-shadow: 0 1px 3px #15224130; overflow: hidden; box-sizing: border-box; }
-.player-card .card-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; z-index: 0; pointer-events: none; }
+.player-card .card-art { position: absolute; left: 0; bottom: 0; width: 100%; height: var(--card-source-height,100%); object-fit: contain; object-position: center; clip-path: inset(calc(var(--card-lower-start,35%) - .5px) 0 0); display: block; z-index: 0; pointer-events: none; }
+.player-card .card-art-cap,.player-card .card-art-band { position:absolute; left:0; width:100%; background-repeat:no-repeat; pointer-events:none; z-index:0; }
+.player-card .card-art-cap { top:0; height:var(--card-cap-height,20%); background-size:100% 500%; background-position:center top; }
+.player-card .card-art-band { top:var(--card-cap-height,20%); height:var(--card-band-height,15%); background-size:100% var(--card-band-size,666.6666667%); background-position:center var(--card-band-position,23.5294118%); }
 .player-card:not(.hidden):not(.out) .card-value { position: absolute; top: 12%; height: 26%; left: 5%; right: 5%; z-index: 2; display: flex; align-items: center; justify-content: center; color: #19294f; text-shadow: 0 1px 2px #ffffff, 0 0 5px #ffffff; }
 .player-card.kind-extra .card-value { color: #f8f5ed; text-shadow: 0 1px 3px #152241, 0 0 5px #152241; }
 .player-card.kind-reset .card-value { font-size: inherit; }
@@ -20,6 +23,6 @@
 /* Existing special originals are not redrawn, stretched, cropped or overpainted. */
 .player-card.special:not(.hidden):not(.out) .card-value { top: 12%; height: 26%; left: 7%; right: 7%; color: #fff3d3; text-shadow: 0 2px 4px #0a1949; }
 
-/* Every outer card has identical dimensions; the unchanged original is centered inside. */
+/* All artwork now fills the same 2:3 surface, not a smaller contain rectangle. */
 
 .player-card .card-content { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); isolation:isolate; pointer-events:none; }

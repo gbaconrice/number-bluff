@@ -1,23 +1,39 @@
-/* In-flow explanations replace unrelated, absolutely positioned mascots. */
+/* In-flow game examples: real cards and portraits always belong to a clear role. */
 #guideContent[data-tab="rules"] .guide-step { padding: 12px 12px 12px 43px; min-height: 0; }
-.guide-diagram { margin-top: 10px; display: grid; gap: 7px; max-width: 420px; color: #24385b; font-variant-numeric: tabular-nums; }
-.guide-diagram-row { display: flex; align-items: center; justify-content: center; gap: clamp(4px,1.5vw,9px); min-width: 0; }
+.guide-diagram { margin-top: 12px; display: grid; gap: 9px; max-width: 420px; color: #24385b; font-variant-numeric: tabular-nums; }
+.guide-diagram-row { display: flex; align-items: center; justify-content: center; gap: clamp(5px,1.5vw,10px); min-width: 0; }
 .guide-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; padding: 6px 8px; border: 1px solid #aeb2ce; border-radius: 8px; background: #fffdf4; text-align: center; flex: 0 1 auto; }
-.guide-chip small { display: block; font-size: 10px; line-height: 1.3; white-space: nowrap; }
+.guide-chip small,.guide-card-example>small,.guide-actor small { display: block; font-size: 10px; line-height: 1.3; white-space: nowrap; }
 .guide-chip strong { display: block; font-size: 19px; line-height: 1.15; font-weight: 750; white-space: nowrap; }
-.guide-chip.guide-mini-card { min-width: 43px; min-height: 58px; }
-.guide-chip.is-back { background: #26335a; border-color: #d6c8ed; color: #fff9df; }
 .guide-chip.is-speech { border-radius: 10px 10px 10px 3px; }
 .guide-arrow,.guide-comparison { flex: none; font-size: 15px; line-height: 1; font-weight: 700; }
 .guide-diagram-note { text-align: center; font-size: 12px; line-height: 1.4; }
-.guide-challenge { justify-self: center; padding: 4px 10px; border: 1px solid #8c7496; border-radius: 10px; background: #fff7dc; font-size: 12px; font-weight: 750; }
-.guide-life-loss { flex: 0 1 auto; min-width: 0; white-space: pre-line; text-align: center; color: #963f4c; font-size: 11px; line-height: 1.4; font-weight: 750; }
+.guide-card-example { display: grid; justify-items: center; gap: 5px; flex: 0 1 70px; min-width: 0; }
+.guide-card-example .player-card.guide-card-face { width: 100%; max-width: 70px; min-width: 0; margin: 0; aspect-ratio: 2/3; height: auto; font-size: 25px; transform: none; }
+.guide-card-example .player-card.hidden { display: flex; align-items: center; justify-content: center; padding: 0; font-size: 25px; }
+.guide-speaker { display: grid; justify-items: center; gap: 5px; min-width: 0; }
+.guide-actor { display: grid; justify-items: center; gap: 2px; flex: 0 0 auto; }
+.guide-avatar { display: block; width: 43px; height: 43px; object-fit: contain; }
+.guide-challenger { gap: 9px; }
+.guide-challenge { padding: 8px 10px; border: 1px solid #8c7496; border-radius: 10px 10px 10px 3px; background: #fff7dc; font-size: 12px; font-weight: 750; }
+.guide-diagram-3 { grid-template-columns: 1fr 1fr; gap: 8px; }
+.guide-verdict { display: grid; gap: 6px; padding: 8px 4px; background: #ffffff50; border-radius: 10px; min-width: 0; }
+.guide-verdict .guide-chip { border: 0; background: transparent; padding: 0; }
+.guide-verdict .guide-diagram-row { gap: 5px; }
+.guide-verdict-outcome { border-top: 1px solid #aeb2ce60; padding-top: 5px; flex-wrap: wrap; }
+.guide-life-loss { min-width: 0; white-space: nowrap; text-align: center; color: #963f4c; font-size: 11px; line-height: 1.4; font-weight: 750; }
+.guide-hearts { color: #c45168; font-size: 17px; white-space: nowrap; }
+.guide-hearts .is-lost { color: #a5a1b3; opacity: .65; }
 @media(max-width:350px){
  #guideContent[data-tab="rules"] .guide-step { padding: 10px 9px 10px 40px; }
  .guide-chip { padding: 5px; }
- .guide-chip small { font-size: 9px; }
+ .guide-chip small,.guide-card-example>small,.guide-actor small { font-size: 9px; }
  .guide-chip strong { font-size: 17px; }
- .guide-diagram-3 .guide-chip { padding: 5px 4px; }
- .guide-diagram-3 .guide-arrow { font-size: 12px; }
+ .guide-card-example { flex-basis: 60px; }
+ .guide-verdict { padding: 7px 2px; }
+ .guide-verdict .guide-chip strong { font-size: 17px; }
+ .guide-verdict .guide-comparison { font-size: 12px; }
  .guide-life-loss { font-size: 10px; }
+ .guide-avatar { width: 37px; height: 37px; }
+ .guide-hearts { font-size: 15px; }
 }

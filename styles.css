@@ -20,7 +20,6 @@ h3 { font-size: 12px; margin-bottom: 7px; }
 .pill { display: block; width: 100%; border-radius: 30px; position: relative; }
 .pill>span { position: absolute; right: 19px; font-size: 25px; top: 8px; color: #8c6581; }
 .circle { flex-shrink: 0; padding: 0; border-radius: 50%; font-size: 24px; background: #112653b3; }
-.decorative { display: grid; place-items: center; }
 .topbar { align-items: center; justify-content: space-between; margin-bottom: 7px; }
 .topbar h1 { margin: 0; line-height: 1.1; color: #ffedc6; text-shadow: 0 0 9px #ffe1a955; }
 .topbar h1 small { display: block; font-size: 8px; letter-spacing: .12em; margin-top: 4px; color: #f4e8ff; }
@@ -368,7 +367,7 @@ main { position: relative; z-index: 1; }
 .topbar { display: grid; grid-template-columns: 44px minmax(0,1fr) 44px; gap: 7px; }
 .topbar h1 { grid-column: 2; text-align: center; width: 100%; min-width: 0; }
 .topbar>button:first-child { grid-column: 1; }
-.topbar>.decorative, .topbar>button:last-child:not(:first-child) { grid-column: 3; }
+.topbar>button:last-child:not(:first-child) { grid-column: 3; }
 .room-status { font-size: 12px; line-height: 1.5; margin: 5px 0 0; text-align: center; color: #fff2d6; }
 .room-status:empty { display: none; }
 .join-form { margin-top: 22px; display: grid; gap: 13px; padding: 20px; }
