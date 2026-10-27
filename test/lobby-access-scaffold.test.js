@@ -5,9 +5,12 @@ test('home offers public default and exact private-room option',()=>{
  assert.match(html,/id="privateRoom" type="checkbox"/);assert.doesNotMatch(html,/id="privateRoom"[^>]*checked/);
  assert.match(html,/プライベートルームにする/);assert.doesNotMatch(html,/プライベートロビー/);
 });
-test('join has accessible ID and public-list panels with refresh and honest placeholder',()=>{
- for(const id of ['joinIdTab','joinPublicTab','joinIdPanel','joinPublicPanel','refreshPublicRooms','publicRoomsStatus','publicRoomsList'])assert.ok(html.includes(`id="${id}"`));
- assert.match(html,/id="joinIdTab"[^>]*aria-selected="true"/);assert.match(html,/id="joinPublicPanel"[^>]*class="public-room-panel glass hide"/);
+test('join stacks ID form above the always-visible public list without tabs',()=>{
+ for(const id of ['joinForm','joinPublicPanel','publicRoomsTitle','refreshPublicRooms','publicRoomsStatus','publicRoomsList'])assert.ok(html.includes(`id="${id}"`));
+ assert.doesNotMatch(html.slice(html.indexOf('<section id="joinPanel"')),/joinIdTab|joinPublicTab|role="tab(?:list|panel)?"/);
+ assert.match(html,/id="joinPublicPanel" class="public-room-panel glass" aria-labelledby="publicRoomsTitle"/);
+ assert.ok(html.indexOf('id="joinForm"') < html.indexOf('id="joinPublicPanel"'));
+ assert.doesNotMatch(app,/selectJoinTab|joinIdTab|joinPublicTab|joinIdPanel/);
  assert.match(html,/id="refreshPublicRooms"[^>]*>更新/);assert.match(html,/公開ルーム一覧は準備中/);
  assert.match(html,/<div id="publicRoomsList" class="public-room-list"><\/div>/);
 });
@@ -20,7 +23,7 @@ test('private option cannot silently invoke existing public creation or local fa
 });
 test('scaffold does not call undocumented list or invitation SDK APIs',()=>{
  assert.doesNotMatch(app,/\.getPublicRoomList\s*\(|\.getRoomId\s*\(/);
- assert.match(app,/selectJoinTab\('id'\); show\('joinPanel', 'roomId'\)/);
+ assert.match(app,/cancelRoomRequest\(\); show\('joinPanel', 'roomId'\)/);
  assert.match(app,/公開ルーム一覧の取得機能は未接続/);
 });
 test('lobby names known public rooms and otherwise shows ID without guessing privacy',()=>{

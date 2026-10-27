@@ -29,15 +29,15 @@ function field(mode){
 const selection=(name,mode,lum='painted-light')=>`<mask id="${id}-${name}" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-${lum})">${field(mode)}</g></mask>`;
 return `<defs>
 <filter id="${id}-soft" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="${kind==='max0'?2:8}"/></filter>
-<filter id="${id}-lightboost" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncG type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncB type="gamma" amplitude="${kind==='max0'?1.3:1.7}" exponent=".55" offset="0"/></feComponentTransfer></filter>
+<filter id="${id}-lightboost" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="${kind==='max0'?2.4:1.7}" exponent=".55" offset="0"/><feFuncG type="gamma" amplitude="${kind==='max0'?2.1:1.7}" exponent=".55" offset="0"/><feFuncB type="gamma" amplitude="${kind==='max0'?1.3:1.7}" exponent=".55" offset="0"/></feComponentTransfer></filter>
 <filter id="${id}-bloom" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="6"/></filter>
 <filter id="${id}-luminance" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncG type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncB type="table" tableValues="0 .15 .45 .8 1 1"/></feComponentTransfer></filter>
-<radialGradient id="${id}-spot"><stop stop-color="white"/><stop offset=".3" stop-color="#eee"/><stop offset="1" stop-color="black"/></radialGradient>
+<radialGradient id="${id}-spot"><stop stop-color="white"/><stop offset="${kind==='max0'?.6:.3}" stop-color="${kind==='max0'?'white':'#eee'}"/><stop offset="1" stop-color="black"/></radialGradient>
 <linearGradient id="${id}-sweep"><stop stop-color="black"/><stop offset=".3" stop-color="#888"/><stop offset=".5" stop-color="white"/><stop offset=".7" stop-color="#888"/><stop offset="1" stop-color="black"/></linearGradient>
 <mask id="${id}-region" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g fill="white" filter="url(#${id}-soft)">${region}</g></mask>
 <mask id="${id}-painted-light" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-region)"><g filter="url(#${id}-luminance)">${photo('art-luminance-source')}</g></g></mask>
 ${kind==='max0'?'':selection('shade-mask','shade-flow')}${selection('reveal','primary-flow')}${selection('specular-mask','specular-flow')}
-</defs>${kind==='max0'?'':`<g class="art-derived-shadow" mask="url(#${id}-shade-mask)"><rect ${box} fill="black"/></g>`}<g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity=".3">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g><g class="art-derived-specular" mask="url(#${id}-specular-mask)" filter="url(#${id}-lightboost)">${photo('art-specular-source')}</g>`;
+</defs>${kind==='max0'?'':`<g class="art-derived-shadow" mask="url(#${id}-shade-mask)"><rect ${box} fill="black"/></g>`}<g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity="${kind==='max0'?.6:.3}">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g><g class="art-derived-specular" mask="url(#${id}-specular-mask)" filter="url(#${id}-lightboost)">${photo('art-specular-source')}</g>`;
 }
 function createManager(){
 const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false,pageSuspended=false;

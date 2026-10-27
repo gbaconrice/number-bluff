@@ -40,7 +40,7 @@ test('resync and profile revisions never extend a current turn',async()=>{
 });
 test('challenge, leaving, and disconnected sessions clear turn timers without fabricated losses',async()=>{
  const t=setup();await t.act('h','startGame');await t.act('h','declare',{value:1});await t.act('g','challenge');
- assert.equal(t.views.h.phase,'reveal');assert.equal(t.views.h.turnClock,null);assert.equal(t.jobs.size,0);
+ assert.equal(t.views.h.phase,'reveal');assert.equal(t.views.h.turnClock,null);assert.ok(t.views.h.roundClock);assert.equal(t.jobs.size,1,'only result advance remains');
  await t.act('h','nextRound');assert.ok(t.views.h.turnClock);const wins=t.views.h.players.map(p=>p.wins);
  t.nodes.h.removeMember('g');t.flush();assert.equal(t.views.h.phase,'lobby');assert.equal(t.views.h.turnClock,null);assert.equal(t.jobs.size,0);assert.equal(t.views.h.players[0].wins,wins[0]);
 });
@@ -60,4 +60,35 @@ test('same-revision resync repairs a guest wall-clock change without changing ga
  const t=setup();await t.act('h','startGame');const revision=t.views.g.revision; t.advance(10000);t.skews.g+=60000;
  await t.nodes.g.resync();t.flush();assert.equal(t.views.g.revision,revision);assert.equal(t.views.g.bid,null);
  assert.equal(t.views.g.turnClock.localDeadline-(t.now()+t.skews.g),20000);
+});
+
+test('round advance gives full presentation plus10s, guests cannot advance and resync never extends',async()=>{
+ const t=setup();await t.act('h','startGame');await t.act('h','declare',{value:1});await t.act('g','challenge');
+ const c=t.views.h.roundClock;assert.equal(c.deadline-c.readyAt,10000);assert.ok(c.readyAt>t.now());
+ assert.equal(t.views.g.roundClock.localDeadline-(t.now()+3600000),c.deadline-t.now());
+ await t.act('g','nextRound');assert.equal(t.views.h.phase,'reveal');
+ t.advance(c.readyAt-t.now());assert.equal(t.views.h.phase,'reveal');t.advance(9999);assert.equal(t.views.h.phase,'reveal');
+ await t.nodes.h.resync();t.flush();assert.equal(t.views.h.roundClock.deadline,c.deadline);
+ t.advance(1);assert.equal(t.views.h.round,2);assert.equal(t.views.h.phase,'play');assert.equal(t.views.h.roundClock,null);t.nodes.h.close();
+});
+test('manual round advance invalidates queued expiry; background expiry resolves only once',async()=>{
+ const t=setup();await t.act('h','startGame');await t.act('h','declare',{value:1});await t.act('g','challenge');const c=t.views.h.roundClock,stale=[...t.jobs.values()][0].fn;
+ t.advance(c.deadline-t.now()-1,false);assert.equal(await t.act('h','nextRound'),true);const rev=t.views.h.revision;
+ t.advance(1,false);stale();t.flush();assert.equal(t.views.h.revision,rev);assert.equal(t.views.h.round,2);t.nodes.h.close();
+ const u=setup();await u.act('h','startGame');await u.act('h','declare',{value:1});await u.act('g','challenge');u.advance(20000,false);
+ assert.equal(await u.act('h','nextRound'),false);assert.equal(u.views.h.round,2);assert.equal(u.views.h.phase,'play');u.nodes.h.close();
+});
+test('finished matches never auto-rematch and disconnect cancels round advance',async()=>{
+ const t=setup();await t.act('h','startGame');
+ while(t.views.h.phase!=='finished'){
+  const actor=t.views.h.turn==='p1'?'h':'g';await t.act(actor,'declare',{value:900});const other=t.views.h.turn==='p1'?'h':'g';await t.act(other,'challenge');
+  if(t.views.h.phase==='reveal')await t.act('h','nextRound');
+ }
+ const game=t.views.h.game;assert.equal(t.views.h.roundClock,null);assert.equal(t.jobs.size,0);t.advance(60000);assert.equal(t.views.h.game,game);t.nodes.h.close();
+ const u=setup();await u.act('h','startGame');await u.act('h','declare',{value:1});await u.act('g','challenge');u.nodes.h.close();u.advance(60000);assert.equal(u.views.h.round,1);assert.equal(u.jobs.size,0);
+});
+
+test('leaving after a throttled round deadline publishes the abandoned lobby, not a phantom next round',async()=>{
+ const t=setup();await t.act('h','startGame');await t.act('h','declare',{value:1});await t.act('g','challenge');t.advance(20000,false);
+ t.nodes.h.removeMember('g');t.flush();assert.equal(t.views.h.phase,'lobby');assert.equal(t.views.h.roundClock,null);assert.equal(t.jobs.size,0);assert.equal(t.views.h.players[0].wins,0);
 });

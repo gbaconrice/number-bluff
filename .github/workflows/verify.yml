@@ -31,10 +31,14 @@ jobs:
         run: node tools/build-single-html.mjs
       - name: Real synthesized audio and sound toggle
         run: node tools/audio-output.mjs
+      - name: Centered hidden card and fine reflective detail
+        run: node tools/hidden-card-back-preview.mjs
       - name: Public and private lobby scaffold preview
         run: node tools/lobby-access-preview.mjs
-      - name: Online turn deadline and nonblocking countdown
+      - name: Online and local turn deadlines and nonblocking countdown
         run: node tools/online-turn-timer.mjs
+      - name: Result presentation and automatic next round
+        run: node tools/round-advance-preview.mjs
       - name: Early online clock screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -42,9 +46,14 @@ jobs:
           name: online-clock-preview
           path: |
             artifacts/turn-clock-*.png
+            artifacts/local-turn-clock-*.png
+            artifacts/round-clock-*.png
+            artifacts/round-advance-preview.json
             artifacts/online-turn-timer.json
             artifacts/lobby-access-*.png
             artifacts/lobby-access-preview.json
+            artifacts/hidden-card-back/
+            artifacts/audio-output-*.json
           if-no-files-found: ignore
           retention-days: 7
       - name: Automatic card motion on mobile and desktop
@@ -107,9 +116,36 @@ jobs:
           name: preview-browser-results
           path: |
             artifacts/art-glow-preview/
+            artifacts/hidden-card-back/
             artifacts/special-render-benchmark/
             artifacts/*.png
             artifacts/*.json
           if-no-files-found: ignore
           retention-days: 7
 
+
+  webkit-audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: https://registry.npmjs.org
+      - name: Install audio test browser
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts --registry=https://registry.npmjs.org playwright@1.57.0
+          npx --no-install playwright install --with-deps webkit
+      - name: Real WebKit audio unlock and destination waveform
+        run: AUDIO_BROWSER=webkit node tools/audio-output.mjs
+      - name: WebKit destination waveform evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: webkit-audio-output
+          path: artifacts/audio-output-webkit.json
+          if-no-files-found: ignore
+          retention-days: 7

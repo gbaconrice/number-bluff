@@ -15,6 +15,15 @@ try{browser=await chromium.launch({headless:true,args:['--no-sandbox']});for(con
  await page.clock.runFor(10000);assert.equal(await page.locator('#bid').textContent(),'1','timeout must not send typed999');assert.equal(await page.locator('.turn-countdown[data-player="p2"]').count(),1);assert.match(await page.locator('.turn-countdown').textContent(),/30秒/);
  const count=await page.evaluate(()=>__clockPackets.filter(p=>p.view?.history?.length===1).length);assert.ok(count>=1);await page.clock.runFor(500);assert.equal(await page.locator('#bid').textContent(),'1');
  await page.evaluate(()=>NumberBluffClient.disconnect());const sent=await page.evaluate(()=>__clockPackets.length);await page.clock.runFor(60000);assert.equal(await page.evaluate(()=>__clockPackets.length),sent,'disconnect cancels expiration');assert.equal(await page.locator('#homeScreen').isVisible(),true);
- // Standalone practice deliberately has no turn clock.
- await page.locator('#startGame').click();await page.locator('#addBot').click();await page.locator('#beginGame').click();assert.equal(await page.locator('.turn-countdown').count(),0);report.push({width,status:'passed',firstTimeoutBid:1,typedValueIgnored:999});await page.close();
+ // Standalone practice uses the same real deadline, not a cosmetic countdown.
+ await page.locator('#startGame').click();await page.locator('#addBot').click();await page.locator('#beginGame').click();assert.match(await page.locator('.turn-countdown').textContent(),/30秒/);
+ for(const digit of '999')await page.locator('[data-digit="'+digit+'"]').click();
+ await page.clock.runFor(20000);assert.match(await page.locator('.turn-countdown').textContent(),/10秒/);await page.screenshot({path:output+`local-turn-clock-${width}-10s.png`});await page.clock.runFor(9999);assert.notEqual(await page.locator('#bid').textContent(),'1');
+ await page.clock.runFor(1);assert.equal(await page.locator('#bid').textContent(),'1','local timeout must ignore partial999');assert.equal(await page.locator('.turn-countdown').count(),0,'BOT keeps original short think time');
+ await page.evaluate(()=>NumberBluffClient.disconnect());await page.clock.runFor(60000);assert.equal(await page.locator('#homeScreen').isVisible(),true);
+ await page.locator('#startGame').click();await page.locator('#addBot').click();await page.locator('#beginGame').click();
+ await page.evaluate(()=>window.dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true})));await page.clock.runFor(40000);
+ await page.evaluate(()=>window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));assert.equal(await page.locator('#bid').textContent(),'1','BFCache restoration resolves elapsed deadline, not a fresh30sec');
+ await page.evaluate(()=>NumberBluffClient.disconnect());
+ report.push({width,status:'passed',firstTimeoutBid:1,typedValueIgnored:999,localTimeoutBid:1,backgroundDeadlinePreserved:true});await page.close();
 }}finally{await browser?.close();await new Promise(resolve=>server.close(resolve));await writeFile(output+'online-turn-timer.json',JSON.stringify(report,null,2));}

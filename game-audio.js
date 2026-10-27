@@ -24,7 +24,7 @@
   function create({ contextFactory, document: doc = typeof document === 'object' ? document : null,
     window: win = typeof window === 'object' ? window : null,
     storage, now: clockNow = () => typeof performance === 'object' ? performance.now() : Date.now() } = {}) {
-    let context = null, master = null, destroyed = false, resumePending = false, pendingCue = null;
+    let context = null, master = null, destroyed = false, resumePending = false, resumeAttempt = 0, pendingCue = null;
     let store = storage, muted = false, lastGestureAt = -Infinity;
     const volume = .5, storageKey = 'number-bluff.sound-muted.v1';
     try { if (store === undefined) store = win?.localStorage; muted = store?.getItem(storageKey) === 'true'; } catch {}
@@ -50,13 +50,19 @@
           context = contextFactory ? contextFactory() : new Constructor();
           master = context.createGain(); master.gain.value = volume; master.connect(context.destination);
         }
-        if (context.state !== 'running' && !resumePending) {
+        if (context.state !== 'running') {
+          // A browser may leave resume() pending (rather than reject it) when
+          // pointerdown was not an activation it accepts. Retry from touchend /
+          // click instead of permanently locking out all subsequent gestures.
+          const attempt = ++resumeAttempt;
           resumePending = true;
           Promise.resolve(context.resume()).then(() => {
+            if (attempt !== resumeAttempt) return;
             const cue = pendingCue; pendingCue = null;
             // Only the current interaction's fresh cue may survive async unlock.
             if (cue && clockNow() - cue.at <= 250 && !destroyed && !muted && !hidden()) play(cue.kind);
-          }).catch(() => { pendingCue = null; }).finally(() => { resumePending = false; });
+          }).catch(() => { if (attempt === resumeAttempt) pendingCue = null; })
+            .finally(() => { if (attempt === resumeAttempt) resumePending = false; });
         }
         return true;
       } catch { resumePending = false; return false; }

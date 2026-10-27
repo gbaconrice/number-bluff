@@ -1,6 +1,7 @@
 // Render the shipped cue generator into real browser audio buffers, and verify
 // the small on/off control with trusted clicks. Not a physical-speaker test.
-import { chromium } from 'playwright';
+import { chromium, webkit } from 'playwright';
+const browserName = process.env.AUDIO_BROWSER === 'webkit' ? 'webkit' : 'chromium';
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
@@ -19,10 +20,29 @@ const server = createServer(async (req, res) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 let browser;
 try {
-  browser = await chromium.launch({headless:true,args:['--no-sandbox']});
-  const page = await browser.newPage({viewport:{width:390,height:844}});
+  browser = browserName === 'webkit'
+    ? await webkit.launch({headless:true})
+    : await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH || undefined,args:['--no-sandbox']});
+  const page = await browser.newPage({viewport:{width:390,height:844},hasTouch:true});
   await page.addInitScript(() => {
     window.__audioStartCount = 0;
+    window.__liveAudioPeak = 0;
+    window.__liveAudioSamples = 0;
+    const connect = AudioNode.prototype.connect;
+    AudioNode.prototype.connect = function (destination, ...args) {
+      if (!(destination instanceof AudioDestinationNode)) return connect.call(this, destination, ...args);
+      // Measure the actual live master output on its route to the device, not
+      // a second offline synth. This does not attest physical speaker output.
+      const analyser = this.context.createAnalyser(); analyser.fftSize = 2048;
+      connect.call(this, analyser); connect.call(analyser, destination);
+      const samples = new Float32Array(analyser.fftSize);
+      setInterval(() => {
+        analyser.getFloatTimeDomainData(samples);
+        for (const value of samples) window.__liveAudioPeak = Math.max(window.__liveAudioPeak, Math.abs(value));
+        window.__liveAudioSamples += samples.length;
+      }, 8);
+      return destination;
+    };
     const original = OscillatorNode.prototype.start;
     OscillatorNode.prototype.start = function (...args) { window.__audioStartCount++; return original.apply(this,args); };
   });
@@ -32,20 +52,43 @@ try {
   assert.equal(await button.locator('b').count(),1,'HOME retains its circular sound icon');
   assert.equal(await button.locator('.icon-caption').textContent(),'音');
   const soundBox = await button.boundingBox(); assert.ok(soundBox.width>=40 && soundBox.height>=40,'sound target remains tappable');
-  await button.click(); // mute
+  await button.tap(); // mute
   assert.equal(await button.getAttribute('aria-pressed'), 'true');
   const mutedCount = await page.evaluate(() => window.__audioStartCount);
-  await page.locator('#homeRules').click();
-  await page.locator('#closeGuide').click();
+  await page.locator('#homeRules').tap();
+  await page.locator('#closeGuide').tap();
   assert.equal(await page.evaluate(() => window.__audioStartCount), mutedCount, 'muted controls produce no notes');
-  await button.click(); // unmute/resume
+  await button.tap(); // unmute/resume
   await page.waitForFunction(n => window.__audioStartCount > n, mutedCount);
+  await page.waitForFunction(() => window.__liveAudioPeak > .005);
+  const liveUnmutePeak = await page.evaluate(() => window.__liveAudioPeak);
   assert.equal(await button.getAttribute('aria-pressed'), 'false');
-  await button.click(); await page.reload();
+  await button.tap(); await page.reload();
   assert.equal(await button.getAttribute('aria-pressed'), 'true', 'mute preference survives reload');
   assert.equal(await button.locator('b').count(),1);
   assert.equal(await button.locator('.icon-caption').textContent(),'音');
   assert.equal(await page.evaluate(() => window.__audioStartCount), 0, 'muted reload does not autoplay');
+  await button.tap(); // restore sound after the persisted-muted reload
+  await page.waitForFunction(() => window.__liveAudioPeak > .005);
+  await page.locator('#startGame').tap();
+  if (await page.locator('#beginGame').isDisabled()) await page.locator('#addBot').tap();
+  await page.evaluate(() => { window.__liveAudioPeak = 0; });
+  await page.locator('#beginGame').tap();
+  await page.waitForFunction(() => window.__liveAudioPeak > .005);
+  const liveDealPeak = await page.evaluate(() => window.__liveAudioPeak);
+  await page.waitForFunction(() => !document.querySelector('#declare').disabled);
+  await page.waitForTimeout(350); // let the deal cue finish before measuring declaration
+  await page.evaluate(() => { window.__liveAudioPeak = 0; });
+  await page.locator('#declare').tap();
+  await page.waitForFunction(() => window.__liveAudioPeak > .005);
+  const liveDeclarePeak = await page.evaluate(() => window.__liveAudioPeak);
+  await page.locator('#battleSoundToggle').tap();
+  await page.waitForTimeout(100);
+  await page.evaluate(() => { window.__liveAudioPeak = 0; });
+  await page.waitForTimeout(350);
+  const liveMutedPeak = await page.evaluate(() => window.__liveAudioPeak);
+  assert.equal(liveMutedPeak, 0, 'live destination output is silent when muted');
+  const live = {liveUnmutePeak, liveDealPeak, liveDeclarePeak, liveMutedPeak};
   const rendered = await page.evaluate(async () => {
     const results = [];
     for (const cue of ['tap','deal','declare','challenge','reveal','extra','max','sum','multiply','reset','compare','win','loss','outcome']) {
@@ -68,6 +111,6 @@ try {
     assert.ok(result.tailPeak < .00001, `${result.cue}: finite cue must end`);
   }
   await mkdir('artifacts',{recursive:true});
-  await writeFile('artifacts/audio-output.json',JSON.stringify({scope:'Real browser OfflineAudioContext waveform plus trusted UI mute/unmute. Not iOS/GRAVITY or speaker recording.',rendered},null,2));
+  await writeFile(`artifacts/audio-output-${browserName}.json`,JSON.stringify({browserName,scope:'Live AudioContext destination-path samples for unmute, deal, declaration and mute; OfflineAudioContext cue waveforms. Not iOS/GRAVITY or physical speaker recording.',live,rendered},null,2));
   console.log('Audio: mute/unmute, persisted choice and 14 rendered cue waveforms PASS');
 } finally { await browser?.close(); await new Promise(resolve => server.close(resolve)); }
