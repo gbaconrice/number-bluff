@@ -253,8 +253,8 @@
   function renderStagedResult() {
     const r = view.result, f = presentationFrame;
     $('result').dataset.presentationPhase = f.phase;
-    $('battleTitle').textContent = f.outcomeVisible && r.winner ? '対戦結果' : 'ラウンド結果';
-    $('resultTitle').textContent = $('battleTitle').textContent;
+    $('battlePhase').textContent = f.outcomeVisible && r.winner ? '対戦結果' : 'ラウンド結果';
+    $('resultTitle').textContent = $('battlePhase').textContent;
     $('calculationHeading').textContent = ({hold:'グラビティ！',reveal:'カードを公開',extra:'もう1枚、公開',max:'最大の1枚を0に',sum:'数字を足して…',multiply:'合計を2倍！',compare:'宣言と比べる',outcome:'判定結果'})[f.phase] || '計算の流れ';
     const line = (label, expression) => { const row = el('div', 'calc-line'); if (label) row.append(el('div', '', label)); row.append(el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
     if (f.extraVisible && r.extraCard) { const extra = el('div', 'extra-reveal'); const card = cardNode(r.extraCard); if (f.phase === 'extra') card.classList.add('presentation-extra'); if (f.removedCardId === r.extraCard.id) { card.classList.add('is-zeroed'); card.append(el('span', 'presentation-zero-stamp', '0')); } extra.append(el('span', '', '「?」で追加公開'), card); $('calculationSteps').append(extra); }
@@ -273,7 +273,7 @@
     if (!r) { $('resultText').textContent = ''; $('finalTotal').textContent = ''; return; }
     if (presentationFrame && !presentationFrame.complete) { renderStagedResult(); return; }
     $('result').dataset.presentationPhase = 'complete'; $('calculationHeading').textContent = '計算の流れ'; $('totalLabel').textContent = '最終合計';
-    $('battleTitle').textContent = r.winner ? '対戦結果' : 'ラウンド結果';
+    $('battlePhase').textContent = r.winner ? '対戦結果' : 'ラウンド結果';
     $('resultTitle').textContent = r.winner ? '対戦結果' : 'ラウンド結果';
     const numeric = [...Object.values(r.cards), ...(r.extraCard ? [r.extraCard] : [])].filter(c => c.kind === 'number');
     const line = (label, expression) => { const row = el('div', 'calc-line'); row.append(el('div', '', label), el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };

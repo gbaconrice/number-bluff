@@ -12,3 +12,11 @@ test('card observer ignores text countdown and SVG-internal child updates',()=>{
  assert.match(source,/record\.addedNodes, \.\.\.record\.removedNodes\]\.some\(containsCard\)/);
  assert.doesNotMatch(source,/new MutationObserver\(syncCardMotion\)/);
 });
+test('special numeral stacking no longer depends on removed foil class',()=>{
+ assert.match(fs.readFileSync(path.join(root,'card-art.css'),'utf8'),/\.player-card:not\(\.hidden\):not\(\.out\) \.card-value\{z-index:4\}/);
+});
+test('result presentation preserves the round, survivors and timer header children',()=>{
+ const source=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ assert.doesNotMatch(source,/\$\('battleTitle'\)\.textContent\s*=/);
+ assert.match(source,/\$\('resultTitle'\)\.textContent = \$\('battlePhase'\)\.textContent/);
+});
