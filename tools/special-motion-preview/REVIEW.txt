@@ -64,3 +64,10 @@ optionally CHROMIUM_PATH, run Node. Collects PNG comparisons for four cards,
 80/210px and 0/.5/1; checks GL transparent protected top/frame, endpoints, label
 bounds, one canvas, reduced motion and cleanup. This test is PREPARED, NOT PASSED.
 Coordinate accuracy/naturalness remain QA acceptance gates, not code-only claims.
+
+Sampling revision: original images are prefiltered once per target resolution using
+one reusable Canvas2D staging surface, then uploaded to the single WebGL context.
+The visible canvas remains one. Alpha uses sin(pi*progress), so the resampled layer
+fades continuously from/to the unchanged DOM original. The fixture now reuses the
+actual game card CSS and NumberBluffCardArt image creation, rather than substitute
+label sizes. Temporal JSON records 25 progress samples; human review is still required.

@@ -65,7 +65,7 @@ void main(){
   color=original.rgb*(1.+.13*band*envelope);
  }
  if(mask<=0.){gl_FragColor=vec4(0.);return;}
- gl_FragColor=vec4(color,mask*original.a);
+ gl_FragColor=vec4(color,mask*original.a*envelope);
 }`;
 function create({source,sources={extra:source},duration=1200,strength=.007,maxDpr=1.5}={}){
  const canvas=document.createElement('canvas');canvas.className='nb-special-refraction';canvas.setAttribute('aria-hidden','true');
@@ -73,14 +73,14 @@ function create({source,sources={extra:source},duration=1200,strength=.007,maxDp
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let host=null,raf=0,start=0,last=0,slow=0,disabled=!gl,disposed=false,loaded=false,visible=false,readyResolve;
  const ready=new Promise(resolve=>readyResolve=resolve);
- let program,buffer,texture,progressLoc,strengthLoc,kindLoc;const textures=new Map();const kinds={extra:0,double:1,max0:2,reset:3};let activeKind='extra';
+ let program,buffer,texture,progressLoc,strengthLoc,kindLoc;const textures=new Map();const staging=document.createElement('canvas');const staging2d=staging.getContext('2d');const kinds={extra:0,double:1,max0:2,reset:3};let activeKind='extra';
  function stop(){cancelAnimationFrame(raf);raf=0;canvas.style.display='none';if(host)observer?.unobserve(host);host=null;}
  const observer=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>{for(const e of entries)if(e.target===host){visible=e.isIntersecting&&e.intersectionRatio>=.4;if(!visible)stop();}},{threshold:[0,.4,1]}):null;
  function allowed(){return !disabled&&!disposed&&loaded&&!document.hidden&&!reduced.matches&&host?.isConnected&&!host.closest('.hidden,.out,[hidden],[inert],[aria-hidden="true"],[data-revealed="false"]');}
  function draw(progress){
   if(!allowed())return false;
   gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.useProgram(program);gl.bindTexture(gl.TEXTURE_2D,textures.get(activeKind));gl.uniform1i(kindLoc,kinds[activeKind]);gl.uniform1f(progressLoc,Math.max(0,Math.min(1,progress)));gl.uniform1f(strengthLoc,Math.max(0,Math.min(.01,strength)));
+  gl.useProgram(program);gl.bindTexture(gl.TEXTURE_2D,textures.get(activeKind).texture);gl.uniform1i(kindLoc,kinds[activeKind]);gl.uniform1f(progressLoc,Math.max(0,Math.min(1,progress)));gl.uniform1f(strengthLoc,Math.max(0,Math.min(.01,strength)));
   gl.drawArrays(gl.TRIANGLES,0,3);return true;
  }
  function frame(now){
@@ -100,6 +100,12 @@ function create({source,sources={extra:source},duration=1200,strength=.007,maxDp
   stop();host=el;
   if(!allowed()){stop();return false;}
   const dpr=Math.min(devicePixelRatio||1,maxDpr);canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));
+  // Prefilter the unchanged original to actual render resolution before any UV sampling.
+  // Prevents native-resolution NPOT minification from introducing high-frequency sparkle.
+  const entry=textures.get(kind);
+  if(entry.width!==canvas.width||entry.height!==canvas.height){
+   try{staging.width=canvas.width;staging.height=canvas.height;staging2d.imageSmoothingEnabled=true;staging2d.imageSmoothingQuality='high';staging2d.clearRect(0,0,staging.width,staging.height);staging2d.drawImage(entry.image,0,0,staging.width,staging.height);gl.bindTexture(gl.TEXTURE_2D,entry.texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,staging);entry.width=canvas.width;entry.height=canvas.height;}catch{stop();return false;}
+  }
   el.append(canvas);canvas.style.display='block';visible=true;observer?.observe(el);return true;
  }
  function shader(type,sourceCode){const s=gl.createShader(type);gl.shaderSource(s,sourceCode);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
@@ -119,7 +125,7 @@ function create({source,sources={extra:source},duration=1200,strength=.007,maxDp
     const tex=gl.createTexture();gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex);
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,image);textures.set(kind,tex);
+    /* Allocate GPU pixels only at the first visible mount, after prefiltering. */ textures.set(kind,{texture:tex,image,width:0,height:0});
    }catch{}finish();};image.onerror=finish;image.src=url;
   }
   gl.uniform1i(gl.getUniformLocation(program,'uTexture'),0);
@@ -132,7 +138,7 @@ function create({source,sources={extra:source},duration=1200,strength=.007,maxDp
   renderAt(el,kind,progress){if(typeof kind==="number"){progress=kind;kind="extra";}return mount(el,kind)&&draw(progress);},
   readPixels(){if(!gl)return null;const pixels=new Uint8Array(canvas.width*canvas.height*4);gl.readPixels(0,0,canvas.width,canvas.height,gl.RGBA,gl.UNSIGNED_BYTE,pixels);return {width:canvas.width,height:canvas.height,pixels};},
   status(){return{loaded,disabled,active:!!raf,canvasCount:1};},
-  destroy(){disposed=true;stop();readyResolve(false);observer?.disconnect();document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener?.('change',visibility);canvas.removeEventListener('webglcontextlost',lost);if(gl){gl.deleteBuffer(buffer);for(const tex of textures.values())gl.deleteTexture(tex);textures.clear();gl.deleteProgram(program);gl.getExtension('WEBGL_lose_context')?.loseContext();}canvas.remove();}
+  destroy(){disposed=true;stop();readyResolve(false);observer?.disconnect();document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener?.('change',visibility);canvas.removeEventListener('webglcontextlost',lost);if(gl){gl.deleteBuffer(buffer);for(const entry of textures.values())gl.deleteTexture(entry.texture);textures.clear();gl.deleteProgram(program);gl.getExtension('WEBGL_lose_context')?.loseContext();}canvas.remove();}
  };
 }
 global.NumberBluffSpecialMotion=Object.freeze({create});

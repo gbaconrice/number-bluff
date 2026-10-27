@@ -220,11 +220,10 @@
     }
   ],
   "notes": [
-    "Eleven normal card faces are independently illustrated new scenes displayed whole at 2:3.",
-    "Four special card images are unchanged original main assets, preserving original bytes and intrinsic aspect ratios.",
-    "Rejected SVG overlays, duplicated moving illustrations and gloss have been removed; special illustration animation remains pending redesign.",
-    "Numerals remain DOM text: normal cards use the upper30%, existing specials retain the upper38% slot.",
-    "Hidden and eliminated cards do not attach face images. Deal, reveal, arithmetic and sound presentation is retained.",
-    "BOT images remain separate unchanged assets. Actual device and live GRAVITY validation is still required."
+    "All original faces are shown whole with object-fit contain and their individual source aspect ratios.",
+    "Normal eleven faces use independent soft framed scenes; earlier purple-gold draft assets are not included.",
+    "Special four original image bytes remain unchanged. Rejected duplicate-art and SVG layers are removed; one restrained licensed glare layer may appear above artwork and below numerals.",
+    "Numeral areas occupy the upper 12–38 percent. Hidden and out cards receive no face image or value attribute.",
+    "Home artwork is a provisional draft awaiting a clearer four-limb bunny revision; background animation is unchanged."
   ]
 }
