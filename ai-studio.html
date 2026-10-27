@@ -67,8 +67,11 @@ h3 { font-size: 12px; margin-bottom: 7px; }
 .hearts { color: #ffb2d1; }
 .player-card { width: 100%; position: relative; isolation: isolate; border: 1px solid #fff1c9; background: linear-gradient(140deg,#fff5ce,#ffdfe4 60%,#b7cbff); color: #1b2c5a; font-weight: 900; line-height: 1; overflow: hidden; }
 .player-card:before { content: "✦"; position: absolute; left: 5px; top: 5px; font-size: 10px; color: #fff; }
-.player-card.hidden { background: radial-gradient(ellipse at 50% 60%,#5367b5,#112354 70%); color: #fff1cb; border-color: #c8d6ff; }
-.player-card.hidden:after { content: "✦"; position: absolute; right: 8px; bottom: 10px; font-size: 17px; text-shadow: -40px -61px #ffe9b5; }
+/* One back for the guide and play. Preserve the guide's original palette and
+   three-glint composition, scaled from its 68px inner width (70px with border). */
+.player-card.hidden { container-type: inline-size; background: radial-gradient(ellipse at 50% 60%,#5367b5,#112354 70%); color: #fff1cb; border-color: #c8d6ff; }
+.player-card.hidden::before { content: "✦"; position: absolute; left: 7.352941cqw; top: 7.352941cqw; font-size: 14.705882cqw; color: #fff; pointer-events: none; }
+.player-card.hidden::after { content: "✦"; position: absolute; right: 11.764706cqw; bottom: 14.705882cqw; font-size: 25cqw; text-shadow: -58.823529cqw -89.705882cqw #ffe9b5; pointer-events: none; }
 .player-card.special { color: #ffefd6; }
 .player-card.kind-max0 { letter-spacing: -.06em; }
 .player-card.negative { background: linear-gradient(#e7f6ff,#b8d4ff,#c1b3f0); }
@@ -249,7 +252,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .player-info .person-placeholder, .player-info img.avatar { width: 35px; height: 35px; margin: 0 auto 3px; }
 .hearts { font-size: 12px; letter-spacing: 0; line-height: 14px; }
 .battle-grid.many .player-card, .player-card { height: auto; aspect-ratio: 2 / 3; border-radius: 8px; font-size: clamp(30px,8vw,41px); padding-top: 13px; box-shadow: inset 0 0 0 2px #fff8e1aa,0 0 8px #cbb3ff55; }
-.battle-grid.many .player-card.hidden, .player-card.hidden { padding-top: 25%; font-size: 40px; }
+.battle-grid.many .player-card.hidden, .player-card.hidden { display: flex; align-items: center; justify-content: center; padding: 0; font-size: 40px; }
 .player-card.special { background: radial-gradient(ellipse at 50% 80%,#8991ed,#13265e 68%); }
 .battle-grid.many .player-card.kind-max0, .player-card.kind-max0 { font-size: clamp(12px,3.2vw,17px); }
 .battle-grid.many .player-card.kind-reset, .player-card.kind-reset { font-size: clamp(12px,3.2vw,17px); }
@@ -341,7 +344,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
   .battle-grid.many .player-info { height: 39px; grid-template-rows: 11px 24px; padding: 1px 2px; }
   .battle-grid.many { row-gap: 5px; }
   .battle-grid.many .player-card { padding-top: 10px; font-size: 29px; }
-  .battle-grid.many .player-card.hidden { padding-top: 26%; font-size: 38px; }
+  .battle-grid.many .player-card.hidden { padding: 0; font-size: 38px; }
   .bid-panel { height: 52px; min-height: 52px; margin: 0 auto; }
   .bid-panel strong { font-size: 24px; line-height: 22px; }
   .input-console { padding: 6px; }
@@ -374,7 +377,7 @@ main { position: relative; z-index: 1; }
 #battleScreen .topbar #rulesBtn { grid-column: 4; }
 .room-status { font-size: 12px; line-height: 1.5; margin: 5px 0 0; text-align: center; color: #fff2d6; }
 .room-status:empty { display: none; }
-.join-form { margin-top: 0; display: grid; gap: 13px; padding: 20px; }
+.join-form { margin-top: 20px; display: grid; gap: 13px; padding: 20px; }
 .join-form input { width: 100%; height: 54px; border: 1px solid #a9b9e6; border-radius: 12px; background: #112449; color: #fff4d7; text-align: center; font-size: 20px; }
 .join-form input::placeholder { color: #becbe7; }
 .room-identity { text-align: center; font-size: 13px; font-weight: 800; margin: 0 0 9px; color: #fff0ce; }
@@ -457,10 +460,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 /* Lobby access scaffold: SDK list/private wiring is deferred to AI Studio. */
 .private-room-option { display:flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:2px 8px; color:#fff4d7; font-size:13px; font-weight:700; text-shadow:0 1px 3px #102451; cursor:pointer; }
 .private-room-option input { margin:0; width:16px; height:16px; accent-color:#fff0ad; }
-.join-tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:20px 0 12px; }
-.join-tabs button { min-height:44px; border:1px solid #b9c7ec; border-radius:12px; background:#253c73; color:#fff4d7; font-weight:700; }
-.join-tabs button[aria-selected="true"] { background:#fff0c9; color:#233c72; }
-.public-room-panel { padding:18px; }
+.public-room-panel { margin-top:16px; padding:18px; }
 .public-room-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .public-room-heading h2 { margin:0; font-size:17px; }
 .public-room-heading button { flex-shrink:0; min-width:64px; min-height:40px; border:1px solid #bfcae9; border-radius:10px; background:#fff0c9; color:#233c72; font-weight:700; }
@@ -669,7 +669,8 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .nb-special-svg .art-jewel-light{animation:nbsv-jewel-light 2.8s ease-in-out infinite}
 .nb-special-svg .jewel-1{animation-delay:-.8s}
 .nb-special-svg .jewel-2{animation-delay:-1.6s}
-.nb-special-svg .art-eye-light{animation-duration:3.4s}
+.nb-special-svg[data-kind=max0] .art-derived-light,.nb-special-svg[data-kind=max0] .art-derived-specular{opacity:1}
+.nb-special-svg .art-eye-light{animation-name:nbsv-eye-light;animation-duration:2.8s}
 .nb-special-svg .jewel-3{animation-delay:-.7s}
 .nb-special-svg .jewel-4{animation-delay:-1.05s}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
@@ -677,6 +678,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 @keyframes nbsv-mask-orbit{to{transform:rotate(360deg)}}
 @keyframes nbsv-art-light{from{transform:translateX(150px)}to{transform:translateX(1500px)}}
 @keyframes nbsv-crown-light{from{transform:translateX(0px)}to{transform:translateX(340px)}}
+@keyframes nbsv-eye-light{0%,12%,88%,100%{opacity:0}38%,62%{opacity:1}}
 @keyframes nbsv-jewel-light{0%,30%,70%,100%{opacity:0}48%,52%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.nb-special-svg{display:none!important}.nb-special-svg *{animation:none!important}}
 
@@ -777,7 +779,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 <section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><button id="lobbyBack" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="lobbyTitle">公開ルーム</h1><button id="copyRoomId" class="room-copy hide" type="button" aria-label="ルームIDをコピー">コピー</button><span id="lobbyHeaderSpacer" class="topbar-spacer" aria-hidden="true"></span></header><p id="roomIdentity" class="room-identity hide"></p><p id="roomCopyStatus" class="room-status hide" role="status" aria-live="polite"></p><input id="roomCopyFallback" class="room-copy-fallback hide" readonly aria-label="コピーするルームID"><p id="onlineLobbyStatus" class="room-status hide" role="status" aria-live="polite"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button></section>
 <section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">‹</button><h1 id="battleTitle"><span id="battlePhase" class="hide"></span><span class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></span></h1><button id="battleSoundToggle" class="circle sound-toggle" data-sound-toggle aria-label="音をオフにする" aria-pressed="false">♪</button><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><p id="onlineBattleStatus" class="room-status hide" role="status" aria-live="polite"></p><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" tabindex="0" aria-label="プレイヤーとカード（上下にスクロール）"></div><section id="gamePanel"><div class="bid-panel glass"><div id="bidActor" aria-hidden="true"></div><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" class="sr-only" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><button id="declare" class="declare-region gold" aria-describedby="inputHint inputError"><span id="number" aria-label="宣言する数字"></span><span class="declare-label">宣言</span></button><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="sr-only">前より大きな1以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><div id="resultAnnouncement" class="sr-only" role="status" aria-live="polite"></div><section id="result" class="hide"><h2 id="resultTitle" class="sr-only" tabindex="-1">ラウンド結果</h2><section class="calculation glass" aria-live="off"><div><h3 id="calculationHeading">計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span id="totalLabel">最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><div id="resultAvatar" aria-hidden="true"></div><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button></section></section>
 <section id="guidePanel" class="screen hide" aria-label="ゲームガイド"><header class="topbar"><button id="closeGuide" class="circle" aria-label="ガイドを閉じる">‹</button><h1 id="guideTitle" class="sr-only">遊び方</h1></header><div class="guide-tabs" role="tablist" aria-label="ガイド"><button data-tab="rules" role="tab">遊び方</button><button data-tab="cards" role="tab">カード図鑑</button><button data-tab="bots" role="tab">BOT</button><button data-tab="examples" role="tab">計算例</button></div><article id="guideContent" tabindex="-1"></article><dialog id="cardDetail"><button id="closeCardDetail" class="circle" aria-label="カード詳細を閉じる">×</button><div id="cardDetailContent"></div></dialog></section>
-<section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><button id="closeJoin" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="joinTitle">ルームに参加</h1></header><div class="join-tabs" role="tablist" aria-label="参加方法"><button id="joinIdTab" type="button" role="tab" aria-controls="joinIdPanel" aria-selected="true">ID入力</button><button id="joinPublicTab" type="button" role="tab" aria-controls="joinPublicPanel" aria-selected="false" tabindex="-1">公開ルーム一覧</button></div><div id="joinIdPanel" role="tabpanel" aria-labelledby="joinIdTab"><form id="joinForm" class="join-form glass"><label class="sr-only" for="roomId">ルームID</label><input id="roomId" name="roomId" placeholder="ルームID" autocomplete="off" maxlength="64" required><button id="joinRoom" data-intent="joinRoom" class="pill blue" type="submit">参加する</button><p id="roomJoinStatus" class="room-status" role="status" aria-live="polite"></p></form></div><section id="joinPublicPanel" class="public-room-panel glass hide" role="tabpanel" aria-labelledby="joinPublicTab"><div class="public-room-heading"><h2>公開ルーム一覧</h2><button id="refreshPublicRooms" type="button">更新</button></div><p id="publicRoomsStatus" class="room-status" role="status" aria-live="polite">公開ルーム一覧は準備中です。ルームIDで参加できます。</p><div id="publicRoomsList" class="public-room-list"></div></section></section>
+<section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><button id="closeJoin" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="joinTitle">ルームに参加</h1></header><form id="joinForm" class="join-form glass"><label class="sr-only" for="roomId">ルームID</label><input id="roomId" name="roomId" placeholder="ルームID" autocomplete="off" maxlength="64" required><button id="joinRoom" data-intent="joinRoom" class="pill blue" type="submit">参加する</button><p id="roomJoinStatus" class="room-status" role="status" aria-live="polite"></p></form><section id="joinPublicPanel" class="public-room-panel glass" aria-labelledby="publicRoomsTitle"><div class="public-room-heading"><h2 id="publicRoomsTitle">公開ルーム一覧</h2><button id="refreshPublicRooms" type="button">更新</button></div><p id="publicRoomsStatus" class="room-status" role="status" aria-live="polite">公開ルーム一覧は準備中です。ルームIDで参加できます。</p><div id="publicRoomsList" class="public-room-list"></div></section></section>
 </main><script>
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -1243,7 +1245,7 @@ SOFTWARE.
   function create({ contextFactory, document: doc = typeof document === 'object' ? document : null,
     window: win = typeof window === 'object' ? window : null,
     storage, now: clockNow = () => typeof performance === 'object' ? performance.now() : Date.now() } = {}) {
-    let context = null, master = null, destroyed = false, resumePending = false, pendingCue = null;
+    let context = null, master = null, destroyed = false, resumePending = false, resumeAttempt = 0, pendingCue = null;
     let store = storage, muted = false, lastGestureAt = -Infinity;
     const volume = .5, storageKey = 'number-bluff.sound-muted.v1';
     try { if (store === undefined) store = win?.localStorage; muted = store?.getItem(storageKey) === 'true'; } catch {}
@@ -1269,13 +1271,19 @@ SOFTWARE.
           context = contextFactory ? contextFactory() : new Constructor();
           master = context.createGain(); master.gain.value = volume; master.connect(context.destination);
         }
-        if (context.state !== 'running' && !resumePending) {
+        if (context.state !== 'running') {
+          // A browser may leave resume() pending (rather than reject it) when
+          // pointerdown was not an activation it accepts. Retry from touchend /
+          // click instead of permanently locking out all subsequent gestures.
+          const attempt = ++resumeAttempt;
           resumePending = true;
           Promise.resolve(context.resume()).then(() => {
+            if (attempt !== resumeAttempt) return;
             const cue = pendingCue; pendingCue = null;
             // Only the current interaction's fresh cue may survive async unlock.
             if (cue && clockNow() - cue.at <= 250 && !destroyed && !muted && !hidden()) play(cue.kind);
-          }).catch(() => { pendingCue = null; }).finally(() => { resumePending = false; });
+          }).catch(() => { if (attempt === resumeAttempt) pendingCue = null; })
+            .finally(() => { if (attempt === resumeAttempt) resumePending = false; });
         }
         return true;
       } catch { resumePending = false; return false; }
@@ -1638,15 +1646,15 @@ function field(mode){
 const selection=(name,mode,lum='painted-light')=>`<mask id="${id}-${name}" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-${lum})">${field(mode)}</g></mask>`;
 return `<defs>
 <filter id="${id}-soft" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="${kind==='max0'?2:8}"/></filter>
-<filter id="${id}-lightboost" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncG type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncB type="gamma" amplitude="${kind==='max0'?1.3:1.7}" exponent=".55" offset="0"/></feComponentTransfer></filter>
+<filter id="${id}-lightboost" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="${kind==='max0'?2.4:1.7}" exponent=".55" offset="0"/><feFuncG type="gamma" amplitude="${kind==='max0'?2.1:1.7}" exponent=".55" offset="0"/><feFuncB type="gamma" amplitude="${kind==='max0'?1.3:1.7}" exponent=".55" offset="0"/></feComponentTransfer></filter>
 <filter id="${id}-bloom" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="6"/></filter>
 <filter id="${id}-luminance" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncG type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncB type="table" tableValues="0 .15 .45 .8 1 1"/></feComponentTransfer></filter>
-<radialGradient id="${id}-spot"><stop stop-color="white"/><stop offset=".3" stop-color="#eee"/><stop offset="1" stop-color="black"/></radialGradient>
+<radialGradient id="${id}-spot"><stop stop-color="white"/><stop offset="${kind==='max0'?.6:.3}" stop-color="${kind==='max0'?'white':'#eee'}"/><stop offset="1" stop-color="black"/></radialGradient>
 <linearGradient id="${id}-sweep"><stop stop-color="black"/><stop offset=".3" stop-color="#888"/><stop offset=".5" stop-color="white"/><stop offset=".7" stop-color="#888"/><stop offset="1" stop-color="black"/></linearGradient>
 <mask id="${id}-region" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g fill="white" filter="url(#${id}-soft)">${region}</g></mask>
 <mask id="${id}-painted-light" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-region)"><g filter="url(#${id}-luminance)">${photo('art-luminance-source')}</g></g></mask>
 ${kind==='max0'?'':selection('shade-mask','shade-flow')}${selection('reveal','primary-flow')}${selection('specular-mask','specular-flow')}
-</defs>${kind==='max0'?'':`<g class="art-derived-shadow" mask="url(#${id}-shade-mask)"><rect ${box} fill="black"/></g>`}<g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity=".3">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g><g class="art-derived-specular" mask="url(#${id}-specular-mask)" filter="url(#${id}-lightboost)">${photo('art-specular-source')}</g>`;
+</defs>${kind==='max0'?'':`<g class="art-derived-shadow" mask="url(#${id}-shade-mask)"><rect ${box} fill="black"/></g>`}<g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity="${kind==='max0'?.6:.3}">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g><g class="art-derived-specular" mask="url(#${id}-specular-mask)" filter="url(#${id}-lightboost)">${photo('art-specular-source')}</g>`;
 }
 function createManager(){
 const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false,pageSuspended=false;
@@ -1794,6 +1802,59 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
 })(window);
 
 </script><script>
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./card-presentation.js'));
+  else root.NumberBluffRoundAdvanceClock = factory(root.NumberBluffPresentation);
+})(typeof globalThis === 'object' ? globalThis : this, function (P) {
+  'use strict';
+  const WAIT_MS = 10000;
+  function create({expire,now=Date.now,set=setTimeout,clear=clearTimeout}) {
+    let clock=null,pending=null,generation=0;
+    function pause(){generation++;if(pending!==null)clear(pending);pending=null;}
+    function cancel(){pause();clock=null;}
+    function check(){if(!clock||now()<clock.deadline)return false;const elapsed=clock;cancel();expire(elapsed);return true;}
+    function resume(){pause();if(check()||!clock)return;const ticket=generation;pending=set(()=>{if(ticket!==generation)return;pending=null;if(!check())resume();},Math.max(1,clock.deadline-now()));if(typeof pending?.unref==='function')pending.unref();}
+    function sync(state){
+      if(state?.phase!=='reveal'||!state.result){cancel();return null;}
+      const token=JSON.stringify([state.game,state.round]);
+      if(clock?.token!==token){cancel();const readyAt=now()+P.plan(state.result,state.players).at(-1).at;clock={token,readyAt,deadline:readyAt+WAIT_MS};}
+      resume();return clock;
+    }
+    return {sync,check,pause,resume,cancel,get:()=>clock};
+  }
+  return {create,WAIT_MS};
+});
+
+</script><script>
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.NumberBluffLocalTurnClock = factory();
+})(typeof globalThis === 'object' ? globalThis : this, function () {
+  'use strict';
+  return function create({ expire, now = Date.now, set = setTimeout, clear = clearTimeout }) {
+    let clock = null, pending = null, generation = 0;
+    function pause() { generation++; if (pending !== null) clear(pending); pending = null; }
+    function cancel() { pause(); clock = null; }
+    function check() {
+      if (!clock || now() < clock.localDeadline) return false;
+      const elapsed = clock; cancel(); expire(elapsed); return true;
+    }
+    function resume() {
+      pause(); if (check() || !clock) return;
+      const ticket = generation;
+      pending = set(() => { if (ticket !== generation) return; pending = null; if (!check()) resume(); }, Math.max(0, clock.localDeadline - now()));
+    }
+    function sync(state, human) {
+      if (!state || state.phase !== 'play' || state.turn !== human) { cancel(); return null; }
+      const token = JSON.stringify([state.game, state.round, state.turn, state.history.length]);
+      if (clock?.token !== token) { cancel(); clock = { token, player: human, localDeadline: now() + 30000 }; }
+      resume(); return clock;
+    }
+    return { sync, check, pause, resume, cancel, get: () => clock };
+  };
+});
+
+</script><script>
 (() => {
   'use strict';
   const G = window.NumberBluff, timer = window.NumberBluffScheduler(), $ = id => document.getElementById(id);
@@ -1854,6 +1915,17 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   const avatarNames = ['ほしもち', 'ほしねこ', 'もふうさ', 'くもまる'];
   let state = null, view = null, screen = 'homeScreen', selectedBot = 'p2', nextDifficulty = 'normal';
   let avatarChoice = {}, suggested = true, overlayReturn = null;
+  const localRoundClock = window.NumberBluffRoundAdvanceClock.create({expire(){if(!transport&&state?.phase==='reveal')apply(G.nextRound(state,Math.random));}});
+  const localTurnClock = window.NumberBluffLocalTurnClock({ expire() {
+    if (transport || state?.phase !== 'play' || state.turn !== human) return;
+    const value = state.bid === null ? 1 : state.bid + 1;
+    if (!Number.isSafeInteger(value)) {
+      apply(G.returnToLobby(state));
+      connectionMessage = '扱える数字の上限に達したため、勝敗をつけずロビーに戻りました。'; paintConnectionStatus();
+      return;
+    }
+    apply(G.declare(state, human, value));
+  } });
   let presentationFrame = null, presentationPrevious = null, presentationKey = null, roomEpoch = 0, nextReadyAt = 0;
   let transport = null, unsubscribe = null, turnDisplayTimer = null;
   const el = (tag, cls, text) => { const node = document.createElement(tag); if (cls) node.className = cls; if (text !== undefined) node.textContent = text; return node; };
@@ -1956,7 +2028,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     if (result) for (const listener of sessionFinishListeners) { try { listener(result); } catch {} }
   }
   function detachTransport() {
-    audio.stop(); stopTurnDisplay(); cancelPresentation(); presentationKey = null; roomEpoch++;
+    audio.stop(); stopTurnDisplay(); localTurnClock.cancel(); localRoundClock.cancel(); cancelPresentation(); presentationKey = null; roomEpoch++;
     if (typeof unsubscribe === 'function') unsubscribe();
     unsubscribe = null; const old = transport; transport = null; connectionBlocked = false; connectionMessage = '';
     if (typeof old?.close === 'function') old.close();
@@ -2004,7 +2076,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     $('roomCopyStatus').textContent = ''; $('roomCopyStatus').classList.add('hide');
     $('roomCopyFallback').classList.add('hide');
     const manage = canManageLobby(), hostId = transport ? view.hostId : 'p1';
-    let clockNote = document.getElementById('onlineTurnRule'); if (!clockNote) { clockNote = el('p', 'turn-rule-note'); clockNote.id = 'onlineTurnRule'; $('roomIdentity').after(clockNote); } clockNote.textContent = view.roomId ? '1手30秒 · 時間切れは前の宣言＋1（初手1）' : ''; clockNote.classList.toggle('hide', !view.roomId);
+    let clockNote = document.getElementById('onlineTurnRule'); if (!clockNote) { clockNote = el('p', 'turn-rule-note'); clockNote.id = 'onlineTurnRule'; $('roomIdentity').after(clockNote); } clockNote.textContent = '1手30秒 · 時間切れは前の宣言＋1（初手1）'; clockNote.classList.remove('hide');
     $('roomIdentity').classList.toggle('hide', !roomId || idHeader); $('roomIdentity').textContent = roomId && !idHeader ? 'ルームID ' + roomId : '';
     $('lobbyError').textContent = '';
     const selected = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
@@ -2033,12 +2105,22 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   function paintTurnDisplay() {
     stopTurnDisplay();
     const badge = document.querySelector('.turn-countdown');
-    if (!badge || !transport || connectionBlocked || view?.phase !== 'play' || !view.turnClock || screen !== 'battleScreen' || document.hidden) return;
+    paintRoundCountdown();
+    if (!badge || connectionBlocked || view?.phase !== 'play' || !view.turnClock || screen !== 'battleScreen' || document.hidden) return;
     const seconds = Math.max(0, Math.ceil((view.turnClock.localDeadline - Date.now()) / 1000));
     badge.textContent = seconds > 0 ? '残り ' + seconds + '秒' : '確定待ち';
     badge.classList.toggle('is-urgent', seconds <= 10);
     badge.setAttribute('aria-label', seconds > 0 ? name(view.turn) + 'の手番、残り' + seconds + '秒' : 'ホストの宣言確定を待っています');
     if (seconds > 0) turnDisplayTimer = setTimeout(paintTurnDisplay, 200);
+  }
+  function paintRoundCountdown() {
+    const clock=view?.roundClock;
+    if(connectionBlocked||view?.phase!=='reveal'||!clock||presentationFrame&&!presentationFrame.complete||screen!=='battleScreen'||document.hidden)return;
+    const remaining=Math.max(0,Math.ceil((clock.localDeadline-Date.now())/1000));
+    const waiting=Date.now()<clock.localReadyAt;
+    $('next').textContent=waiting?(canManageLobby()?'次のラウンドへ　›':'結果を確認中…'):canManageLobby()?`次のラウンドへ · ${remaining}秒`:`次のラウンドまで ${remaining}秒`;
+    $('next').disabled=!canManageLobby();
+    if(remaining>0)turnDisplayTimer=setTimeout(paintTurnDisplay,200);
   }
   function renderPlayers() {
     cardReveal.settleAll();
@@ -2103,7 +2185,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     $('resultAvatar').replaceChildren(playerAvatar(r.winner || r.loser));
     $('resultText').textContent = r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') + '　' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum;
     $('next').textContent = canManageLobby() ? (r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›') : 'ホストの操作を待っています';
-    $('next').disabled = !canManageLobby();
+    $('next').disabled = !canManageLobby(); paintTurnDisplay();
   }
   function renderBattle(previous = null) {
     const active = view.phase === 'play', yourTurn = active && view.turn === human && !connectionBlocked;
@@ -2119,7 +2201,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     }
     renderPlayers(); $('roundLabel').textContent = 'ラウンド ' + view.round; $('survivorCount').textContent = '生存者 ' + view.players.filter(p => !p.eliminated).length + '/' + view.players.length;
     document.querySelector('.turn-countdown')?.remove();
-    if (transport && active && view.turnClock) { const badge = el('span', 'turn-countdown'); badge.dataset.player = view.turn; $('survivorCount').before(badge); paintTurnDisplay(); }
+    if (active && view.turnClock) { const badge = el('span', 'turn-countdown'); badge.dataset.player = view.turn; $('survivorCount').before(badge); paintTurnDisplay(); }
     $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : name(view.turn) + ' の番'; $('bidActor').replaceChildren(playerAvatar(view.last || view.turn));
     $('battleScreen').classList.toggle('is-result', !active); $('battlePhase').textContent = view.phase === 'finished' ? '対戦結果' : 'ラウンド結果'; $('battlePhase').classList.toggle('hide', active); $('battleTitle').querySelector('.battle-meta').classList.toggle('hide', !active);
     $('gamePanel').classList.toggle('hide', !active); $('result').classList.toggle('hide', active); $('result').classList.toggle('open', !active);
@@ -2149,6 +2231,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     }
   }
   function receive(next) {
+    if (transport && view?.phase === 'reveal' && next.phase === 'reveal' && next.revision === view.revision && next.hostId === view.hostId && next.roundClock?.token === view.roundClock?.token && next.roundClock) { view = next; paintTurnDisplay(); return; }
     if (transport && view?.phase === 'play' && next.phase === 'play' && next.revision === view.revision && next.hostId === view.hostId && next.turnClock && next.turnClock.token === view.turnClock?.token) { view = next; paintTurnDisplay(); return; }
     const previous = view; view = next; clearError();
     if (connectionMessage === 'ホストからの情報を待っています…') { connectionMessage = ''; paintConnectionStatus(); }
@@ -2156,7 +2239,14 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   }
   function apply(next) {
     if (next === state) return false;
-    timer.cancel(); state = next; receive(G.publicView(state, human));
+    timer.cancel(); state = next;
+    const nextView = G.publicView(state, human);
+    nextView.turnClock = localTurnClock.sync(state, human);
+    const roundClock=localRoundClock.sync(state);
+    nextView.roundClock=roundClock?{...roundClock,localDeadline:roundClock.deadline,localReadyAt:roundClock.readyAt}:null;
+    // sync can expire a preserved deadline on background restoration.
+    if (state !== next) return true;
+    receive(nextView);
     if (state.phase === 'play' && state.turn !== human) {
       const captured = state;
       timer.schedule(() => {
@@ -2173,6 +2263,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     if (!view || connectionBlocked) return false;
     if (transport && ['nextRound', 'rematch', 'returnToLobby'].includes(type) && !canManageLobby()) return false;
     if (transport) { const sentView = view; if (type === 'declare') $('declare').disabled = true; Promise.resolve(transport.send({ type, player: human, value, revision: view.revision, turnToken: view.turnClock?.token })).then(accepted => { if (accepted === false && type === 'declare' && view === sentView && !connectionBlocked) { $('declare').disabled = view.turn !== human; fail('宣言できませんでした。現在の手番と数字を確認してください。'); } }).catch(() => { fail('接続を確認して、もう一度お試しください。'); if (type === 'declare' && view === sentView && !connectionBlocked) $('declare').disabled = view.turn !== human; }); return true; }
+    if (localTurnClock.check() || localRoundClock.check()) return false;
     const next = G.dispatch(state, { type, player: human, value, revision: view.revision }, Math.random);
     return apply(next);
   }
@@ -2199,32 +2290,13 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   };
   $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = () => { const finished = captureSessionFinish(); cancelRoomRequest(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   $('joinForm').onsubmit = event => { event.preventDefault(); const id = $('roomId').value.trim(); if (id) requestRoom('join', id); };
-  function selectJoinTab(tab, focus = false) {
-    cancelRoomRequest();
-    const isPublic = tab === 'public';
-    $('joinIdPanel').classList.toggle('hide', isPublic);
-    $('joinPublicPanel').classList.toggle('hide', !isPublic);
-    for (const [id, selected] of [['joinIdTab', !isPublic], ['joinPublicTab', isPublic]]) {
-      $(id).setAttribute('aria-selected', String(selected));
-      $(id).tabIndex = selected ? 0 : -1;
-    }
-    if (focus) $(isPublic ? 'joinPublicTab' : 'joinIdTab').focus();
-  }
-  $('joinIdTab').onclick = () => selectJoinTab('id');
-  $('joinPublicTab').onclick = () => selectJoinTab('public');
-  document.querySelector('.join-tabs').addEventListener('keydown', event => {
-    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-    event.preventDefault();
-    const tab = event.key === 'Home' ? 'id' : event.key === 'End' ? 'public' : $('joinIdTab').getAttribute('aria-selected') === 'true' ? 'public' : 'id';
-    selectJoinTab(tab, true);
-  });
   $('refreshPublicRooms').onclick = () => {
     // UI scaffold only. No undocumented SDK response mapping or fake rooms.
     $('publicRoomsList').replaceChildren();
     $('publicRoomsStatus').textContent = '公開ルーム一覧の取得機能は未接続です。ルームIDで参加できます。';
   };
   $('privateRoom').onchange = () => { $('roomCreateStatus').textContent = ''; };
-  $('joinGame').onclick = () => { selectJoinTab('id'); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
+  $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
   $('addBot').onclick = addBot;
   $('removeBot').onclick = () => { if (transport) { lobbyAction('removeBot', { target: selectedBot }); return; } state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
   document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { if (transport) { lobbyAction('setBotAvatar', { target: selectedBot, avatar: Number(button.dataset.avatar) }); return; } avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
@@ -2263,7 +2335,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       steps.forEach(([title, text], index) => {
         const section = el('section', 'guide-step');
         section.append(el('b', 'step-number', index + 1), el('h3', '', title), el('p', '', text));
-        section.append(window.NumberBluffGuideDiagrams.create(document, index)); if (index === 1) section.append(el('p', 'turn-rule-note', 'オンラインは1手30秒。時間切れは前の宣言＋1（初手は1）を自動宣言します。入力途中の数字は送信しません。')); container.append(section);
+        section.append(window.NumberBluffGuideDiagrams.create(document, index)); if (index === 1) section.append(el('p', 'turn-rule-note', '人間の手番は1手30秒（BOT練習も同じ）。時間切れは前の宣言＋1（初手は1）を自動宣言します。入力途中の数字は送信しません。計算演出の後、10秒で次のラウンドに進みます。優勝結果では自動再戦しません。')); container.append(section);
       });
 
     } else if (tab === 'cards') {
@@ -2309,10 +2381,10 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
   $('cardDetail').addEventListener('close', () => { stopDetailEffect(); syncCardMotion(); });
   window.addEventListener('pageshow', () => { syncCardMotion(); });
-  window.addEventListener('pagehide', () => { stopTurnDisplay(); stopDetailEffect(); timer.cancel(); cancelPresentation(true); });
+  window.addEventListener('pagehide', () => { stopTurnDisplay(); localTurnClock.pause(); localRoundClock.pause(); stopDetailEffect(); timer.cancel(); cancelPresentation(true); stopTurnDisplay(); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });
-  document.addEventListener('visibilitychange', () => { paintTurnDisplay(); if (!document.hidden && transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });
-  window.addEventListener('pageshow', () => { paintTurnDisplay(); if (transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !transport) { localTurnClock.resume(); localRoundClock.resume(); } paintTurnDisplay(); if (!document.hidden && transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });
+  window.addEventListener('pageshow', () => { if (!transport) { localTurnClock.resume(); localRoundClock.resume(); } paintTurnDisplay(); if (transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });
   // The SDK bridge provides the normalized stream; the UI never runs remote authority.
   function paintConnectionStatus() {
     for (const id of ['onlineLobbyStatus', 'onlineBattleStatus']) { $(id).textContent = connectionMessage; $(id).classList.toggle('hide', !connectionMessage); }
@@ -2377,9 +2449,9 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
  * Broadcast-only transport exposes current round cards to network inspection.
  * It NEVER sends the private draw pile or RNG. No cheat-proof secrecy is claimed. */
 (function(root,factory){
-  if(typeof module==='object'&&module.exports) module.exports=factory(require('./engine.js'));
-  else root.NumberBluffGravity=factory(root.NumberBluff);
-})(typeof globalThis==='object'?globalThis:this,function(G){
+  if(typeof module==='object'&&module.exports) module.exports=factory(require('./engine.js'),require('./round-advance-clock.js'));
+  else root.NumberBluffGravity=factory(root.NumberBluff,root.NumberBluffRoundAdvanceClock);
+})(typeof globalThis==='object'?globalThis:this,function(G,R){
   'use strict';
   const VERSION=1, TURN_MS=30000, LIMIT=48000, DIFFICULTIES=['easy','normal','hard'];
   const clone=x=>JSON.parse(JSON.stringify(x));
@@ -2402,9 +2474,10 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     let epoch=isHost?(options.epoch||String(Date.now())+'-'+String(Math.random()).slice(2)):null;
     let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, scheduledRevision=null;
     let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0;
+    const roundAdvance=R.create({now,set:later,clear,expire(){if(!isHost||closed||hostLost||state?.phase!=='reveal')return;state=G.nextRound(state,rng);publish('round-timeout');}});
     const status=(kind,detail={})=>{lastStatus={kind,...detail};onStatus({...lastStatus});};
     function cancel(){scheduledRevision=null;generation++;if(timer!==null)clear(timer);timer=null;}
-    function emit(v){if(latest&&latest.revision===v.revision){if(!v.turnClock||v.turnClock.token!==latest.turnClock?.token||v.turnClock.localDeadline===latest.turnClock.localDeadline)return;}latest=v;for(const fn of listeners)fn(clone(v));}
+    function emit(v){if(latest&&latest.revision===v.revision){const changed=['turnClock','roundClock'].some(key=>v[key]&&v[key].token===latest[key]?.token&&v[key].localDeadline!==latest[key].localDeadline);if(!changed)return;}latest=v;for(const fn of listeners)fn(clone(v));}
     function transmit(body){
       if(closed||hostLost)return Promise.resolve(false);
       const message=JSON.stringify({protocol:'number-bluff',version:VERSION,roomId,epoch,...body});
@@ -2418,6 +2491,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       const v=clone(wire);v.viewerId=me.id;v.players=v.players.map(p=>({...p,avatarUrl:avatar(p.avatarUrl)}));
       if(v.phase==='play')v.hands[me.id]=null;
       if(v.turnClock)v.turnClock.localDeadline=now()+Math.max(0,Math.min(TURN_MS,v.turnClock.deadline-v.turnClock.serverNow));
+      if(v.roundClock){v.roundClock.localDeadline=now()+Math.max(0,v.roundClock.deadline-v.roundClock.serverNow);v.roundClock.localReadyAt=now()+Math.max(0,v.roundClock.readyAt-v.roundClock.serverNow);}
       return v;
     }
     function cancelTurn(){turnGeneration++;if(turnTimer!==null)clear(turnTimer);turnTimer=null;}
@@ -2453,9 +2527,10 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       },options.botDelay??650);
     }
     function publish(reason){
-      if(expireTurn())return;syncTurn();
+      if(state.phase!=='reveal')roundAdvance.cancel();
+      if(expireTurn()||roundAdvance.check())return;syncTurn();roundAdvance.sync(state);
       G.assertInvariant(state);
-      const wire={...G.publicView(state,'__broadcast__'),hostId:state.players[0].id,roomId,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);
+      const wire={...G.publicView(state,'__broadcast__'),hostId:state.players[0].id,roomId,roundClock:roundAdvance.get()?{...roundAdvance.get(),serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);
       const own=localize(wire);if(own)emit(own);
       void transmit({type:'snapshot',sequence:++hostSequence,view:wire,reason:reason||null}).catch(()=>{});
       if(reason)status(reason);scheduleBot();
@@ -2474,7 +2549,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     }
     function removeMember(uid){
       if(closed)return false;
-      if(uid===hostUserId){hostLost=true;cancel();cancelTurn();turnClock=null;stopHeartbeat();status('host-lost');return true;}
+      if(uid===hostUserId){hostLost=true;cancel();cancelTurn();roundAdvance.cancel();turnClock=null;stopHeartbeat();status('host-lost');return true;}
       if(!members.has(uid))return false;members.delete(uid);seen.delete(uid);sequences.delete(uid);
       if(!isHost)return true;
       const seat=seatFor(uid);if(!seat)return true;
@@ -2486,7 +2561,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     }
     function processAction(sender,action){
       if(!isHost||closed||hostLost||!members.has(sender)||!action||typeof action!=='object')return false;
-      if(expireTurn())return false;
+      if(expireTurn()||roundAdvance.check())return false;
       const actor=seatFor(sender);if(!actor||actor.kind!=='human'||action.player!==actor.id||action.revision!==state.revision)return false;
       if(['declare','challenge'].includes(action.type)&&action.turnToken!==undefined&&action.turnToken!==turnClock?.token)return false;
       const manages=sender===hostUserId;let next=state;
@@ -2507,6 +2582,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       if(!v||!['lobby','play','reveal','finished'].includes(v.phase)||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.players)||v.players.length<1||v.players.length>8)return false;
       if(typeof v.rankingEligible!=='boolean')return false;
       if(v.turnClock!==undefined&&v.turnClock!==null){const c=v.turnClock;if(v.phase!=='play'||typeof c.token!=='string'||c.token.length>256||c.player!==v.turn||!v.players.some(p=>p.id===c.player&&p.kind==='human')||!Number.isFinite(c.deadline)||!Number.isFinite(c.serverNow)||c.deadline-c.serverNow>TURN_MS)return false;}
+      if(v.roundClock!==undefined&&v.roundClock!==null){const c=v.roundClock;if(v.phase!=='reveal'||typeof c.token!=='string'||c.token.length>256||!Number.isFinite(c.deadline)||!Number.isFinite(c.readyAt)||!Number.isFinite(c.serverNow)||c.deadline-c.readyAt!==10000||c.readyAt-c.serverNow>10000)return false;}
       if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;
       if(new Set(v.players.map(p=>p?.id)).size!==v.players.length)return false;
       if(v.players.some(p=>!p||typeof p!=='object'||!/^p[1-8]$/.test(p.id)||!['human','bot'].includes(p.kind)||typeof p.name!=='string'||p.name.length>24||!Number.isInteger(p.life)||p.life<0||p.life>3||!Number.isSafeInteger(p.wins)||p.wins<0))return false;
@@ -2566,7 +2642,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
         if(isHost){
           for(const uid of Array.from(members.keys()))if(uid!==userId&&now()-(seen.get(uid)??now())>=timeoutMs){removeMember(uid);status('participant-timeout',{userId:uid});}
           publish();
-        }else if(now()-lastHostSeen>=timeoutMs){hostLost=true;cancel();cancelTurn();status('host-timeout');return;}
+        }else if(now()-lastHostSeen>=timeoutMs){hostLost=true;cancel();cancelTurn();roundAdvance.cancel();status('host-timeout');return;}
         else void transmit({type:'ping'}).catch(()=>{});
         heartbeat();
       },heartbeatMs);
@@ -2580,7 +2656,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       send(action){if(closed||hostLost)return Promise.reject(new Error('Room is disconnected.'));if(isHost)return Promise.resolve(processAction(userId,action));if(!epoch)return Promise.reject(new Error('Waiting for host.'));return transmit({type:'action',sequence:++commandSequence,action});},
       receive,addMember,removeMember,
       resync(){return isHost?(publish(),Promise.resolve()):transmit({type:'resync'});},
-      close(){if(closed)return;void transmit({type:'bye',revision:latest?.revision}).catch(()=>{});closed=true;cancel();cancelTurn();turnClock=null;stopHeartbeat();listeners.clear();status('closed');},
+      close(){if(closed)return;void transmit({type:'bye',revision:latest?.revision}).catch(()=>{});closed=true;cancel();cancelTurn();roundAdvance.cancel();turnClock=null;stopHeartbeat();listeners.clear();status('closed');},
       getStatus(){return {...(lastStatus||{}),roomId,isHost,closed,hostLost,ready:!!latest};}
     };
     if(isHost){for(const member of members.values())if(member.userId!==userId)addMember(member);publish();}

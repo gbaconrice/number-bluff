@@ -66,8 +66,11 @@ h3 { font-size: 12px; margin-bottom: 7px; }
 .hearts { color: #ffb2d1; }
 .player-card { width: 100%; position: relative; isolation: isolate; border: 1px solid #fff1c9; background: linear-gradient(140deg,#fff5ce,#ffdfe4 60%,#b7cbff); color: #1b2c5a; font-weight: 900; line-height: 1; overflow: hidden; }
 .player-card:before { content: "✦"; position: absolute; left: 5px; top: 5px; font-size: 10px; color: #fff; }
-.player-card.hidden { background: radial-gradient(ellipse at 50% 60%,#5367b5,#112354 70%); color: #fff1cb; border-color: #c8d6ff; }
-.player-card.hidden:after { content: "✦"; position: absolute; right: 8px; bottom: 10px; font-size: 17px; text-shadow: -40px -61px #ffe9b5; }
+/* One back for the guide and play. Preserve the guide's original palette and
+   three-glint composition, scaled from its 68px inner width (70px with border). */
+.player-card.hidden { container-type: inline-size; background: radial-gradient(ellipse at 50% 60%,#5367b5,#112354 70%); color: #fff1cb; border-color: #c8d6ff; }
+.player-card.hidden::before { content: "✦"; position: absolute; left: 7.352941cqw; top: 7.352941cqw; font-size: 14.705882cqw; color: #fff; pointer-events: none; }
+.player-card.hidden::after { content: "✦"; position: absolute; right: 11.764706cqw; bottom: 14.705882cqw; font-size: 25cqw; text-shadow: -58.823529cqw -89.705882cqw #ffe9b5; pointer-events: none; }
 .player-card.special { color: #ffefd6; }
 .player-card.kind-max0 { letter-spacing: -.06em; }
 .player-card.negative { background: linear-gradient(#e7f6ff,#b8d4ff,#c1b3f0); }
@@ -248,7 +251,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .player-info .person-placeholder, .player-info img.avatar { width: 35px; height: 35px; margin: 0 auto 3px; }
 .hearts { font-size: 12px; letter-spacing: 0; line-height: 14px; }
 .battle-grid.many .player-card, .player-card { height: auto; aspect-ratio: 2 / 3; border-radius: 8px; font-size: clamp(30px,8vw,41px); padding-top: 13px; box-shadow: inset 0 0 0 2px #fff8e1aa,0 0 8px #cbb3ff55; }
-.battle-grid.many .player-card.hidden, .player-card.hidden { padding-top: 25%; font-size: 40px; }
+.battle-grid.many .player-card.hidden, .player-card.hidden { display: flex; align-items: center; justify-content: center; padding: 0; font-size: 40px; }
 .player-card.special { background: radial-gradient(ellipse at 50% 80%,#8991ed,#13265e 68%); }
 .battle-grid.many .player-card.kind-max0, .player-card.kind-max0 { font-size: clamp(12px,3.2vw,17px); }
 .battle-grid.many .player-card.kind-reset, .player-card.kind-reset { font-size: clamp(12px,3.2vw,17px); }
@@ -340,7 +343,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
   .battle-grid.many .player-info { height: 39px; grid-template-rows: 11px 24px; padding: 1px 2px; }
   .battle-grid.many { row-gap: 5px; }
   .battle-grid.many .player-card { padding-top: 10px; font-size: 29px; }
-  .battle-grid.many .player-card.hidden { padding-top: 26%; font-size: 38px; }
+  .battle-grid.many .player-card.hidden { padding: 0; font-size: 38px; }
   .bid-panel { height: 52px; min-height: 52px; margin: 0 auto; }
   .bid-panel strong { font-size: 24px; line-height: 22px; }
   .input-console { padding: 6px; }
@@ -373,7 +376,7 @@ main { position: relative; z-index: 1; }
 #battleScreen .topbar #rulesBtn { grid-column: 4; }
 .room-status { font-size: 12px; line-height: 1.5; margin: 5px 0 0; text-align: center; color: #fff2d6; }
 .room-status:empty { display: none; }
-.join-form { margin-top: 0; display: grid; gap: 13px; padding: 20px; }
+.join-form { margin-top: 20px; display: grid; gap: 13px; padding: 20px; }
 .join-form input { width: 100%; height: 54px; border: 1px solid #a9b9e6; border-radius: 12px; background: #112449; color: #fff4d7; text-align: center; font-size: 20px; }
 .join-form input::placeholder { color: #becbe7; }
 .room-identity { text-align: center; font-size: 13px; font-weight: 800; margin: 0 0 9px; color: #fff0ce; }
@@ -456,10 +459,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 /* Lobby access scaffold: SDK list/private wiring is deferred to AI Studio. */
 .private-room-option { display:flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:2px 8px; color:#fff4d7; font-size:13px; font-weight:700; text-shadow:0 1px 3px #102451; cursor:pointer; }
 .private-room-option input { margin:0; width:16px; height:16px; accent-color:#fff0ad; }
-.join-tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:20px 0 12px; }
-.join-tabs button { min-height:44px; border:1px solid #b9c7ec; border-radius:12px; background:#253c73; color:#fff4d7; font-weight:700; }
-.join-tabs button[aria-selected="true"] { background:#fff0c9; color:#233c72; }
-.public-room-panel { padding:18px; }
+.public-room-panel { margin-top:16px; padding:18px; }
 .public-room-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .public-room-heading h2 { margin:0; font-size:17px; }
 .public-room-heading button { flex-shrink:0; min-width:64px; min-height:40px; border:1px solid #bfcae9; border-radius:10px; background:#fff0c9; color:#233c72; font-weight:700; }

@@ -128,3 +128,38 @@ test('mute and unmute update the output gain and never stack contexts', async ()
   assert.equal(f.gains[0].gain.value, .5); assert.equal(f.audio.play('tap'), true);
   assert.equal(f.counts().created, 1);
 });
+
+test('a pending pointerdown resume never blocks a later accepted touchend or click', async () => {
+  for (const gesture of ['touchend', 'click']) {
+    const f = fixture(); let attempts = 0, rejectFirst;
+    f.context.resume = () => {
+      attempts++;
+      if (attempts === 1) return new Promise((resolve, reject) => { rejectFirst = reject; });
+      f.context.state = 'running'; return Promise.resolve();
+    };
+    f.doc.emit('pointerdown'); f.audio.play('tap');
+    assert.equal(attempts, 1); assert.equal(f.notes.length, 0);
+    f.doc.emit(gesture);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(attempts, 2); assert.equal(f.notes.length, 1);
+    rejectFirst(new Error('old blocked resume'));
+    await new Promise(resolve => setImmediate(resolve));
+    f.context.currentTime += .1;
+    assert.equal(f.audio.play('declare'), true);
+    assert.equal(f.counts().created, 1);
+  }
+});
+test('unmute can recover a pending interrupted context without resetting the saved preference', async () => {
+  const f = fixture(); let attempts = 0;
+  f.context.resume = () => {
+    attempts++;
+    if (attempts === 1) return new Promise(() => {});
+    f.context.state = 'running'; return Promise.resolve();
+  };
+  f.doc.emit('pointerdown'); f.audio.play('declare');
+  f.audio.setMuted(true);
+  f.audio.setMuted(false, { isTrusted: true }); f.audio.play('tap');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(attempts, 2); assert.equal(f.audio.isMuted(), false);
+  assert.equal(f.notes.length, 1, 'only the fresh confirmation plays');
+});

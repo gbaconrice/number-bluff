@@ -58,6 +58,17 @@
   const avatarNames = ['ほしもち', 'ほしねこ', 'もふうさ', 'くもまる'];
   let state = null, view = null, screen = 'homeScreen', selectedBot = 'p2', nextDifficulty = 'normal';
   let avatarChoice = {}, suggested = true, overlayReturn = null;
+  const localRoundClock = window.NumberBluffRoundAdvanceClock.create({expire(){if(!transport&&state?.phase==='reveal')apply(G.nextRound(state,Math.random));}});
+  const localTurnClock = window.NumberBluffLocalTurnClock({ expire() {
+    if (transport || state?.phase !== 'play' || state.turn !== human) return;
+    const value = state.bid === null ? 1 : state.bid + 1;
+    if (!Number.isSafeInteger(value)) {
+      apply(G.returnToLobby(state));
+      connectionMessage = '扱える数字の上限に達したため、勝敗をつけずロビーに戻りました。'; paintConnectionStatus();
+      return;
+    }
+    apply(G.declare(state, human, value));
+  } });
   let presentationFrame = null, presentationPrevious = null, presentationKey = null, roomEpoch = 0, nextReadyAt = 0;
   let transport = null, unsubscribe = null, turnDisplayTimer = null;
   const el = (tag, cls, text) => { const node = document.createElement(tag); if (cls) node.className = cls; if (text !== undefined) node.textContent = text; return node; };
@@ -160,7 +171,7 @@
     if (result) for (const listener of sessionFinishListeners) { try { listener(result); } catch {} }
   }
   function detachTransport() {
-    audio.stop(); stopTurnDisplay(); cancelPresentation(); presentationKey = null; roomEpoch++;
+    audio.stop(); stopTurnDisplay(); localTurnClock.cancel(); localRoundClock.cancel(); cancelPresentation(); presentationKey = null; roomEpoch++;
     if (typeof unsubscribe === 'function') unsubscribe();
     unsubscribe = null; const old = transport; transport = null; connectionBlocked = false; connectionMessage = '';
     if (typeof old?.close === 'function') old.close();
@@ -208,7 +219,7 @@
     $('roomCopyStatus').textContent = ''; $('roomCopyStatus').classList.add('hide');
     $('roomCopyFallback').classList.add('hide');
     const manage = canManageLobby(), hostId = transport ? view.hostId : 'p1';
-    let clockNote = document.getElementById('onlineTurnRule'); if (!clockNote) { clockNote = el('p', 'turn-rule-note'); clockNote.id = 'onlineTurnRule'; $('roomIdentity').after(clockNote); } clockNote.textContent = view.roomId ? '1手30秒 · 時間切れは前の宣言＋1（初手1）' : ''; clockNote.classList.toggle('hide', !view.roomId);
+    let clockNote = document.getElementById('onlineTurnRule'); if (!clockNote) { clockNote = el('p', 'turn-rule-note'); clockNote.id = 'onlineTurnRule'; $('roomIdentity').after(clockNote); } clockNote.textContent = '1手30秒 · 時間切れは前の宣言＋1（初手1）'; clockNote.classList.remove('hide');
     $('roomIdentity').classList.toggle('hide', !roomId || idHeader); $('roomIdentity').textContent = roomId && !idHeader ? 'ルームID ' + roomId : '';
     $('lobbyError').textContent = '';
     const selected = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
@@ -237,12 +248,22 @@
   function paintTurnDisplay() {
     stopTurnDisplay();
     const badge = document.querySelector('.turn-countdown');
-    if (!badge || !transport || connectionBlocked || view?.phase !== 'play' || !view.turnClock || screen !== 'battleScreen' || document.hidden) return;
+    paintRoundCountdown();
+    if (!badge || connectionBlocked || view?.phase !== 'play' || !view.turnClock || screen !== 'battleScreen' || document.hidden) return;
     const seconds = Math.max(0, Math.ceil((view.turnClock.localDeadline - Date.now()) / 1000));
     badge.textContent = seconds > 0 ? '残り ' + seconds + '秒' : '確定待ち';
     badge.classList.toggle('is-urgent', seconds <= 10);
     badge.setAttribute('aria-label', seconds > 0 ? name(view.turn) + 'の手番、残り' + seconds + '秒' : 'ホストの宣言確定を待っています');
     if (seconds > 0) turnDisplayTimer = setTimeout(paintTurnDisplay, 200);
+  }
+  function paintRoundCountdown() {
+    const clock=view?.roundClock;
+    if(connectionBlocked||view?.phase!=='reveal'||!clock||presentationFrame&&!presentationFrame.complete||screen!=='battleScreen'||document.hidden)return;
+    const remaining=Math.max(0,Math.ceil((clock.localDeadline-Date.now())/1000));
+    const waiting=Date.now()<clock.localReadyAt;
+    $('next').textContent=waiting?(canManageLobby()?'次のラウンドへ　›':'結果を確認中…'):canManageLobby()?`次のラウンドへ · ${remaining}秒`:`次のラウンドまで ${remaining}秒`;
+    $('next').disabled=!canManageLobby();
+    if(remaining>0)turnDisplayTimer=setTimeout(paintTurnDisplay,200);
   }
   function renderPlayers() {
     cardReveal.settleAll();
@@ -307,7 +328,7 @@
     $('resultAvatar').replaceChildren(playerAvatar(r.winner || r.loser));
     $('resultText').textContent = r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') + '　' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum;
     $('next').textContent = canManageLobby() ? (r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›') : 'ホストの操作を待っています';
-    $('next').disabled = !canManageLobby();
+    $('next').disabled = !canManageLobby(); paintTurnDisplay();
   }
   function renderBattle(previous = null) {
     const active = view.phase === 'play', yourTurn = active && view.turn === human && !connectionBlocked;
@@ -323,7 +344,7 @@
     }
     renderPlayers(); $('roundLabel').textContent = 'ラウンド ' + view.round; $('survivorCount').textContent = '生存者 ' + view.players.filter(p => !p.eliminated).length + '/' + view.players.length;
     document.querySelector('.turn-countdown')?.remove();
-    if (transport && active && view.turnClock) { const badge = el('span', 'turn-countdown'); badge.dataset.player = view.turn; $('survivorCount').before(badge); paintTurnDisplay(); }
+    if (active && view.turnClock) { const badge = el('span', 'turn-countdown'); badge.dataset.player = view.turn; $('survivorCount').before(badge); paintTurnDisplay(); }
     $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : name(view.turn) + ' の番'; $('bidActor').replaceChildren(playerAvatar(view.last || view.turn));
     $('battleScreen').classList.toggle('is-result', !active); $('battlePhase').textContent = view.phase === 'finished' ? '対戦結果' : 'ラウンド結果'; $('battlePhase').classList.toggle('hide', active); $('battleTitle').querySelector('.battle-meta').classList.toggle('hide', !active);
     $('gamePanel').classList.toggle('hide', !active); $('result').classList.toggle('hide', active); $('result').classList.toggle('open', !active);
@@ -353,6 +374,7 @@
     }
   }
   function receive(next) {
+    if (transport && view?.phase === 'reveal' && next.phase === 'reveal' && next.revision === view.revision && next.hostId === view.hostId && next.roundClock?.token === view.roundClock?.token && next.roundClock) { view = next; paintTurnDisplay(); return; }
     if (transport && view?.phase === 'play' && next.phase === 'play' && next.revision === view.revision && next.hostId === view.hostId && next.turnClock && next.turnClock.token === view.turnClock?.token) { view = next; paintTurnDisplay(); return; }
     const previous = view; view = next; clearError();
     if (connectionMessage === 'ホストからの情報を待っています…') { connectionMessage = ''; paintConnectionStatus(); }
@@ -360,7 +382,14 @@
   }
   function apply(next) {
     if (next === state) return false;
-    timer.cancel(); state = next; receive(G.publicView(state, human));
+    timer.cancel(); state = next;
+    const nextView = G.publicView(state, human);
+    nextView.turnClock = localTurnClock.sync(state, human);
+    const roundClock=localRoundClock.sync(state);
+    nextView.roundClock=roundClock?{...roundClock,localDeadline:roundClock.deadline,localReadyAt:roundClock.readyAt}:null;
+    // sync can expire a preserved deadline on background restoration.
+    if (state !== next) return true;
+    receive(nextView);
     if (state.phase === 'play' && state.turn !== human) {
       const captured = state;
       timer.schedule(() => {
@@ -377,6 +406,7 @@
     if (!view || connectionBlocked) return false;
     if (transport && ['nextRound', 'rematch', 'returnToLobby'].includes(type) && !canManageLobby()) return false;
     if (transport) { const sentView = view; if (type === 'declare') $('declare').disabled = true; Promise.resolve(transport.send({ type, player: human, value, revision: view.revision, turnToken: view.turnClock?.token })).then(accepted => { if (accepted === false && type === 'declare' && view === sentView && !connectionBlocked) { $('declare').disabled = view.turn !== human; fail('宣言できませんでした。現在の手番と数字を確認してください。'); } }).catch(() => { fail('接続を確認して、もう一度お試しください。'); if (type === 'declare' && view === sentView && !connectionBlocked) $('declare').disabled = view.turn !== human; }); return true; }
+    if (localTurnClock.check() || localRoundClock.check()) return false;
     const next = G.dispatch(state, { type, player: human, value, revision: view.revision }, Math.random);
     return apply(next);
   }
@@ -403,32 +433,13 @@
   };
   $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = () => { const finished = captureSessionFinish(); cancelRoomRequest(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   $('joinForm').onsubmit = event => { event.preventDefault(); const id = $('roomId').value.trim(); if (id) requestRoom('join', id); };
-  function selectJoinTab(tab, focus = false) {
-    cancelRoomRequest();
-    const isPublic = tab === 'public';
-    $('joinIdPanel').classList.toggle('hide', isPublic);
-    $('joinPublicPanel').classList.toggle('hide', !isPublic);
-    for (const [id, selected] of [['joinIdTab', !isPublic], ['joinPublicTab', isPublic]]) {
-      $(id).setAttribute('aria-selected', String(selected));
-      $(id).tabIndex = selected ? 0 : -1;
-    }
-    if (focus) $(isPublic ? 'joinPublicTab' : 'joinIdTab').focus();
-  }
-  $('joinIdTab').onclick = () => selectJoinTab('id');
-  $('joinPublicTab').onclick = () => selectJoinTab('public');
-  document.querySelector('.join-tabs').addEventListener('keydown', event => {
-    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-    event.preventDefault();
-    const tab = event.key === 'Home' ? 'id' : event.key === 'End' ? 'public' : $('joinIdTab').getAttribute('aria-selected') === 'true' ? 'public' : 'id';
-    selectJoinTab(tab, true);
-  });
   $('refreshPublicRooms').onclick = () => {
     // UI scaffold only. No undocumented SDK response mapping or fake rooms.
     $('publicRoomsList').replaceChildren();
     $('publicRoomsStatus').textContent = '公開ルーム一覧の取得機能は未接続です。ルームIDで参加できます。';
   };
   $('privateRoom').onchange = () => { $('roomCreateStatus').textContent = ''; };
-  $('joinGame').onclick = () => { selectJoinTab('id'); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
+  $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
   $('addBot').onclick = addBot;
   $('removeBot').onclick = () => { if (transport) { lobbyAction('removeBot', { target: selectedBot }); return; } state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
   document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { if (transport) { lobbyAction('setBotAvatar', { target: selectedBot, avatar: Number(button.dataset.avatar) }); return; } avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
@@ -467,7 +478,7 @@
       steps.forEach(([title, text], index) => {
         const section = el('section', 'guide-step');
         section.append(el('b', 'step-number', index + 1), el('h3', '', title), el('p', '', text));
-        section.append(window.NumberBluffGuideDiagrams.create(document, index)); if (index === 1) section.append(el('p', 'turn-rule-note', 'オンラインは1手30秒。時間切れは前の宣言＋1（初手は1）を自動宣言します。入力途中の数字は送信しません。')); container.append(section);
+        section.append(window.NumberBluffGuideDiagrams.create(document, index)); if (index === 1) section.append(el('p', 'turn-rule-note', '人間の手番は1手30秒（BOT練習も同じ）。時間切れは前の宣言＋1（初手は1）を自動宣言します。入力途中の数字は送信しません。計算演出の後、10秒で次のラウンドに進みます。優勝結果では自動再戦しません。')); container.append(section);
       });
 
     } else if (tab === 'cards') {
@@ -513,10 +524,10 @@
   document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
   $('cardDetail').addEventListener('close', () => { stopDetailEffect(); syncCardMotion(); });
   window.addEventListener('pageshow', () => { syncCardMotion(); });
-  window.addEventListener('pagehide', () => { stopTurnDisplay(); stopDetailEffect(); timer.cancel(); cancelPresentation(true); });
+  window.addEventListener('pagehide', () => { stopTurnDisplay(); localTurnClock.pause(); localRoundClock.pause(); stopDetailEffect(); timer.cancel(); cancelPresentation(true); stopTurnDisplay(); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });
-  document.addEventListener('visibilitychange', () => { paintTurnDisplay(); if (!document.hidden && transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });
-  window.addEventListener('pageshow', () => { paintTurnDisplay(); if (transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !transport) { localTurnClock.resume(); localRoundClock.resume(); } paintTurnDisplay(); if (!document.hidden && transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });
+  window.addEventListener('pageshow', () => { if (!transport) { localTurnClock.resume(); localRoundClock.resume(); } paintTurnDisplay(); if (transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });
   // The SDK bridge provides the normalized stream; the UI never runs remote authority.
   function paintConnectionStatus() {
     for (const id of ['onlineLobbyStatus', 'onlineBattleStatus']) { $(id).textContent = connectionMessage; $(id).classList.toggle('hide', !connectionMessage); }
