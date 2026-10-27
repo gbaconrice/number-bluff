@@ -25,18 +25,17 @@
  .presentation-card,.presentation-zero-stamp,.presentation-extra,.presentation-vortex,.presentation-bid-pulse,.presentation-refresh,#result #finalTotal { animation:none!important;transition:none!important; }
 }
 
-/* A moving pearlescent finish belongs to visible faces only. Hidden cards never
-   expose a face-specific effect. The highlight stays below the value label. */
+/* One shared white diagonal gloss for every disclosed face. It sweeps across
+   the artwork, not through the label. No rainbow tint, blend filter, or flash.
+   The same effect is independent of each character/special-card animation. */
 .player-card:not(.hidden):not(.out) { isolation:isolate; overflow:hidden; }
-.player-card:not(.hidden):not(.out)::after { content:''; position:absolute; inset:-30% -70%; z-index:1; pointer-events:none; background:linear-gradient(115deg,transparent 40%,#fff9df00 44%,#fff9df55 49%,#dcf7ff22 53%,transparent 59%); transform:translateX(-48%); opacity:0; animation:card-foil-sweep 8s ease-in-out -2s infinite; }
-.player-card .card-value { z-index:2; }
-.battle-player:nth-child(2n) .player-card::after { animation-delay:-4s; }
-.battle-player:nth-child(3n) .player-card::after { animation-delay:-6s; }
+.player-card:not(.hidden):not(.out)::after { content:''; position:absolute; inset:-30% -70%; z-index:3; pointer-events:none; background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,0) 44%,rgba(255,255,255,.16) 47%,rgba(255,255,255,.58) 50%,rgba(255,255,255,.16) 53%,rgba(255,255,255,0) 56%,transparent 60%); transform:translateX(-55%); opacity:0; animation:card-foil-sweep 7.2s ease-in-out -1.3s infinite; }
+.player-card .card-value { z-index:4; }
+.battle-player:nth-child(2n) .player-card::after { animation-delay:-3.4s; }
+.battle-player:nth-child(3n) .player-card::after { animation-delay:-5.5s; }
 .presentation-card.is-revealing { animation:card-reveal-rich 470ms cubic-bezier(.15,.75,.2,1) both; }
 .presentation-card.is-dealing { animation:card-deal-rich 420ms cubic-bezier(.15,.8,.24,1) both; }
-.presentation-card.is-revealing:not(.hidden):not(.out)::after,.presentation-card.is-dealing:not(.hidden):not(.out)::after { animation:card-opening-glint 650ms ease-out both; }
 .presentation-card.is-adding { animation:card-contribute-rich 320ms ease-out both; }
-.presentation-card.is-adding:not(.hidden):not(.out)::after { animation:card-opening-glint 420ms ease-out both; }
 .presentation-card.is-zeroed { box-shadow:inset 0 0 0 2px #b5f6ff88,0 0 14px #7de9ff66; }
 .presentation-zero-stamp { bottom:10%; right:8%; padding:4px 10px; box-shadow:0 0 16px #79eaff66; }
 .presentation-bid-pulse { position:relative; animation:bid-declaration-rich 500ms cubic-bezier(.18,.8,.3,1) both; }
@@ -53,8 +52,7 @@
 #result[data-presentation-phase="reset"] #resultAvatar,
 #result[data-presentation-phase="outcome"] #resultAvatar,
 #result[data-presentation-phase="complete"] #resultAvatar { animation:avatar-celebrate 620ms ease-out both; }
-@keyframes card-foil-sweep { 0%,12% {opacity:0;transform:translateX(-48%)} 20% {opacity:.7} 36% {opacity:0;transform:translateX(48%)} 100% {opacity:0;transform:translateX(48%)} }
-@keyframes card-opening-glint { from {opacity:0;transform:translateX(-48%)} 40% {opacity:.85} to {opacity:0;transform:translateX(48%)} }
+@keyframes card-foil-sweep { 0%,8% {opacity:0;transform:translateX(-55%)} 15% {opacity:.78} 28% {opacity:.78} 36%,100% {opacity:0;transform:translateX(55%)} }
 @keyframes card-deal-rich { 0% {opacity:0;transform:translate3d(8px,-28px,0) rotate(-7deg) scale(.88)} 72% {opacity:1;transform:translate3d(0,3px,0) rotate(1deg) scale(1.025)} 100% {opacity:1;transform:none} }
 @keyframes card-reveal-rich { 0% {opacity:.12;transform:rotateY(-88deg) translateY(12px) scale(.92)} 68% {opacity:1;transform:rotateY(8deg) translateY(-4px) scale(1.025)} 100% {opacity:1;transform:none} }
 @keyframes card-contribute-rich { 45% {transform:translateY(-7px) scale(1.05)} 100% {transform:none} }
@@ -75,11 +73,7 @@
 .player-card .card-art-motion { position:absolute; inset:40% 5% 5%; z-index:1; overflow:hidden; border-radius:8%; pointer-events:none; contain:paint; }
 .player-card.hidden .card-art-motion,.player-card.out .card-art-motion { display:none; }
 .card-art-motion::before,.card-art-motion::after { content:''; position:absolute; pointer-events:none; }
-/* Normal illustrations: drifting cloud-light and a slow constellation breath. */
-.kind-number .card-art-motion::before { inset:40% -20% -20%; background:radial-gradient(ellipse at 25% 75%,#f5e6ff80,transparent 45%),radial-gradient(ellipse at 80% 90%,#d1f5ff80,transparent 42%); animation:art-cloud-drift 7s ease-in-out -2s infinite alternate; }
-.kind-number .card-art-motion::after { inset:10%; background:radial-gradient(ellipse at 20% 30%,#fff8cf 0 1px,transparent 2px),radial-gradient(ellipse at 80% 60%,#fff8cf 0 1px,transparent 2px),radial-gradient(ellipse at 45% 90%,#d4faff 0 1px,transparent 2px); animation:art-star-breath 4.8s ease-in-out -1s infinite; }
-@keyframes art-cloud-drift { from {opacity:.28;transform:translateX(-8%)} to {opacity:.6;transform:translateX(8%)} }
-@keyframes art-star-breath { 0%,100% {opacity:.22;transform:scale(.94)} 50% {opacity:.85;transform:scale(1.03)} }
+/* Normal character scenes live in normal-card-art.css, not this layer. */
 
 /* The illustration itself moves underneath the effects; the printed frame,
    upper value field and surrounding page never move with it. Feathered masks
@@ -116,15 +110,15 @@
 /* Effect activation is attached to the already-authorized result phase. Idle
    art is restrained; these short surges explain the effect that just occurred. */
 body:has(#result[data-presentation-phase="multiply"]) .kind-double .galaxy-stream {animation-duration:.65s;stroke-width:2.5;}
-body:has(#result[data-presentation-phase="multiply"]) .kind-double .galaxy-core {animation:galaxy-core-activate .65s ease-out both;}
-body:has(#result[data-presentation-phase="max"]) .kind-max0 .crown-rays {animation:crown-rays-rise .65s ease-out both;stroke-width:2.4;}
-body:has(#result[data-presentation-phase="extra"]) .kind-extra .orb-premonition {animation:orb-card-reveal .65s ease-out both;}
+body:has(#result[data-presentation-phase="multiply"]) .kind-double .galaxy-core {animation:galaxy-core-activate 400ms ease-out both;}
+body:has(#result[data-presentation-phase="max"]) .kind-max0 .crown-rays {animation:crown-rays-rise 400ms ease-out both;stroke-width:2.4;}
+body:has(#result[data-presentation-phase="extra"]) .kind-extra .orb-premonition {animation:orb-card-reveal 400ms ease-out both;}
 body:has(#result[data-presentation-phase="reset"]) .kind-reset .reset-current {animation-duration:.65s;stroke-width:3.5;}
 body:has(#result[data-presentation-phase="reset"]) .kind-reset .reset-deck-cards {animation-duration:1.2s;}
-@keyframes galaxy-art-turn {from {transform:rotate(-2deg) scale(1.025)} to {transform:rotate(2deg) scale(1.045)}}
-@keyframes royal-art-breathe {0%,100% {transform:translateY(.3%) scale(1)} 50% {transform:translateY(-.7%) scale(1.018)}}
-@keyframes crystal-art-float {0%,100% {transform:translateY(.6%) rotate(-1deg)} 50% {transform:translateY(-1%) rotate(1deg)}}
-@keyframes reset-art-charge {0%,100% {transform:scale(1);filter:brightness(1)} 50% {transform:scale(1.025);filter:brightness(1.1)}}
+@keyframes galaxy-art-turn {from {transform:rotate(-4deg) scale(1.025)} to {transform:rotate(4deg) scale(1.055)}}
+@keyframes royal-art-breathe {0%,100% {transform:translateY(.7%) scale(1)} 50% {transform:translateY(-1.3%) scale(1.028)}}
+@keyframes crystal-art-float {0%,100% {transform:translateY(1.2%) rotate(-2deg)} 50% {transform:translateY(-1.6%) rotate(2deg)}}
+@keyframes reset-art-charge {0%,100% {transform:scale(1);filter:brightness(1)} 50% {transform:scale(1.04);filter:brightness(1.12)}}
 @keyframes galaxy-flow {to {stroke-dashoffset:-172}}
 @keyframes galaxy-travel {to {transform:rotate(360deg)}}
 @keyframes galaxy-core-beat {0%,100% {opacity:.15;transform:scale(.55)} 50% {opacity:.65;transform:scale(1.4)}}
@@ -141,9 +135,12 @@ body:has(#result[data-presentation-phase="reset"]) .kind-reset .reset-deck-cards
 @keyframes reset-current-run {to {stroke-dashoffset:-188}}
 @keyframes reset-arrow-beat {0%,100% {opacity:.25} 60% {opacity:1}}
 @keyframes reset-deck-orbit {to {transform:rotate(-360deg)}}
-@keyframes galaxy-core-activate {from {opacity:.85;transform:scale(.6)} to {opacity:0;transform:scale(5)}}
-@keyframes orb-card-reveal {from {opacity:0;transform:scale(.2)} 55% {opacity:1;transform:scale(1.15)} to {opacity:0;transform:translateY(-15px) scale(.9)}}
-html:has(.nb-background[data-motion="paused"]) .card-art-motion *,html:has(.nb-background[data-motion="paused"]) .card-illustration {animation-play-state:paused!important;}
+@keyframes galaxy-core-activate {from {opacity:.8;transform:scale(.6)} 45% {opacity:.9;transform:scale(2.5)} to {opacity:0;transform:scale(5)}}
+@keyframes orb-card-reveal {from {opacity:.4;transform:scale(.35)} 45% {opacity:1;transform:scale(1.15)} to {opacity:0;transform:translateY(-15px) scale(.9)}}
+html:has(.nb-background[data-motion="paused"]) .player-card::after,
+html:has(.nb-background[data-motion="paused"]) .card-art-motion *,
+html:has(.nb-background[data-motion="paused"]) .card-illustration,
+.screen.hide .player-card::after,.screen.hide .card-art-motion *,.screen.hide .card-illustration {animation-play-state:paused!important;}
 @media (prefers-reduced-motion:reduce) {
  .card-art-motion,.card-illustration {display:none!important}
  .card-art-motion *,.card-art-motion::before,.card-art-motion::after,.card-illustration {animation:none!important}

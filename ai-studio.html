@@ -383,10 +383,6 @@ main { position: relative; z-index: 1; }
 .home-icons, .home-actions { position: relative; z-index: 1; flex-shrink: 0; }
 .player-card:not(.hidden):not(.out) { background-color: transparent; background-size: 100% 100%; background-repeat: no-repeat; border: 0; box-shadow: 0 2px 5px #08132e44; overflow: hidden; }
 .player-card:not(.hidden):not(.out):before { display: none; }
-.skin-cream { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-cream-star.webp")!important; }
-.skin-pink { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-pink-bunny.webp")!important; }
-.skin-gold { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-gold-cat.webp")!important; }
-.skin-ice { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-ice-cloud.webp")!important; }
 .player-card.kind-double { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-double.webp"); }
 .player-card.kind-max0 { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-max0.webp"); }
 .player-card.kind-reset { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-reset.webp"); }
@@ -455,13 +451,6 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .topbar h1:not(.sr-only) { font-family: "Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif; font-size: clamp(20px,5.6vw,24px); font-weight: 700; font-synthesis: none; line-height: 1.3; letter-spacing: .02em; color: #fff; padding: 5px 8px; border-radius: 10px; background: #101f43e8; text-shadow: none; }
 .battle-meta { color: #fff; text-shadow: 0 1px 3px #071126,0 0 5px #071126; }
 /* Value-specific normal faces share the existing four-character mapping. */
-.skin-pink[data-art-value="2"] { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-pink-bunny-2.webp")!important; }
-.skin-cream[data-art-value="4"] { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-cream-star-4.webp")!important; }
-.skin-cream[data-art-value="10"] { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-cream-star-10.webp")!important; }
-.skin-cream[data-art-value="20"] { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-cream-star-20.webp")!important; }
-.skin-gold[data-art-value="15"] { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-gold-cat-15.webp")!important; }
-.skin-ice[data-art-value="-5"] { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-ice-cloud-minus5.webp")!important; }
-.skin-ice[data-art-value="-10"] { background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-ice-cloud-minus10.webp")!important; }
 
 </style><style>
 /* Four depth planes: illustrated sky, drifting light, counter-moving clouds,
@@ -477,7 +466,9 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
    A soft alpha mask hides the old asset's rough upper cutout edge. */
 .nb-background__clouds,.nb-background__clouds-back { position:absolute; left:-30vw; right:-30vw; bottom:-4vh; height:clamp(165px,53.333333vw,420px); background:url("https://tanabe0422.github.io/number-bluff/assets/cloud-foreground.webp") center bottom / cover no-repeat; -webkit-mask-image:linear-gradient(transparent 2%,#000 48%); mask-image:linear-gradient(transparent 2%,#000 48%); }
 .nb-background__clouds { opacity:.86; animation:nb-cloud-drift 14s ease-in-out -3.5s infinite alternate; }
-.nb-background__clouds-back { bottom:8vh; opacity:.42; animation:nb-cloud-counterdrift 19s ease-in-out -4.75s infinite alternate; }
+/* This elevated bank ends inside the viewport: fade BOTH edges, never expose
+   the rectangular bottom of the source image over the distant sky. */
+.nb-background__clouds-back { bottom:8vh; -webkit-mask-image:linear-gradient(transparent 2%,#000 48%,#000 64%,transparent 100%); mask-image:linear-gradient(transparent 2%,#000 48%,#000 64%,transparent 100%); opacity:.42; animation:nb-cloud-counterdrift 19s ease-in-out -4.75s infinite alternate; }
 .nb-background__shooting-star { position:absolute; left:92%; top:12%; width:clamp(90px,18vw,180px); height:3px; border-radius:100%; background:linear-gradient(90deg,transparent,#bde4ff 65%,#fff7da); box-shadow:0 0 9px #b9e2ff88; opacity:0; transform:rotate(145deg); animation:nb-shooting-star 8s linear -.35s infinite; }
 .nb-background__shooting-star::after { content:''; position:absolute; right:-2px; top:-2px; width:7px; height:7px; border-radius:50%; background:#fff6ce; box-shadow:0 0 10px 2px #d2eaff99; }
 @keyframes nb-scene-travel { from {transform:translate3d(-4vw,3vh,0)} to {transform:translate3d(4vw,-3vh,0)} }
@@ -521,18 +512,17 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
  .presentation-card,.presentation-zero-stamp,.presentation-extra,.presentation-vortex,.presentation-bid-pulse,.presentation-refresh,#result #finalTotal { animation:none!important;transition:none!important; }
 }
 
-/* A moving pearlescent finish belongs to visible faces only. Hidden cards never
-   expose a face-specific effect. The highlight stays below the value label. */
+/* One shared white diagonal gloss for every disclosed face. It sweeps across
+   the artwork, not through the label. No rainbow tint, blend filter, or flash.
+   The same effect is independent of each character/special-card animation. */
 .player-card:not(.hidden):not(.out) { isolation:isolate; overflow:hidden; }
-.player-card:not(.hidden):not(.out)::after { content:''; position:absolute; inset:-30% -70%; z-index:1; pointer-events:none; background:linear-gradient(115deg,transparent 40%,#fff9df00 44%,#fff9df55 49%,#dcf7ff22 53%,transparent 59%); transform:translateX(-48%); opacity:0; animation:card-foil-sweep 8s ease-in-out -2s infinite; }
-.player-card .card-value { z-index:2; }
-.battle-player:nth-child(2n) .player-card::after { animation-delay:-4s; }
-.battle-player:nth-child(3n) .player-card::after { animation-delay:-6s; }
+.player-card:not(.hidden):not(.out)::after { content:''; position:absolute; inset:-30% -70%; z-index:3; pointer-events:none; background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,0) 44%,rgba(255,255,255,.16) 47%,rgba(255,255,255,.58) 50%,rgba(255,255,255,.16) 53%,rgba(255,255,255,0) 56%,transparent 60%); transform:translateX(-55%); opacity:0; animation:card-foil-sweep 7.2s ease-in-out -1.3s infinite; }
+.player-card .card-value { z-index:4; }
+.battle-player:nth-child(2n) .player-card::after { animation-delay:-3.4s; }
+.battle-player:nth-child(3n) .player-card::after { animation-delay:-5.5s; }
 .presentation-card.is-revealing { animation:card-reveal-rich 470ms cubic-bezier(.15,.75,.2,1) both; }
 .presentation-card.is-dealing { animation:card-deal-rich 420ms cubic-bezier(.15,.8,.24,1) both; }
-.presentation-card.is-revealing:not(.hidden):not(.out)::after,.presentation-card.is-dealing:not(.hidden):not(.out)::after { animation:card-opening-glint 650ms ease-out both; }
 .presentation-card.is-adding { animation:card-contribute-rich 320ms ease-out both; }
-.presentation-card.is-adding:not(.hidden):not(.out)::after { animation:card-opening-glint 420ms ease-out both; }
 .presentation-card.is-zeroed { box-shadow:inset 0 0 0 2px #b5f6ff88,0 0 14px #7de9ff66; }
 .presentation-zero-stamp { bottom:10%; right:8%; padding:4px 10px; box-shadow:0 0 16px #79eaff66; }
 .presentation-bid-pulse { position:relative; animation:bid-declaration-rich 500ms cubic-bezier(.18,.8,.3,1) both; }
@@ -549,8 +539,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 #result[data-presentation-phase="reset"] #resultAvatar,
 #result[data-presentation-phase="outcome"] #resultAvatar,
 #result[data-presentation-phase="complete"] #resultAvatar { animation:avatar-celebrate 620ms ease-out both; }
-@keyframes card-foil-sweep { 0%,12% {opacity:0;transform:translateX(-48%)} 20% {opacity:.7} 36% {opacity:0;transform:translateX(48%)} 100% {opacity:0;transform:translateX(48%)} }
-@keyframes card-opening-glint { from {opacity:0;transform:translateX(-48%)} 40% {opacity:.85} to {opacity:0;transform:translateX(48%)} }
+@keyframes card-foil-sweep { 0%,8% {opacity:0;transform:translateX(-55%)} 15% {opacity:.78} 28% {opacity:.78} 36%,100% {opacity:0;transform:translateX(55%)} }
 @keyframes card-deal-rich { 0% {opacity:0;transform:translate3d(8px,-28px,0) rotate(-7deg) scale(.88)} 72% {opacity:1;transform:translate3d(0,3px,0) rotate(1deg) scale(1.025)} 100% {opacity:1;transform:none} }
 @keyframes card-reveal-rich { 0% {opacity:.12;transform:rotateY(-88deg) translateY(12px) scale(.92)} 68% {opacity:1;transform:rotateY(8deg) translateY(-4px) scale(1.025)} 100% {opacity:1;transform:none} }
 @keyframes card-contribute-rich { 45% {transform:translateY(-7px) scale(1.05)} 100% {transform:none} }
@@ -571,11 +560,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .player-card .card-art-motion { position:absolute; inset:40% 5% 5%; z-index:1; overflow:hidden; border-radius:8%; pointer-events:none; contain:paint; }
 .player-card.hidden .card-art-motion,.player-card.out .card-art-motion { display:none; }
 .card-art-motion::before,.card-art-motion::after { content:''; position:absolute; pointer-events:none; }
-/* Normal illustrations: drifting cloud-light and a slow constellation breath. */
-.kind-number .card-art-motion::before { inset:40% -20% -20%; background:radial-gradient(ellipse at 25% 75%,#f5e6ff80,transparent 45%),radial-gradient(ellipse at 80% 90%,#d1f5ff80,transparent 42%); animation:art-cloud-drift 7s ease-in-out -2s infinite alternate; }
-.kind-number .card-art-motion::after { inset:10%; background:radial-gradient(ellipse at 20% 30%,#fff8cf 0 1px,transparent 2px),radial-gradient(ellipse at 80% 60%,#fff8cf 0 1px,transparent 2px),radial-gradient(ellipse at 45% 90%,#d4faff 0 1px,transparent 2px); animation:art-star-breath 4.8s ease-in-out -1s infinite; }
-@keyframes art-cloud-drift { from {opacity:.28;transform:translateX(-8%)} to {opacity:.6;transform:translateX(8%)} }
-@keyframes art-star-breath { 0%,100% {opacity:.22;transform:scale(.94)} 50% {opacity:.85;transform:scale(1.03)} }
+/* Normal character scenes live in normal-card-art.css, not this layer. */
 
 /* The illustration itself moves underneath the effects; the printed frame,
    upper value field and surrounding page never move with it. Feathered masks
@@ -612,15 +597,15 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 /* Effect activation is attached to the already-authorized result phase. Idle
    art is restrained; these short surges explain the effect that just occurred. */
 body:has(#result[data-presentation-phase="multiply"]) .kind-double .galaxy-stream {animation-duration:.65s;stroke-width:2.5;}
-body:has(#result[data-presentation-phase="multiply"]) .kind-double .galaxy-core {animation:galaxy-core-activate .65s ease-out both;}
-body:has(#result[data-presentation-phase="max"]) .kind-max0 .crown-rays {animation:crown-rays-rise .65s ease-out both;stroke-width:2.4;}
-body:has(#result[data-presentation-phase="extra"]) .kind-extra .orb-premonition {animation:orb-card-reveal .65s ease-out both;}
+body:has(#result[data-presentation-phase="multiply"]) .kind-double .galaxy-core {animation:galaxy-core-activate 400ms ease-out both;}
+body:has(#result[data-presentation-phase="max"]) .kind-max0 .crown-rays {animation:crown-rays-rise 400ms ease-out both;stroke-width:2.4;}
+body:has(#result[data-presentation-phase="extra"]) .kind-extra .orb-premonition {animation:orb-card-reveal 400ms ease-out both;}
 body:has(#result[data-presentation-phase="reset"]) .kind-reset .reset-current {animation-duration:.65s;stroke-width:3.5;}
 body:has(#result[data-presentation-phase="reset"]) .kind-reset .reset-deck-cards {animation-duration:1.2s;}
-@keyframes galaxy-art-turn {from {transform:rotate(-2deg) scale(1.025)} to {transform:rotate(2deg) scale(1.045)}}
-@keyframes royal-art-breathe {0%,100% {transform:translateY(.3%) scale(1)} 50% {transform:translateY(-.7%) scale(1.018)}}
-@keyframes crystal-art-float {0%,100% {transform:translateY(.6%) rotate(-1deg)} 50% {transform:translateY(-1%) rotate(1deg)}}
-@keyframes reset-art-charge {0%,100% {transform:scale(1);filter:brightness(1)} 50% {transform:scale(1.025);filter:brightness(1.1)}}
+@keyframes galaxy-art-turn {from {transform:rotate(-4deg) scale(1.025)} to {transform:rotate(4deg) scale(1.055)}}
+@keyframes royal-art-breathe {0%,100% {transform:translateY(.7%) scale(1)} 50% {transform:translateY(-1.3%) scale(1.028)}}
+@keyframes crystal-art-float {0%,100% {transform:translateY(1.2%) rotate(-2deg)} 50% {transform:translateY(-1.6%) rotate(2deg)}}
+@keyframes reset-art-charge {0%,100% {transform:scale(1);filter:brightness(1)} 50% {transform:scale(1.04);filter:brightness(1.12)}}
 @keyframes galaxy-flow {to {stroke-dashoffset:-172}}
 @keyframes galaxy-travel {to {transform:rotate(360deg)}}
 @keyframes galaxy-core-beat {0%,100% {opacity:.15;transform:scale(.55)} 50% {opacity:.65;transform:scale(1.4)}}
@@ -637,13 +622,56 @@ body:has(#result[data-presentation-phase="reset"]) .kind-reset .reset-deck-cards
 @keyframes reset-current-run {to {stroke-dashoffset:-188}}
 @keyframes reset-arrow-beat {0%,100% {opacity:.25} 60% {opacity:1}}
 @keyframes reset-deck-orbit {to {transform:rotate(-360deg)}}
-@keyframes galaxy-core-activate {from {opacity:.85;transform:scale(.6)} to {opacity:0;transform:scale(5)}}
-@keyframes orb-card-reveal {from {opacity:0;transform:scale(.2)} 55% {opacity:1;transform:scale(1.15)} to {opacity:0;transform:translateY(-15px) scale(.9)}}
-html:has(.nb-background[data-motion="paused"]) .card-art-motion *,html:has(.nb-background[data-motion="paused"]) .card-illustration {animation-play-state:paused!important;}
+@keyframes galaxy-core-activate {from {opacity:.8;transform:scale(.6)} 45% {opacity:.9;transform:scale(2.5)} to {opacity:0;transform:scale(5)}}
+@keyframes orb-card-reveal {from {opacity:.4;transform:scale(.35)} 45% {opacity:1;transform:scale(1.15)} to {opacity:0;transform:translateY(-15px) scale(.9)}}
+html:has(.nb-background[data-motion="paused"]) .player-card::after,
+html:has(.nb-background[data-motion="paused"]) .card-art-motion *,
+html:has(.nb-background[data-motion="paused"]) .card-illustration,
+.screen.hide .player-card::after,.screen.hide .card-art-motion *,.screen.hide .card-illustration {animation-play-state:paused!important;}
 @media (prefers-reduced-motion:reduce) {
  .card-art-motion,.card-illustration {display:none!important}
  .card-art-motion *,.card-art-motion::before,.card-art-motion::after,.card-illustration {animation:none!important}
 }
+
+</style><style>
+/* One pearl frame; canonical characters are never recoloured or redrawn. */
+.player-card.normal-card { --scene-tint: #e6ccfb; background-image: url("https://tanabe0422.github.io/number-bluff/assets/card-scene-base.webp"); background-color: #fff6ec; isolation: isolate; }
+.player-card.normal-card[data-art-value="0"] { --scene-tint: #e2c5ef; }
+.player-card.normal-card.negative { --scene-tint: #bcb7de; }
+.player-card.normal-card[data-art-value="10"], .player-card.normal-card[data-art-value="15"], .player-card.normal-card[data-art-value="20"] { --scene-tint: #f5d89d; }
+.normal-art-scene { position: absolute; left: 10%; right: 10%; top: 40%; bottom: 9%; pointer-events: none; z-index: 0; }
+.normal-art-ambience { position: absolute; inset: 0 -2% -3%; border-radius: 50% 50% 35% 35%; background: radial-gradient(ellipse at 50% 65%, var(--scene-tint), transparent 72%); opacity: .75; }
+.normal-art-ambience::after { content: ''; position: absolute; left: 6%; right: 6%; bottom: 1%; height: 12%; border-radius: 50%; background: radial-gradient(ellipse, #9b79a431, transparent 70%); }
+.normal-art-figures { position: absolute; inset: 0; }
+.normal-art-figure { position: absolute; display: block; left: var(--figure-x); top: var(--figure-y); width: var(--figure-width); height: var(--figure-height); }
+.normal-art-figure img { display: block; width: 100%; height: 100%; object-fit: contain; transform-origin: 50% 85%; }
+.normal-art-meadow .normal-art-figure img { animation: normal-bunny-hop 4.8s ease-in-out infinite; animation-delay: var(--figure-delay); }
+.normal-art-rest .normal-art-figure img { animation: normal-cat-breathe 5.4s ease-in-out infinite; }
+.normal-art-rest .normal-art-ambience { animation: normal-rest-glow 5.4s ease-in-out infinite; }
+.normal-art-constellation .normal-art-figures { animation: normal-star-breathe 7s ease-in-out infinite; transform-origin: center; }
+.normal-art-constellation .normal-art-figure::after { content: ''; position: absolute; width: 16%; height: 5%; left: 25%; top: 28%; background: white; border-radius: 100%; transform: rotate(-35deg); opacity: 0; animation: normal-star-glint 7s ease-in-out infinite; animation-delay: var(--figure-delay); }
+.normal-art-wind .normal-art-figure img { animation: normal-cloud-sail 6s ease-in-out infinite; }
+.normal-art-storm .normal-art-figure img { animation: normal-cloud-storm 5.5s ease-in-out infinite; }
+.normal-art-ambience svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.normal-weather-line { fill: none; stroke: #9694be; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.normal-art-wind .normal-weather-line { animation: normal-wind-flow 4s ease-in-out infinite; }
+.normal-art-wind .weather-1 { animation-delay: -2s; }
+.normal-art-storm .weather-0 { stroke-dasharray: 6 3; animation: normal-rain 1.8s linear infinite; }
+.normal-art-storm .weather-1 { stroke: #c9abdc; animation: normal-lightning 6s ease-in-out infinite; }
+@keyframes normal-bunny-hop { 0%, 65%, 100% { transform: translateY(0); } 73% { transform: translateY(-8%); } 82% { transform: translateY(0) scale(.985,1.02); } 90% { transform: translateY(-3%); } }
+@keyframes normal-cat-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025,1.03); } }
+@keyframes normal-rest-glow { 0%,100% { opacity: .55; } 50% { opacity: .85; } }
+@keyframes normal-star-breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3%); } }
+@keyframes normal-star-glint { 0%,62%,78%,100% { opacity: 0; } 69% { opacity: .9; } }
+@keyframes normal-cloud-sail { 0%,100% { transform: translateX(-4%); } 50% { transform: translateX(4%); } }
+@keyframes normal-cloud-storm { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-3%) rotate(2deg); } }
+@keyframes normal-wind-flow { 0%,100% { opacity: .25; transform: translateX(-2px); } 50% { opacity: .8; transform: translateX(2px); } }
+@keyframes normal-rain { to { stroke-dashoffset: -9; } }
+@keyframes normal-lightning { 0%,68%,76%,100% { opacity: .25; } 72% { opacity: .85; } }
+@media (prefers-reduced-motion: reduce) { .normal-art-scene *, .normal-art-scene *::after { animation: none !important; } }
+html:has(.nb-background[data-motion="paused"]) .normal-art-scene *,
+html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
+.screen.hide .normal-art-scene *, .screen.hide .normal-art-scene *::after { animation-play-state: paused !important; }
 
 </style></head><body><main>
 <section id="homeScreen" class="screen home"><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""></div><div class="home-actions"><button id="startGame" data-intent="createRoom" class="pill gold">ゲームをはじめる <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button></nav></section>
@@ -938,9 +966,9 @@ html:has(.nb-background[data-motion="paused"]) .card-art-motion *,html:has(.nb-b
       add('reveal', {cardId:card.id, revealedIds:[...state.revealedIds,card.id]}); at += 80;
     }
     at += 200;
-    if (hasExtra) { add('extra', {cardId:result.extraCard.id,extraVisible:true}); at += 200; }
+    if (hasExtra) { add('extra', {cardId:result.extraCard.id,extraVisible:true}); at += 400; }
     if (all.some(c => c.kind === 'max0')) {
-      add('max', {cardId:result.removedCard?.id || null,removedCardId:result.removedCard?.id || null}); at += 200;
+      add('max', {cardId:result.removedCard?.id || null,removedCardId:result.removedCard?.id || null}); at += 400;
     }
     const numeric = all.filter(c => c.kind === 'number');
     let subtotal = 0;
@@ -952,13 +980,13 @@ html:has(.nb-background[data-motion="paused"]) .card-art-motion *,html:has(.nb-b
     }
     if (!numeric.length) { add('sum',{cardId:null,runningTotal:result.baseSum}); at += 220; }
     if (result.multiplier === 2) {
-      add('multiply',{cardId:null,multiplierApplied:true,runningTotal:result.sum}); at += 280;
+      add('multiply',{cardId:null,multiplierApplied:true,runningTotal:result.sum}); at += 400;
     }
     // The authoritative total wins; the arithmetic above only stages its terms.
     add('compare', {cardId:null,runningTotal:result.sum,compareVisible:true}); at += 350;
     add('outcome', {outcomeVisible:true}); at += 180;
     // Reset refreshes the deck after judgement; it never zeros the total.
-    if (result.reset) { add('reset', {cardId:null,runningTotal:result.sum}); at += 280; }
+    if (result.reset) { add('reset', {cardId:null,runningTotal:result.sum}); at += 350; }
     add('complete', {complete:true});
     return Object.freeze(steps);
   }
@@ -1125,6 +1153,62 @@ html:has(.nb-background[data-motion="paused"]) .card-art-motion *,html:has(.nb-b
 });
 
 </script><script>
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.NumberBluffNormalArt = factory();
+})(typeof globalThis === 'object' ? globalThis : this, function () {
+  'use strict';
+  const assets = Object.freeze({ cloud: 'https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp', cat: 'https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp', bunny: 'https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp', star: 'https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp' });
+  const values = Object.freeze([-10, -5, 0, 1, 2, 3, 4, 5, 10, 15, 20]);
+  // Pure, deterministic composition. No seat, card ID, randomness or private state.
+  function layout(value) {
+    if (!values.includes(value)) throw new RangeError('Unsupported normal card value');
+    const character = value < 0 ? 'cloud' : value === 0 ? 'cat' : value <= 5 ? 'bunny' : 'star';
+    const mood = value === -10 ? 'storm' : value === -5 ? 'wind' : value === 0 ? 'rest' : character === 'bunny' ? 'meadow' : 'constellation';
+    let boxes;
+    if (character === 'star') {
+      const rows = value / 5, height = 20, gap = 3, start = (100 - rows * height - (rows - 1) * gap) / 2;
+      boxes = Array.from({ length: value }, (_, i) => ({ x: 1 + i % 5 * 20, y: start + Math.floor(i / 5) * 23, width: 18, height }));
+    } else if (character === 'bunny') {
+      const arrangements = {
+        1: [[22, 8, 56, 82]],
+        2: [[5, 18, 43, 70], [52, 18, 43, 70]],
+        3: [[32, 5, 36, 42], [10, 54, 36, 42], [54, 54, 36, 42]],
+        4: [[10, 5, 36, 42], [54, 5, 36, 42], [10, 54, 36, 42], [54, 54, 36, 42]],
+        5: [[17, 5, 31, 42], [52, 5, 31, 42], [0, 54, 31, 42], [34.5, 54, 31, 42], [69, 54, 31, 42]]
+      };
+      boxes = arrangements[value].map(([x, y, width, height]) => ({ x, y, width, height }));
+    } else boxes = [{ x: 10, y: 12, width: 80, height: 76 }];
+    return Object.freeze({ value, character, mood, asset: assets[character], figures: Object.freeze(boxes.map((box, index) => Object.freeze({ ...box, index, delay: -3.1 - (index % 5) * .28 }))) });
+  }
+  function create(document, value) {
+    const model = layout(value), scene = document.createElement('span');
+    scene.className = 'normal-art-scene normal-art-' + model.mood;
+    scene.setAttribute('aria-hidden', 'true');
+    scene.dataset.character = model.character;
+    const ambience = document.createElement('span'); ambience.className = 'normal-art-ambience';
+    if (value < 0) {
+      const ns = 'http:' + '//www.w3.org/2000/svg';
+      const svg = document.createElementNS(ns, 'svg'); svg.setAttribute('viewBox', '0 0 100 100'); svg.setAttribute('focusable', 'false');
+      const paths = value === -10 ? ['M15 72l-4 9m25-5l-4 9m32-8l-4 9m24-14l-4 9', 'M62 60l-7 14h9l-7 15'] : ['M6 68c12-7 21 7 35 0s20-7 29-2', 'M25 82c13-6 26 5 43-1s22-4 24-2'];
+      paths.forEach((d, i) => { const p = document.createElementNS(ns, 'path'); p.setAttribute('d', d); p.setAttribute('class', 'normal-weather-line weather-' + i); svg.append(p); }); ambience.append(svg);
+    }
+    scene.append(ambience);
+    const group = document.createElement('span'); group.className = 'normal-art-figures';
+    model.figures.forEach(figure => {
+      const holder = document.createElement('span'); holder.className = 'normal-art-figure';
+      for (const key of ['x', 'y', 'width', 'height']) holder.style.setProperty('--figure-' + key, figure[key] + '%');
+      holder.style.setProperty('--figure-delay', figure.delay + 's');
+      const img = document.createElement('img'); img.src = model.asset; img.alt = ''; img.draggable = false; img.decoding = 'async';
+      holder.append(img); group.append(holder);
+    });
+    scene.append(group);
+    return scene;
+  }
+  return Object.freeze({ assets, values, layout, create });
+});
+
+</script><script>
 (() => {
   'use strict';
   const G = window.NumberBluff, timer = window.NumberBluffScheduler(), $ = id => document.getElementById(id);
@@ -1209,12 +1293,13 @@ html:has(.nb-background[data-motion="paused"]) .card-art-motion *,html:has(.nb-b
     if (card.kind !== 'number') node.classList.add('special');
     if (card.value < 0) node.classList.add('negative');
     node.append(el('span', 'card-value', card.kind === 'reset' ? 'リセット' : card.label));
-    const motion = window.NumberBluffPresentation.createArtMotion(document, card.kind);
+    const motion = card.kind === 'number' ? null : window.NumberBluffPresentation.createArtMotion(document, card.kind);
     if (motion) node.append(motion);
     if (card.kind === 'number') {
-      node.classList.add(card.value < 0 || card.value === 0 ? 'skin-ice' : card.value === 5 || card.value === 15 ? 'skin-gold' : card.value === 1 || card.value === 2 ? 'skin-pink' : 'skin-cream');
-      // Artwork follows the public numeric value, never seat, random state or a hidden card ID.
+      node.classList.add('normal-card');
+      // Only public faces reach this point; hidden/out cards returned above.
       node.dataset.artValue = String(card.value);
+      node.append(window.NumberBluffNormalArt.create(document, card.value));
     }
     return node;
   }

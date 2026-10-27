@@ -82,12 +82,13 @@
     if (card.kind !== 'number') node.classList.add('special');
     if (card.value < 0) node.classList.add('negative');
     node.append(el('span', 'card-value', card.kind === 'reset' ? 'リセット' : card.label));
-    const motion = window.NumberBluffPresentation.createArtMotion(document, card.kind);
+    const motion = card.kind === 'number' ? null : window.NumberBluffPresentation.createArtMotion(document, card.kind);
     if (motion) node.append(motion);
     if (card.kind === 'number') {
-      node.classList.add(card.value < 0 || card.value === 0 ? 'skin-ice' : card.value === 5 || card.value === 15 ? 'skin-gold' : card.value === 1 || card.value === 2 ? 'skin-pink' : 'skin-cream');
-      // Artwork follows the public numeric value, never seat, random state or a hidden card ID.
+      node.classList.add('normal-card');
+      // Only public faces reach this point; hidden/out cards returned above.
       node.dataset.artValue = String(card.value);
+      node.append(window.NumberBluffNormalArt.create(document, card.value));
     }
     return node;
   }

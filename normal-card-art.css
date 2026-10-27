@@ -1,0 +1,38 @@
+/* One pearl frame; canonical characters are never recoloured or redrawn. */
+.player-card.normal-card { --scene-tint: #e6ccfb; background-image: url('assets/card-scene-base.webp'); background-color: #fff6ec; isolation: isolate; }
+.player-card.normal-card[data-art-value="0"] { --scene-tint: #e2c5ef; }
+.player-card.normal-card.negative { --scene-tint: #bcb7de; }
+.player-card.normal-card[data-art-value="10"], .player-card.normal-card[data-art-value="15"], .player-card.normal-card[data-art-value="20"] { --scene-tint: #f5d89d; }
+.normal-art-scene { position: absolute; left: 10%; right: 10%; top: 40%; bottom: 9%; pointer-events: none; z-index: 0; }
+.normal-art-ambience { position: absolute; inset: 0 -2% -3%; border-radius: 50% 50% 35% 35%; background: radial-gradient(ellipse at 50% 65%, var(--scene-tint), transparent 72%); opacity: .75; }
+.normal-art-ambience::after { content: ''; position: absolute; left: 6%; right: 6%; bottom: 1%; height: 12%; border-radius: 50%; background: radial-gradient(ellipse, #9b79a431, transparent 70%); }
+.normal-art-figures { position: absolute; inset: 0; }
+.normal-art-figure { position: absolute; display: block; left: var(--figure-x); top: var(--figure-y); width: var(--figure-width); height: var(--figure-height); }
+.normal-art-figure img { display: block; width: 100%; height: 100%; object-fit: contain; transform-origin: 50% 85%; }
+.normal-art-meadow .normal-art-figure img { animation: normal-bunny-hop 4.8s ease-in-out infinite; animation-delay: var(--figure-delay); }
+.normal-art-rest .normal-art-figure img { animation: normal-cat-breathe 5.4s ease-in-out infinite; }
+.normal-art-rest .normal-art-ambience { animation: normal-rest-glow 5.4s ease-in-out infinite; }
+.normal-art-constellation .normal-art-figures { animation: normal-star-breathe 7s ease-in-out infinite; transform-origin: center; }
+.normal-art-constellation .normal-art-figure::after { content: ''; position: absolute; width: 16%; height: 5%; left: 25%; top: 28%; background: white; border-radius: 100%; transform: rotate(-35deg); opacity: 0; animation: normal-star-glint 7s ease-in-out infinite; animation-delay: var(--figure-delay); }
+.normal-art-wind .normal-art-figure img { animation: normal-cloud-sail 6s ease-in-out infinite; }
+.normal-art-storm .normal-art-figure img { animation: normal-cloud-storm 5.5s ease-in-out infinite; }
+.normal-art-ambience svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.normal-weather-line { fill: none; stroke: #9694be; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.normal-art-wind .normal-weather-line { animation: normal-wind-flow 4s ease-in-out infinite; }
+.normal-art-wind .weather-1 { animation-delay: -2s; }
+.normal-art-storm .weather-0 { stroke-dasharray: 6 3; animation: normal-rain 1.8s linear infinite; }
+.normal-art-storm .weather-1 { stroke: #c9abdc; animation: normal-lightning 6s ease-in-out infinite; }
+@keyframes normal-bunny-hop { 0%, 65%, 100% { transform: translateY(0); } 73% { transform: translateY(-8%); } 82% { transform: translateY(0) scale(.985,1.02); } 90% { transform: translateY(-3%); } }
+@keyframes normal-cat-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025,1.03); } }
+@keyframes normal-rest-glow { 0%,100% { opacity: .55; } 50% { opacity: .85; } }
+@keyframes normal-star-breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3%); } }
+@keyframes normal-star-glint { 0%,62%,78%,100% { opacity: 0; } 69% { opacity: .9; } }
+@keyframes normal-cloud-sail { 0%,100% { transform: translateX(-4%); } 50% { transform: translateX(4%); } }
+@keyframes normal-cloud-storm { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-3%) rotate(2deg); } }
+@keyframes normal-wind-flow { 0%,100% { opacity: .25; transform: translateX(-2px); } 50% { opacity: .8; transform: translateX(2px); } }
+@keyframes normal-rain { to { stroke-dashoffset: -9; } }
+@keyframes normal-lightning { 0%,68%,76%,100% { opacity: .25; } 72% { opacity: .85; } }
+@media (prefers-reduced-motion: reduce) { .normal-art-scene *, .normal-art-scene *::after { animation: none !important; } }
+html:has(.nb-background[data-motion="paused"]) .normal-art-scene *,
+html:has(.nb-background[data-motion="paused"]) .normal-art-scene *::after,
+.screen.hide .normal-art-scene *, .screen.hide .normal-art-scene *::after { animation-play-state: paused !important; }

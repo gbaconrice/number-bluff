@@ -30,9 +30,9 @@
       add('reveal', {cardId:card.id, revealedIds:[...state.revealedIds,card.id]}); at += 80;
     }
     at += 200;
-    if (hasExtra) { add('extra', {cardId:result.extraCard.id,extraVisible:true}); at += 200; }
+    if (hasExtra) { add('extra', {cardId:result.extraCard.id,extraVisible:true}); at += 400; }
     if (all.some(c => c.kind === 'max0')) {
-      add('max', {cardId:result.removedCard?.id || null,removedCardId:result.removedCard?.id || null}); at += 200;
+      add('max', {cardId:result.removedCard?.id || null,removedCardId:result.removedCard?.id || null}); at += 400;
     }
     const numeric = all.filter(c => c.kind === 'number');
     let subtotal = 0;
@@ -44,13 +44,13 @@
     }
     if (!numeric.length) { add('sum',{cardId:null,runningTotal:result.baseSum}); at += 220; }
     if (result.multiplier === 2) {
-      add('multiply',{cardId:null,multiplierApplied:true,runningTotal:result.sum}); at += 280;
+      add('multiply',{cardId:null,multiplierApplied:true,runningTotal:result.sum}); at += 400;
     }
     // The authoritative total wins; the arithmetic above only stages its terms.
     add('compare', {cardId:null,runningTotal:result.sum,compareVisible:true}); at += 350;
     add('outcome', {outcomeVisible:true}); at += 180;
     // Reset refreshes the deck after judgement; it never zeros the total.
-    if (result.reset) { add('reset', {cardId:null,runningTotal:result.sum}); at += 280; }
+    if (result.reset) { add('reset', {cardId:null,runningTotal:result.sum}); at += 350; }
     add('complete', {complete:true});
     return Object.freeze(steps);
   }
