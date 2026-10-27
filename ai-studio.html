@@ -626,7 +626,8 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .player-card .card-art-band { top:var(--card-cap-height,20%); height:var(--card-band-height,15%); background-size:100% var(--card-band-size,666.6666667%); background-position:center var(--card-band-position,23.5294118%); }
 .player-card:not(.hidden):not(.out) .card-value { position: absolute; top: 12%; height: 26%; left: 5%; right: 5%; z-index: 2; display: flex; align-items: center; justify-content: center; color: #19294f; text-shadow: 0 1px 2px #ffffff, 0 0 5px #ffffff; }
 .player-card.kind-extra .card-value { color: #f8f5ed; text-shadow: 0 1px 3px #152241, 0 0 5px #152241; }
-.player-card.kind-reset .card-value { font-size: inherit; }
+.player-card.kind-reset .card-content { container-type: inline-size; }
+.player-card.kind-reset:not(.hidden):not(.out) .card-value { font-size: 11cqw; }
 .player-card.kind-max0 .card-value { font-size: inherit; }
 
 .step-art .player-card { transform: none; }
@@ -665,20 +666,24 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .nb-special-svg .art-light-sweep{animation:nbsv-art-light 4.2s linear infinite}
 .nb-special-svg .art-light-sweep.shade-flow{animation-delay:-.65s}
 .nb-special-svg .art-light-sweep.specular-flow{animation-duration:2.7s;animation-direction:reverse}
-.nb-special-svg[data-kind=max0] .art-light-sweep{animation-name:nbsv-crown-light;animation-duration:2.8s}
+.nb-special-svg[data-kind=max0] .art-light-sweep{animation-name:nbsv-crown-light;animation-duration:2.2s}
 .nb-special-svg .art-jewel-light{animation:nbsv-jewel-light 2.8s ease-in-out infinite}
 .nb-special-svg .jewel-1{animation-delay:-.8s}
 .nb-special-svg .jewel-2{animation-delay:-1.6s}
 .nb-special-svg[data-kind=max0] .art-derived-light,.nb-special-svg[data-kind=max0] .art-derived-specular{opacity:1}
-.nb-special-svg .art-eye-light{animation-name:nbsv-eye-light;animation-duration:2.8s}
-.nb-special-svg .jewel-3{animation-delay:-.7s}
-.nb-special-svg .jewel-4{animation-delay:-1.05s}
+.nb-special-svg .art-eye-light{animation-name:nbsv-eye-light;animation-duration:2.2s}
+.nb-special-svg .jewel-3{animation-delay:-.25s}
+.nb-special-svg .jewel-4{animation-delay:-.4s}
+.nb-special-svg[data-kind=max0] .art-pink-flow{animation:nbsv-pink-luster 3.8s ease-in-out infinite}
+.nb-special-svg[data-kind=max0] .pink-cheeks{animation-delay:-.9s}
+.nb-special-svg[data-kind=max0] .pink-paws{animation-delay:-1.7s}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
 .hide .nb-special-svg,.hidden .nb-special-svg,[hidden] .nb-special-svg{visibility:hidden!important}
 @keyframes nbsv-mask-orbit{to{transform:rotate(360deg)}}
 @keyframes nbsv-art-light{from{transform:translateX(150px)}to{transform:translateX(1500px)}}
-@keyframes nbsv-crown-light{from{transform:translateX(0px)}to{transform:translateX(340px)}}
-@keyframes nbsv-eye-light{0%,12%,88%,100%{opacity:0}38%,62%{opacity:1}}
+@keyframes nbsv-crown-light{0%{transform:translateX(-60px)}80%,100%{transform:translateX(350px)}}
+@keyframes nbsv-pink-luster{0%{transform:translateX(0)}85%,100%{transform:translateX(660px)}}
+@keyframes nbsv-eye-light{0%,12%{opacity:0;transform:translateX(-55px)}25%{opacity:1}65%{opacity:1}78%,100%{opacity:0;transform:translateX(55px)}}
 @keyframes nbsv-jewel-light{0%,30%,70%,100%{opacity:0}48%,52%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.nb-special-svg{display:none!important}.nb-special-svg *{animation:none!important}}
 
@@ -776,7 +781,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 
 </style></head><body><main>
 <section id="homeScreen" class="screen home"><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""></div><div class="home-actions"><label class="private-room-option"><input id="privateRoom" type="checkbox"><span>プライベートルームにする</span></label><button id="startGame" data-intent="createRoom" class="pill gold">ルームを作成 <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button><button id="homeSoundToggle" class="sound-toggle" data-sound-toggle aria-label="音をオフにする" aria-pressed="false"><b aria-hidden="true">♪</b><span class="icon-caption">音</span></button></nav></section>
-<section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><button id="lobbyBack" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="lobbyTitle">公開ルーム</h1><button id="copyRoomId" class="room-copy hide" type="button" aria-label="ルームIDをコピー">コピー</button><span id="lobbyHeaderSpacer" class="topbar-spacer" aria-hidden="true"></span></header><p id="roomIdentity" class="room-identity hide"></p><p id="roomCopyStatus" class="room-status hide" role="status" aria-live="polite"></p><input id="roomCopyFallback" class="room-copy-fallback hide" readonly aria-label="コピーするルームID"><p id="onlineLobbyStatus" class="room-status hide" role="status" aria-live="polite"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button></section>
+<section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><button id="lobbyBack" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="lobbyTitle"></h1><button id="copyRoomId" class="room-copy hide" type="button" aria-label="ルームIDをコピー">コピー</button><span id="lobbyHeaderSpacer" class="topbar-spacer" aria-hidden="true"></span></header><p id="roomIdentity" class="room-identity hide"></p><p id="roomCopyStatus" class="room-status hide" role="status" aria-live="polite"></p><input id="roomCopyFallback" class="room-copy-fallback hide" readonly aria-label="コピーするルームID"><p id="onlineLobbyStatus" class="room-status hide" role="status" aria-live="polite"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button></section>
 <section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">‹</button><h1 id="battleTitle"><span id="battlePhase" class="hide"></span><span class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></span></h1><button id="battleSoundToggle" class="circle sound-toggle" data-sound-toggle aria-label="音をオフにする" aria-pressed="false">♪</button><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><p id="onlineBattleStatus" class="room-status hide" role="status" aria-live="polite"></p><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" tabindex="0" aria-label="プレイヤーとカード（上下にスクロール）"></div><section id="gamePanel"><div class="bid-panel glass"><div id="bidActor" aria-hidden="true"></div><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" class="sr-only" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><button id="declare" class="declare-region gold" aria-describedby="inputHint inputError"><span id="number" aria-label="宣言する数字"></span><span class="declare-label">宣言</span></button><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="sr-only">前より大きな1以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><div id="resultAnnouncement" class="sr-only" role="status" aria-live="polite"></div><section id="result" class="hide"><h2 id="resultTitle" class="sr-only" tabindex="-1">ラウンド結果</h2><section class="calculation glass" aria-live="off"><div><h3 id="calculationHeading">計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span id="totalLabel">最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><div id="resultAvatar" aria-hidden="true"></div><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button></section></section>
 <section id="guidePanel" class="screen hide" aria-label="ゲームガイド"><header class="topbar"><button id="closeGuide" class="circle" aria-label="ガイドを閉じる">‹</button><h1 id="guideTitle" class="sr-only">遊び方</h1></header><div class="guide-tabs" role="tablist" aria-label="ガイド"><button data-tab="rules" role="tab">遊び方</button><button data-tab="cards" role="tab">カード図鑑</button><button data-tab="bots" role="tab">BOT</button><button data-tab="examples" role="tab">計算例</button></div><article id="guideContent" tabindex="-1"></article><dialog id="cardDetail"><button id="closeCardDetail" class="circle" aria-label="カード詳細を閉じる">×</button><div id="cardDetailContent"></div></dialog></section>
 <section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><button id="closeJoin" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="joinTitle">ルームに参加</h1></header><form id="joinForm" class="join-form glass"><label class="sr-only" for="roomId">ルームID</label><input id="roomId" name="roomId" placeholder="ルームID" autocomplete="off" maxlength="64" required><button id="joinRoom" data-intent="joinRoom" class="pill blue" type="submit">参加する</button><p id="roomJoinStatus" class="room-status" role="status" aria-live="polite"></p></form><section id="joinPublicPanel" class="public-room-panel glass" aria-labelledby="publicRoomsTitle"><div class="public-room-heading"><h2 id="publicRoomsTitle">公開ルーム一覧</h2><button id="refreshPublicRooms" type="button">更新</button></div><p id="publicRoomsStatus" class="room-status" role="status" aria-live="polite">公開ルーム一覧は準備中です。ルームIDで参加できます。</p><div id="publicRoomsList" class="public-room-list"></div></section></section>
@@ -1627,11 +1632,14 @@ function markup(kind,id){
 const a=ART[kind];
 // Bound offscreen mask/filter surfaces to the painted motif, not the full card.
 // These bounds include feather/blur padding and never alter source coordinates.
-const bounds={double:[90,670,890,580],extra:[205,660,660,670],reset:[235,725,610,560],max0:[320,570,420,510]}[kind];
+const bounds={double:[90,670,890,580],extra:[205,660,660,670],reset:[235,725,610,560],max0:[290,570,560,820]}[kind];
 const [bx,by,bw,bh]=bounds,box=`x="${bx}" y="${by}" width="${bw}" height="${bh}"`;
 // Visible pixels always come from the immutable original. These feathered
 // selections create moving reflection/contrast, not drawn ornamental geometry.
 const region={double:'<ellipse cx="535" cy="963" rx="435" ry="165" transform="rotate(-28 535 963)"/>',extra:'<ellipse cx="535" cy="994" rx="298" ry="300"/>',reset:'<path d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" fill="none" stroke="white" stroke-width="108" stroke-linecap="round"/>',max0:'<path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/><circle cx="518" cy="643" r="16"/><circle cx="614" cy="613" r="20"/><circle cx="697" cy="675" r="16"/><ellipse cx="407" cy="946" rx="54" ry="59" transform="rotate(18 407 946)"/><ellipse cx="648" cy="984" rx="53" ry="60" transform="rotate(-15 648 984)"/>'}[kind];
+// Color-preserving luster only on the original pink cheeks, inner ears and paw pads.
+// Background stars/clouds and the cat's fur are deliberately not selected.
+const pinkRegion=kind==='max0'?'<path d="M355 755 Q366 714 391 708 Q421 701 441 730 Q397 724 355 755Z"/><path d="M751 754 Q788 744 814 773 Q831 797 833 827 L813 839 Q799 796 751 754Z"/><ellipse cx="333" cy="989" rx="38" ry="27" transform="rotate(16 333 989)"/><ellipse cx="692" cy="1066" rx="40" ry="27" transform="rotate(-16 692 1066)"/><ellipse cx="416" cy="1310" rx="40" ry="36"/><ellipse cx="367" cy="1276" rx="12" ry="16" transform="rotate(18 367 1276)"/><ellipse cx="406" cy="1255" rx="13" ry="17"/><ellipse cx="442" cy="1287" rx="12" ry="15"/><ellipse cx="594" cy="1319" rx="41" ry="37"/><ellipse cx="553" cy="1267" rx="12" ry="16" transform="rotate(-18 553 1267)"/><ellipse cx="586" cy="1251" rx="12" ry="17"/><ellipse cx="622" cy="1268" rx="12" ry="16"/>':'';
 const photo=cls=>`<image class="${cls}" x="0" y="0" width="${a.width}" height="${a.height}" preserveAspectRatio="none"/>`;
 const patches=(radius,rx,ry)=>[0,125,250].map(angle=>`<g transform="rotate(${angle})"><ellipse cx="${radius}" cy="0" rx="${rx}" ry="${ry}" fill="url(#${id}-spot)"/></g>`).join('');
 function field(mode){
@@ -1640,21 +1648,22 @@ function field(mode){
   const radius=kind==='double'?285:205;
   return `<g transform="${geometry}"><g class="art-mask-orbit ${mode}">${patches(radius,mode==='specular-flow'?65:115,mode==='specular-flow'?150:230)}</g></g>`;
  }
- if(kind==='max0'&&mode==='specular-flow')return [[518,643],[614,613],[697,675],[407,946],[648,984]].map(([x,y],i)=>`<ellipse class="art-jewel-light ${i>2?'art-eye-light':''} jewel-${i}" cx="${x}" cy="${y}" rx="${i>2?52:30}" ry="${i>2?56:30}" fill="url(#${id}-spot)"/>`).join('');
- return `<g transform="${kind==='extra'?'rotate(-20 535 994)':''}"><rect class="art-light-sweep ${mode}" x="${kind==='max0'?400:-500}" y="0" width="${kind==='max0'?110:mode==='specular-flow'?160:300}" height="${kind==='max0'?800:a.height}" fill="url(#${id}-sweep)"/></g>`;
+ if(kind==='max0'&&mode==='specular-flow')return [[518,643],[614,613],[697,675],[407,946],[648,984]].map(([x,y],i)=>`<ellipse class="art-jewel-light ${i>2?'art-eye-light':''} jewel-${i}" cx="${x}" cy="${y}" rx="${i>2?24:30}" ry="${i>2?62:30}" fill="url(#${id}-spot)"/>`).join('');
+ return `<g transform="${kind==='extra'?'rotate(-20 535 994)':''}"><rect class="art-light-sweep ${mode}" x="${kind==='max0'?400:-500}" y="0" width="${kind==='max0'?170:mode==='specular-flow'?160:300}" height="${kind==='max0'?800:a.height}" fill="url(#${id}-sweep)"/></g>`;
 }
 const selection=(name,mode,lum='painted-light')=>`<mask id="${id}-${name}" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-${lum})">${field(mode)}</g></mask>`;
 return `<defs>
-<filter id="${id}-soft" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="${kind==='max0'?2:8}"/></filter>
-<filter id="${id}-lightboost" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="${kind==='max0'?2.4:1.7}" exponent=".55" offset="0"/><feFuncG type="gamma" amplitude="${kind==='max0'?2.1:1.7}" exponent=".55" offset="0"/><feFuncB type="gamma" amplitude="${kind==='max0'?1.3:1.7}" exponent=".55" offset="0"/></feComponentTransfer></filter>
+${kind==='max0'?`<filter id="${id}-pink-luster" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="1.3" exponent=".8" offset=".025"/><feFuncG type="gamma" amplitude="1.12" exponent=".85" offset=".015"/><feFuncB type="gamma" amplitude="1.22" exponent=".8" offset=".025"/></feComponentTransfer></filter><mask id="${id}-pink-region" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g fill="white" filter="url(#${id}-soft)">${pinkRegion}</g></mask><mask id="${id}-pink-motion" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-pink-region)"><rect class="art-pink-flow pink-ears" x="200" y="690" width="190" height="180" fill="url(#${id}-sweep)"/><rect class="art-pink-flow pink-cheeks" x="200" y="950" width="190" height="160" fill="url(#${id}-sweep)"/><rect class="art-pink-flow pink-paws" x="200" y="1220" width="190" height="160" fill="url(#${id}-sweep)"/></g></mask>
+`:''}<filter id="${id}-soft" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="${kind==='max0'?2:8}"/></filter>
+<filter id="${id}-lightboost" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="${kind==='max0'?2.4:1.7}" exponent=".55" offset="${kind==='max0'?.22:0}"/><feFuncG type="gamma" amplitude="${kind==='max0'?2.1:1.7}" exponent=".55" offset="${kind==='max0'?.15:0}"/><feFuncB type="gamma" amplitude="${kind==='max0'?1.8:1.7}" exponent=".55" offset="${kind==='max0'?.055:0}"/></feComponentTransfer></filter>
 <filter id="${id}-bloom" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="6"/></filter>
-<filter id="${id}-luminance" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncG type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncB type="table" tableValues="0 .15 .45 .8 1 1"/></feComponentTransfer></filter>
+<filter id="${id}-luminance" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="${kind==='max0'?'0 .5 .8 1 1 1':'0 .15 .45 .8 1 1'}"/><feFuncG type="table" tableValues="${kind==='max0'?'0 .5 .8 1 1 1':'0 .15 .45 .8 1 1'}"/><feFuncB type="table" tableValues="${kind==='max0'?'0 .5 .8 1 1 1':'0 .15 .45 .8 1 1'}"/></feComponentTransfer></filter>
 <radialGradient id="${id}-spot"><stop stop-color="white"/><stop offset="${kind==='max0'?.6:.3}" stop-color="${kind==='max0'?'white':'#eee'}"/><stop offset="1" stop-color="black"/></radialGradient>
 <linearGradient id="${id}-sweep"><stop stop-color="black"/><stop offset=".3" stop-color="#888"/><stop offset=".5" stop-color="white"/><stop offset=".7" stop-color="#888"/><stop offset="1" stop-color="black"/></linearGradient>
 <mask id="${id}-region" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g fill="white" filter="url(#${id}-soft)">${region}</g></mask>
 <mask id="${id}-painted-light" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-region)"><g filter="url(#${id}-luminance)">${photo('art-luminance-source')}</g></g></mask>
 ${kind==='max0'?'':selection('shade-mask','shade-flow')}${selection('reveal','primary-flow')}${selection('specular-mask','specular-flow')}
-</defs>${kind==='max0'?'':`<g class="art-derived-shadow" mask="url(#${id}-shade-mask)"><rect ${box} fill="black"/></g>`}<g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity="${kind==='max0'?.6:.3}">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g><g class="art-derived-specular" mask="url(#${id}-specular-mask)" filter="url(#${id}-lightboost)">${photo('art-specular-source')}</g>`;
+</defs>${kind==='max0'?'':`<g class="art-derived-shadow" mask="url(#${id}-shade-mask)"><rect ${box} fill="black"/></g>`}<g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity="${kind==='max0'?.6:.3}">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g><g class="art-derived-specular" mask="url(#${id}-specular-mask)" filter="url(#${id}-lightboost)">${photo('art-specular-source')}</g>${kind==='max0'?`<g class="art-pink-luster" mask="url(#${id}-pink-motion)" filter="url(#${id}-pink-luster)">${photo('art-pink-source')}</g>`:''}`;
 }
 function createManager(){
 const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false,pageSuspended=false;
@@ -1902,7 +1911,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     if (records.some(record => [...record.addedNodes, ...record.removedNodes].some(containsCard))) syncCardMotion();
   });
   motionObserver.observe(document.querySelector('main'), {childList:true,subtree:true});
-  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null, roomAccessPermission = null;
+  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
   const sessionFinishListeners = new Set();
   let connectionBlocked = false, connectionMessage = '';
   const screenListeners = new Set(), screenNames = { homeScreen: 'home', lobbyScreen: 'lobby', battleScreen: 'battle', guidePanel: 'guide', joinPanel: 'join' };
@@ -2001,6 +2010,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
     if (focus) $(focus).focus({ preventScroll: true });
   }
+  function cardLabel(card) { return card.kind === 'reset' ? 'リセット（0）' : card.label; }
   function cardNode(card, hidden = false, out = false) {
     const node = el('div', 'player-card');
     if (out) { node.classList.add('out'); node.textContent = '脱落'; return node; }
@@ -2009,7 +2019,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     if (card.kind !== 'number') node.classList.add('special');
     if (card.value < 0) node.classList.add('negative');
     const content = window.NumberBluffCardArt.content(document, card);
-    content.append(el('span', 'card-value', card.kind === 'reset' ? 'リセット' : card.label));
+    content.append(el('span', 'card-value', cardLabel(card)));
     if (card.kind === 'number') { node.classList.add('normal-card'); node.dataset.artValue = String(card.value); }
     content.append(window.NumberBluffCardArt.create(document, card));
     node.append(content);
@@ -2067,9 +2077,8 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   function renderLobby() {
     $('playerCount').textContent = view.players.length + '/8';
     const roomId = typeof view.roomId === 'string' ? view.roomId : '';
-    const permission = view.roomPermission === 0 || view.roomPermission === 1 ? view.roomPermission : roomAccessPermission;
-    const idHeader = !!roomId && permission !== 0;
-    $('lobbyTitle').textContent = !transport ? 'ルーム' : idHeader ? roomId : '公開ルーム';
+    const idHeader = !!roomId;
+    $('lobbyTitle').textContent = roomId;
     $('lobbyTitle').classList.toggle('is-room-id', idHeader);
     $('copyRoomId').classList.toggle('hide', !idHeader);
     $('lobbyHeaderSpacer').classList.toggle('hide', idHeader);
@@ -2077,7 +2086,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     $('roomCopyFallback').classList.add('hide');
     const manage = canManageLobby(), hostId = transport ? view.hostId : 'p1';
     let clockNote = document.getElementById('onlineTurnRule'); if (!clockNote) { clockNote = el('p', 'turn-rule-note'); clockNote.id = 'onlineTurnRule'; $('roomIdentity').after(clockNote); } clockNote.textContent = '1手30秒 · 時間切れは前の宣言＋1（初手1）'; clockNote.classList.remove('hide');
-    $('roomIdentity').classList.toggle('hide', !roomId || idHeader); $('roomIdentity').textContent = roomId && !idHeader ? 'ルームID ' + roomId : '';
+    $('roomIdentity').classList.add('hide'); $('roomIdentity').textContent = '';
     $('lobbyError').textContent = '';
     const selected = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
     if (!selected) selectedBot = view.players.find(p => p.kind === 'bot')?.id;
@@ -2335,7 +2344,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       steps.forEach(([title, text], index) => {
         const section = el('section', 'guide-step');
         section.append(el('b', 'step-number', index + 1), el('h3', '', title), el('p', '', text));
-        section.append(window.NumberBluffGuideDiagrams.create(document, index)); if (index === 1) section.append(el('p', 'turn-rule-note', '人間の手番は1手30秒。時間切れは前の宣言＋1（初手は1）を自動宣言します。入力途中の数字は送信しません。計算演出の後、10秒で次のラウンドに進みます。優勝結果では自動再戦しません。')); container.append(section);
+        section.append(window.NumberBluffGuideDiagrams.create(document, index)); if (index === 1) section.append(el('p', 'turn-rule-note', '1手30秒。時間切れは前の宣言＋1（初手は1）を自動宣言します。入力途中の数字は送信しません。計算演出の後、10秒で次のラウンドに進みます。優勝結果では自動再戦しません。')); container.append(section);
       });
 
     } else if (tab === 'cards') {
@@ -2345,7 +2354,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       [...grouped.values()].filter(x => x.card.kind === 'number').sort((a, b) => a.card.value - b.card.value).forEach(({ card, count }) => { const item = el('button', 'catalogue-item'); item.type = 'button'; item.setAttribute('aria-label', card.label + ' の効果・' + count + '枚'); item.onclick = () => cardDetail(card, count); item.append(cardNode(card), el('small', '', '×' + count)); catalogue.append(item); });
       container.append(catalogue, el('h3', '', '特殊カード 4枚（各1枚）'));
       const specials = el('div', 'catalogue special-catalogue');
-      [...grouped.values()].filter(x => x.card.kind !== 'number').forEach(({ card, count }) => { const item = el('button', 'catalogue-item'); item.type = 'button'; item.setAttribute('aria-label', card.label + ' の効果'); item.onclick = () => cardDetail(card, count); item.append(cardNode(card), el('small', '', '×1')); specials.append(item); }); container.append(specials);
+      [...grouped.values()].filter(x => x.card.kind !== 'number').forEach(({ card, count }) => { const item = el('button', 'catalogue-item'); item.type = 'button'; item.setAttribute('aria-label', cardLabel(card) + ' の効果'); item.onclick = () => cardDetail(card, count); item.append(cardNode(card), el('small', '', '×1')); specials.append(item); }); container.append(specials);
     } else if (tab === 'bots') {
 
       const descriptions = ['判断にゆらぎが多め。','見えているカードと公開済みの情報からバランスよく判断。','公開情報から合計の可能性を比較し、慎重に挑戦します。'];
@@ -2373,7 +2382,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   function cardDetail(card, count) {
     const detailEpoch = ++detailEffectEpoch;
     const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。例：(3 + 5 − 5) × 2 = 6。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
-    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); specialEffects.stop(); $('cardDetail').showModal(); $('closeCardDetail').focus(); syncCardMotion(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailEffectEpoch&&$('cardDetail').open&&detailFace.isConnected&&!detailFace.classList.contains('normal-card'))specialEffects.play(detailFace,{priority:true});}).catch(()=>{});
+    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', cardLabel(card) + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); specialEffects.stop(); $('cardDetail').showModal(); $('closeCardDetail').focus(); syncCardMotion(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailEffectEpoch&&$('cardDetail').open&&detailFace.isConnected&&!detailFace.classList.contains('normal-card'))specialEffects.play(detailFace,{priority:true});}).catch(()=>{});
   }
   $('closeCardDetail').onclick = () => { stopDetailEffect(); $('cardDetail').close(); specialSVG.refresh(); };
   $('cardDetail').addEventListener('cancel', stopDetailEffect);
@@ -2426,7 +2435,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     },
     connect(adapter, access = {}) {
       if (!adapter || typeof adapter.subscribe !== 'function' || typeof adapter.send !== 'function') throw new TypeError('Adapter requires subscribe(onPublicView) and send(action).');
-      timer.cancel(); detachTransport(); transport = adapter; roomAccessPermission = access.roomPermission === 0 || access.roomPermission === 1 ? access.roomPermission : null; state = null; view = null;
+      timer.cancel(); detachTransport(); transport = adapter; state = null; view = null;
       let first = true;
       unsubscribe = adapter.subscribe(publicState => {
         if (transport !== adapter) return;

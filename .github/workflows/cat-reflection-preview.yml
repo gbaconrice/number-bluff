@@ -1,0 +1,40 @@
+name: Black-cat reflection comparison
+on:
+  pull_request:
+    paths:
+      - special-svg-motion.js
+      - special-svg-motion.css
+      - tools/art-glow-preview.mjs
+      - .github/workflows/cat-reflection-preview.yml
+permissions:
+  contents: read
+concurrency:
+  group: cat-reflection-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+      - run: npm install --no-save --package-lock=false --ignore-scripts playwright@1.57.0
+      - run: npx --no-install playwright install chromium
+      - name: Previous approved source-art reflection
+        env:
+          ART_PREVIEW_BASE_REF: fb44ea443ddc9bc94eca858af4cda12ec2a32883
+        run: node tools/art-glow-preview.mjs
+      - name: Black-cat-only candidate
+        run: node tools/art-glow-preview.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: black-cat-before-after
+          path: artifacts/art-glow-preview/
+          retention-days: 7
