@@ -14,6 +14,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -28,6 +29,10 @@ jobs:
         run: sudo apt-get install -y --no-install-recommends -o Acquire::http::Timeout=30 -o Acquire::Retries=1 fonts-ipafont-gothic
       - name: Build single HTML handoff
         run: node tools/build-single-html.mjs
+      - name: Real synthesized audio and sound toggle
+        run: node tools/audio-output.mjs
+      - name: Public and private lobby scaffold preview
+        run: node tools/lobby-access-preview.mjs
       - name: Online turn deadline and nonblocking countdown
         run: node tools/online-turn-timer.mjs
       - name: Early online clock screenshots
@@ -38,6 +43,8 @@ jobs:
           path: |
             artifacts/turn-clock-*.png
             artifacts/online-turn-timer.json
+            artifacts/lobby-access-*.png
+            artifacts/lobby-access-preview.json
           if-no-files-found: ignore
           retention-days: 7
       - name: Automatic card motion on mobile and desktop
@@ -50,6 +57,16 @@ jobs:
           path: |
             artifacts/*effect-*.png
             artifacts/periodic-card-motion.json
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Special rendering comparison (desktop CPU-throttled proxy)
+        run: node tools/special-render-benchmark.mjs
+      - name: Early special performance and visual comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-render-comparison
+          path: artifacts/special-render-benchmark/
           if-no-files-found: ignore
           retention-days: 7
       - name: Actual source-art motion preview
@@ -90,6 +107,7 @@ jobs:
           name: preview-browser-results
           path: |
             artifacts/art-glow-preview/
+            artifacts/special-render-benchmark/
             artifacts/*.png
             artifacts/*.json
           if-no-files-found: ignore

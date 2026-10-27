@@ -56,13 +56,12 @@ h3 { font-size: 12px; margin-bottom: 7px; }
 .difficulty { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
 .difficulty button { font-size: 12px; padding: 6px; }
 .bot-footer { display: flex; align-items: center; gap: 8px; font-size: 9px; color: #d3dcf2; }
-.battle-meta { display: flex; align-items: center; justify-content: center; font-weight: 750; }
-.battle-meta button { border: 0; box-shadow: none; background: none; font-size: 10px; min-height: 22px; padding: 0; }
+.battle-meta { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 2px 8px; font: 750 clamp(11px,3vw,14px)/1.4 system-ui,sans-serif; color: #fff; }
 .battle-grid { display: grid; margin-bottom: 8px; }
 .battle-player { min-width: 0; text-align: center; }
 .player-info { border: 1px solid #7893ca; background: #0a2047ce; }
 .battle-player.self .player-info { border-color: #ffe7a3; box-shadow: 0 0 8px #ffe7a344; }
-.battle-player.active .player-info { box-shadow: 0 0 0 2px #b6c9ff,0 0 10px #a5beff88; }
+.battle-player.active .player-info { border-color: #dce7ff; box-shadow: inset 0 0 0 2px #b6c9ff,inset 0 0 10px #a5beff66; }
 .player-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .player-info img { display: block; margin: 0 auto; width: 37px; height: 34px; object-fit: contain; }
 .hearts { color: #ffb2d1; }
@@ -94,9 +93,9 @@ h3 { font-size: 12px; margin-bottom: 7px; }
 .calculation h3 { font-size: 12px; }
 #calculationSteps { font-size: 12px; line-height: 1.8; }
 .calc-expression { font-weight: 850; overflow-wrap: anywhere; }
-.final-total { border: 1px solid #a5b7e8; border-radius: 12px; text-align: center; align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
-.final-total span { font-size: 11px; }
-.final-total strong { line-height: 1.2; color: #ffedb7; overflow-wrap: anywhere; }
+.final-total { border: 1px solid #a5b7e8; border-radius: 12px; text-align: center; align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.final-total > span { font-size: 11px; }
+.final-total strong { display: inline-flex; align-items: center; justify-content: center; max-width: 100%; line-height: 1.2; color: #ffedb7; overflow-wrap: anywhere; }
 .result-message { display: flex; align-items: center; gap: 8px; margin-bottom: 13px; }
 .result-message img { object-fit: contain; }
 .result-message p { margin: 0; font-weight: 800; }
@@ -242,7 +241,6 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .person-placeholder:before { content: ''; position: absolute; top: 18%; left: 35%; width: 30%; height: 30%; border-radius: 50%; background: #e7ecf8; }
 .person-placeholder:after { content: ''; position: absolute; bottom: 8%; left: 19%; width: 62%; height: 36%; border-radius: 60% 60% 15% 15%; background: #e7ecf8; }
 .profile-avatar { object-fit: cover!important; border-radius: 50%; }
-.battle-meta { min-height: 18px; font-size: 11px; margin-bottom: 5px; gap: 12px; }
 .battle-grid { gap: 5px; margin: 0 0 5px; grid-template-columns: repeat(4,minmax(0,1fr)); }
 .battle-grid[data-count="2"] { grid-template-columns: repeat(2,minmax(0,1fr)); width: 54%; margin-left: auto; margin-right: auto; }
 .battle-grid[data-count="3"] { grid-template-columns: repeat(3,minmax(0,1fr)); width: 78%; margin-left: auto; margin-right: auto; }
@@ -269,15 +267,14 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .keypad { gap: 4px; }
 .keypad button { height: 44px; min-height: 44px; border-radius: 10px; font-size: 22px; }
 .decisions { grid-template-rows: 1fr 1fr; gap: 8px; }
-.declare-region { display: flex; flex-direction: column; min-width: 0; border-radius: 14px; overflow: hidden; border: 1px solid #fff0bd; }
-.declare-region input { background: transparent; border: 0; border-bottom: 1px solid #b3956260; border-radius: 0; text-align: center; color: #172950; width: 100%; min-width: 0; height: 44px; min-height: 44px; padding: 0 4px; font-size: 20px; font-weight: 850; }
-.declare-region button { flex: 1; min-height: 44px; background: transparent; color: #192c58; border: 0; box-shadow: none; border-radius: 0; font-size: 24px; line-height: 1; padding: 0; }
-.declare-region:has(button:disabled) { background: linear-gradient(#bcb9aa,#aca991); box-shadow: none; }
-.declare-region input:disabled, .declare-region button:disabled { color: #354467; }
+.declare-region { padding: 0; display: flex; flex-direction: column; min-width: 0; border-radius: 14px; overflow: hidden; border: 1px solid #fff0bd; }
+.declare-region #number { display: flex; align-items: center; justify-content: center; user-select: none; background: transparent; border: 0; border-bottom: 1px solid #b3956260; border-radius: 0; text-align: center; color: #172950; width: 100%; min-width: 0; height: 44px; min-height: 44px; padding: 0 4px; font-size: 20px; font-weight: 850; }
+.declare-region .declare-label { display: flex; align-items: center; justify-content: center; flex: 1; min-height: 44px; background: transparent; color: #192c58; border: 0; box-shadow: none; border-radius: 0; font-size: 24px; line-height: 1; padding: 0; }
+.declare-region:disabled { background: linear-gradient(#bcb9aa,#aca991); box-shadow: none; }
+.declare-region:disabled #number, .declare-region:disabled .declare-label { color: #354467; }
 .decisions #challenge { font-size: clamp(14px,4.1vw,18px); padding: 0 0 15px; min-height: 88px; border-radius: 13px; text-shadow: 0 1px 1px #fff8; }
 .decisions #challenge img { width: 53px; height: 48px; bottom: -10px; right: -3px; }
 .decisions #challenge:disabled { background: linear-gradient(130deg,#565780,#333f69); color: #d8daef; text-shadow: none; }
-.is-result .battle-meta { display: none; }
 .is-result .topbar { margin-bottom: 10px; }
 .is-result .battle-grid { margin-bottom: 12px; }
 .calculation { margin: 8px 0; grid-template-columns: minmax(0,1fr) 78px; padding: 10px; gap: 8px; }
@@ -341,7 +338,6 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
   .bot-choices { gap: 6px; }
   .bot-choices button { width: 45px; }
   .topbar { margin-bottom: 2px; }
-  .battle-meta { min-height: 17px; margin-bottom: 3px; font-size: 10px; }
   .battle-grid.many .player-info { height: 39px; grid-template-rows: 11px 24px; padding: 1px 2px; }
   .battle-grid.many { row-gap: 5px; }
   .battle-grid.many .player-card { padding-top: 10px; font-size: 29px; }
@@ -369,9 +365,16 @@ main { position: relative; z-index: 1; }
 .topbar h1 { grid-column: 2; text-align: center; width: 100%; min-width: 0; }
 .topbar>button:first-child { grid-column: 1; }
 .topbar>button:last-child:not(:first-child) { grid-column: 3; }
+#battleScreen .topbar { grid-template-columns: 40px minmax(0,1fr) 40px 40px; gap: 4px; }
+#battleScreen .topbar .circle { width: 100%; min-height: 40px; }
+.sound-toggle { position: relative; }
+.sound-toggle.is-muted::after { content: ""; position: absolute; width: 23px; height: 2px; top: 50%; left: 50%; background: currentColor; transform: translate(-50%,-50%) rotate(-45deg); pointer-events: none; }
+#homeSoundToggle.is-muted::after { top: 22px; }
+#battleSoundToggle { grid-column: 3; font-size: 21px; }
+#battleScreen .topbar #rulesBtn { grid-column: 4; }
 .room-status { font-size: 12px; line-height: 1.5; margin: 5px 0 0; text-align: center; color: #fff2d6; }
 .room-status:empty { display: none; }
-.join-form { margin-top: 22px; display: grid; gap: 13px; padding: 20px; }
+.join-form { margin-top: 0; display: grid; gap: 13px; padding: 20px; }
 .join-form input { width: 100%; height: 54px; border: 1px solid #a9b9e6; border-radius: 12px; background: #112449; color: #fff4d7; text-align: center; font-size: 20px; }
 .join-form input::placeholder { color: #becbe7; }
 .room-identity { text-align: center; font-size: 13px; font-weight: 800; margin: 0 0 9px; color: #fff0ce; }
@@ -406,7 +409,7 @@ main { position: relative; z-index: 1; }
 main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .home { min-height: var(--nb-usable-height); }
 #battleScreen:not(.is-result) { height: var(--nb-usable-height); display: flex; flex-direction: column; min-height: 0; }
-#battleScreen>#gamePanel, #battleScreen>.battle-meta, #battleScreen>.topbar { flex: 0 0 auto; }
+#battleScreen>#gamePanel, #battleScreen>.topbar { flex: 0 0 auto; }
 #battleScreen:not(.is-result)>.battle-grid { flex: 0 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; grid-auto-rows: max-content; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #d1c6ff #16264a; }
 #battleScreen:not(.is-result)>.battle-grid:focus-visible { outline-offset: -3px; }
 /* The current declaration belongs to a person, not to an anonymous input form. */
@@ -430,11 +433,10 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 /* Landscape keeps the table beside the controls instead of squeezing it above them. */
 @media(min-width:650px) and (max-height:500px) {
   main:has(#battleScreen:not(.hide):not(.is-result)) { max-width: 850px; }
-  #battleScreen:not(.is-result) { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-rows: 44px 18px minmax(0,1fr); column-gap: 12px; row-gap: 4px; min-height: 300px; }
+  #battleScreen:not(.is-result) { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-rows: 44px minmax(0,1fr); column-gap: 12px; row-gap: 4px; min-height: 300px; }
   #battleScreen:not(.is-result)>.topbar { grid-column: 1; grid-row: 1; margin: 0; }
-  #battleScreen:not(.is-result)>.battle-meta { grid-column: 1; grid-row: 2; margin: 0; min-height: 18px; }
-  #battleScreen:not(.is-result)>.battle-grid { grid-column: 1; grid-row: 3; align-self: stretch; margin-bottom: 0; height: 100%; max-height: 100%; }
-  #battleScreen:not(.is-result)>#gamePanel { grid-column: 2; grid-row: 1/4; align-self: center; min-width: 0; }
+  #battleScreen:not(.is-result)>.battle-grid { grid-column: 1; grid-row: 2; align-self: stretch; margin-bottom: 0; height: 100%; max-height: 100%; }
+  #battleScreen:not(.is-result)>#gamePanel { grid-column: 2; grid-row: 1/3; align-self: center; min-width: 0; }
   #battleScreen:not(.is-result) .bid-panel { height: 48px; min-height: 48px; margin: 0 auto 6px; grid-template-rows: 10px 22px 10px; padding: 2px 9px; }
   #battleScreen:not(.is-result) .bid-panel strong { font-size: 24px; line-height: 22px; }
   #battleScreen:not(.is-result) .input-console { padding: 6px; }
@@ -444,13 +446,30 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .topbar-spacer { width: 44px; flex-shrink: 0; }
 /* Soft contrast behind visible titles; guide titles remain screen-reader only. */
 .topbar h1:not(.sr-only) { font-family: "Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif; font-size: clamp(20px,5.6vw,24px); font-weight: 700; font-synthesis: none; line-height: 1.3; letter-spacing: .02em; color: #fff; padding: 5px 8px; border-radius: 10px; background: #101f43e8; text-shadow: none; }
-.battle-meta { color: #fff; text-shadow: 0 1px 3px #071126,0 0 5px #071126; }
 /* Value-specific normal faces share the existing four-character mapping. */
 
 /* Online turn clock is informative, never an input-blocking overlay. */
 .turn-countdown{display:inline-block;font:600 11px/1.4 system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#fff8e9;white-space:nowrap;background:#102449;border-radius:5px;padding:1px 6px}
 .turn-countdown.is-urgent{color:#ffe3a3;background:#412b19}
 .turn-rule-note{font-size:12px;line-height:1.6;color:#344565;margin:8px 0}
+#lobbyScreen .turn-rule-note{color:#fff2d6;text-shadow:0 1px 3px #102451;text-align:center}
+
+/* Lobby access scaffold: SDK list/private wiring is deferred to AI Studio. */
+.private-room-option { display:flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:2px 8px; color:#fff4d7; font-size:13px; font-weight:700; text-shadow:0 1px 3px #102451; cursor:pointer; }
+.private-room-option input { margin:0; width:16px; height:16px; accent-color:#fff0ad; }
+.join-tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:20px 0 12px; }
+.join-tabs button { min-height:44px; border:1px solid #b9c7ec; border-radius:12px; background:#253c73; color:#fff4d7; font-weight:700; }
+.join-tabs button[aria-selected="true"] { background:#fff0c9; color:#233c72; }
+.public-room-panel { padding:18px; }
+.public-room-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.public-room-heading h2 { margin:0; font-size:17px; }
+.public-room-heading button { flex-shrink:0; min-width:64px; min-height:40px; border:1px solid #bfcae9; border-radius:10px; background:#fff0c9; color:#233c72; font-weight:700; }
+.public-room-panel .room-status { margin:16px 0 4px; line-height:1.65; }
+
+#lobbyTitle.is-room-id { min-width:0; overflow-wrap:anywhere; font-size:clamp(12px,3.5vw,18px); line-height:1.3; }
+#lobbyScreen .topbar { grid-template-columns:44px minmax(0,1fr) 56px; }
+.room-copy { flex-shrink:0; min-width:56px; white-space:nowrap; font-size:12px; padding:6px 9px; }
+.room-copy-fallback { width:100%; min-height:44px; color:#203760; background:#fff4d8; border:1px solid #c7cce1; border-radius:9px; text-align:center; }
 
 </style><style>
 /* In-flow game examples: real cards and portraits always belong to a clear role. */
@@ -460,7 +479,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .guide-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; padding: 6px 8px; border: 1px solid #aeb2ce; border-radius: 8px; background: #fffdf4; text-align: center; flex: 0 1 auto; }
 .guide-chip small,.guide-card-example>small,.guide-actor small { display: block; font-size: 10px; line-height: 1.3; white-space: nowrap; }
 .guide-chip strong { display: block; font-size: 19px; line-height: 1.15; font-weight: 750; white-space: nowrap; }
-.guide-chip.is-speech { border-radius: 10px 10px 10px 3px; }
+.guide-chip.is-speech { border-radius: 10px; }
 .guide-arrow,.guide-comparison { flex: none; font-size: 15px; line-height: 1; font-weight: 700; }
 .guide-diagram-note { text-align: center; font-size: 12px; line-height: 1.4; }
 .guide-card-example { display: grid; justify-items: center; gap: 5px; flex: 0 1 70px; min-width: 0; }
@@ -470,7 +489,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .guide-actor { display: grid; justify-items: center; gap: 2px; flex: 0 0 auto; }
 .guide-avatar { display: block; width: 43px; height: 43px; object-fit: contain; }
 .guide-challenger { gap: 9px; }
-.guide-challenge { padding: 8px 10px; border: 1px solid #8c7496; border-radius: 10px 10px 10px 3px; background: #fff7dc; font-size: 12px; font-weight: 750; }
+.guide-challenge { padding: 8px 10px; border: 1px solid #8c7496; border-radius: 10px; background: #fff7dc; font-size: 12px; font-weight: 750; }
 .guide-diagram-3 { grid-template-columns: 1fr 1fr; gap: 8px; }
 .guide-verdict { display: grid; gap: 6px; padding: 8px 4px; background: #ffffff50; border-radius: 10px; min-width: 0; }
 .guide-verdict .guide-chip { border: 0; background: transparent; padding: 0; }
@@ -627,6 +646,9 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 
 .player-card .card-content { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); isolation:isolate; pointer-events:none; }
 
+/* Keep numerals above the special optical texture, independent of removed foil. */
+.player-card:not(.hidden):not(.out) .card-value{z-index:4}
+
 </style><style>
 /* Immutable source texture, layered optical motion only. */
 .nb-special-svg-host{position:relative}
@@ -647,6 +669,9 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .nb-special-svg .art-jewel-light{animation:nbsv-jewel-light 2.8s ease-in-out infinite}
 .nb-special-svg .jewel-1{animation-delay:-.8s}
 .nb-special-svg .jewel-2{animation-delay:-1.6s}
+.nb-special-svg .art-eye-light{animation-duration:3.4s}
+.nb-special-svg .jewel-3{animation-delay:-.7s}
+.nb-special-svg .jewel-4{animation-delay:-1.05s}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
 .hide .nb-special-svg,.hidden .nb-special-svg,[hidden] .nb-special-svg{visibility:hidden!important}
 @keyframes nbsv-mask-orbit{to{transform:rotate(360deg)}}
@@ -654,21 +679,6 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 @keyframes nbsv-crown-light{from{transform:translateX(0px)}to{transform:translateX(340px)}}
 @keyframes nbsv-jewel-light{0%,30%,70%,100%{opacity:0}48%,52%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.nb-special-svg{display:none!important}.nb-special-svg *{animation:none!important}}
-
-</style><style>
-/* Adapted from React Bits Glare Hover (David Haz, 2026).
-   MIT + Commons Clause: see THIRD_PARTY_NOTICES.card-motion.txt. */
-.nb-glare-host { position:relative; isolation:isolate; }
-.nb-card-glare { position:absolute; inset:0; overflow:hidden; border-radius:inherit;
-  z-index:3; opacity:0; pointer-events:none; contain:paint; }
-.nb-card-glare__band { position:absolute; top:50%; left:50%; pointer-events:none; }
-/* Numbers stay outside the light layer. Existing absolute positioning is retained. */
-.player-card.nb-glare-host:not(.hidden):not(.out) .card-value { z-index:4; }
-/* Defensive: never light an unrevealed/out card if its class changes before detach. */
-.nb-glare-host.hidden > .nb-card-glare,
-.nb-glare-host.out > .nb-card-glare,
-.nb-glare-host[hidden] > .nb-card-glare { display:none; }
-@media (prefers-reduced-motion:reduce) { .nb-card-glare { display:none; } }
 
 </style><style>
 /*
@@ -763,11 +773,11 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 }
 
 </style></head><body><main>
-<section id="homeScreen" class="screen home"><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""></div><div class="home-actions"><button id="startGame" data-intent="createRoom" class="pill gold">ゲームをはじめる <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button></nav></section>
-<section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><button id="lobbyBack" class="circle" aria-label="ホームへ戻る">‹</button><h1>ルームロビー</h1><span class="topbar-spacer" aria-hidden="true"></span></header><p id="roomIdentity" class="room-identity hide"></p><p id="onlineLobbyStatus" class="room-status hide" role="status" aria-live="polite"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button></section>
-<section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">‹</button><h1 id="battleTitle">対戦中</h1><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><div class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></div><p id="onlineBattleStatus" class="room-status hide" role="status" aria-live="polite"></p><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" tabindex="0" aria-label="プレイヤーとカード（上下にスクロール）"></div><section id="gamePanel"><div class="bid-panel glass"><div id="bidActor" aria-hidden="true"></div><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" class="sr-only" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><div class="declare-region gold"><label class="sr-only" for="number">宣言する数字</label><input id="number" type="text" inputmode="none" autocomplete="off" spellcheck="false" aria-describedby="inputHint inputError"><button id="declare">宣言</button></div><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="sr-only">前より大きな1以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><div id="resultAnnouncement" class="sr-only" role="status" aria-live="polite"></div><section id="result" class="hide"><h2 id="resultTitle" class="sr-only" tabindex="-1">ラウンド結果</h2><section class="calculation glass" aria-live="off"><div><h3 id="calculationHeading">計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span id="totalLabel">最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><div id="resultAvatar" aria-hidden="true"></div><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button></section></section>
+<section id="homeScreen" class="screen home"><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""></div><div class="home-actions"><label class="private-room-option"><input id="privateRoom" type="checkbox"><span>プライベートルームにする</span></label><button id="startGame" data-intent="createRoom" class="pill gold">ルームを作成 <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button><button id="homeSoundToggle" class="sound-toggle" data-sound-toggle aria-label="音をオフにする" aria-pressed="false"><b aria-hidden="true">♪</b><span class="icon-caption">音</span></button></nav></section>
+<section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><button id="lobbyBack" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="lobbyTitle">公開ルーム</h1><button id="copyRoomId" class="room-copy hide" type="button" aria-label="ルームIDをコピー">コピー</button><span id="lobbyHeaderSpacer" class="topbar-spacer" aria-hidden="true"></span></header><p id="roomIdentity" class="room-identity hide"></p><p id="roomCopyStatus" class="room-status hide" role="status" aria-live="polite"></p><input id="roomCopyFallback" class="room-copy-fallback hide" readonly aria-label="コピーするルームID"><p id="onlineLobbyStatus" class="room-status hide" role="status" aria-live="polite"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button></section>
+<section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">‹</button><h1 id="battleTitle"><span id="battlePhase" class="hide"></span><span class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></span></h1><button id="battleSoundToggle" class="circle sound-toggle" data-sound-toggle aria-label="音をオフにする" aria-pressed="false">♪</button><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><p id="onlineBattleStatus" class="room-status hide" role="status" aria-live="polite"></p><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" tabindex="0" aria-label="プレイヤーとカード（上下にスクロール）"></div><section id="gamePanel"><div class="bid-panel glass"><div id="bidActor" aria-hidden="true"></div><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" class="sr-only" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><button id="declare" class="declare-region gold" aria-describedby="inputHint inputError"><span id="number" aria-label="宣言する数字"></span><span class="declare-label">宣言</span></button><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="sr-only">前より大きな1以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><div id="resultAnnouncement" class="sr-only" role="status" aria-live="polite"></div><section id="result" class="hide"><h2 id="resultTitle" class="sr-only" tabindex="-1">ラウンド結果</h2><section class="calculation glass" aria-live="off"><div><h3 id="calculationHeading">計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span id="totalLabel">最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><div id="resultAvatar" aria-hidden="true"></div><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button></section></section>
 <section id="guidePanel" class="screen hide" aria-label="ゲームガイド"><header class="topbar"><button id="closeGuide" class="circle" aria-label="ガイドを閉じる">‹</button><h1 id="guideTitle" class="sr-only">遊び方</h1></header><div class="guide-tabs" role="tablist" aria-label="ガイド"><button data-tab="rules" role="tab">遊び方</button><button data-tab="cards" role="tab">カード図鑑</button><button data-tab="bots" role="tab">BOT</button><button data-tab="examples" role="tab">計算例</button></div><article id="guideContent" tabindex="-1"></article><dialog id="cardDetail"><button id="closeCardDetail" class="circle" aria-label="カード詳細を閉じる">×</button><div id="cardDetailContent"></div></dialog></section>
-<section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><button id="closeJoin" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="joinTitle">ルームに参加</h1></header><form id="joinForm" class="join-form glass"><label class="sr-only" for="roomId">ルームID</label><input id="roomId" name="roomId" placeholder="ルームID" autocomplete="off" maxlength="64" required><button id="joinRoom" data-intent="joinRoom" class="pill blue" type="submit">参加する</button><p id="roomJoinStatus" class="room-status" role="status" aria-live="polite"></p></form></section>
+<section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><button id="closeJoin" class="circle" aria-label="ホームへ戻る">‹</button><h1 id="joinTitle">ルームに参加</h1></header><div class="join-tabs" role="tablist" aria-label="参加方法"><button id="joinIdTab" type="button" role="tab" aria-controls="joinIdPanel" aria-selected="true">ID入力</button><button id="joinPublicTab" type="button" role="tab" aria-controls="joinPublicPanel" aria-selected="false" tabindex="-1">公開ルーム一覧</button></div><div id="joinIdPanel" role="tabpanel" aria-labelledby="joinIdTab"><form id="joinForm" class="join-form glass"><label class="sr-only" for="roomId">ルームID</label><input id="roomId" name="roomId" placeholder="ルームID" autocomplete="off" maxlength="64" required><button id="joinRoom" data-intent="joinRoom" class="pill blue" type="submit">参加する</button><p id="roomJoinStatus" class="room-status" role="status" aria-live="polite"></p></form></div><section id="joinPublicPanel" class="public-room-panel glass hide" role="tabpanel" aria-labelledby="joinPublicTab"><div class="public-room-heading"><h2>公開ルーム一覧</h2><button id="refreshPublicRooms" type="button">更新</button></div><p id="publicRoomsStatus" class="room-status" role="status" aria-live="polite">公開ルーム一覧は準備中です。ルームIDで参加できます。</p><div id="publicRoomsList" class="public-room-list"></div></section></section>
 </main><script>
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -1212,7 +1222,7 @@ SOFTWARE.
   else root.NumberBluffAudio = factory();
 })(typeof globalThis === 'object' ? globalThis : this, function () {
   'use strict';
-  // Small, original synthesized cues: no downloads, music loop or stored sound setting.
+  // Small, original synthesized cues: no downloads or music loop. The only setting is the small sound toggle.
   // Each tuple is [frequency, seconds, offset, endFrequency, waveform, gain].
   const cues = {
     tap: [[780, .055, 0, 620, 'sine', .13]],
@@ -1231,11 +1241,16 @@ SOFTWARE.
     outcome: [[523, .18, 0, 523, 'sine', .10], [659, .26, .10, 659, 'sine', .09]]
   };
   function create({ contextFactory, document: doc = typeof document === 'object' ? document : null,
-    window: win = typeof window === 'object' ? window : null } = {}) {
-    let context = null, master = null, destroyed = false, resumePending = false;
+    window: win = typeof window === 'object' ? window : null,
+    storage, now: clockNow = () => typeof performance === 'object' ? performance.now() : Date.now() } = {}) {
+    let context = null, master = null, destroyed = false, resumePending = false, pendingCue = null;
+    let store = storage, muted = false, lastGestureAt = -Infinity;
+    const volume = .5, storageKey = 'number-bluff.sound-muted.v1';
+    try { if (store === undefined) store = win?.localStorage; muted = store?.getItem(storageKey) === 'true'; } catch {}
     const voices = new Set(), lastPlayed = new Map();
     const hidden = () => !!doc?.hidden;
     function stop() {
+      pendingCue = null;
       for (const voice of [...voices]) {
         try { voice.oscillator.stop(); } catch {}
         try { voice.oscillator.disconnect(); voice.gain.disconnect(); } catch {}
@@ -1245,23 +1260,36 @@ SOFTWARE.
     }
     function unlock(event) {
       // Only the trusted interaction handler may create/resume the device context.
-      if (destroyed || hidden() || event?.isTrusted === false) return false;
+      if (destroyed || hidden() || muted || event?.isTrusted === false) return false;
+      lastGestureAt = clockNow();
       try {
         if (!context || context.state === 'closed') {
           const Constructor = win?.AudioContext || win?.webkitAudioContext;
           if (!contextFactory && !Constructor) return false;
           context = contextFactory ? contextFactory() : new Constructor();
-          master = context.createGain(); master.gain.value = .28; master.connect(context.destination);
+          master = context.createGain(); master.gain.value = volume; master.connect(context.destination);
         }
         if (context.state !== 'running' && !resumePending) {
           resumePending = true;
-          Promise.resolve(context.resume()).catch(() => {}).finally(() => { resumePending = false; });
+          Promise.resolve(context.resume()).then(() => {
+            const cue = pendingCue; pendingCue = null;
+            // Only the current interaction's fresh cue may survive async unlock.
+            if (cue && clockNow() - cue.at <= 250 && !destroyed && !muted && !hidden()) play(cue.kind);
+          }).catch(() => { pendingCue = null; }).finally(() => { resumePending = false; });
         }
         return true;
       } catch { resumePending = false; return false; }
     }
     function play(kind) {
-      if (destroyed || hidden() || !context || context.state !== 'running' || !cues[kind]) return false;
+      if (destroyed || muted || hidden() || !context || !cues[kind]) return false;
+      if (context.state !== 'running') {
+        if (resumePending && clockNow() - lastGestureAt <= 250) {
+          // A generic click must not replace a more meaningful deal/declaration.
+          if (!pendingCue || kind !== 'tap') pendingCue = { kind, at: clockNow() };
+          return true;
+        }
+        return false;
+      }
       const now = context.currentTime;
       // Dense renders/clicks cannot stack unbounded voices. No delayed queue on resume.
       if (now - (lastPlayed.get(kind) ?? -Infinity) < .035) return false;
@@ -1275,6 +1303,7 @@ SOFTWARE.
           oscillator.frequency.exponentialRampToValueAtTime(end, finish);
           gain.gain.setValueAtTime(.0001, start);
           gain.gain.exponentialRampToValueAtTime(volume, start + Math.min(.012, duration / 4));
+          gain.gain.setValueAtTime(volume, start + duration * .3);
           gain.gain.exponentialRampToValueAtTime(.0001, finish);
           oscillator.connect(gain); gain.connect(master);
           const voice = { oscillator, gain }; voices.add(voice);
@@ -1292,10 +1321,18 @@ SOFTWARE.
     }
     const visibility = () => { if (hidden()) suspend(); };
     // touchend is retained for older iOS WebViews; pointerdown covers modern devices.
-    const gestures = ['pointerdown', 'touchend', 'keydown'];
+    const gestures = ['pointerdown', 'touchend', 'keydown', 'click'];
     for (const type of gestures) doc?.addEventListener?.(type, unlock, { capture: true, passive: true });
     doc?.addEventListener?.('visibilitychange', visibility);
     win?.addEventListener?.('pagehide', suspend);
+    function setMuted(value, event) {
+      muted = !!value;
+      try { store?.setItem(storageKey, String(muted)); } catch {}
+      if (muted) stop();
+      if (master) master.gain.value = muted ? 0 : volume;
+      if (!muted && event?.isTrusted) unlock(event);
+      return muted;
+    }
     function destroy() {
       if (destroyed) return;
       destroyed = true; stop();
@@ -1303,7 +1340,7 @@ SOFTWARE.
       doc?.removeEventListener?.('visibilitychange', visibility); win?.removeEventListener?.('pagehide', suspend);
       try { Promise.resolve(context?.close()).catch(() => {}); } catch {}
     }
-    return Object.freeze({ unlock, play, stop, destroy });
+    return Object.freeze({ unlock, play, stop, destroy, setMuted, isMuted: () => muted });
   }
   return Object.freeze({ create });
 });
@@ -1323,202 +1360,6 @@ SOFTWARE.
  function create(doc,card){const src=source(card);if(!src)throw new TypeError('Unknown disclosed card artwork');const image=doc.createElement('img');image.className='card-art';image.crossOrigin='anonymous';image.src=src;image.alt='';image.draggable=false;image.decoding='async';image.setAttribute('aria-hidden','true');return image;}
  return Object.freeze({assets,source,create,size,layout,content});
 });
-
-</script><script>
-/*!
-React Bits Glare Hover — used within Number Bluff, not distributed as a standalone component.
-Retrieved: 2026-10-27 UTC
-Source JS: https://raw.githubusercontent.com/DavidHDev/react-bits/main/src/content/Animations/GlareHover/GlareHover.jsx
-Source CSS: https://raw.githubusercontent.com/DavidHDev/react-bits/main/src/content/Animations/GlareHover/GlareHover.css
-License: https://raw.githubusercontent.com/DavidHDev/react-bits/main/LICENSE.md
-Adaptations: vanilla lifecycle; shared periodic scheduler; white-only low-opacity band; visibility/reduced-motion cleanup; no rim; no pointer interception.
-
-MIT + Commons Clause License Condition v1.0
-
-Copyright (c) 2026 David Haz
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, and distribute the Software **as part of an application, website, or product**, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-## Commons Clause Restriction
-
-You may use this Software, including for any commercial purpose, **so long as you do not sell, sublicense, or redistribute the components themselves-whether alone, in a bundle, or as a ported version.**
-
-The same restriction covers the React Bits tools (Background Studio, Texture Lab, Shape Magic, Center Stage, Sound Lab and any tools added later) and the sounds in the sound library. **You may not sell, sublicense, or redistribute the tools or the sounds themselves, or offer the tools or a substantially similar copy of them as a hosted service-whether alone, in a bundle, or as a ported version.**
-
-What you make with the tools is yours to use. You can use exported code, images, videos, and audio files in any personal or commercial application, website, or product, including paid ones. **You may not sell or redistribute the exports on their own, either individually or as the product itself, such as a sound, texture, background, or template pack.**
-
-## No Warranty
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-/* Number Bluff integration adapted from React Bits Glare Hover, David Haz (2026).
- * Source: https://github.com/DavidHDev/react-bits/tree/main/src/content/Animations/GlareHover
- * MIT + Commons Clause; full notice: THIRD_PARTY_NOTICES.card-motion.txt.
- * Retains original profile/easing/diagonal geometry; replaces React lifecycle with
- * one shared periodic vanilla manager. Only embed as part of the game, not a component pack.
- */
-(function (global) {
-  'use strict';
-  const smootherstep = t => t * t * t * (t * (t * 6 - 15) + 10);
-  const bump = (t, center, half) => {
-    const distance = Math.abs(t - center);
-    return distance >= half ? 0 : smootherstep(1 - distance / half);
-  };
-  const ease = t => (1 - Math.cos(Math.PI * t)) / 2;
-  // Same 33-sample streak profile as upstream; rgba avoids color-mix dependency.
-  function whiteGradient(opacity) {
-    const stops = Array.from({ length: 33 }, (_, i) => {
-      const t = i / 32;
-      const profile = bump(t, .5, .06 + .16 * .6) + .32 * bump(t, .5, .5);
-      const alpha = Math.round(Math.min(1, profile * opacity) * 1000) / 1000;
-      return `rgba(255,255,255,${alpha}) ${(t * 100).toFixed(1)}%`;
-    });
-    return `linear-gradient(90deg, ${stops.join(', ')})`;
-  }
-  function createManager(options = {}) {
-    const doc = options.document || document;
-    const win = doc.defaultView || global;
-    const reduced = win.matchMedia('(prefers-reduced-motion: reduce)');
-    const cards = new Map();
-    const duration = Math.max(480, Math.min(1200, options.duration || 780));
-    const interval = Math.max(2000, options.interval || options.touchInterval || 4000);
-    const opacity = Math.max(0, Math.min(.24, options.opacity ?? .22));
-    // Each visible card has its own deadline. One shared rAF paints the brief passes;
-    // one timeout sleeps between them. No hover dependency or long round-robin wait.
-    const active = new Map();
-    let raf = 0, timer = 0, paused = false, destroyed = false, serial = 0, pageSuspended = false;
-    const globallyAllowed = () => !destroyed && !paused && !pageSuspended && !doc.hidden && !reduced.matches;
-    const eligible = record => globallyAllowed() && (!doc.querySelector('dialog[open]') || doc.querySelector('dialog[open]').contains(record.el)) && record.visible && record.el.isConnected &&
-      !record.el.matches('.hidden, .out, [hidden], [aria-hidden="true"]') &&
-      !record.el.closest('dialog:not([open]), .hide, [hidden], [inert], [aria-hidden="true"], .screen.hidden, [data-revealed="back"], [data-revealed="false"]') &&
-      record.el.getClientRects().length > 0 && win.getComputedStyle(record.el).visibility !== 'hidden';
-    function stop(record) {
-      for (const item of [...active.keys()]) if (!record || record === item) {
-        item.overlay.style.opacity = '0'; item.band.style.willChange = ''; active.delete(item);
-      }
-      if (!active.size) { win.cancelAnimationFrame(raf); raf = 0; }
-    }
-    function clearTimer() { win.clearTimeout(timer); timer = 0; }
-    function measure(record) {
-      const surface = record.el.querySelector('.card-content') || record.el;
-      const width = surface.clientWidth, height = surface.clientHeight;
-      const angle = -45, radians = angle * Math.PI / 180;
-      const diagonal = Math.hypot(width, height), band = Math.max(8, diagonal * .26);
-      const reach = (Math.abs(width * Math.sin(radians)) + Math.abs(height * -Math.cos(radians))) / 2 + band / 2 + 2;
-      record.reach = reach;
-      record.band.style.width = `${band}px`;
-      record.band.style.height = `${diagonal + band}px`;
-    }
-    function frame(now) {
-      raf = 0;
-      for (const [record, start] of [...active]) {
-        if (!eligible(record)) { stop(record); continue; }
-        const t = Math.min(1, (now - start) / duration);
-        const position = -record.reach + 2 * record.reach * ease(t);
-        record.band.style.transform = `translate(-50%, -50%) rotate(-135deg) translateX(${position.toFixed(2)}px)`;
-        record.overlay.style.opacity = String(Math.min(1, t / .12, (1 - t) / .12));
-        if (t >= 1) stop(record);
-      }
-      if (active.size) raf = win.requestAnimationFrame(frame);
-      schedule();
-    }
-    function play(el) {
-      const record = cards.get(el), now = win.performance.now();
-      if (!record || !eligible(record) || active.has(record) || now < record.cooldown) return false;
-      measure(record);
-      if (!record.el.clientWidth || !record.el.clientHeight) return false;
-      active.set(record, now);
-      record.nextAt = now + interval;
-      record.cooldown = now + duration + 500;
-      record.band.style.willChange = 'transform';
-      if (!raf) raf = win.requestAnimationFrame(frame);
-      schedule();
-      return true;
-    }
-    function schedule() {
-      clearTimer();
-      if (!globallyAllowed()) return;
-      const candidates = [...cards.values()].filter(record => eligible(record) && !active.has(record));
-      if (!candidates.length) return;
-      const next = Math.min(...candidates.map(record => Math.max(record.nextAt, record.cooldown)));
-      timer = win.setTimeout(() => {
-        timer = 0;
-        const now = win.performance.now();
-        for (const record of [...cards.values()]) {
-          if (!record.el.isConnected) { detach(record.el); continue; }
-          if (eligible(record) && record.nextAt <= now && record.cooldown <= now) play(record.el);
-        }
-        schedule();
-      }, Math.max(16, next - win.performance.now()));
-    }
-    const intersection = typeof win.IntersectionObserver === 'function' ? new win.IntersectionObserver(entries => {
-      for (const entry of entries) {
-        const record = cards.get(entry.target);
-        if (record) record.visible = entry.isIntersecting && entry.intersectionRatio >= .4;
-      }
-      for (const record of active.keys()) if (!eligible(record)) stop(record);
-      schedule();
-    }, { threshold: [0, .4, 1] }) : null;
-    const resize = typeof win.ResizeObserver === 'function' ? new win.ResizeObserver(entries => {
-      for (const entry of entries) { const record = cards.get(entry.target); if (record) measure(record); }
-    }) : null;
-    function attach(el, { faceUp = true } = {}) {
-      if (destroyed || !el) return;
-      if (!faceUp) { detach(el); return; }
-      if (cards.has(el)) return;
-      const overlay = doc.createElement('span');
-      overlay.className = 'nb-card-glare'; overlay.setAttribute('aria-hidden', 'true');
-      const band = doc.createElement('span'); band.className = 'nb-card-glare__band';
-      band.style.background = whiteGradient(opacity); overlay.append(band);
-      el.classList.add('nb-glare-host'); (el.querySelector('.card-content') || el).append(overlay);
-      const record = { el, overlay, band, visible: !intersection, reach: 0, nextAt: win.performance.now() + 400 + (serial++ % 12) * 140, cooldown: 0 };
-      cards.set(el, record);
-      measure(record); intersection?.observe(el); resize?.observe(el); schedule();
-    }
-    function detach(el) {
-      const record = cards.get(el); if (!record) return;
-      stop(record);
-      intersection?.unobserve(el); resize?.unobserve(el);
-      record.overlay.remove(); el.classList.remove('nb-glare-host'); cards.delete(el);
-      schedule();
-    }
-    function refresh() { for (const record of active.keys()) if (!eligible(record)) stop(record); schedule(); }
-    function pagehide() { pageSuspended = true; stop(); clearTimer(); }
-    function pageshow() { pageSuspended = false; refresh(); }
-    const listen = (media, cb) => media.addEventListener ? media.addEventListener('change', cb) : media.addListener(cb);
-    const unlisten = (media, cb) => media.removeEventListener ? media.removeEventListener('change', cb) : media.removeListener(cb);
-    listen(reduced, refresh); doc.addEventListener('visibilitychange', refresh);
-    win.addEventListener('pagehide', pagehide); win.addEventListener('pageshow', pageshow);
-    return {
-      attach, detach,
-      pause() { paused = true; stop(); clearTimer(); },
-      resume() { paused = false; refresh(); },
-      destroy() {
-        destroyed = true; stop(); clearTimer();
-        for (const el of [...cards.keys()]) detach(el);
-        intersection?.disconnect(); resize?.disconnect();
-        unlisten(reduced, refresh); doc.removeEventListener('visibilitychange', refresh);
-        win.removeEventListener('pagehide', pagehide); win.removeEventListener('pageshow', pageshow);
-      },
-      // Diagnostic only: no card values or identities are read by this module.
-      status() { return { attached: cards.size, active: active.size > 0, activeCount: active.size, interval, scheduled: !!timer, reduced: reduced.matches, paused }; }
-    };
-  }
-  global.NumberBluffCardMotion = Object.freeze({ createManager });
-})(typeof window !== 'undefined' ? window : globalThis);
 
 </script><script>
 /*!
@@ -1776,9 +1617,13 @@ const ART={double:{width:1051,height:1496},extra:{width:1049,height:1500},max0:{
 function containRect(width,height,sourceWidth,sourceHeight){const scale=Math.min(width/sourceWidth,height/sourceHeight);return{x:(width-sourceWidth*scale)/2,y:(height-sourceHeight*scale)/2,width:sourceWidth*scale,height:sourceHeight*scale,scale};}
 function markup(kind,id){
 const a=ART[kind];
+// Bound offscreen mask/filter surfaces to the painted motif, not the full card.
+// These bounds include feather/blur padding and never alter source coordinates.
+const bounds={double:[90,670,890,580],extra:[205,660,660,670],reset:[235,725,610,560],max0:[320,570,420,510]}[kind];
+const [bx,by,bw,bh]=bounds,box=`x="${bx}" y="${by}" width="${bw}" height="${bh}"`;
 // Visible pixels always come from the immutable original. These feathered
 // selections create moving reflection/contrast, not drawn ornamental geometry.
-const region={double:'<ellipse cx="535" cy="963" rx="435" ry="165" transform="rotate(-28 535 963)"/>',extra:'<ellipse cx="535" cy="994" rx="298" ry="300"/>',reset:'<path d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" fill="none" stroke="white" stroke-width="108" stroke-linecap="round"/>',max0:'<path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/><circle cx="518" cy="643" r="16"/><circle cx="614" cy="613" r="20"/><circle cx="697" cy="675" r="16"/>'}[kind];
+const region={double:'<ellipse cx="535" cy="963" rx="435" ry="165" transform="rotate(-28 535 963)"/>',extra:'<ellipse cx="535" cy="994" rx="298" ry="300"/>',reset:'<path d="M343 965 C304 1097 418 1216 553 1200 C716 1180 779 1007 683 880 C628 807 548 795 469 812" fill="none" stroke="white" stroke-width="108" stroke-linecap="round"/>',max0:'<path d="M509 723 L516 654 L550 679 L609 628 L647 695 L688 683 L672 746 Q590 716 509 723Z"/><circle cx="518" cy="643" r="16"/><circle cx="614" cy="613" r="20"/><circle cx="697" cy="675" r="16"/><ellipse cx="407" cy="946" rx="54" ry="59" transform="rotate(18 407 946)"/><ellipse cx="648" cy="984" rx="53" ry="60" transform="rotate(-15 648 984)"/>'}[kind];
 const photo=cls=>`<image class="${cls}" x="0" y="0" width="${a.width}" height="${a.height}" preserveAspectRatio="none"/>`;
 const patches=(radius,rx,ry)=>[0,125,250].map(angle=>`<g transform="rotate(${angle})"><ellipse cx="${radius}" cy="0" rx="${rx}" ry="${ry}" fill="url(#${id}-spot)"/></g>`).join('');
 function field(mode){
@@ -1787,22 +1632,21 @@ function field(mode){
   const radius=kind==='double'?285:205;
   return `<g transform="${geometry}"><g class="art-mask-orbit ${mode}">${patches(radius,mode==='specular-flow'?65:115,mode==='specular-flow'?150:230)}</g></g>`;
  }
- if(kind==='max0'&&mode==='specular-flow')return [[518,643],[614,613],[697,675]].map(([x,y],i)=>`<ellipse class="art-jewel-light jewel-${i}" cx="${x}" cy="${y}" rx="30" ry="30" fill="url(#${id}-spot)"/>`).join('');
- return `<g transform="${kind==='extra'?'rotate(-20 535 994)':''}"><rect class="art-light-sweep ${mode}" x="${kind==='max0'?400:-500}" y="0" width="${kind==='max0'?110:mode==='specular-flow'?160:300}" height="${a.height}" fill="url(#${id}-sweep)"/></g>`;
+ if(kind==='max0'&&mode==='specular-flow')return [[518,643],[614,613],[697,675],[407,946],[648,984]].map(([x,y],i)=>`<ellipse class="art-jewel-light ${i>2?'art-eye-light':''} jewel-${i}" cx="${x}" cy="${y}" rx="${i>2?52:30}" ry="${i>2?56:30}" fill="url(#${id}-spot)"/>`).join('');
+ return `<g transform="${kind==='extra'?'rotate(-20 535 994)':''}"><rect class="art-light-sweep ${mode}" x="${kind==='max0'?400:-500}" y="0" width="${kind==='max0'?110:mode==='specular-flow'?160:300}" height="${kind==='max0'?800:a.height}" fill="url(#${id}-sweep)"/></g>`;
 }
-const selection=(name,mode,lum='painted-light')=>`<mask id="${id}-${name}" maskUnits="userSpaceOnUse" x="0" y="0" width="${a.width}" height="${a.height}" style="mask-type:luminance"><g mask="url(#${id}-region)"><g mask="url(#${id}-${lum})">${field(mode)}</g></g></mask>`;
+const selection=(name,mode,lum='painted-light')=>`<mask id="${id}-${name}" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-${lum})">${field(mode)}</g></mask>`;
 return `<defs>
-<filter id="${id}-soft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="${kind==='max0'?2:8}"/></filter>
-<filter id="${id}-lightboost" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncG type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncB type="gamma" amplitude="1.7" exponent=".55" offset="0"/></feComponentTransfer></filter>
-<filter id="${id}-shade"><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"/></filter>
-<filter id="${id}-bloom" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="6"/></filter>
-<filter id="${id}-luminance" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncG type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncB type="table" tableValues="0 .15 .45 .8 1 1"/></feComponentTransfer></filter>
+<filter id="${id}-soft" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="${kind==='max0'?2:8}"/></filter>
+<filter id="${id}-lightboost" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncG type="gamma" amplitude="1.7" exponent=".55" offset="0"/><feFuncB type="gamma" amplitude="${kind==='max0'?1.3:1.7}" exponent=".55" offset="0"/></feComponentTransfer></filter>
+<filter id="${id}-bloom" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="6"/></filter>
+<filter id="${id}-luminance" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncG type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncB type="table" tableValues="0 .15 .45 .8 1 1"/></feComponentTransfer></filter>
 <radialGradient id="${id}-spot"><stop stop-color="white"/><stop offset=".3" stop-color="#eee"/><stop offset="1" stop-color="black"/></radialGradient>
 <linearGradient id="${id}-sweep"><stop stop-color="black"/><stop offset=".3" stop-color="#888"/><stop offset=".5" stop-color="white"/><stop offset=".7" stop-color="#888"/><stop offset="1" stop-color="black"/></linearGradient>
-<mask id="${id}-region" maskUnits="userSpaceOnUse" x="0" y="0" width="${a.width}" height="${a.height}" style="mask-type:luminance"><g fill="white" filter="url(#${id}-soft)">${region}</g></mask>
-<mask id="${id}-painted-light" maskUnits="userSpaceOnUse" x="0" y="0" width="${a.width}" height="${a.height}" style="mask-type:luminance"><g filter="url(#${id}-luminance)">${photo('art-luminance-source')}</g></mask>
-${selection('shade-mask','shade-flow')}${selection('reveal','primary-flow')}${selection('specular-mask','specular-flow')}
-</defs><g class="art-derived-shadow" mask="url(#${id}-shade-mask)" filter="url(#${id}-shade)">${photo('art-shadow-source')}</g><g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity=".3">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g><g class="art-derived-specular" mask="url(#${id}-specular-mask)" filter="url(#${id}-lightboost)">${photo('art-specular-source')}</g>`;
+<mask id="${id}-region" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g fill="white" filter="url(#${id}-soft)">${region}</g></mask>
+<mask id="${id}-painted-light" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-region)"><g filter="url(#${id}-luminance)">${photo('art-luminance-source')}</g></g></mask>
+${kind==='max0'?'':selection('shade-mask','shade-flow')}${selection('reveal','primary-flow')}${selection('specular-mask','specular-flow')}
+</defs>${kind==='max0'?'':`<g class="art-derived-shadow" mask="url(#${id}-shade-mask)"><rect ${box} fill="black"/></g>`}<g class="art-derived-light" mask="url(#${id}-reveal)"><g filter="url(#${id}-bloom)" opacity=".3">${photo('art-bloom-source')}</g><g filter="url(#${id}-lightboost)">${photo('art-sheen-source')}</g></g><g class="art-derived-specular" mask="url(#${id}-specular-mask)" filter="url(#${id}-lightboost)">${photo('art-specular-source')}</g>`;
 }
 function createManager(){
 const records=new Map();const reduced=matchMedia('(prefers-reduced-motion:reduce)');let paused=false,destroyed=false,pageSuspended=false;
@@ -1829,7 +1673,7 @@ function measure(r){
 }
 const ro=new ResizeObserver(entries=>{for(const r of records.values())if(entries.some(e=>e.target===r.el||e.target===r.imageElement))measure(r);});
 const io=new IntersectionObserver(entries=>{for(const e of entries){const r=records.get(e.target);if(r){r.visible=e.isIntersecting&&e.intersectionRatio>=.35;sync(r);}}},{threshold:[0,.35,1]});
-function attach(el,kind,{faceUp=true,imageElement=null}={}){if(destroyed||!el)return null;if(!faceUp||!ART[kind]){detach(el);return null;}const old=records.get(el);if(old&&old.kind===kind&&old.imageElement===imageElement){measure(old);sync(old);return old.layer;}detach(el);
+function attach(el,kind,{faceUp=true,imageElement=null}={}){if(destroyed||!el)return null;if(!faceUp||!ART[kind]){detach(el);return null;}const old=records.get(el);if(old&&old.kind===kind&&old.imageElement===imageElement){sync(old);return old.layer;}detach(el);
  const a=ART[kind],layer=document.createElement('span');layer.className='nb-special-svg';layer.dataset.kind=kind;layer.dataset.playing='false';layer.setAttribute('aria-hidden','true');
  const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${a.width} ${a.height}`);svg.setAttribute('preserveAspectRatio','xMidYMid meet');svg.innerHTML=markup(kind,'nbsv-'+(++serial));for(const image of svg.querySelectorAll?.('image')||[])image.setAttribute('href',imageElement?.currentSrc||imageElement?.src||new URL('https://tanabe0422.github.io/number-bluff/assets/card-'+kind+'.webp',document.baseURI).href);layer.append(svg);const mountRoot=imageElement?.closest('.card-content')||el;mountRoot.append(layer);el.classList.add('nb-special-svg-host');
  const bounds=el.getBoundingClientRect();const visibleWidth=Math.max(0,Math.min(innerWidth,bounds.right)-Math.max(0,bounds.left)),visibleHeight=Math.max(0,Math.min(innerHeight,bounds.bottom)-Math.max(0,bounds.top));
@@ -1853,7 +1697,7 @@ global.NumberBluffSpecialSVG=Object.freeze({createManager,containRect,art:ART});
 /* Presentation-only orchestration. Reads disclosed DOM faces, never game state. */
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.NumberBluffSpecialEffects=factory();})(typeof globalThis==='object'?globalThis:this,function(){
  'use strict';
- function create({renderer,glare,document:doc=document,window:win=window,busy=()=>false}={}){
+ function create({renderer,document:doc=document,window:win=window,busy=()=>false}={}){
   const reduced=win.matchMedia('(prefers-reduced-motion: reduce)');
   let ready=false,disposed=false,active=null,endTimer=0,nextAllowed=0;
   const seen=new Set();
@@ -1868,28 +1712,24 @@ global.NumberBluffSpecialSVG=Object.freeze({createManager,containRect,art:ART});
    const modal=doc.querySelector('dialog[open]');if(modal&&!modal.contains(node))return false;
    const r=node.getBoundingClientRect();return r.width>0&&r.height>0&&r.bottom>0&&r.top<win.innerHeight&&r.right>0&&r.left<win.innerWidth;
   }
-  function releaseGlare(){if(!blocked()&&!doc.querySelector('dialog[open]'))glare.resume();}
-  function stop(){win.clearTimeout(endTimer);endTimer=0;renderer.stop();active=null;releaseGlare();}
+  function stop(){win.clearTimeout(endTimer);endTimer=0;renderer.stop();active=null;}
   function play(node,{key=null,duration=null,priority=false}={}){
    if(!ready||!eligible(node)||(key&&seen.has(key)))return false;
    if(!priority&&(busy()||active||win.performance.now()<nextAllowed))return false;
    const kind=kindOf(node),ms=duration??1200;
    if(priority)stop();
-   // Glare is explicitly allowed on special cards alongside the local SVG.
-   glare.resume();
-   if(!renderer.play(node,kind,{duration:ms})){releaseGlare();return false;}
+   if(!renderer.play(node,kind,{duration:ms}))return false;
    if(key){seen.add(key);if(seen.size>128)seen.delete(seen.values().next().value);}
    active={node,kind};nextAllowed=win.performance.now()+ms+1500;
    endTimer=win.setTimeout(stop,ms+50);return true;
   }
   function sync(){if(active&&!eligible(active.node))stop();}
-  function visibility(){if(doc.hidden||reduced.matches)stop();else if(!active)releaseGlare();}
-  function pagehide(){stop();glare.pause();}
-  function pageshow(){releaseGlare();}
+  function visibility(){if(doc.hidden||reduced.matches)stop();}
+  function pagehide(){stop();}
   doc.addEventListener('visibilitychange',visibility);
-  reduced.addEventListener?.('change',visibility);win.addEventListener('pagehide',pagehide);win.addEventListener('pageshow',pageshow);
+  reduced.addEventListener?.('change',visibility);win.addEventListener('pagehide',pagehide);
   Promise.resolve(renderer.ready).then(value=>{if(!disposed)ready=!!value;});
-  return {play,stop,sync,status(){return{ready,active:!!active,kind:active?.kind||null,seen:seen.size};},destroy(){disposed=true;stop();doc.removeEventListener('visibilitychange',visibility);reduced.removeEventListener?.('change',visibility);win.removeEventListener('pagehide',pagehide);win.removeEventListener('pageshow',pageshow);renderer.destroy();seen.clear();}};
+  return {play,stop,sync,status(){return{ready,active:!!active,kind:active?.kind||null,seen:seen.size};},destroy(){disposed=true;stop();doc.removeEventListener('visibilitychange',visibility);reduced.removeEventListener?.('change',visibility);win.removeEventListener('pagehide',pagehide);renderer.destroy();seen.clear();}};
  }
  return Object.freeze({create});
 });
@@ -1958,28 +1798,50 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   'use strict';
   const G = window.NumberBluff, timer = window.NumberBluffScheduler(), $ = id => document.getElementById(id);
   const audio = window.NumberBluffAudio.create();
-  const cardMotion = window.NumberBluffCardMotion.createManager();
+  function updateSoundButtons() {
+    const muted = audio.isMuted();
+    document.querySelectorAll('[data-sound-toggle]').forEach(button => {
+      button.setAttribute('aria-pressed', String(muted));
+      button.setAttribute('aria-label', muted ? '音をオンにする' : '音をオフにする');
+      button.title = muted ? '音をオンにする' : '音をオフにする';
+      const icon = button.querySelector('b');
+      if (icon) icon.textContent = '♪'; else button.textContent = '♪';
+      button.classList.toggle('is-muted', muted);
+    });
+  }
+  document.querySelectorAll('[data-sound-toggle]').forEach(button => {
+    button.addEventListener('click', event => {
+      audio.setMuted(!audio.isMuted(), event);
+      updateSoundButtons();
+      if (!audio.isMuted()) audio.play('tap');
+    });
+  });
+  updateSoundButtons();
   const cardReveal = window.NumberBluffCardReveal.createController();
   const sceneMotion = window.NumberBluffSceneMotion.create();
   const gameplayFeedback = window.NumberBluffGameplayFeedback.create();
   const specialSVG = window.NumberBluffSpecialSVG.createManager();
   const specialRenderer = {ready:Promise.resolve(true),play(node,kind,{duration}){specialSVG.attach(node,kind,{faceUp:true,imageElement:node.querySelector('img.card-art')});return specialSVG.play(node,{duration});},stop(){specialSVG.stop();},destroy(){specialSVG.destroy();}};
-  const specialEffects = window.NumberBluffSpecialEffects.create({renderer:specialRenderer,glare:cardMotion,busy:()=>presenter.active});
+  const specialEffects = window.NumberBluffSpecialEffects.create({renderer:specialRenderer,busy:()=>presenter.active});
   let detailEffectEpoch = 0;
   const motionCards = new Set();
   function syncCardMotion() {
     specialEffects.sync();
-    for (const node of motionCards) if (!node.isConnected) { cardMotion.detach(node); specialSVG.detach(node); motionCards.delete(node); }
+    for (const node of motionCards) if (!node.isConnected) { specialSVG.detach(node); motionCards.delete(node); }
     for (const node of document.querySelectorAll('.screen:not(.hide) .player-card:not(.hidden):not(.out), dialog[open] .player-card:not(.hidden):not(.out)')) {
-      if (!motionCards.has(node)) { cardMotion.attach(node, { faceUp: true }); motionCards.add(node); }
       const kind = ['extra','double','max0','reset'].find(value => node.classList.contains('kind-' + value));
-      if (kind) specialSVG.attach(node, kind, { faceUp: true, imageElement: node.querySelector('img.card-art') });
+      if (kind) { motionCards.add(node); specialSVG.attach(node, kind, { faceUp: true, imageElement: node.querySelector('img.card-art') }); }
     }
     specialSVG.refresh();
   }
-  const motionObserver = new MutationObserver(syncCardMotion);
+  // Countdown text and SVG-internal changes never alter the set of card hosts.
+  // Avoid measuring every card on those frequent unrelated child mutations.
+  const containsCard = node => node.nodeType === 1 && (node.matches('.player-card') || node.querySelector('.player-card'));
+  const motionObserver = new MutationObserver(records => {
+    if (records.some(record => [...record.addedNodes, ...record.removedNodes].some(containsCard))) syncCardMotion();
+  });
   motionObserver.observe(document.querySelector('main'), {childList:true,subtree:true});
-  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
+  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null, roomAccessPermission = null;
   const sessionFinishListeners = new Set();
   let connectionBlocked = false, connectionMessage = '';
   const screenListeners = new Set(), screenNames = { homeScreen: 'home', lobbyScreen: 'lobby', battleScreen: 'battle', guidePanel: 'guide', joinPanel: 'join' };
@@ -2063,7 +1925,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   function show(id, focus = null) {
     if (screen === 'battleScreen' && id !== screen) { audio.stop(); cancelPresentation(true); }
     for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
-    stopDetailEffect(); screen = id; paintTurnDisplay(); cardReveal.settleAll(); cardMotion.pause(); cardMotion.resume(); syncCardMotion(); window.scrollTo(0, 0);
+    stopDetailEffect(); screen = id; paintTurnDisplay(); cardReveal.settleAll(); syncCardMotion(); window.scrollTo(0, 0);
     for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
     if (focus) $(focus).focus({ preventScroll: true });
   }
@@ -2101,6 +1963,12 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     paintConnectionStatus();
   }
   async function requestRoom(kind, roomId) {
+    // AI Studio handoff: wire private creation before enabling this branch.
+    // Never silently create a public room while the private option is selected.
+    if (kind === 'create' && $('privateRoom').checked) {
+      $('roomCreateStatus').textContent = 'プライベートルームは準備中です。公開ルームはチェックを外して作成できます。';
+      return;
+    }
     const status = $(kind === 'create' ? 'roomCreateStatus' : 'roomJoinStatus');
     const button = $(kind === 'create' ? 'startGame' : 'joinRoom');
     if (typeof roomActions[kind] !== 'function') { if (kind === 'create' && !roomAdapterExpected) { createLocalHostRoom(); return; } status.textContent = '接続待ち'; return; }
@@ -2108,7 +1976,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     try {
       const adapter = await roomActions[kind](...(kind === 'join' ? [roomId] : []));
       if (request !== roomRequest) { adapter?.close?.(); return; }
-      if (adapter) window.NumberBluffClient.connect(adapter);
+      if (adapter) window.NumberBluffClient.connect(adapter, { roomPermission: kind === 'create' ? 0 : null });
       status.textContent = view ? '' : connectionMessage || 'ホストからの情報を待っています…';
     } catch { if (request === roomRequest) status.textContent = '接続できませんでした。もう一度お試しください。'; }
     finally { if (request === roomRequest) button.disabled = false; }
@@ -2126,9 +1994,18 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   }
   function renderLobby() {
     $('playerCount').textContent = view.players.length + '/8';
+    const roomId = typeof view.roomId === 'string' ? view.roomId : '';
+    const permission = view.roomPermission === 0 || view.roomPermission === 1 ? view.roomPermission : roomAccessPermission;
+    const idHeader = !!roomId && permission !== 0;
+    $('lobbyTitle').textContent = !transport ? '練習ルーム' : idHeader ? roomId : '公開ルーム';
+    $('lobbyTitle').classList.toggle('is-room-id', idHeader);
+    $('copyRoomId').classList.toggle('hide', !idHeader);
+    $('lobbyHeaderSpacer').classList.toggle('hide', idHeader);
+    $('roomCopyStatus').textContent = ''; $('roomCopyStatus').classList.add('hide');
+    $('roomCopyFallback').classList.add('hide');
     const manage = canManageLobby(), hostId = transport ? view.hostId : 'p1';
     let clockNote = document.getElementById('onlineTurnRule'); if (!clockNote) { clockNote = el('p', 'turn-rule-note'); clockNote.id = 'onlineTurnRule'; $('roomIdentity').after(clockNote); } clockNote.textContent = view.roomId ? '1手30秒 · 時間切れは前の宣言＋1（初手1）' : ''; clockNote.classList.toggle('hide', !view.roomId);
-    $('roomIdentity').classList.toggle('hide', !view.roomId); $('roomIdentity').textContent = view.roomId ? 'ルームID ' + String(view.roomId) : '';
+    $('roomIdentity').classList.toggle('hide', !roomId || idHeader); $('roomIdentity').textContent = roomId && !idHeader ? 'ルームID ' + roomId : '';
     $('lobbyError').textContent = '';
     const selected = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
     if (!selected) selectedBot = view.players.find(p => p.kind === 'bot')?.id;
@@ -2188,8 +2065,8 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   function renderStagedResult() {
     const r = view.result, f = presentationFrame;
     $('result').dataset.presentationPhase = f.phase;
-    $('battleTitle').textContent = f.outcomeVisible && r.winner ? '対戦結果' : 'ラウンド結果';
-    $('resultTitle').textContent = $('battleTitle').textContent;
+    $('battlePhase').textContent = f.outcomeVisible && r.winner ? '対戦結果' : 'ラウンド結果';
+    $('resultTitle').textContent = $('battlePhase').textContent;
     $('calculationHeading').textContent = ({hold:'グラビティ！',reveal:'カードを公開',extra:'もう1枚、公開',max:'最大の1枚を0に',sum:'数字を足して…',multiply:'合計を2倍！',compare:'宣言と比べる',outcome:'判定結果'})[f.phase] || '計算の流れ';
     const line = (label, expression) => { const row = el('div', 'calc-line'); if (label) row.append(el('div', '', label)); row.append(el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
     if (f.extraVisible && r.extraCard) { const extra = el('div', 'extra-reveal'); const card = cardNode(r.extraCard); if (f.phase === 'extra') card.classList.add('presentation-extra'); if (f.removedCardId === r.extraCard.id) { card.classList.add('is-zeroed'); card.append(el('span', 'presentation-zero-stamp', '0')); } extra.append(el('span', '', '「?」で追加公開'), card); $('calculationSteps').append(extra); }
@@ -2208,7 +2085,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     if (!r) { $('resultText').textContent = ''; $('finalTotal').textContent = ''; return; }
     if (presentationFrame && !presentationFrame.complete) { renderStagedResult(); return; }
     $('result').dataset.presentationPhase = 'complete'; $('calculationHeading').textContent = '計算の流れ'; $('totalLabel').textContent = '最終合計';
-    $('battleTitle').textContent = r.winner ? '対戦結果' : 'ラウンド結果';
+    $('battlePhase').textContent = r.winner ? '対戦結果' : 'ラウンド結果';
     $('resultTitle').textContent = r.winner ? '対戦結果' : 'ラウンド結果';
     const numeric = [...Object.values(r.cards), ...(r.extraCard ? [r.extraCard] : [])].filter(c => c.kind === 'number');
     const line = (label, expression) => { const row = el('div', 'calc-line'); row.append(el('div', '', label), el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
@@ -2244,15 +2121,14 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     document.querySelector('.turn-countdown')?.remove();
     if (transport && active && view.turnClock) { const badge = el('span', 'turn-countdown'); badge.dataset.player = view.turn; $('survivorCount').before(badge); paintTurnDisplay(); }
     $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : name(view.turn) + ' の番'; $('bidActor').replaceChildren(playerAvatar(view.last || view.turn));
-    $('battleScreen').classList.toggle('is-result', !active); $('battleTitle').textContent = active ? '対戦中' : view.phase === 'finished' ? '対戦結果' : 'ラウンド結果';
+    $('battleScreen').classList.toggle('is-result', !active); $('battlePhase').textContent = view.phase === 'finished' ? '対戦結果' : 'ラウンド結果'; $('battlePhase').classList.toggle('hide', active); $('battleTitle').querySelector('.battle-meta').classList.toggle('hide', !active);
     $('gamePanel').classList.toggle('hide', !active); $('result').classList.toggle('hide', active); $('result').classList.toggle('open', !active);
     const alive = !view.players.find(p => p.id === human)?.eliminated;
     $('status').textContent = active ? yourTurn ? 'あなたの手番です' : alive ? name(view.turn) + ' が考えています…' : 'あなたは脱落しました。残りの対戦を見届けよう。' : '';
     $('declare').disabled = !yourTurn || view.bid === Number.MAX_SAFE_INTEGER;
     $('challenge').disabled = !yourTurn || view.bid === null;
-    $('number').disabled = !yourTurn;
     document.querySelectorAll('#keypad button').forEach(button => { button.disabled = !yourTurn; });
-    if (yourTurn) { $('number').value = view.bid === null ? '1' : view.bid === Number.MAX_SAFE_INTEGER ? '' : String(view.bid + 1); suggested = true; }
+    if (yourTurn) { $('number').textContent = view.bid === null ? '1' : view.bid === Number.MAX_SAFE_INTEGER ? '' : String(view.bid + 1); suggested = true; }
     $('next').disabled = active; renderResult();
     if (active && previous && (previous.phase !== 'play' || previous.round !== view.round || previous.game !== view.game)) {
       audio.play('deal');
@@ -2296,39 +2172,80 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   function action(type, value) {
     if (!view || connectionBlocked) return false;
     if (transport && ['nextRound', 'rematch', 'returnToLobby'].includes(type) && !canManageLobby()) return false;
-    if (transport) { Promise.resolve(transport.send({ type, player: human, value, revision: view.revision, turnToken: view.turnClock?.token })).catch(() => fail('接続を確認して、もう一度お試しください。')); return true; }
+    if (transport) { const sentView = view; if (type === 'declare') $('declare').disabled = true; Promise.resolve(transport.send({ type, player: human, value, revision: view.revision, turnToken: view.turnClock?.token })).then(accepted => { if (accepted === false && type === 'declare' && view === sentView && !connectionBlocked) { $('declare').disabled = view.turn !== human; fail('宣言できませんでした。現在の手番と数字を確認してください。'); } }).catch(() => { fail('接続を確認して、もう一度お試しください。'); if (type === 'declare' && view === sentView && !connectionBlocked) $('declare').disabled = view.turn !== human; }); return true; }
     const next = G.dispatch(state, { type, player: human, value, revision: view.revision }, Math.random);
     return apply(next);
   }
   document.addEventListener('click', event => {
     const button = event.target.closest?.('button');
-    if (event.isTrusted && button && !button.disabled && !['declare', 'challenge', 'beginGame', 'next'].includes(button.id)) audio.play('tap');
+    if (event.isTrusted && button && !button.disabled && !button.matches('[data-sound-toggle]') && !['declare', 'challenge', 'beginGame', 'next'].includes(button.id)) audio.play('tap');
   });
+  $('copyRoomId').onclick = async () => {
+    const id = typeof view?.roomId === 'string' ? view.roomId : '';
+    if (!id) return;
+    const epoch = roomEpoch;
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(id);
+      if (epoch !== roomEpoch || view?.roomId !== id || screen !== 'lobbyScreen') return;
+      $('roomCopyStatus').textContent = 'ルームIDをコピーしました。';
+    } catch {
+      if (epoch !== roomEpoch || view?.roomId !== id || screen !== 'lobbyScreen') return;
+      $('roomCopyFallback').value = id; $('roomCopyFallback').classList.remove('hide');
+      $('roomCopyFallback').focus(); $('roomCopyFallback').select();
+      $('roomCopyStatus').textContent = '自動コピーできませんでした。選択されたIDをコピーしてください。';
+    }
+    $('roomCopyStatus').classList.remove('hide');
+  };
   $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = () => { const finished = captureSessionFinish(); cancelRoomRequest(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   $('joinForm').onsubmit = event => { event.preventDefault(); const id = $('roomId').value.trim(); if (id) requestRoom('join', id); };
-  $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
+  function selectJoinTab(tab, focus = false) {
+    cancelRoomRequest();
+    const isPublic = tab === 'public';
+    $('joinIdPanel').classList.toggle('hide', isPublic);
+    $('joinPublicPanel').classList.toggle('hide', !isPublic);
+    for (const [id, selected] of [['joinIdTab', !isPublic], ['joinPublicTab', isPublic]]) {
+      $(id).setAttribute('aria-selected', String(selected));
+      $(id).tabIndex = selected ? 0 : -1;
+    }
+    if (focus) $(isPublic ? 'joinPublicTab' : 'joinIdTab').focus();
+  }
+  $('joinIdTab').onclick = () => selectJoinTab('id');
+  $('joinPublicTab').onclick = () => selectJoinTab('public');
+  document.querySelector('.join-tabs').addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const tab = event.key === 'Home' ? 'id' : event.key === 'End' ? 'public' : $('joinIdTab').getAttribute('aria-selected') === 'true' ? 'public' : 'id';
+    selectJoinTab(tab, true);
+  });
+  $('refreshPublicRooms').onclick = () => {
+    // UI scaffold only. No undocumented SDK response mapping or fake rooms.
+    $('publicRoomsList').replaceChildren();
+    $('publicRoomsStatus').textContent = '公開ルーム一覧の取得機能は未接続です。ルームIDで参加できます。';
+  };
+  $('privateRoom').onchange = () => { $('roomCreateStatus').textContent = ''; };
+  $('joinGame').onclick = () => { selectJoinTab('id'); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
   $('addBot').onclick = addBot;
   $('removeBot').onclick = () => { if (transport) { lobbyAction('removeBot', { target: selectedBot }); return; } state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
   document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { if (transport) { lobbyAction('setBotAvatar', { target: selectedBot, avatar: Number(button.dataset.avatar) }); return; } avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
   document.querySelectorAll('[data-difficulty]').forEach(button => { button.onclick = () => { nextDifficulty = button.dataset.difficulty; if (transport) lobbyAction('setDifficulty', { target: selectedBot, difficulty: nextDifficulty }); if (!transport) { state = G.setDifficulty(state, selectedBot, nextDifficulty); view = G.publicView(state, human); renderLobby(); } }; });
   $('beginGame').onclick = () => { if (transport) { lobbyAction('startGame'); return; } show('battleScreen'); apply(G.startGame(state, Math.random)); window.scrollTo(0, 0); $('status').focus({ preventScroll: true }); };
-  $('declare').onclick = () => {
-    const value = G.parseBid($('number').value);
-    if (value === null || !action('declare', value)) { fail('前より大きな1以上の整数を入力してください（最大9007199254740991）。'); $('number').focus(); }
+  $('declare').onclick = event => {
+    if ($('declare').disabled || event.detail > 1) return;
+    const value = G.parseBid($('number').textContent);
+    if (value === null || (view?.bid !== null && value <= view?.bid) || !action('declare', value)) { fail('前より大きな1以上の整数を入力してください（最大9007199254740991）。'); $('declare').focus(); }
   };
   $('challenge').onclick = () => action('challenge');
   $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; audio.stop(); specialEffects.stop(); cardReveal.settleAll(); sceneMotion.skip(); presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
   document.querySelectorAll('[data-digit]').forEach(button => { button.onclick = () => {
-    if ($('number').disabled) return;
-    const prior = suggested ? '' : $('number').value, next = prior === '0' ? button.dataset.digit : prior + button.dataset.digit;
+    if ($('declare').disabled) return;
+    const prior = suggested ? '' : $('number').textContent, next = prior === '0' ? button.dataset.digit : prior + button.dataset.digit;
     if (next.length > 16 || G.parseBid(next) === null) { fail('入力できる最大の整数は9007199254740991です。'); return; }
-    $('number').value = next; suggested = false; clearError();
+    $('number').textContent = next; suggested = false; clearError();
   }; });
-  $('backspace').onclick = () => { if (!$('number').disabled) { $('number').value = $('number').value.slice(0, -1); suggested = false; clearError(); } };
-  $('number').addEventListener('input', () => { suggested = false; clearError(); });
-  $('number').addEventListener('keydown', event => { if (event.key === 'Enter' && !$('declare').disabled) { event.preventDefault(); $('declare').click(); } });
-  function confirmExit() { gameplayFeedback.stop(); specialEffects.stop(); cardMotion.pause(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); specialSVG.refresh(); }
-  function closeConfirm() { cardMotion.resume(); $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); syncCardMotion(); }
+  $('backspace').onclick = () => { if (!$('declare').disabled) { $('number').textContent = $('number').textContent.slice(0, -1); suggested = false; clearError(); } };
+  function confirmExit() { gameplayFeedback.stop(); specialEffects.stop(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); specialSVG.refresh(); }
+  function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); syncCardMotion(); }
   $('homeBtn').onclick = confirmExit; $('cancelRestart').onclick = closeConfirm;
   $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); const finished = captureSessionFinish(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   function overlay(id, trigger) { if (screen === 'homeScreen' || screen === 'joinPanel') cancelRoomRequest(); overlayReturn = { screen, trigger }; show(id); }
@@ -2384,15 +2301,15 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   function cardDetail(card, count) {
     const detailEpoch = ++detailEffectEpoch;
     const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。例：(3 + 5 − 5) × 2 = 6。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
-    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); specialEffects.stop(); cardMotion.pause(); $('cardDetail').showModal(); $('closeCardDetail').focus(); cardMotion.resume(); syncCardMotion(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailEffectEpoch&&$('cardDetail').open&&detailFace.isConnected){if(detailFace.classList.contains('normal-card')){cardMotion.resume();syncCardMotion();}else specialEffects.play(detailFace,{priority:true});}}).catch(()=>{});
+    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); specialEffects.stop(); $('cardDetail').showModal(); $('closeCardDetail').focus(); syncCardMotion(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailEffectEpoch&&$('cardDetail').open&&detailFace.isConnected&&!detailFace.classList.contains('normal-card'))specialEffects.play(detailFace,{priority:true});}).catch(()=>{});
   }
   $('closeCardDetail').onclick = () => { stopDetailEffect(); $('cardDetail').close(); specialSVG.refresh(); };
   $('cardDetail').addEventListener('cancel', stopDetailEffect);
   $('cardDetail').addEventListener('beforetoggle', event => { if(event.newState==='closed')stopDetailEffect(); });
   document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
-  $('cardDetail').addEventListener('close', () => { stopDetailEffect(); cardMotion.resume(); syncCardMotion(); });
-  window.addEventListener('pageshow', () => { cardMotion.resume(); syncCardMotion(); });
-  window.addEventListener('pagehide', () => { stopTurnDisplay(); stopDetailEffect(); cardMotion.pause(); timer.cancel(); cancelPresentation(true); });
+  $('cardDetail').addEventListener('close', () => { stopDetailEffect(); syncCardMotion(); });
+  window.addEventListener('pageshow', () => { syncCardMotion(); });
+  window.addEventListener('pagehide', () => { stopTurnDisplay(); stopDetailEffect(); timer.cancel(); cancelPresentation(true); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });
   document.addEventListener('visibilitychange', () => { paintTurnDisplay(); if (!document.hidden && transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });
   window.addEventListener('pageshow', () => { paintTurnDisplay(); if (transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });
@@ -2435,9 +2352,9 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       localProfile = { name: profile.name.trim().slice(0, 24), avatarUrl: safeAvatar(profile.avatarUrl) };
       if (state) { state = { ...state, players: state.players.map(p => p.id === human ? { ...p, ...localProfile } : p) }; view = G.publicView(state, human); renderLobby(); }
     },
-    connect(adapter) {
+    connect(adapter, access = {}) {
       if (!adapter || typeof adapter.subscribe !== 'function' || typeof adapter.send !== 'function') throw new TypeError('Adapter requires subscribe(onPublicView) and send(action).');
-      timer.cancel(); detachTransport(); transport = adapter; state = null; view = null;
+      timer.cancel(); detachTransport(); transport = adapter; roomAccessPermission = access.roomPermission === 0 || access.roomPermission === 1 ? access.roomPermission : null; state = null; view = null;
       let first = true;
       unsubscribe = adapter.subscribe(publicState => {
         if (transport !== adapter) return;

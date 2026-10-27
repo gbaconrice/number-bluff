@@ -3,7 +3,7 @@
   else root.NumberBluffAudio = factory();
 })(typeof globalThis === 'object' ? globalThis : this, function () {
   'use strict';
-  // Small, original synthesized cues: no downloads, music loop or stored sound setting.
+  // Small, original synthesized cues: no downloads or music loop. The only setting is the small sound toggle.
   // Each tuple is [frequency, seconds, offset, endFrequency, waveform, gain].
   const cues = {
     tap: [[780, .055, 0, 620, 'sine', .13]],
@@ -22,11 +22,16 @@
     outcome: [[523, .18, 0, 523, 'sine', .10], [659, .26, .10, 659, 'sine', .09]]
   };
   function create({ contextFactory, document: doc = typeof document === 'object' ? document : null,
-    window: win = typeof window === 'object' ? window : null } = {}) {
-    let context = null, master = null, destroyed = false, resumePending = false;
+    window: win = typeof window === 'object' ? window : null,
+    storage, now: clockNow = () => typeof performance === 'object' ? performance.now() : Date.now() } = {}) {
+    let context = null, master = null, destroyed = false, resumePending = false, pendingCue = null;
+    let store = storage, muted = false, lastGestureAt = -Infinity;
+    const volume = .5, storageKey = 'number-bluff.sound-muted.v1';
+    try { if (store === undefined) store = win?.localStorage; muted = store?.getItem(storageKey) === 'true'; } catch {}
     const voices = new Set(), lastPlayed = new Map();
     const hidden = () => !!doc?.hidden;
     function stop() {
+      pendingCue = null;
       for (const voice of [...voices]) {
         try { voice.oscillator.stop(); } catch {}
         try { voice.oscillator.disconnect(); voice.gain.disconnect(); } catch {}
@@ -36,23 +41,36 @@
     }
     function unlock(event) {
       // Only the trusted interaction handler may create/resume the device context.
-      if (destroyed || hidden() || event?.isTrusted === false) return false;
+      if (destroyed || hidden() || muted || event?.isTrusted === false) return false;
+      lastGestureAt = clockNow();
       try {
         if (!context || context.state === 'closed') {
           const Constructor = win?.AudioContext || win?.webkitAudioContext;
           if (!contextFactory && !Constructor) return false;
           context = contextFactory ? contextFactory() : new Constructor();
-          master = context.createGain(); master.gain.value = .28; master.connect(context.destination);
+          master = context.createGain(); master.gain.value = volume; master.connect(context.destination);
         }
         if (context.state !== 'running' && !resumePending) {
           resumePending = true;
-          Promise.resolve(context.resume()).catch(() => {}).finally(() => { resumePending = false; });
+          Promise.resolve(context.resume()).then(() => {
+            const cue = pendingCue; pendingCue = null;
+            // Only the current interaction's fresh cue may survive async unlock.
+            if (cue && clockNow() - cue.at <= 250 && !destroyed && !muted && !hidden()) play(cue.kind);
+          }).catch(() => { pendingCue = null; }).finally(() => { resumePending = false; });
         }
         return true;
       } catch { resumePending = false; return false; }
     }
     function play(kind) {
-      if (destroyed || hidden() || !context || context.state !== 'running' || !cues[kind]) return false;
+      if (destroyed || muted || hidden() || !context || !cues[kind]) return false;
+      if (context.state !== 'running') {
+        if (resumePending && clockNow() - lastGestureAt <= 250) {
+          // A generic click must not replace a more meaningful deal/declaration.
+          if (!pendingCue || kind !== 'tap') pendingCue = { kind, at: clockNow() };
+          return true;
+        }
+        return false;
+      }
       const now = context.currentTime;
       // Dense renders/clicks cannot stack unbounded voices. No delayed queue on resume.
       if (now - (lastPlayed.get(kind) ?? -Infinity) < .035) return false;
@@ -66,6 +84,7 @@
           oscillator.frequency.exponentialRampToValueAtTime(end, finish);
           gain.gain.setValueAtTime(.0001, start);
           gain.gain.exponentialRampToValueAtTime(volume, start + Math.min(.012, duration / 4));
+          gain.gain.setValueAtTime(volume, start + duration * .3);
           gain.gain.exponentialRampToValueAtTime(.0001, finish);
           oscillator.connect(gain); gain.connect(master);
           const voice = { oscillator, gain }; voices.add(voice);
@@ -83,10 +102,18 @@
     }
     const visibility = () => { if (hidden()) suspend(); };
     // touchend is retained for older iOS WebViews; pointerdown covers modern devices.
-    const gestures = ['pointerdown', 'touchend', 'keydown'];
+    const gestures = ['pointerdown', 'touchend', 'keydown', 'click'];
     for (const type of gestures) doc?.addEventListener?.(type, unlock, { capture: true, passive: true });
     doc?.addEventListener?.('visibilitychange', visibility);
     win?.addEventListener?.('pagehide', suspend);
+    function setMuted(value, event) {
+      muted = !!value;
+      try { store?.setItem(storageKey, String(muted)); } catch {}
+      if (muted) stop();
+      if (master) master.gain.value = muted ? 0 : volume;
+      if (!muted && event?.isTrusted) unlock(event);
+      return muted;
+    }
     function destroy() {
       if (destroyed) return;
       destroyed = true; stop();
@@ -94,7 +121,7 @@
       doc?.removeEventListener?.('visibilitychange', visibility); win?.removeEventListener?.('pagehide', suspend);
       try { Promise.resolve(context?.close()).catch(() => {}); } catch {}
     }
-    return Object.freeze({ unlock, play, stop, destroy });
+    return Object.freeze({ unlock, play, stop, destroy, setMuted, isMuted: () => muted });
   }
   return Object.freeze({ create });
 });

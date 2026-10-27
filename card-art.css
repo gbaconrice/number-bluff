@@ -26,3 +26,6 @@
 /* All artwork now fills the same 2:3 surface, not a smaller contain rectangle. */
 
 .player-card .card-content { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); isolation:isolate; pointer-events:none; }
+
+/* Keep numerals above the special optical texture, independent of removed foil. */
+.player-card:not(.hidden):not(.out) .card-value{z-index:4}
