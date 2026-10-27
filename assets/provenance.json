@@ -168,10 +168,10 @@
       "file": "cloud-bunny.webp",
       "width": 1254,
       "height": 1254,
-      "bytes": 76674,
-      "sha256": "bb10edb51103f0f6ae5b2cf9ee84636e138855362da07c3985ef464a9b692f1a",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+      "bytes": 112172,
+      "sha256": "cf88c5f556d6b72b12629c39e8d94eb6ea6321fd6ada9854d579920521e8aef4",
+      "source": "Built-in image_gen reference-guided bunny anatomy consistency edit; two front paws and two distinct padded hind feet matching normal card and home character",
+      "encoding": "WebP quality 92; original dimensions and alpha retained"
     },
     {
       "file": "cloud-foreground.webp",
@@ -184,12 +184,12 @@
     },
     {
       "file": "home-hero.webp",
-      "width": 1447,
+      "width": 1446,
       "height": 1087,
-      "bytes": 219062,
-      "sha256": "bffeafb2196cef0c835683f2e82a92075570dbc42b3f6124ea970213a03176ba",
-      "source": "Built-in image_gen reference-guided four-character home illustration; cat anatomy and bunny background corrected",
-      "encoding": "WebP quality 92; original alpha, framing and dimensions preserved; no cropping"
+      "bytes": 237812,
+      "sha256": "c3dff544ec64e4854c9a24ef93550a684200b4874c79332857fd063dab2f6399",
+      "source": "Built-in image_gen reference-guided four-friend illustration; bunny anatomy aligned to normal cards with two front paws and two distinct hind feet",
+      "encoding": "WebP quality 92; original dimensions and alpha retained"
     },
     {
       "file": "home-logo.webp",
@@ -224,6 +224,6 @@
     "Normal eleven faces use independent soft framed scenes; earlier purple-gold draft assets are not included.",
     "Special four original image bytes remain unchanged. Rejected duplicate-art and SVG layers are removed; one restrained licensed glare layer may appear above artwork and below numerals.",
     "Numeral areas occupy the upper 12–38 percent. Hidden and out cards receive no face image or value attribute.",
-    "Home artwork is a provisional draft awaiting a clearer four-limb bunny revision; background animation is unchanged."
+    "Home artwork retains the approved four-friend composition with a four-limb bunny consistency revision; existing home animation is unchanged."
   ]
 }

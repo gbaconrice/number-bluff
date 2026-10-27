@@ -42,15 +42,15 @@ jobs:
         id: scene
         continue-on-error: true
         run: node --test tools/scene-motion/test/component-scene-motion.test.mjs
-      - name: Unadopted special surface visual review (not wired to game)
+      - name: Production special surface visual review
         id: special
         continue-on-error: true
         run: node tools/special-motion-preview/test-special.cjs
-      - name: Unadopted normal flow visual review (not wired to game)
+      - name: Production eleven normal surfaces and lifecycle guards
         id: normal_sky
         continue-on-error: true
         run: node tools/normal-flow-preview/test-normal-flow.cjs
-      - name: Surface prototype screenshots before full regression
+      - name: Surface screenshots before full regression
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -59,6 +59,8 @@ jobs:
             artifacts/special-prototype-*.png
             artifacts/special-temporal-evidence.json
             artifacts/normal-flow-*.png
+            artifacts/surface-special-*.png
+            artifacts/surface-normal-runtime.json
             artifacts/scene-mobile-components.png
           if-no-files-found: ignore
           retention-days: 7

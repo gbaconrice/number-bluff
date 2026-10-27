@@ -5,8 +5,13 @@
   const cardMotion = window.NumberBluffCardMotion.createManager();
   const cardReveal = window.NumberBluffCardReveal.createController();
   const sceneMotion = window.NumberBluffSceneMotion.create();
+  const surfaceSources = {...window.NumberBluffCardArt.assets.special};
+  for (const [value,src] of Object.entries(window.NumberBluffCardArt.assets.normal)) surfaceSources['normal'+value.replace('-', 'Minus')] = src;
+  const surfaceRenderer = window.NumberBluffCardSurfaceMotion.create({sources:surfaceSources,useDOMImages:true});
+  const cardSurface = window.NumberBluffCardSurfaceController.create({renderer:surfaceRenderer,glare:cardMotion,busy:()=>presenter.active});
   const motionCards = new Set();
   function syncCardMotion() {
+    cardSurface.sync();
     for (const node of motionCards) if (!node.isConnected) { cardMotion.detach(node); motionCards.delete(node); }
     for (const node of document.querySelectorAll('.screen:not(.hide) .player-card:not(.hidden):not(.out)')) {
       if (!motionCards.has(node)) { cardMotion.attach(node, { faceUp: true }); motionCards.add(node); }
@@ -53,12 +58,13 @@
   });
   function cancelPresentation(settle = false) {
     if (presenter.active) audio.stop();
-    cardReveal.settleAll(); sceneMotion.leave();
+    cardSurface.stop(); cardReveal.settleAll(); sceneMotion.leave();
     presenter.cancel(); presentationFrame = null; presentationPrevious = null;
     if (settle && view?.result && view.phase !== 'play' && view.phase !== 'lobby') { renderPlayers(); renderResult(); }
   }
   function paintPresentationFrame(frame, key) {
     if (key !== presentationKey || !view?.result || view.phase === 'play' || view.phase === 'lobby') return;
+    cardSurface.stop();
     const hadOutcome = presentationFrame?.outcomeVisible;
     const phaseSound = { hold: 'challenge', reveal: 'reveal', extra: 'extra', max: 'max', sum: 'sum', multiply: 'multiply', reset: 'reset', compare: 'compare' };
     if (frame.outcomeVisible && !hadOutcome) audio.play(view.result.winner === human ? 'win' : view.result.loser === human ? 'loss' : 'outcome');
@@ -78,13 +84,18 @@
       if (frame.removedCardId === card.id && !node.querySelector('.presentation-zero-stamp')) node.append(el('span', 'presentation-zero-stamp', '0'));
     }
     renderResult();
+    const surfaceKind = {extra:'extra',max:'max0',multiply:'double',reset:'reset'}[frame.phase];
+    if (surfaceKind && !frame.complete) {
+      const node = [...document.querySelectorAll('#battleScreen .player-card.kind-'+surfaceKind)].find(n=>!n.classList.contains('hidden'));
+      cardSurface.play(node,{key:key+':surface:'+frame.phase,duration:frame.phase==='reset'?350:400,priority:true});
+    }
     if (frame.outcomeVisible && !hadOutcome) sceneMotion.celebrate({ key, confirmed: true, won: view.result.winner === human });
     if (frame.outcomeVisible && !hadOutcome) $('resultAnnouncement').textContent = '最終合計 ' + view.result.sum + '。' + $('resultText').textContent;
   }
   function show(id, focus = null) {
     if (screen === 'battleScreen' && id !== screen) { audio.stop(); cancelPresentation(true); }
     for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
-    screen = id; cardReveal.settleAll(); cardMotion.pause(); cardMotion.resume(); syncCardMotion(); window.scrollTo(0, 0);
+    cardSurface.stop(); screen = id; cardReveal.settleAll(); cardMotion.pause(); cardMotion.resume(); syncCardMotion(); window.scrollTo(0, 0);
     for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
     if (focus) $(focus).focus({ preventScroll: true });
   }
@@ -316,7 +327,7 @@
     if (value === null || !action('declare', value)) { fail('前より大きな1以上の整数を入力してください（最大9007199254740991）。'); $('number').focus(); }
   };
   $('challenge').onclick = () => action('challenge');
-  $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; audio.stop(); cardReveal.settleAll(); sceneMotion.skip(); presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
+  $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; audio.stop(); cardSurface.stop(); cardReveal.settleAll(); sceneMotion.skip(); presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
   document.querySelectorAll('[data-digit]').forEach(button => { button.onclick = () => {
     if ($('number').disabled) return;
     const prior = suggested ? '' : $('number').value, next = prior === '0' ? button.dataset.digit : prior + button.dataset.digit;
@@ -326,7 +337,7 @@
   $('backspace').onclick = () => { if (!$('number').disabled) { $('number').value = $('number').value.slice(0, -1); suggested = false; clearError(); } };
   $('number').addEventListener('input', () => { suggested = false; clearError(); });
   $('number').addEventListener('keydown', event => { if (event.key === 'Enter' && !$('declare').disabled) { event.preventDefault(); $('declare').click(); } });
-  function confirmExit() { cardMotion.pause(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
+  function confirmExit() { cardSurface.stop(); cardMotion.pause(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); }
   function closeConfirm() { cardMotion.resume(); $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); }
   $('homeBtn').onclick = confirmExit; $('cancelRestart').onclick = closeConfirm;
   $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); const finished = captureSessionFinish(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
@@ -388,11 +399,11 @@
   }
   function cardDetail(card, count) {
     const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。例：(3 + 5 − 5) × 2 = 6。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
-    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); cardMotion.pause(); $('cardDetail').showModal(); $('closeCardDetail').focus();
+    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); cardSurface.stop(); cardMotion.pause(); $('cardDetail').showModal(); $('closeCardDetail').focus(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if($('cardDetail').open&&detailFace.isConnected)cardSurface.play(detailFace,{priority:true});}).catch(()=>{});
   }
   $('closeCardDetail').onclick = () => $('cardDetail').close();
   document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
-  $('cardDetail').addEventListener('close', () => cardMotion.resume());
+  $('cardDetail').addEventListener('close', () => { cardSurface.stop(); cardMotion.resume(); });
   window.addEventListener('pageshow', () => { cardMotion.resume(); syncCardMotion(); });
   window.addEventListener('pagehide', () => { cardMotion.pause(); timer.cancel(); cancelPresentation(true); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });

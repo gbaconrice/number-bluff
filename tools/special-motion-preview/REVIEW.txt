@@ -71,3 +71,5 @@ The visible canvas remains one. Alpha uses sin(pi*progress), so the resampled la
 fades continuously from/to the unchanged DOM original. The fixture now reuses the
 actual game card CSS and NumberBluffCardArt image creation, rather than substitute
 label sizes. Temporal JSON records 25 progress samples; human review is still required.
+
+Integrated candidate: this fixture now loads ../../card-surface-motion.js/css, the same original-surface renderer used by the app; no duplicate prototype implementation. Runtime controller prioritizes finite calculation phases and suppresses glare overlap.
