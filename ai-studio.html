@@ -665,20 +665,20 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .nb-special-svg .art-light-sweep{animation:nbsv-art-light 4.2s linear infinite}
 .nb-special-svg .art-light-sweep.shade-flow{animation-delay:-.65s}
 .nb-special-svg .art-light-sweep.specular-flow{animation-duration:2.7s;animation-direction:reverse}
-.nb-special-svg[data-kind=max0] .art-light-sweep{animation-name:nbsv-crown-light;animation-duration:2.8s}
+.nb-special-svg[data-kind=max0] .art-light-sweep{animation-name:nbsv-crown-light;animation-duration:2.2s}
 .nb-special-svg .art-jewel-light{animation:nbsv-jewel-light 2.8s ease-in-out infinite}
 .nb-special-svg .jewel-1{animation-delay:-.8s}
 .nb-special-svg .jewel-2{animation-delay:-1.6s}
 .nb-special-svg[data-kind=max0] .art-derived-light,.nb-special-svg[data-kind=max0] .art-derived-specular{opacity:1}
-.nb-special-svg .art-eye-light{animation-name:nbsv-eye-light;animation-duration:2.8s}
-.nb-special-svg .jewel-3{animation-delay:-.7s}
-.nb-special-svg .jewel-4{animation-delay:-1.05s}
+.nb-special-svg .art-eye-light{animation-name:nbsv-eye-light;animation-duration:2.2s}
+.nb-special-svg .jewel-3{animation-delay:-.25s}
+.nb-special-svg .jewel-4{animation-delay:-.4s}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
 .hide .nb-special-svg,.hidden .nb-special-svg,[hidden] .nb-special-svg{visibility:hidden!important}
 @keyframes nbsv-mask-orbit{to{transform:rotate(360deg)}}
 @keyframes nbsv-art-light{from{transform:translateX(150px)}to{transform:translateX(1500px)}}
-@keyframes nbsv-crown-light{from{transform:translateX(0px)}to{transform:translateX(340px)}}
-@keyframes nbsv-eye-light{0%,12%,88%,100%{opacity:0}38%,62%{opacity:1}}
+@keyframes nbsv-crown-light{0%{transform:translateX(-60px)}80%,100%{transform:translateX(350px)}}
+@keyframes nbsv-eye-light{0%,12%{opacity:0;transform:translateX(-55px)}25%{opacity:1}65%{opacity:1}78%,100%{opacity:0;transform:translateX(55px)}}
 @keyframes nbsv-jewel-light{0%,30%,70%,100%{opacity:0}48%,52%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.nb-special-svg{display:none!important}.nb-special-svg *{animation:none!important}}
 
@@ -1640,15 +1640,15 @@ function field(mode){
   const radius=kind==='double'?285:205;
   return `<g transform="${geometry}"><g class="art-mask-orbit ${mode}">${patches(radius,mode==='specular-flow'?65:115,mode==='specular-flow'?150:230)}</g></g>`;
  }
- if(kind==='max0'&&mode==='specular-flow')return [[518,643],[614,613],[697,675],[407,946],[648,984]].map(([x,y],i)=>`<ellipse class="art-jewel-light ${i>2?'art-eye-light':''} jewel-${i}" cx="${x}" cy="${y}" rx="${i>2?52:30}" ry="${i>2?56:30}" fill="url(#${id}-spot)"/>`).join('');
- return `<g transform="${kind==='extra'?'rotate(-20 535 994)':''}"><rect class="art-light-sweep ${mode}" x="${kind==='max0'?400:-500}" y="0" width="${kind==='max0'?110:mode==='specular-flow'?160:300}" height="${kind==='max0'?800:a.height}" fill="url(#${id}-sweep)"/></g>`;
+ if(kind==='max0'&&mode==='specular-flow')return [[518,643],[614,613],[697,675],[407,946],[648,984]].map(([x,y],i)=>`<ellipse class="art-jewel-light ${i>2?'art-eye-light':''} jewel-${i}" cx="${x}" cy="${y}" rx="${i>2?24:30}" ry="${i>2?62:30}" fill="url(#${id}-spot)"/>`).join('');
+ return `<g transform="${kind==='extra'?'rotate(-20 535 994)':''}"><rect class="art-light-sweep ${mode}" x="${kind==='max0'?400:-500}" y="0" width="${kind==='max0'?170:mode==='specular-flow'?160:300}" height="${kind==='max0'?800:a.height}" fill="url(#${id}-sweep)"/></g>`;
 }
 const selection=(name,mode,lum='painted-light')=>`<mask id="${id}-${name}" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g mask="url(#${id}-${lum})">${field(mode)}</g></mask>`;
 return `<defs>
 <filter id="${id}-soft" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="${kind==='max0'?2:8}"/></filter>
-<filter id="${id}-lightboost" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="${kind==='max0'?2.4:1.7}" exponent=".55" offset="0"/><feFuncG type="gamma" amplitude="${kind==='max0'?2.1:1.7}" exponent=".55" offset="0"/><feFuncB type="gamma" amplitude="${kind==='max0'?1.3:1.7}" exponent=".55" offset="0"/></feComponentTransfer></filter>
+<filter id="${id}-lightboost" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="gamma" amplitude="${kind==='max0'?2.4:1.7}" exponent=".55" offset="${kind==='max0'?.22:0}"/><feFuncG type="gamma" amplitude="${kind==='max0'?2.1:1.7}" exponent=".55" offset="${kind==='max0'?.15:0}"/><feFuncB type="gamma" amplitude="${kind==='max0'?1.8:1.7}" exponent=".55" offset="${kind==='max0'?.055:0}"/></feComponentTransfer></filter>
 <filter id="${id}-bloom" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="6"/></filter>
-<filter id="${id}-luminance" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncG type="table" tableValues="0 .15 .45 .8 1 1"/><feFuncB type="table" tableValues="0 .15 .45 .8 1 1"/></feComponentTransfer></filter>
+<filter id="${id}-luminance" filterUnits="userSpaceOnUse" ${box} color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="table" tableValues="${kind==='max0'?'0 .5 .8 1 1 1':'0 .15 .45 .8 1 1'}"/><feFuncG type="table" tableValues="${kind==='max0'?'0 .5 .8 1 1 1':'0 .15 .45 .8 1 1'}"/><feFuncB type="table" tableValues="${kind==='max0'?'0 .5 .8 1 1 1':'0 .15 .45 .8 1 1'}"/></feComponentTransfer></filter>
 <radialGradient id="${id}-spot"><stop stop-color="white"/><stop offset="${kind==='max0'?.6:.3}" stop-color="${kind==='max0'?'white':'#eee'}"/><stop offset="1" stop-color="black"/></radialGradient>
 <linearGradient id="${id}-sweep"><stop stop-color="black"/><stop offset=".3" stop-color="#888"/><stop offset=".5" stop-color="white"/><stop offset=".7" stop-color="#888"/><stop offset="1" stop-color="black"/></linearGradient>
 <mask id="${id}-region" maskUnits="userSpaceOnUse" ${box} style="mask-type:luminance"><g fill="white" filter="url(#${id}-soft)">${region}</g></mask>

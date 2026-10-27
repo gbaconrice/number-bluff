@@ -106,3 +106,23 @@ test('black cat has only bright crown/eye reflection, never a shadow pass',()=>{
  assert.match(rendered,/cx="407" cy="946"/);
  assert.match(rendered,/cx="648" cy="984"/);
 });
+
+test('black-cat-only adjustment leaves the other three approved renderings byte-identical', () => {
+ const approved = {
+  double: 'b635f2cb0447cab4907563badb39771bd8dd6ca1c066d2b451a070363568d1cc',
+  extra: '3879e9c8e100c064b542f93c788f2e179462254d741ed5f1329816aace4be3b0',
+  reset: '6ae90bacc27ecd79618a387298fb6b0b49d5072ba37ba733ad64e7432543a819'
+ };
+ for (const [kind, hash] of Object.entries(approved)) {
+  assert.equal(crypto.createHash('sha256').update(markup(kind)).digest('hex'), hash, kind);
+ }
+});
+test('black cat reflects across the original irises rather than pulsing the whole eyes', () => {
+ const rendered = markup('max0');
+ assert.match(rendered, /art-eye-light[^"]*" cx="407" cy="946" rx="24" ry="62"/);
+ assert.match(rendered, /art-eye-light[^"]*" cx="648" cy="984" rx="24" ry="62"/);
+ assert.match(css, /@keyframes nbsv-eye-light\{[^\n]*translateX\(-55px\)[^\n]*translateX\(55px\)/);
+ assert.match(rendered, /tableValues="0 .5 .8 1 1 1"/);
+ assert.match(rendered, /offset="0.22"/);
+ assert.doesNotMatch(rendered, /art-derived-shadow/);
+});

@@ -13,19 +13,19 @@
 .nb-special-svg .art-light-sweep{animation:nbsv-art-light 4.2s linear infinite}
 .nb-special-svg .art-light-sweep.shade-flow{animation-delay:-.65s}
 .nb-special-svg .art-light-sweep.specular-flow{animation-duration:2.7s;animation-direction:reverse}
-.nb-special-svg[data-kind=max0] .art-light-sweep{animation-name:nbsv-crown-light;animation-duration:2.8s}
+.nb-special-svg[data-kind=max0] .art-light-sweep{animation-name:nbsv-crown-light;animation-duration:2.2s}
 .nb-special-svg .art-jewel-light{animation:nbsv-jewel-light 2.8s ease-in-out infinite}
 .nb-special-svg .jewel-1{animation-delay:-.8s}
 .nb-special-svg .jewel-2{animation-delay:-1.6s}
 .nb-special-svg[data-kind=max0] .art-derived-light,.nb-special-svg[data-kind=max0] .art-derived-specular{opacity:1}
-.nb-special-svg .art-eye-light{animation-name:nbsv-eye-light;animation-duration:2.8s}
-.nb-special-svg .jewel-3{animation-delay:-.7s}
-.nb-special-svg .jewel-4{animation-delay:-1.05s}
+.nb-special-svg .art-eye-light{animation-name:nbsv-eye-light;animation-duration:2.2s}
+.nb-special-svg .jewel-3{animation-delay:-.25s}
+.nb-special-svg .jewel-4{animation-delay:-.4s}
 .nb-special-svg[data-playing=false] *{animation-play-state:paused!important}
 .hide .nb-special-svg,.hidden .nb-special-svg,[hidden] .nb-special-svg{visibility:hidden!important}
 @keyframes nbsv-mask-orbit{to{transform:rotate(360deg)}}
 @keyframes nbsv-art-light{from{transform:translateX(150px)}to{transform:translateX(1500px)}}
-@keyframes nbsv-crown-light{from{transform:translateX(0px)}to{transform:translateX(340px)}}
-@keyframes nbsv-eye-light{0%,12%,88%,100%{opacity:0}38%,62%{opacity:1}}
+@keyframes nbsv-crown-light{0%{transform:translateX(-60px)}80%,100%{transform:translateX(350px)}}
+@keyframes nbsv-eye-light{0%,12%{opacity:0;transform:translateX(-55px)}25%{opacity:1}65%{opacity:1}78%,100%{opacity:0;transform:translateX(55px)}}
 @keyframes nbsv-jewel-light{0%,30%,70%,100%{opacity:0}48%,52%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.nb-special-svg{display:none!important}.nb-special-svg *{animation:none!important}}

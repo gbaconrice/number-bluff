@@ -1,12 +1,22 @@
 // Isolated visual prototype, not a gameplay/network test. Uses the production
 // card-art factory, layout CSS and special SVG manager without a foil manager.
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import http from 'node:http';
 import { readFile, mkdir, writeFile, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 const root = fileURLToPath(new URL('../', import.meta.url));
-const output = root + 'artifacts/art-glow-preview/';
+// Optional immutable baseline renders the same original art with the previous
+// effect JS/CSS, so reviewers compare real frames rather than pixel-delta scores.
+const baselineRef = process.env.ART_PREVIEW_BASE_REF || '';
+const baseline = new Map();
+if (baselineRef) {
+ for (const file of ['special-svg-motion.js','special-svg-motion.css']) {
+  baseline.set('/'+file, execFileSync('git',['show',baselineRef+':'+file],{cwd:root}));
+ }
+}
+const output = root + 'artifacts/art-glow-preview/' + (baselineRef ? 'before/' : '');
 await mkdir(output, { recursive: true });
 const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/card-presentation.css"><link rel="stylesheet" href="/card-art.css"><link rel="stylesheet" href="/special-svg-motion.css">
@@ -18,14 +28,14 @@ const server = http.createServer(async (request, response) => {
   if (pathname === '/favicon.ico') return response.writeHead(204).end();
   if (pathname.includes('..')) return response.writeHead(400).end();
   try {
-    const bytes = await readFile(root + pathname);
+    const bytes = baseline.get(pathname) || await readFile(root + pathname);
     const type = pathname.endsWith('.css') ? 'text/css' : pathname.endsWith('.js') ? 'text/javascript' : pathname.endsWith('.png') ? 'image/png' : 'image/webp';
     response.writeHead(200, { 'content-type': type, 'cache-control': 'no-store', 'access-control-allow-origin': '*' }).end(bytes);
   } catch { response.writeHead(404).end(); }
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
-const report = { scope: 'Isolated production artwork + SVG manager. Real elapsed animation, no foil, no animation seeking, no original image editing. Video includes initial loading followed by at least 6 seconds after decoding.', previews: [] };
+const report = { baselineRef: baselineRef || null, scope: 'Isolated production artwork + SVG manager. Real elapsed animation, no foil, no animation seeking, no original image editing. Video includes initial loading followed by at least 6 seconds after decoding.', previews: [] };
 let browser;
 try {
   browser = await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : {});
