@@ -57,7 +57,7 @@ test('visible glow pixels derive only from the original image, never painted str
     assert.doesNotMatch(rendered, /art-shadow-source|id="prototype-shade"/);
     assert.match(rendered,/filterUnits="userSpaceOnUse"/);
     const [width,height]=dimensions[kind];
-    const images=[...rendered.matchAll(/<image\b([^>]*)\/>/g)];assert.equal(images.length,4);
+    const images=[...rendered.matchAll(/<image\b([^>]*)\/>/g)];assert.equal(images.length,kind==='max0'?5:4);
     for(const [,attributes] of images){assert.match(attributes,new RegExp(`x="0" y="0" width="${width}" height="${height}"`));assert.doesNotMatch(attributes,/transform=|style=/);}
   }
 });
@@ -74,7 +74,7 @@ test('luminance and feathered selection are masks, not visible geometry', () => 
 });
 test('every overlay image uses exactly the displayed original URL for currentSrc and src fallback', () => {
   for(const kind of Object.keys(originals))for(const current of [true,false]){
-    const f=fixture(kind,current);assert.equal(f.svg.images.length,4);for(const image of f.svg.images)assert.equal(image.attributes.href,f.originalURL);
+    const f=fixture(kind,current);assert.equal(f.svg.images.length,kind==='max0'?5:4);for(const image of f.svg.images)assert.equal(image.attributes.href,f.originalURL);
     assert.equal(f.svg.attributes.viewBox,`0 0 ${dimensions[kind].join(' ')}`);f.manager.destroy();
   }
 });
@@ -92,7 +92,7 @@ test('offscreen surfaces are bounded to padded motif bounds, not entire source a
     const rendered=markup(kind), [w,h]=dimensions[kind];
     for(const [,x,y,width,height] of rendered.matchAll(/(?:maskUnits|filterUnits)="userSpaceOnUse" x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)) {
       assert.ok(+x>=0 && +y>=0 && +x + +width<=w && +y + +height<=h,kind);
-      assert.ok(+width * +height < w*h*(kind==='max0'?.55:.4),kind+' bounded surface');
+      assert.ok(+width * +height < w*h*.4,kind+' bounded surface');
     }
     assert.equal((rendered.match(/filter="url\(#prototype-luminance\)"/g)||[]).length,1);
     assert.equal((rendered.match(/mask="url\(#prototype-region\)"/g)||[]).length,1);
@@ -127,13 +127,15 @@ test('black cat reflects across the original irises rather than pulsing the whol
  assert.doesNotMatch(rendered, /art-derived-shadow/);
 });
 
-test('MAX0 reflection includes painted surrounding stars and cloud rims, not extra rendered shapes',()=>{
+test('MAX0 luster selects pink cheeks, inner ears and paw pads, never background stars or clouds',()=>{
  const rendered=markup('max0');
- assert.match(rendered,/class="art-painted-surroundings"/);
- assert.match(rendered,/id="prototype-surrounding-region"/);
- assert.equal((rendered.match(/class="art-surrounding-flow /g)||[]).length,2);
- assert.match(rendered,/cx="112" cy="1018" r="64"/);
- assert.match(css,/nbsv-surrounding-light 4s linear infinite/);
+ assert.doesNotMatch(rendered,/surrounding|art-painted-surroundings/);
+ assert.match(rendered,/id="prototype-pink-region"/);
+ assert.match(rendered,/class="art-pink-source"/);
+ assert.equal((rendered.match(/class="art-pink-flow /g)||[]).length,3);
+ assert.match(rendered,/cx="333" cy="989" rx="38" ry="27"/);
+ assert.match(rendered,/cx="594" cy="1319" rx="41" ry="37"/);
+ assert.match(css,/nbsv-pink-luster 3.8s ease-in-out infinite/);
  const visible=rendered.slice(rendered.lastIndexOf('</defs>')+7);
  assert.doesNotMatch(visible,/<(?:path|ellipse|circle|polygon|use)\b/);
  assert.doesNotMatch(rendered,/art-derived-shadow/);
