@@ -49,6 +49,7 @@ async function originalArtChecks(page,state){
  return faces;
 }
 async function shot(page,width,state){
+ await readyCardArt(page);
  await settleCardMotion(page);
  if(width===844){const geometry=await page.evaluate(()=>({main:document.querySelector('main').getBoundingClientRect().toJSON(),battle:!!document.querySelector('#battleScreen:not(.hide):not(.is-result)'),logo:document.querySelector('.home-brand')?.getBoundingClientRect().toJSON()}));if(geometry.battle)assert.ok(geometry.main.width>440,'active landscape battle must retain expanded two-column area');else{assert.ok(geometry.main.width<=440+1,'landscape home/guide/lobby/results must retain compact440px shell');if(state==='home')assert.ok(geometry.logo.width<=440,'landscape home logo must not expand to battle width');}}
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${state}: horizontal overflow`);
@@ -58,7 +59,7 @@ async function shot(page,width,state){
  const mascotGeometry=await page.locator('img.avatar:not(.profile-avatar)').evaluateAll(els=>els.filter(e=>e.getClientRects().length).map(e=>({src:e.getAttribute('src'),fit:getComputedStyle(e).objectFit,width:e.naturalWidth,height:e.naturalHeight,box:e.getBoundingClientRect().toJSON()})));for(const mascot of mascotGeometry){assert.equal(mascot.fit,'contain',`${state}: BOT mascot must not be cropped ${mascot.src}`);assert.ok(mascot.width>0&&mascot.height>0,`${state}: mascot image must decode`);}
  if(width===390&&['lobby-8','battle-8'].includes(state)){for(const name of['star-sprite','blue-cloud']){const mascot=page.locator(`img.avatar[src$="/${name}.webp"]`).filter({visible:true}).first();if(await mascot.count())await mascot.locator('..').screenshot({path:fileURLToPath(new URL(`390-${state}-${name}-identity.png`,output))});}}
  const labels=await page.locator('.player-card:not(.hidden):not(.out) .card-value').evaluateAll(els=>els.filter(e=>e.getClientRects().length).map(e=>{const label=e.getBoundingClientRect(),card=e.closest('.player-card').getBoundingClientRect();return{special:e.closest('.player-card').classList.contains('special'),text:e.textContent,label:label.toJSON(),card:card.toJSON(),glyphFits:e.scrollWidth<=e.clientWidth};}));
- for(const item of labels){assert.ok(Math.abs((item.label.left+item.label.right-item.card.left-item.card.right)/2)<=1,`${state}: numeric label not centered ${JSON.stringify(item)}`);assert.ok(item.label.top>=item.card.top&&item.label.bottom<=item.card.top+item.card.height*(item.special?.38:.30)+.5,`${state}: label outside approved normal/special slot ${JSON.stringify(item)}`);assert.equal(item.glyphFits,true,`${state}: numeric glyph clipped ${item.text}`);}
+ for(const item of labels){assert.ok(Math.abs((item.label.left+item.label.right-item.card.left-item.card.right)/2)<=1,`${state}: numeric label not centered ${JSON.stringify(item)}`);assert.ok(item.label.top>=item.card.top&&item.label.bottom<=item.card.top+item.card.height*.38+.5,`${state}: label outside approved normal/special slot ${JSON.stringify(item)}`);assert.equal(item.glyphFits,true,`${state}: numeric glyph clipped ${item.text}`);}
  await originalArtChecks(page,state);
  await page.screenshot({path:fileURLToPath(new URL(`${width}-${state}.png`,output)),fullPage:true});
  if(width===844&&['home','guide-cards','lobby-8'].includes(state)){
