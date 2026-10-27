@@ -26,8 +26,23 @@ jobs:
         run: npx --no-install playwright install --with-deps chromium
       - name: Build single HTML handoff
         run: node tools/build-single-html.mjs
+      - name: Early visual preview (full regression remains mandatory)
+        id: visual
+        continue-on-error: true
+        run: node tools/e2e.mjs --visual-only
+      - name: Early visual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: early-visual-preview
+          path: artifacts/visual-preview/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Browser regression and responsive checks
         run: node tools/e2e.mjs
+      - name: Require early visual checks
+        if: always() && steps.visual.outcome == 'failure'
+        run: exit 1
       - name: Screenshots and test results only
         if: always()
         uses: actions/upload-artifact@v4

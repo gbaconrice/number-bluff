@@ -2,21 +2,12 @@
   "assets": [
     {
       "file": "blue-cloud.webp",
-      "width": 1254,
-      "height": 1254,
-      "bytes": 62346,
-      "sha256": "ff352e9312c461b0ac73fc86b46361226ad7af7510073cb32a6e940dfcef9b27",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
-      "file": "card-cream-star.webp",
-      "width": 1051,
-      "height": 1497,
-      "bytes": 289980,
-      "sha256": "66b7bc159358ec085bf002d56ad0a428aff45127d96e1a149cb4b36c955ec50b",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+      "width": 1584,
+      "height": 993,
+      "bytes": 70068,
+      "sha256": "764fb87d36bb5eb36dee1f141daff167c4faab8dd9b6f5673ea7e88712c99a05",
+      "source": "Built-in image_gen color edit of canonical horizontal cloud; pearly white body with subdued lavender-blue underside, shared by BOT and negative-card scenes",
+      "encoding": "WebP quality 90; generated alpha and dimensions retained"
     },
     {
       "file": "card-double.webp",
@@ -37,38 +28,11 @@
       "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
     },
     {
-      "file": "card-gold-cat.webp",
-      "width": 1062,
-      "height": 1482,
-      "bytes": 318062,
-      "sha256": "62bdca500c7e2f92b758d0a0bbd5bb21ba1fa2285eacbecebe3992124f8b6202",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
-      "file": "card-ice-cloud.webp",
-      "width": 1060,
-      "height": 1484,
-      "bytes": 286574,
-      "sha256": "22ee7c4d3dcfcac8b1fa0ec133a52c06d0cbe5ab2c2cca8cade11e90a105ad73",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
       "file": "card-max0.webp",
       "width": 1049,
       "height": 1499,
       "bytes": 492844,
       "sha256": "d87557aa91617ff2c06d989c34f2bc838c3651658d9d6369491d6d57fc01fcce",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
-    },
-    {
-      "file": "card-pink-bunny.webp",
-      "width": 1062,
-      "height": 1482,
-      "bytes": 313648,
-      "sha256": "8fe3ad2d99139fa3f76d8f850dcb5ccc2f87a9e3413c9924dc619c4eb2fc4041",
       "source": "Built-in image generation/editing; reference-guided original artwork",
       "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
     },
@@ -112,10 +76,10 @@
       "file": "home-hero.webp",
       "width": 1448,
       "height": 1086,
-      "bytes": 173246,
-      "sha256": "fa8b9c36f0ae54d06be2f5d5bcd793b77a0bda61206342782933bfa4c46856e4",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+      "bytes": 148848,
+      "sha256": "776fa19c904b5f874de74af794ae31552ad7cfe084f1970f885330b890d43bf3",
+      "source": "Built-in image generation/editing; central Hoshimochi updated to canonical five-point star while preserving cat, bunny and galaxy composition",
+      "encoding": "WebP quality 90; generated alpha and dimensions retained"
     },
     {
       "file": "home-logo.webp",
@@ -139,94 +103,19 @@
       "file": "star-sprite.webp",
       "width": 1254,
       "height": 1254,
-      "bytes": 57600,
-      "sha256": "4bc18283591f9e7abbb934456644266dd0210eb7f1806fb5d6e0c401fea0877b",
-      "source": "Built-in image generation/editing; reference-guided original artwork",
-      "encoding": "WebP quality 90; original alpha and dimensions retained where PNG available"
+      "bytes": 81626,
+      "sha256": "32bac9c68ee1eb3b7211d7954099b1b99f8ca530629a77bb60b60f912c3e3c46",
+      "source": "Built-in image generation/editing; Unified five-point cream-gold Hoshimochi design",
+      "encoding": "WebP quality 90; generated alpha and dimensions retained"
     },
     {
-      "file": "card-pink-bunny-2.webp",
-      "value": 2,
-      "reference": "card-pink-bunny.webp",
-      "width": 1061,
-      "height": 1482,
-      "bytes": 328534,
-      "sha256": "9b8142a9488bfdc8e00d07d9baca866501788a2f951de5a16f5aa73394254c22",
-      "method": "Built-in image_gen image edit of existing matching character card",
-      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Two friendly bunny companions",
-      "postprocessing": "WebP conversion only, quality90/method6, original dimensions and alpha retained"
-    },
-    {
-      "file": "card-cream-star-4.webp",
-      "value": 4,
-      "reference": "card-cream-star.webp",
-      "width": 1051,
-      "height": 1496,
-      "bytes": 258970,
-      "sha256": "3acf35eb864400594c15b165f864114f915307df7e615747deae3a1f004dfe67",
-      "method": "Built-in image_gen image edit of existing matching character card",
-      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Four cream creatures holding stars",
-      "postprocessing": "WebP conversion only, quality90/method6, original dimensions and alpha retained"
-    },
-    {
-      "file": "card-cream-star-10.webp",
-      "value": 10,
-      "reference": "card-cream-star.webp",
-      "width": 1051,
-      "height": 1497,
-      "bytes": 274670,
-      "sha256": "515c3ba64259fbf407c9b13a9495dae0508078ebc6003b8ab30b9523d85ab2c7",
-      "method": "Built-in image_gen image edit of existing matching character card",
-      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Constellation-ring celebration",
-      "postprocessing": "WebP conversion only, quality90/method6, original dimensions and alpha retained"
-    },
-    {
-      "file": "card-cream-star-20.webp",
-      "value": 20,
-      "reference": "card-cream-star.webp",
-      "width": 1051,
-      "height": 1497,
-      "bytes": 325196,
-      "sha256": "ed268347cc4bb257ce80a59df623a19a220e1474a9f052f9e1aa066d3a91e5d3",
-      "method": "Built-in image_gen image edit of existing matching character card",
-      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Grand festival with star wand and garland",
-      "postprocessing": "WebP conversion only, quality90/method6, original dimensions and alpha retained"
-    },
-    {
-      "file": "card-gold-cat-15.webp",
-      "value": 15,
-      "reference": "card-gold-cat.webp",
-      "width": 1061,
-      "height": 1482,
-      "bytes": 335826,
-      "sha256": "249d5fbf8ae295c03f5753f726105b601a5715393c66fec2e006445b1c7f5dc4",
-      "method": "Built-in image_gen image edit of existing matching character card",
-      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Royal constellation court and cat companions",
-      "postprocessing": "WebP conversion only, quality82, original dimensions and alpha retained"
-    },
-    {
-      "file": "card-ice-cloud-minus5.webp",
-      "value": -5,
-      "reference": "card-ice-cloud.webp",
-      "width": 1060,
-      "height": 1484,
-      "bytes": 222030,
-      "sha256": "5339aba0dc8ee196bb590cbe75f71f0705a6b187f03f13211c6393285e6e40d1",
-      "method": "Built-in image_gen image edit of existing matching character card",
-      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Chilly cloud blowing wind",
-      "postprocessing": "WebP conversion only, quality82, original dimensions and alpha retained"
-    },
-    {
-      "file": "card-ice-cloud-minus10.webp",
-      "value": -10,
-      "reference": "card-ice-cloud.webp",
-      "width": 1060,
-      "height": 1484,
-      "bytes": 240634,
-      "sha256": "33e7bc115b28bd032b498ce2998d464b14cf6640a7d44d70a219875b6d76e4b0",
-      "method": "Built-in image_gen image edit of existing matching character card",
-      "prompt_summary": "Preserve original frame, palette and mascot identity; blank upper 38% for DOM numeral; no baked text; Determined cloud in an icy whirlwind",
-      "postprocessing": "WebP conversion only, quality82, original dimensions and alpha retained"
+      "file": "card-scene-base.webp",
+      "width": 1050,
+      "height": 1498,
+      "bytes": 257068,
+      "sha256": "9a30fd1d5ef763cf069a7e5667cb3591e937bfdc25054d60271fb73d22cf4ea9",
+      "source": "Built-in image_gen edit; character-free pearlescent card frame with quiet central area for exact-count canonical character composition",
+      "encoding": "WebP quality 90; generated alpha and dimensions retained"
     }
   ],
   "notes": [
@@ -234,6 +123,11 @@
     "Human profile images/names are supplied by the platform; generated character avatars are for BOTs.",
     "Card numerals and UI instructions remain DOM text; home logo is decorative artwork with accessible title.",
     "Background movement is automatic and has no in-game motion setting.",
-    "Normal-card variants follow public numeric value; duplicate copies of the same number use the same illustration."
+    "Normal cards compose the same canonical mascot image files used by BOT avatars over a character-free shared frame; characters are not regenerated per numeric value.",
+    "Kumomaru uses the original white/pale-lavender cloud asset, the cat and bunny retain their original assets, and Hoshimochi uses the cream-gold five-point star asset.",
+    "Approved mapping: -10 and -5 use cloud; 0 uses cat; values 1 through 5 contain exactly that many bunnies; 10, 15 and 20 contain exactly that many stars in rows of five.",
+    "Card numerals, rules and frames stay stationary while character-specific layers animate; a separate diagonal white gloss sweep is shared across cards.",
+    "Face-down cards do not create numeric character compositions. Duplicate copies of each public numeric value share the same layout.",
+    "The decorative home hero is a separate illustration, not a source of BOT or card sprites. Actual iOS and GRAVITY rendering, motion smoothness and audible output require device verification."
   ]
 }

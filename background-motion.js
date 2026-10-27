@@ -27,6 +27,10 @@
     layer = document.createElement('div');
     layer.className = 'nb-background';
     layer.setAttribute('aria-hidden', 'true');
+    // The illustrated sky is a separate moving depth plane, not a moving UI.
+    var scene = document.createElement('div');
+    scene.className = 'nb-background__scene';
+    layer.appendChild(scene);
     // Positions are a fixed decorative pattern, never the game's random stream.
     for (var i = 0; i < 16; i += 1) {
       var star = document.createElement('i');

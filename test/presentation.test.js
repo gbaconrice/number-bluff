@@ -62,3 +62,94 @@ test('OS reduced motion is one static final phase, complete once',()=>{
 test('typical two and eight player timelines remain concise',()=>{
  for(const count of [2,8]){const cards=Object.fromEntries(Array.from({length:count},(_,i)=>['p'+i,n('c'+i,i)]));const duration=plan(result(cards)).at(-1).at;assert.ok(duration>=1500&&duration<=3100);}
 });
+
+test('special illustration scenes are fixed, distinct, decorative and contain no hidden data', () => {
+  const {createArtMotion} = require('../card-presentation');
+  const doc = {
+    createElement(tag) { return {tag,attrs:{},children:[],setAttribute(k,v){this.attrs[k]=v;},append(...nodes){this.children.push(...nodes);}}; },
+    createDocumentFragment() { return {children:[],append(...nodes){this.children.push(...nodes);}}; }
+  };
+  const seen = new Set();
+  for (const kind of ['double','max0','extra','reset']) {
+    const fragment = createArtMotion(doc,kind);
+    assert.equal(fragment.children.length,2);
+    const [image,motion] = fragment.children;
+    assert.equal(image.className,'card-illustration');
+    assert.equal(image.attrs['aria-hidden'],'true');
+    assert.equal(motion.attrs['aria-hidden'],'true');
+    assert.match(motion.innerHTML,/<svg viewBox="0 0 100 100"/);
+    assert.doesNotMatch(motion.innerHTML,/<(?:script|foreignObject|image|text)\b|\b(?:href|id|onload)=/i);
+    assert.ok(!seen.has(motion.innerHTML)); seen.add(motion.innerHTML);
+  }
+  for (const kind of ['number','hidden','out','__proto__','<script>']) {
+    const node=createArtMotion(doc,kind);
+    assert.equal(node.className,'card-art-motion');
+    assert.equal(node.innerHTML,undefined);
+  }
+});
+
+test('reset animates deck refresh only after arithmetic and never clears the total', () => {
+ const r=result({p1:n('five',5),p2:{id:'reset',kind:'reset'},p3:{id:'double',kind:'double'}});
+ const frames=plan(r), reset=frames.find(f=>f.phase==='reset');
+ assert.equal(reset.runningTotal,10);
+ assert.ok(frames.findIndex(f=>f.phase==='multiply') < frames.indexOf(reset));
+ assert.ok(frames.findIndex(f=>f.phase==='outcome') < frames.indexOf(reset));
+ assert.equal(reset.outcomeVisible,true);
+ assert.equal(frames.at(-1).runningTotal,10);
+ assert.equal(frames.at(-1).at-reset.at,350);
+});
+
+ test('reset alone and a question drawing reset each have one post-outcome refresh',()=>{
+ for (const r of [result({p1:{id:'reset',kind:'reset'}}),result({p1:{id:'extra',kind:'extra'}},{id:'reset',kind:'reset'})]) {
+ const frames=plan(r);assert.equal(frames.filter(f=>f.phase==='reset').length,1);assert.equal(frames.at(-1).runningTotal,0);assert.equal(frames.find(f=>f.phase==='reset').outcomeVisible,true);
+ }
+ });
+
+test('shared diagonal gloss is white-only, behind labels, and separate from character scenes', () => {
+ const css=require('node:fs').readFileSync(require('node:path').join(__dirname,'../card-presentation.css'),'utf8');
+ const gloss=css.match(/\.player-card:not\(\.hidden\):not\(\.out\)::after\s*\{([^}]+)\}/)[1];
+ assert.match(gloss,/linear-gradient\(115deg/);
+ const rgba=[...gloss.matchAll(/rgba\((\d+),(\d+),(\d+),([.\d]+)\)/g)];
+ assert.ok(rgba.length>=3);
+ for(const [,r,g,b,a] of rgba){assert.deepEqual([r,g,b],['255','255','255']);assert.ok(Number(a)<=.6);}
+ assert.match(gloss,/z-index:3/);assert.match(gloss,/pointer-events:none/);
+ assert.match(css,/\.player-card \.card-value\s*\{\s*z-index:4/);
+ assert.doesNotMatch(css,/card-opening-glint|\.kind-number \.card-art-motion/);
+ assert.match(css,/\.screen\.hide \.player-card::after/);
+ assert.match(css,/html:has\(\.nb-background\[data-motion="paused"\]\) \.player-card::after/);
+ assert.match(css,/\.player-card::after[^}]*display:none!important/);
+});
+
+test('special activation peaks finish inside their presentation phase', () => {
+ const css=require('node:fs').readFileSync(require('node:path').join(__dirname,'../card-presentation.css'),'utf8');
+ const r=result({p1:{id:'extra',kind:'extra'},p2:{id:'max0',kind:'max0'},p3:{id:'double',kind:'double'}},n('drawn',10));
+ const frames=plan(r);
+ for(const [phase,animation] of [['extra','orb-card-reveal'],['max','crown-rays-rise'],['multiply','galaxy-core-activate']]){
+  const index=frames.findIndex(f=>f.phase===phase), duration=frames[index+1].at-frames[index].at;
+  const match=css.match(new RegExp('data-presentation-phase="'+phase+'"[^\\n]+animation:'+animation+' (\\d+)ms'));
+  assert.ok(match,phase+' has a bounded activation');assert.ok(Number(match[1])<=duration);
+ }
+});
+
+test('all physical special combinations allow full 400ms activations and finish under four seconds', () => {
+ const longest={};
+ for(let count=2;count<=8;count++){
+  let max=0;
+  for(let mask=0;mask<16;mask++){
+   const kinds=['extra','max0','double','reset'].filter((_,i)=>mask&(1<<i));
+   if(kinds.length>count)continue;
+   const hand=[...kinds.map(kind=>({id:kind,kind})),...Array.from({length:count-kinds.length},(_,i)=>n('n'+i,5))];
+   const choices=kinds.includes('extra')?['number',...['max0','double','reset'].filter(k=>!kinds.includes(k))]:[null];
+   for(const kind of choices){
+    const extra=kind?{id:'drawn',kind,value:kind==='number'?5:0}:null;
+    const frames=plan(result(Object.fromEntries(hand.map((card,i)=>['p'+i,card])),extra));
+    for(const phase of ['extra','max','multiply']){
+     const i=frames.findIndex(f=>f.phase===phase);if(i>=0)assert.equal(frames[i+1].at-frames[i].at,400);
+    }
+    max=Math.max(max,frames.at(-1).at);assert.ok(frames.at(-1).at<4000);
+   }
+  }
+  longest[count]=max;
+ }
+ assert.equal(longest[2],2610);assert.equal(longest[8],3770);
+});

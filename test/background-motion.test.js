@@ -15,9 +15,9 @@ function environment() {
 }
 test('atmosphere uses a bounded deterministic decorative tree without game randomness',()=>{
  const e=environment();vm.runInContext(source,e.context);const layer=e.document.body.children[0];
- assert.equal(layer.attributes['aria-hidden'],'true');assert.equal(layer.children.length,20);
+ assert.equal(layer.attributes['aria-hidden'],'true');assert.equal(layer.children.length,21);
  assert.equal(layer.children.filter(n=>n.className==='nb-background__star').length,16);
- for(const cls of ['nb-background__nebula','nb-background__clouds-back','nb-background__clouds','nb-background__shooting-star'])assert.equal(layer.children.filter(n=>n.className===cls).length,1);
+ for(const cls of ['nb-background__scene','nb-background__nebula','nb-background__clouds-back','nb-background__clouds','nb-background__shooting-star'])assert.equal(layer.children.filter(n=>n.className===cls).length,1);
  assert.equal(e.window.NumberBluffBackground.state.running,true);
 });
 test('hidden document, OS reduced motion and explicit disable stop all atmosphere layers; teardown removes listeners',()=>{
@@ -31,4 +31,13 @@ test('hidden document, OS reduced motion and explicit disable stop all atmospher
 test('reloading background module destroys previous layer and listeners before replacement',()=>{
  const e=environment();vm.runInContext(source,e.context);const old=e.window.NumberBluffBackground,layer=e.document.body.children[0];
  vm.runInContext(source,e.context);assert.equal(old.state.destroyed,true);assert.equal(layer.removed,true);assert.equal(e.listeners.size,1);assert.equal(e.mediaListeners.size,1);assert.equal(e.window.NumberBluffBackground.state.running,true);
+});
+test('elevated rear cloud bank fades its bottom edge instead of exposing an image rectangle',()=>{
+ const css=fs.readFileSync(require.resolve('../background-motion.css'),'utf8');
+ const rule=css.match(/^\.nb-background__clouds-back\s*\{([^}]+)\}/m)[1];
+ for(const property of ['mask-image','-webkit-mask-image']){
+  const escaped=property.replace(/-/g,'\\-');
+  assert.match(rule,new RegExp(escaped+':linear-gradient\\(transparent 2%,#000 48%,#000 64%,transparent 100%\\)'));
+ }
+ assert.match(rule,/opacity:\.42/,'keep visible depth instead of hiding the seam by dimming the entire layer');
 });
