@@ -28,7 +28,7 @@ test('sound is lazy, starts with trusted gesture, not a removed saved setting', 
   const f = fixture(); assert.equal(f.audio.play('declare'), false); assert.equal(f.counts().created, 0);
   f.doc.emit('pointerdown', { isTrusted: false }); assert.equal(f.counts().created, 0);
   f.doc.emit('pointerdown'); assert.equal(f.counts().created, 1); assert.equal(f.audio.play('declare'), true);
-  assert.equal(f.gains[0].gain.value, .28); assert.equal(f.notes.length, 2);
+  assert.equal(f.gains[0].gain.value, .5); assert.equal(f.notes.length, 2);
   assert.ok(f.notes.every(n => n.startTime >= 1 && n.stopTime > n.startTime));
   assert.ok(f.gains.slice(1).every(n => n.gain.events.at(-1)[1] === .0001));
 });
@@ -75,4 +75,56 @@ test('unsupported or failing audio device never throws into gameplay', () => {
   const a = create({ window: {}, document: null }); assert.equal(a.unlock(), false); assert.equal(a.play('tap'), false);
   const b = create({ contextFactory: () => { throw new Error('no device'); }, document: null, window: null });
   assert.equal(b.unlock(), false); assert.doesNotThrow(() => { b.play('deal'); b.stop(); b.destroy(); });
+});
+
+test('first gesture cue waits briefly for asynchronous resume, once only', async () => {
+  const f = fixture(); let resume;
+  f.context.resume = () => new Promise(resolve => { resume = () => { f.context.state = 'running'; resolve(); }; });
+  f.doc.emit('click');
+  assert.equal(f.audio.play('deal'), true); assert.equal(f.notes.length, 0);
+  f.audio.play('tap'); // Do not replace the game event with the document click cue.
+  resume(); await new Promise(resolve => setImmediate(resolve));
+  assert.equal(f.notes.length, 3);
+  assert.equal(f.audio.play('deal'), false);
+});
+test('muting or hiding while resume is pending cancels its cue', async () => {
+  for (const reason of ['mute', 'hidden', 'stop']) {
+    const f = fixture(); let resume;
+    f.context.resume = () => new Promise(resolve => { resume = () => { f.context.state = 'running'; resolve(); }; });
+    f.doc.emit('click'); f.audio.play('declare');
+    if (reason === 'mute') f.audio.setMuted(true);
+    else if (reason === 'hidden') { f.doc.hidden = true; f.doc.emit('visibilitychange'); }
+    else f.audio.stop();
+    resume(); await new Promise(resolve => setImmediate(resolve));
+    assert.equal(f.notes.length, 0, reason);
+  }
+});
+test('sound preference persists and off never creates an audio context', () => {
+  const doc = target(), win = target(); const values = new Map([['number-bluff.sound-muted.v1','true']]);
+  const storage = { getItem: k => values.get(k), setItem: (k,v) => values.set(k,v) };
+  let created = 0;
+  const audio = create({ document: doc, window: win, storage, contextFactory: () => { created++; throw Error('unsupported'); } });
+  assert.equal(audio.isMuted(), true); doc.emit('click'); assert.equal(created, 0);
+  assert.equal(audio.play('declare'), false);
+  audio.setMuted(false, { isTrusted: true }); assert.equal(created, 1);
+  assert.equal(values.get('number-bluff.sound-muted.v1'), 'false');
+  audio.setMuted(true); assert.equal(audio.isMuted(), true);
+  assert.equal(values.get('number-bluff.sound-muted.v1'), 'true');
+});
+test('slow unlock does not replay stale sound and interrupted context retries by click', async () => {
+  const f = fixture(); let resume;
+  f.context.resume = () => new Promise(resolve => { resume = () => { f.context.state = 'running'; resolve(); }; });
+  f.doc.emit('click'); f.audio.play('tap');
+  await new Promise(resolve => setTimeout(resolve, 270));
+  resume(); await new Promise(resolve => setImmediate(resolve)); assert.equal(f.notes.length, 0);
+  f.context.state = 'interrupted'; f.doc.emit('click'); f.audio.play('declare');
+  resume(); await new Promise(resolve => setImmediate(resolve)); assert.equal(f.notes.length, 2);
+});
+test('mute and unmute update the output gain and never stack contexts', async () => {
+  const f = fixture(); f.doc.emit('click'); await new Promise(resolve => setImmediate(resolve));
+  f.audio.play('declare'); f.audio.setMuted(true);
+  assert.equal(f.gains[0].gain.value, 0); assert.equal(f.audio.play('tap'), false);
+  f.audio.setMuted(false, { isTrusted: true });
+  assert.equal(f.gains[0].gain.value, .5); assert.equal(f.audio.play('tap'), true);
+  assert.equal(f.counts().created, 1);
 });

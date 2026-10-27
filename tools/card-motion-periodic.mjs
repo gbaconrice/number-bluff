@@ -24,27 +24,6 @@ const origin = `http://127.0.0.1:${server.address().port}`;
 const report = { scope: 'Unmodified app, real elapsed time; mobile emulation is not actual iOS/GRAVITY validation', scenarios: [] };
 let browser;
 const watchdog = setTimeout(() => { console.error('Periodic motion regression timed out'); process.exit(1); }, 180_000);
-async function sampleGlare(card, milliseconds = 9400) {
-  // Sampling only. The app owns all animation timing and rendering.
-  return card.evaluate((element, milliseconds) => new Promise(resolve => {
-    const start = performance.now(), frames = [];
-    const timer = setInterval(() => {
-      const layer = element.querySelector('.nb-card-glare');
-      frames.push({ at: performance.now() - start, opacity: layer ? Number(getComputedStyle(layer).opacity) : 0, transform: layer ? getComputedStyle(layer.querySelector('.nb-card-glare__band')).transform : null });
-      if (performance.now() - start >= milliseconds) { clearInterval(timer); resolve(frames); }
-    }, 80);
-  }), milliseconds);
-}
-function verifySweeps(frames, label) {
-  const starts = []; let on = false;
-  for (const f of frames) { const next = f.opacity > .05; if (next && !on) starts.push(f.at); on = next; }
-  assert.ok(starts.length >= 2, `${label}: must shine repeatedly without interaction, found ${starts.length} passes`);
-  // Ignore a clipped first pass when measurement starts during a sweep.
-  const complete = starts[0] < 160 ? starts.slice(1) : starts;
-  for (let i = 1; i < complete.length; i++) assert.ok(Math.abs(complete[i] - complete[i - 1] - 4000) < 550, `${label}: unstable sweep period ${complete[i] - complete[i - 1]}ms`);
-  assert.ok(new Set(frames.filter(f => f.opacity > .05).map(f => f.transform)).size > 3, `${label}: white band must move, not just blink`);
-  return { passes: starts.length, starts, samples: frames.length };
-}
 async function svgFrame(card) {
   return card.evaluate(element => {
     const layer = element.querySelector('.nb-special-svg');
@@ -59,7 +38,7 @@ async function verifyAmbient(card, label, captureName = null) {
   const after = captureName ? await card.screenshot({ path: output + captureName + '-after.png', animations: 'allow' }) : null;
   if (captureName) {
     assert.equal(before.equals(after), false, `${label}: rendered special-card pixels must change, not just an animation clock`);
-    assert.equal(await card.locator('.nb-card-glare').evaluate(el => Number(getComputedStyle(el).opacity)), 0, `${label}: frame evidence must not be explained by a white glare pass`);
+    assert.equal(await card.page().locator('.nb-card-glare').count(), 0, 'diagonal glare removed');
   }
   assert.equal(second.playing, 'true', `${label}: SVG must play without hover`);
   assert.equal(second.visibility, 'visible', `${label}: SVG must be visible`);
@@ -68,20 +47,14 @@ async function verifyAmbient(card, label, captureName = null) {
 }
 async function captureSizedIllustrationMotion(card, name) {
   const originalStyle = await card.getAttribute('style');
-  const glare = card.locator('.nb-card-glare');
-  const originalGlareVisibility = await glare.evaluate(el => el.style.visibility);
   const sizes = [];
   try {
-    // Test-only optical isolation, not a runtime change: keep the scheduler running
-    // but hide its white band so every changed pixel comes from the special artwork effect.
-    await glare.evaluate(el => { el.style.visibility = 'hidden'; });
     for (const width of [88, 180]) {
       await card.evaluate((el, width) => { el.style.width = width + 'px'; el.style.height = 'auto'; el.style.maxWidth = 'none'; }, width);
       await card.page().waitForTimeout(180); // Allow real ResizeObserver layout; do not seek animations.
       const frames = [], screenshots = [], timings = [];
       for (const [index, delay] of [0, 450, 550].entries()) {
         if (delay) await card.page().waitForTimeout(delay);
-        assert.equal(await glare.evaluate(el => getComputedStyle(el).visibility), 'hidden');
         const filename = `${name}-${width}px-frame-${index}.png`;
         const bytes = await card.screenshot({ path: output + filename, animations: 'allow' });
         const decoded = decodeScreenshotPNG(bytes);
@@ -99,7 +72,6 @@ async function captureSizedIllustrationMotion(card, name) {
     }
   } finally {
     await card.evaluate((el, original) => { if (original === null) el.removeAttribute('style'); else el.setAttribute('style', original); }, originalStyle);
-    await glare.evaluate((el, original) => { el.style.visibility = original; }, originalGlareVisibility);
     await card.page().waitForTimeout(180);
   }
   return sizes;
@@ -107,7 +79,7 @@ async function captureSizedIllustrationMotion(card, name) {
 async function assertStopped(page, label) {
   await page.waitForTimeout(150);
   assert.equal(await page.locator('.nb-special-svg').evaluateAll(els => els.some(el => el.dataset.playing === 'true' && getComputedStyle(el).visibility !== 'hidden' && getComputedStyle(el).display !== 'none')), false, `${label}: special motion remains visible`);
-  assert.equal(await page.locator('.nb-card-glare').evaluateAll(els => els.some(el => Number(getComputedStyle(el).opacity) > .01 && getComputedStyle(el).display !== 'none')), false, `${label}: glare remains active`);
+  assert.equal(await page.locator('.nb-card-glare').count(), 0, `${label}: removed glare must not exist`);
 }
 try {
   browser = await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : {});
@@ -117,7 +89,7 @@ try {
     const page = await context.newPage(); page.setDefaultTimeout(10_000);
     const errors = []; page.on('pageerror', error => errors.push(error.message));
     await page.route('https://tanabe0422.github.io/number-bluff/assets/**', route => route.fulfill({ status: 302, headers: { location: origin + '/assets/' + new URL(route.request().url()).pathname.split('/assets/')[1] } }));
-    const evidence = { label, specials: {}, sweeps: {} };
+    const evidence = { label, specials: {}, noGlare: true };
     try {
       await page.goto(origin + (mobile ? '/ai-studio.html' : '/'));  await page.locator('#homeRules').click(); await page.locator('[data-tab="cards"]').click();
       for (const kind of ['double', 'max0', 'extra', 'reset']) {
@@ -127,10 +99,9 @@ try {
         await gallery.click(); const detail = page.locator('#cardDetailContent .player-card');
         await detail.locator('img').evaluate(img => img.decode());
         if (kind === 'reset') assert.equal(await detail.locator('.reset-card-back,.reset-orbit-cards,.reset-card-orbit').count(), 0, 'reset must not introduce the rejected three orbiting cards');
-        // The old implementation vanished after 1200ms. Sample in the quiet gap
-        // between the first (<=1940 + 780ms) and second (>=4400ms) glare pass.
+        // The old implementation vanished after 1200ms; ambient motion must persist.
         await page.waitForTimeout(3000);
-        assert.equal(await detail.locator('.nb-card-glare').evaluate(el => Number(getComputedStyle(el).opacity)), 0);
+        assert.equal(await page.locator('.nb-card-glare').count(), 0, 'diagonal glare removed');
         evidence.specials[kind].detail = await verifyAmbient(detail, label + ' detail ' + kind, `${label}-ambient-${kind}`);
         await page.screenshot({ path: output + `${label}-periodic-${kind}.png` });
         evidence.specials[kind].sizedPixelMotion = await captureSizedIllustrationMotion(detail, `${label}-effect-${kind}`);
@@ -142,7 +113,9 @@ try {
         await page.locator('#guideContent ' + selector).click(); const card = page.locator('#cardDetailContent .player-card');
         await card.locator('img').evaluate(img => img.decode());
         if (name === 'normal') assert.equal(await card.locator('svg,canvas').count(), 0);
-        evidence.sweeps[name] = verifySweeps(await sampleGlare(card), label + ' ' + name);
+        await page.waitForTimeout(4500);
+        assert.equal(await card.locator('.nb-card-glare').count(), 0, 'no periodic foil may reappear');
+        if (name === 'normal') assert.equal(await card.evaluate(el => el.getAnimations({subtree:true}).filter(a=>a.playState==='running').length), 0, 'normal face stays still');
         await page.locator('#closeCardDetail').click();
       }
       await page.locator('#guideContent .kind-extra').click();

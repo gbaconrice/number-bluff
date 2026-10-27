@@ -2,26 +2,47 @@
   'use strict';
   const G = window.NumberBluff, timer = window.NumberBluffScheduler(), $ = id => document.getElementById(id);
   const audio = window.NumberBluffAudio.create();
-  const cardMotion = window.NumberBluffCardMotion.createManager();
+  function updateSoundButtons() {
+    const muted = audio.isMuted();
+    document.querySelectorAll('[data-sound-toggle]').forEach(button => {
+      button.setAttribute('aria-pressed', String(muted));
+      button.setAttribute('aria-label', muted ? '音をオンにする' : '音をオフにする');
+      button.title = muted ? '音をオンにする' : '音をオフにする';
+      button.textContent = '♪';
+      button.classList.toggle('is-muted', muted);
+    });
+  }
+  document.querySelectorAll('[data-sound-toggle]').forEach(button => {
+    button.addEventListener('click', event => {
+      audio.setMuted(!audio.isMuted(), event);
+      updateSoundButtons();
+      if (!audio.isMuted()) audio.play('tap');
+    });
+  });
+  updateSoundButtons();
   const cardReveal = window.NumberBluffCardReveal.createController();
   const sceneMotion = window.NumberBluffSceneMotion.create();
   const gameplayFeedback = window.NumberBluffGameplayFeedback.create();
   const specialSVG = window.NumberBluffSpecialSVG.createManager();
   const specialRenderer = {ready:Promise.resolve(true),play(node,kind,{duration}){specialSVG.attach(node,kind,{faceUp:true,imageElement:node.querySelector('img.card-art')});return specialSVG.play(node,{duration});},stop(){specialSVG.stop();},destroy(){specialSVG.destroy();}};
-  const specialEffects = window.NumberBluffSpecialEffects.create({renderer:specialRenderer,glare:cardMotion,busy:()=>presenter.active});
+  const specialEffects = window.NumberBluffSpecialEffects.create({renderer:specialRenderer,busy:()=>presenter.active});
   let detailEffectEpoch = 0;
   const motionCards = new Set();
   function syncCardMotion() {
     specialEffects.sync();
-    for (const node of motionCards) if (!node.isConnected) { cardMotion.detach(node); specialSVG.detach(node); motionCards.delete(node); }
+    for (const node of motionCards) if (!node.isConnected) { specialSVG.detach(node); motionCards.delete(node); }
     for (const node of document.querySelectorAll('.screen:not(.hide) .player-card:not(.hidden):not(.out), dialog[open] .player-card:not(.hidden):not(.out)')) {
-      if (!motionCards.has(node)) { cardMotion.attach(node, { faceUp: true }); motionCards.add(node); }
       const kind = ['extra','double','max0','reset'].find(value => node.classList.contains('kind-' + value));
-      if (kind) specialSVG.attach(node, kind, { faceUp: true, imageElement: node.querySelector('img.card-art') });
+      if (kind) { motionCards.add(node); specialSVG.attach(node, kind, { faceUp: true, imageElement: node.querySelector('img.card-art') }); }
     }
     specialSVG.refresh();
   }
-  const motionObserver = new MutationObserver(syncCardMotion);
+  // Countdown text and SVG-internal changes never alter the set of card hosts.
+  // Avoid measuring every card on those frequent unrelated child mutations.
+  const containsCard = node => node.nodeType === 1 && (node.matches('.player-card') || node.querySelector('.player-card'));
+  const motionObserver = new MutationObserver(records => {
+    if (records.some(record => [...record.addedNodes, ...record.removedNodes].some(containsCard))) syncCardMotion();
+  });
   motionObserver.observe(document.querySelector('main'), {childList:true,subtree:true});
   let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
   const sessionFinishListeners = new Set();
@@ -107,7 +128,7 @@
   function show(id, focus = null) {
     if (screen === 'battleScreen' && id !== screen) { audio.stop(); cancelPresentation(true); }
     for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
-    stopDetailEffect(); screen = id; paintTurnDisplay(); cardReveal.settleAll(); cardMotion.pause(); cardMotion.resume(); syncCardMotion(); window.scrollTo(0, 0);
+    stopDetailEffect(); screen = id; paintTurnDisplay(); cardReveal.settleAll(); syncCardMotion(); window.scrollTo(0, 0);
     for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
     if (focus) $(focus).focus({ preventScroll: true });
   }
@@ -288,15 +309,14 @@
     document.querySelector('.turn-countdown')?.remove();
     if (transport && active && view.turnClock) { const badge = el('span', 'turn-countdown'); badge.dataset.player = view.turn; $('survivorCount').before(badge); paintTurnDisplay(); }
     $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : name(view.turn) + ' の番'; $('bidActor').replaceChildren(playerAvatar(view.last || view.turn));
-    $('battleScreen').classList.toggle('is-result', !active); $('battleTitle').textContent = active ? '対戦中' : view.phase === 'finished' ? '対戦結果' : 'ラウンド結果';
+    $('battleScreen').classList.toggle('is-result', !active); $('battlePhase').textContent = view.phase === 'finished' ? '対戦結果' : 'ラウンド結果'; $('battlePhase').classList.toggle('hide', active); $('battleTitle').querySelector('.battle-meta').classList.toggle('hide', !active);
     $('gamePanel').classList.toggle('hide', !active); $('result').classList.toggle('hide', active); $('result').classList.toggle('open', !active);
     const alive = !view.players.find(p => p.id === human)?.eliminated;
     $('status').textContent = active ? yourTurn ? 'あなたの手番です' : alive ? name(view.turn) + ' が考えています…' : 'あなたは脱落しました。残りの対戦を見届けよう。' : '';
     $('declare').disabled = !yourTurn || view.bid === Number.MAX_SAFE_INTEGER;
     $('challenge').disabled = !yourTurn || view.bid === null;
-    $('number').disabled = !yourTurn;
     document.querySelectorAll('#keypad button').forEach(button => { button.disabled = !yourTurn; });
-    if (yourTurn) { $('number').value = view.bid === null ? '1' : view.bid === Number.MAX_SAFE_INTEGER ? '' : String(view.bid + 1); suggested = true; }
+    if (yourTurn) { $('number').textContent = view.bid === null ? '1' : view.bid === Number.MAX_SAFE_INTEGER ? '' : String(view.bid + 1); suggested = true; }
     $('next').disabled = active; renderResult();
     if (active && previous && (previous.phase !== 'play' || previous.round !== view.round || previous.game !== view.game)) {
       audio.play('deal');
@@ -340,13 +360,13 @@
   function action(type, value) {
     if (!view || connectionBlocked) return false;
     if (transport && ['nextRound', 'rematch', 'returnToLobby'].includes(type) && !canManageLobby()) return false;
-    if (transport) { Promise.resolve(transport.send({ type, player: human, value, revision: view.revision, turnToken: view.turnClock?.token })).catch(() => fail('接続を確認して、もう一度お試しください。')); return true; }
+    if (transport) { const sentView = view; if (type === 'declare') $('declare').disabled = true; Promise.resolve(transport.send({ type, player: human, value, revision: view.revision, turnToken: view.turnClock?.token })).then(accepted => { if (accepted === false && type === 'declare' && view === sentView && !connectionBlocked) { $('declare').disabled = view.turn !== human; fail('宣言できませんでした。現在の手番と数字を確認してください。'); } }).catch(() => { fail('接続を確認して、もう一度お試しください。'); if (type === 'declare' && view === sentView && !connectionBlocked) $('declare').disabled = view.turn !== human; }); return true; }
     const next = G.dispatch(state, { type, player: human, value, revision: view.revision }, Math.random);
     return apply(next);
   }
   document.addEventListener('click', event => {
     const button = event.target.closest?.('button');
-    if (event.isTrusted && button && !button.disabled && !['declare', 'challenge', 'beginGame', 'next'].includes(button.id)) audio.play('tap');
+    if (event.isTrusted && button && !button.disabled && !button.matches('[data-sound-toggle]') && !['declare', 'challenge', 'beginGame', 'next'].includes(button.id)) audio.play('tap');
   });
   $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = () => { const finished = captureSessionFinish(); cancelRoomRequest(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   $('joinForm').onsubmit = event => { event.preventDefault(); const id = $('roomId').value.trim(); if (id) requestRoom('join', id); };
@@ -356,23 +376,22 @@
   document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { if (transport) { lobbyAction('setBotAvatar', { target: selectedBot, avatar: Number(button.dataset.avatar) }); return; } avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
   document.querySelectorAll('[data-difficulty]').forEach(button => { button.onclick = () => { nextDifficulty = button.dataset.difficulty; if (transport) lobbyAction('setDifficulty', { target: selectedBot, difficulty: nextDifficulty }); if (!transport) { state = G.setDifficulty(state, selectedBot, nextDifficulty); view = G.publicView(state, human); renderLobby(); } }; });
   $('beginGame').onclick = () => { if (transport) { lobbyAction('startGame'); return; } show('battleScreen'); apply(G.startGame(state, Math.random)); window.scrollTo(0, 0); $('status').focus({ preventScroll: true }); };
-  $('declare').onclick = () => {
-    const value = G.parseBid($('number').value);
-    if (value === null || !action('declare', value)) { fail('前より大きな1以上の整数を入力してください（最大9007199254740991）。'); $('number').focus(); }
+  $('declare').onclick = event => {
+    if ($('declare').disabled || event.detail > 1) return;
+    const value = G.parseBid($('number').textContent);
+    if (value === null || (view?.bid !== null && value <= view?.bid) || !action('declare', value)) { fail('前より大きな1以上の整数を入力してください（最大9007199254740991）。'); $('declare').focus(); }
   };
   $('challenge').onclick = () => action('challenge');
   $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; audio.stop(); specialEffects.stop(); cardReveal.settleAll(); sceneMotion.skip(); presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
   document.querySelectorAll('[data-digit]').forEach(button => { button.onclick = () => {
-    if ($('number').disabled) return;
-    const prior = suggested ? '' : $('number').value, next = prior === '0' ? button.dataset.digit : prior + button.dataset.digit;
+    if ($('declare').disabled) return;
+    const prior = suggested ? '' : $('number').textContent, next = prior === '0' ? button.dataset.digit : prior + button.dataset.digit;
     if (next.length > 16 || G.parseBid(next) === null) { fail('入力できる最大の整数は9007199254740991です。'); return; }
-    $('number').value = next; suggested = false; clearError();
+    $('number').textContent = next; suggested = false; clearError();
   }; });
-  $('backspace').onclick = () => { if (!$('number').disabled) { $('number').value = $('number').value.slice(0, -1); suggested = false; clearError(); } };
-  $('number').addEventListener('input', () => { suggested = false; clearError(); });
-  $('number').addEventListener('keydown', event => { if (event.key === 'Enter' && !$('declare').disabled) { event.preventDefault(); $('declare').click(); } });
-  function confirmExit() { gameplayFeedback.stop(); specialEffects.stop(); cardMotion.pause(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); specialSVG.refresh(); }
-  function closeConfirm() { cardMotion.resume(); $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); syncCardMotion(); }
+  $('backspace').onclick = () => { if (!$('declare').disabled) { $('number').textContent = $('number').textContent.slice(0, -1); suggested = false; clearError(); } };
+  function confirmExit() { gameplayFeedback.stop(); specialEffects.stop(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); specialSVG.refresh(); }
+  function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); syncCardMotion(); }
   $('homeBtn').onclick = confirmExit; $('cancelRestart').onclick = closeConfirm;
   $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); const finished = captureSessionFinish(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
   function overlay(id, trigger) { if (screen === 'homeScreen' || screen === 'joinPanel') cancelRoomRequest(); overlayReturn = { screen, trigger }; show(id); }
@@ -428,15 +447,15 @@
   function cardDetail(card, count) {
     const detailEpoch = ++detailEffectEpoch;
     const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。例：(3 + 5 − 5) × 2 = 6。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
-    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); specialEffects.stop(); cardMotion.pause(); $('cardDetail').showModal(); $('closeCardDetail').focus(); cardMotion.resume(); syncCardMotion(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailEffectEpoch&&$('cardDetail').open&&detailFace.isConnected){if(detailFace.classList.contains('normal-card')){cardMotion.resume();syncCardMotion();}else specialEffects.play(detailFace,{priority:true});}}).catch(()=>{});
+    const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', card.label + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); specialEffects.stop(); $('cardDetail').showModal(); $('closeCardDetail').focus(); syncCardMotion(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailEffectEpoch&&$('cardDetail').open&&detailFace.isConnected&&!detailFace.classList.contains('normal-card'))specialEffects.play(detailFace,{priority:true});}).catch(()=>{});
   }
   $('closeCardDetail').onclick = () => { stopDetailEffect(); $('cardDetail').close(); specialSVG.refresh(); };
   $('cardDetail').addEventListener('cancel', stopDetailEffect);
   $('cardDetail').addEventListener('beforetoggle', event => { if(event.newState==='closed')stopDetailEffect(); });
   document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if ($('cardDetail').open) return; if (!$('restartConfirm').classList.contains('hide')) closeConfirm(); else if (screen === 'guidePanel') closeOverlay(); else if (screen === 'joinPanel') { cancelRoomRequest(); show('homeScreen', 'joinGame'); } });
-  $('cardDetail').addEventListener('close', () => { stopDetailEffect(); cardMotion.resume(); syncCardMotion(); });
-  window.addEventListener('pageshow', () => { cardMotion.resume(); syncCardMotion(); });
-  window.addEventListener('pagehide', () => { stopTurnDisplay(); stopDetailEffect(); cardMotion.pause(); timer.cancel(); cancelPresentation(true); });
+  $('cardDetail').addEventListener('close', () => { stopDetailEffect(); syncCardMotion(); });
+  window.addEventListener('pageshow', () => { syncCardMotion(); });
+  window.addEventListener('pagehide', () => { stopTurnDisplay(); stopDetailEffect(); timer.cancel(); cancelPresentation(true); });
   window.addEventListener('pageshow', event => { if (event.persisted && state && !transport) { const old = state; state = null; apply(old); } });
   document.addEventListener('visibilitychange', () => { paintTurnDisplay(); if (!document.hidden && transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });
   window.addEventListener('pageshow', () => { paintTurnDisplay(); if (transport && !connectionBlocked) Promise.resolve(transport.resync?.()).catch(() => {}); });

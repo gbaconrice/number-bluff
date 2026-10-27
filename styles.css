@@ -55,13 +55,12 @@ h3 { font-size: 12px; margin-bottom: 7px; }
 .difficulty { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
 .difficulty button { font-size: 12px; padding: 6px; }
 .bot-footer { display: flex; align-items: center; gap: 8px; font-size: 9px; color: #d3dcf2; }
-.battle-meta { display: flex; align-items: center; justify-content: center; font-weight: 750; }
-.battle-meta button { border: 0; box-shadow: none; background: none; font-size: 10px; min-height: 22px; padding: 0; }
+.battle-meta { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 2px 8px; font: 750 clamp(11px,3vw,14px)/1.4 system-ui,sans-serif; color: #fff; }
 .battle-grid { display: grid; margin-bottom: 8px; }
 .battle-player { min-width: 0; text-align: center; }
 .player-info { border: 1px solid #7893ca; background: #0a2047ce; }
 .battle-player.self .player-info { border-color: #ffe7a3; box-shadow: 0 0 8px #ffe7a344; }
-.battle-player.active .player-info { box-shadow: 0 0 0 2px #b6c9ff,0 0 10px #a5beff88; }
+.battle-player.active .player-info { border-color: #dce7ff; box-shadow: inset 0 0 0 2px #b6c9ff,inset 0 0 10px #a5beff66; }
 .player-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .player-info img { display: block; margin: 0 auto; width: 37px; height: 34px; object-fit: contain; }
 .hearts { color: #ffb2d1; }
@@ -93,9 +92,9 @@ h3 { font-size: 12px; margin-bottom: 7px; }
 .calculation h3 { font-size: 12px; }
 #calculationSteps { font-size: 12px; line-height: 1.8; }
 .calc-expression { font-weight: 850; overflow-wrap: anywhere; }
-.final-total { border: 1px solid #a5b7e8; border-radius: 12px; text-align: center; align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
-.final-total span { font-size: 11px; }
-.final-total strong { line-height: 1.2; color: #ffedb7; overflow-wrap: anywhere; }
+.final-total { border: 1px solid #a5b7e8; border-radius: 12px; text-align: center; align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.final-total > span { font-size: 11px; }
+.final-total strong { display: inline-flex; align-items: center; justify-content: center; max-width: 100%; line-height: 1.2; color: #ffedb7; overflow-wrap: anywhere; }
 .result-message { display: flex; align-items: center; gap: 8px; margin-bottom: 13px; }
 .result-message img { object-fit: contain; }
 .result-message p { margin: 0; font-weight: 800; }
@@ -241,7 +240,6 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .person-placeholder:before { content: ''; position: absolute; top: 18%; left: 35%; width: 30%; height: 30%; border-radius: 50%; background: #e7ecf8; }
 .person-placeholder:after { content: ''; position: absolute; bottom: 8%; left: 19%; width: 62%; height: 36%; border-radius: 60% 60% 15% 15%; background: #e7ecf8; }
 .profile-avatar { object-fit: cover!important; border-radius: 50%; }
-.battle-meta { min-height: 18px; font-size: 11px; margin-bottom: 5px; gap: 12px; }
 .battle-grid { gap: 5px; margin: 0 0 5px; grid-template-columns: repeat(4,minmax(0,1fr)); }
 .battle-grid[data-count="2"] { grid-template-columns: repeat(2,minmax(0,1fr)); width: 54%; margin-left: auto; margin-right: auto; }
 .battle-grid[data-count="3"] { grid-template-columns: repeat(3,minmax(0,1fr)); width: 78%; margin-left: auto; margin-right: auto; }
@@ -268,15 +266,14 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .keypad { gap: 4px; }
 .keypad button { height: 44px; min-height: 44px; border-radius: 10px; font-size: 22px; }
 .decisions { grid-template-rows: 1fr 1fr; gap: 8px; }
-.declare-region { display: flex; flex-direction: column; min-width: 0; border-radius: 14px; overflow: hidden; border: 1px solid #fff0bd; }
-.declare-region input { background: transparent; border: 0; border-bottom: 1px solid #b3956260; border-radius: 0; text-align: center; color: #172950; width: 100%; min-width: 0; height: 44px; min-height: 44px; padding: 0 4px; font-size: 20px; font-weight: 850; }
-.declare-region button { flex: 1; min-height: 44px; background: transparent; color: #192c58; border: 0; box-shadow: none; border-radius: 0; font-size: 24px; line-height: 1; padding: 0; }
-.declare-region:has(button:disabled) { background: linear-gradient(#bcb9aa,#aca991); box-shadow: none; }
-.declare-region input:disabled, .declare-region button:disabled { color: #354467; }
+.declare-region { padding: 0; display: flex; flex-direction: column; min-width: 0; border-radius: 14px; overflow: hidden; border: 1px solid #fff0bd; }
+.declare-region #number { display: flex; align-items: center; justify-content: center; user-select: none; background: transparent; border: 0; border-bottom: 1px solid #b3956260; border-radius: 0; text-align: center; color: #172950; width: 100%; min-width: 0; height: 44px; min-height: 44px; padding: 0 4px; font-size: 20px; font-weight: 850; }
+.declare-region .declare-label { display: flex; align-items: center; justify-content: center; flex: 1; min-height: 44px; background: transparent; color: #192c58; border: 0; box-shadow: none; border-radius: 0; font-size: 24px; line-height: 1; padding: 0; }
+.declare-region:disabled { background: linear-gradient(#bcb9aa,#aca991); box-shadow: none; }
+.declare-region:disabled #number, .declare-region:disabled .declare-label { color: #354467; }
 .decisions #challenge { font-size: clamp(14px,4.1vw,18px); padding: 0 0 15px; min-height: 88px; border-radius: 13px; text-shadow: 0 1px 1px #fff8; }
 .decisions #challenge img { width: 53px; height: 48px; bottom: -10px; right: -3px; }
 .decisions #challenge:disabled { background: linear-gradient(130deg,#565780,#333f69); color: #d8daef; text-shadow: none; }
-.is-result .battle-meta { display: none; }
 .is-result .topbar { margin-bottom: 10px; }
 .is-result .battle-grid { margin-bottom: 12px; }
 .calculation { margin: 8px 0; grid-template-columns: minmax(0,1fr) 78px; padding: 10px; gap: 8px; }
@@ -340,7 +337,6 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
   .bot-choices { gap: 6px; }
   .bot-choices button { width: 45px; }
   .topbar { margin-bottom: 2px; }
-  .battle-meta { min-height: 17px; margin-bottom: 3px; font-size: 10px; }
   .battle-grid.many .player-info { height: 39px; grid-template-rows: 11px 24px; padding: 1px 2px; }
   .battle-grid.many { row-gap: 5px; }
   .battle-grid.many .player-card { padding-top: 10px; font-size: 29px; }
@@ -368,6 +364,13 @@ main { position: relative; z-index: 1; }
 .topbar h1 { grid-column: 2; text-align: center; width: 100%; min-width: 0; }
 .topbar>button:first-child { grid-column: 1; }
 .topbar>button:last-child:not(:first-child) { grid-column: 3; }
+#battleScreen .topbar { grid-template-columns: 40px minmax(0,1fr) 40px 40px; gap: 4px; }
+#battleScreen .topbar .circle { width: 100%; min-height: 40px; }
+.sound-toggle { position: relative; }
+.sound-toggle.is-muted::after { content: ""; position: absolute; width: 23px; height: 2px; top: 50%; left: 50%; background: currentColor; transform: translate(-50%,-50%) rotate(-45deg); pointer-events: none; }
+#homeSoundToggle.is-muted::after { top: 22px; }
+#battleSoundToggle { grid-column: 3; font-size: 21px; }
+#battleScreen .topbar #rulesBtn { grid-column: 4; }
 .room-status { font-size: 12px; line-height: 1.5; margin: 5px 0 0; text-align: center; color: #fff2d6; }
 .room-status:empty { display: none; }
 .join-form { margin-top: 22px; display: grid; gap: 13px; padding: 20px; }
@@ -405,7 +408,7 @@ main { position: relative; z-index: 1; }
 main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .home { min-height: var(--nb-usable-height); }
 #battleScreen:not(.is-result) { height: var(--nb-usable-height); display: flex; flex-direction: column; min-height: 0; }
-#battleScreen>#gamePanel, #battleScreen>.battle-meta, #battleScreen>.topbar { flex: 0 0 auto; }
+#battleScreen>#gamePanel, #battleScreen>.topbar { flex: 0 0 auto; }
 #battleScreen:not(.is-result)>.battle-grid { flex: 0 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; grid-auto-rows: max-content; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #d1c6ff #16264a; }
 #battleScreen:not(.is-result)>.battle-grid:focus-visible { outline-offset: -3px; }
 /* The current declaration belongs to a person, not to an anonymous input form. */
@@ -429,11 +432,10 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 /* Landscape keeps the table beside the controls instead of squeezing it above them. */
 @media(min-width:650px) and (max-height:500px) {
   main:has(#battleScreen:not(.hide):not(.is-result)) { max-width: 850px; }
-  #battleScreen:not(.is-result) { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-rows: 44px 18px minmax(0,1fr); column-gap: 12px; row-gap: 4px; min-height: 300px; }
+  #battleScreen:not(.is-result) { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-rows: 44px minmax(0,1fr); column-gap: 12px; row-gap: 4px; min-height: 300px; }
   #battleScreen:not(.is-result)>.topbar { grid-column: 1; grid-row: 1; margin: 0; }
-  #battleScreen:not(.is-result)>.battle-meta { grid-column: 1; grid-row: 2; margin: 0; min-height: 18px; }
-  #battleScreen:not(.is-result)>.battle-grid { grid-column: 1; grid-row: 3; align-self: stretch; margin-bottom: 0; height: 100%; max-height: 100%; }
-  #battleScreen:not(.is-result)>#gamePanel { grid-column: 2; grid-row: 1/4; align-self: center; min-width: 0; }
+  #battleScreen:not(.is-result)>.battle-grid { grid-column: 1; grid-row: 2; align-self: stretch; margin-bottom: 0; height: 100%; max-height: 100%; }
+  #battleScreen:not(.is-result)>#gamePanel { grid-column: 2; grid-row: 1/3; align-self: center; min-width: 0; }
   #battleScreen:not(.is-result) .bid-panel { height: 48px; min-height: 48px; margin: 0 auto 6px; grid-template-rows: 10px 22px 10px; padding: 2px 9px; }
   #battleScreen:not(.is-result) .bid-panel strong { font-size: 24px; line-height: 22px; }
   #battleScreen:not(.is-result) .input-console { padding: 6px; }
@@ -443,7 +445,6 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .topbar-spacer { width: 44px; flex-shrink: 0; }
 /* Soft contrast behind visible titles; guide titles remain screen-reader only. */
 .topbar h1:not(.sr-only) { font-family: "Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif; font-size: clamp(20px,5.6vw,24px); font-weight: 700; font-synthesis: none; line-height: 1.3; letter-spacing: .02em; color: #fff; padding: 5px 8px; border-radius: 10px; background: #101f43e8; text-shadow: none; }
-.battle-meta { color: #fff; text-shadow: 0 1px 3px #071126,0 0 5px #071126; }
 /* Value-specific normal faces share the existing four-character mapping. */
 
 /* Online turn clock is informative, never an input-blocking overlay. */

@@ -52,9 +52,12 @@ test('visible glow pixels derive only from the original image, never painted str
     const rendered=markup(kind), visible=rendered.slice(rendered.lastIndexOf('</defs>')+7);
     assert.match(visible, /^<g class="art-derived-shadow"/);
     assert.doesNotMatch(rendered, /painted-track|contrast-track|light-track|reset-card|orbit-card|cross.?plane|radiance/);
-    assert.doesNotMatch(visible, /<(?:path|ellipse|circle|rect|polygon|polyline|text|use)\b/);
+    assert.doesNotMatch(visible, /<(?:path|ellipse|circle|polygon|polyline|text|use)\b/);
+    assert.equal((visible.match(/<rect /g)||[]).length,1); // black shade only, selected by original-art luminance mask
+    assert.doesNotMatch(rendered, /art-shadow-source|id="prototype-shade"/);
+    assert.match(rendered,/filterUnits="userSpaceOnUse"/);
     const [width,height]=dimensions[kind];
-    const images=[...rendered.matchAll(/<image\b([^>]*)\/>/g)];assert.equal(images.length,5);
+    const images=[...rendered.matchAll(/<image\b([^>]*)\/>/g)];assert.equal(images.length,4);
     for(const [,attributes] of images){assert.match(attributes,new RegExp(`x="0" y="0" width="${width}" height="${height}"`));assert.doesNotMatch(attributes,/transform=|style=/);}
   }
 });
@@ -65,12 +68,13 @@ test('luminance and feathered selection are masks, not visible geometry', () => 
     assert.match(rendered, /<feColorMatrix type="saturate" values="0"\/>/);
     assert.match(rendered, /<mask id="prototype-region"[^>]*style="mask-type:luminance">/);
     assert.match(rendered, kind==='double'||kind==='reset'?/class="art-mask-orbit[^"]*"/:/<rect class="art-light-sweep[^"]*"/);
-    assert.match(rendered, /<g mask="url\(#prototype-region\)"><g mask="url\(#prototype-painted-light\)">/);
+    assert.match(rendered, /<g mask="url\(#prototype-painted-light\)">/);
+    assert.match(rendered, /<g mask="url\(#prototype-region\)"><g filter="url\(#prototype-luminance\)">/);
   }
 });
 test('every overlay image uses exactly the displayed original URL for currentSrc and src fallback', () => {
   for(const kind of Object.keys(originals))for(const current of [true,false]){
-    const f=fixture(kind,current);assert.equal(f.svg.images.length,5);for(const image of f.svg.images)assert.equal(image.attributes.href,f.originalURL);
+    const f=fixture(kind,current);assert.equal(f.svg.images.length,4);for(const image of f.svg.images)assert.equal(image.attributes.href,f.originalURL);
     assert.equal(f.svg.attributes.viewBox,`0 0 ${dimensions[kind].join(' ')}`);f.manager.destroy();
   }
 });
@@ -82,4 +86,15 @@ test('prototype retains shared CSS art coordinates and animates the mask, not th
   assert.match(css,/\.art-light-sweep\{animation:/);
   assert.match(css,/\[data-playing=false\]\s*\*\{animation-play-state:paused!important\}/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+});
+test('offscreen surfaces are bounded to padded motif bounds, not entire source art', () => {
+  for (const kind of Object.keys(originals)) {
+    const rendered=markup(kind), [w,h]=dimensions[kind];
+    for(const [,x,y,width,height] of rendered.matchAll(/(?:maskUnits|filterUnits)="userSpaceOnUse" x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)) {
+      assert.ok(+x>=0 && +y>=0 && +x + +width<=w && +y + +height<=h,kind);
+      assert.ok(+width * +height < w*h*.4,kind+' bounded surface');
+    }
+    assert.equal((rendered.match(/filter="url\(#prototype-luminance\)"/g)||[]).length,1);
+    assert.equal((rendered.match(/mask="url\(#prototype-region\)"/g)||[]).length,1);
+  }
 });
