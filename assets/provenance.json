@@ -168,9 +168,9 @@
       "file": "cloud-bunny.webp",
       "width": 1254,
       "height": 1254,
-      "bytes": 115672,
-      "sha256": "bb9a66cd012e9db9f48d0955085fc87742c16f16724c1c5951d80e1abe1e2ae8",
-      "source": "Built-in image editing; approved silhouette cleanup preserving character identity and composition",
+      "bytes": 131900,
+      "sha256": "2561faa6f2b4ec0664a12e30d84e68a2bee6207f70357ab454044f9cae103a7a",
+      "source": "Built-in image editing; approved bunny cheek design consistency, preserving the surrounding composition",
       "encoding": "WebP; approved original dimensions and alpha retained"
     },
     {
@@ -186,9 +186,9 @@
       "file": "home-hero.webp",
       "width": 1448,
       "height": 1086,
-      "bytes": 248294,
-      "sha256": "be827e6cbabc4fdbd107fda4960027718ddfc8a329cdaa9263ce290b1c23f4bb",
-      "source": "Built-in image editing; approved silhouette cleanup preserving character identity and composition",
+      "bytes": 276698,
+      "sha256": "bc3a6243caced61a1b093b64829251886b517745f6530028efc6c3b408ac7aa6",
+      "source": "Built-in image editing; approved bunny cheek design consistency, preserving the surrounding composition",
       "encoding": "WebP; approved original dimensions and alpha retained"
     },
     {

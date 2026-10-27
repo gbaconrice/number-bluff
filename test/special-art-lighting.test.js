@@ -1,4 +1,4 @@
-// Prototype-only guard. Run explicitly while the older technique tests coexist.
+// Immutable source-art lighting and coordinate regression checks.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');

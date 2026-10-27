@@ -1,4 +1,4 @@
-/* Prototype: immutable source texture, layered optical motion only. */
+/* Immutable source texture, layered optical motion only. */
 .nb-special-svg-host{position:relative}
 .nb-special-svg{position:absolute;z-index:2;pointer-events:none;overflow:hidden;contain:paint;visibility:hidden}
 .nb-special-svg svg{display:block;width:100%;height:100%;overflow:hidden}

@@ -1,15 +1,15 @@
-name: Art glow prototype preview (not a release check)
+name: Verify preview
 on:
   pull_request:
 permissions:
   contents: read
 concurrency:
-  group: prototype-${{ github.event.pull_request.number }}
+  group: verify-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  preview:
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -17,24 +17,81 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Focused immutable-art and lifecycle checks
-        run: node --test test/special-art-glow-prototype.test.js test/special-svg-lifecycle.test.js test/card-motion-pixel-metrics.test.js
-      - run: npm install --no-save --package-lock=false --ignore-scripts --registry=https://registry.npmjs.org playwright@1.57.0
-      - run: npx --no-install playwright install chromium
-      - run: node tools/build-single-html.mjs
-      - name: Real-time source-art lighting frames
-        run: node tools/card-motion-periodic.mjs
-      - name: Six-second actual artwork lighting clips
-        run: node tools/art-glow-preview.mjs
-      - name: Prototype evidence only
+          registry-url: https://registry.npmjs.org
+      - name: Engine and scheduler tests
+        run: npm test
+      - name: Install browser test dependency (no runtime dependencies)
+        run: npm install --no-save --package-lock=false --ignore-scripts --registry=https://registry.npmjs.org playwright@1.57.0
+      - name: Install Chromium
+        run: npx --no-install playwright install chromium
+      - name: Japanese preview font (host browser libraries are preinstalled)
+        run: sudo apt-get install -y --no-install-recommends -o Acquire::http::Timeout=30 -o Acquire::Retries=1 fonts-ipafont-gothic
+      - name: Build single HTML handoff
+        run: node tools/build-single-html.mjs
+      - name: Online turn deadline and nonblocking countdown
+        run: node tools/online-turn-timer.mjs
+      - name: Early online clock screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: art-glow-prototype-frames
+          name: online-clock-preview
           path: |
-            artifacts/art-glow-preview/
+            artifacts/turn-clock-*.png
+            artifacts/online-turn-timer.json
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Automatic card motion on mobile and desktop
+        run: node tools/card-motion-periodic.mjs
+      - name: Natural-time special-card frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: natural-card-motion-preview
+          path: |
             artifacts/*effect-*.png
-            artifacts/*ambient*.png
             artifacts/periodic-card-motion.json
           if-no-files-found: ignore
           retention-days: 7
+      - name: Actual source-art motion preview
+        run: node tools/art-glow-preview.mjs
+      - name: Early visual preview (full regression remains mandatory)
+        id: visual
+        continue-on-error: true
+        run: node tools/e2e.mjs --visual-only
+      - name: Early visual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: early-visual-preview
+          path: artifacts/visual-preview/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Isolated official number and victory components
+        id: scene
+        continue-on-error: true
+        run: node --test tools/scene-motion/test/component-scene-motion.test.mjs
+      - name: Component scene screenshots before full regression
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scene-component-preview
+          path: artifacts/scene-mobile-components.png
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Browser regression and responsive checks
+        run: node tools/e2e.mjs
+      - name: Require early visual checks
+        if: always() && (steps.visual.outcome == 'failure' || steps.scene.outcome == 'failure')
+        run: exit 1
+      - name: Screenshots and test results only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-browser-results
+          path: |
+            artifacts/art-glow-preview/
+            artifacts/*.png
+            artifacts/*.json
+          if-no-files-found: ignore
+          retention-days: 7
+

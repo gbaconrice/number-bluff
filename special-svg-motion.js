@@ -1,4 +1,4 @@
-/* Source-art lighting prototype. Original artwork bytes remain immutable.
+/* Source-art optical lighting. Original artwork bytes remain immutable.
  * The overlay samples the identical original image in the shared source box.
  * Only a feathered luminance selection moves; no visible vector strokes.
  */
