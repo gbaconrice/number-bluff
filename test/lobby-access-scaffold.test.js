@@ -26,10 +26,11 @@ test('scaffold does not call undocumented list or invitation SDK APIs',()=>{
  assert.match(app,/cancelRoomRequest\(\); show\('joinPanel', 'roomId'\)/);
  assert.match(app,/公開ルーム一覧の取得機能は未接続/);
 });
-test('lobby names known public rooms and otherwise shows ID without guessing privacy',()=>{
- assert.match(html,/id="lobbyTitle">公開ルーム/);assert.match(html,/id="copyRoomId"/);
- assert.match(app,/const idHeader = !!roomId && permission !== 0/);
- assert.match(app,/!transport \? 'ルーム' : idHeader \? roomId : '公開ルーム'/);
+test('lobby shows actual ID and copy for both public and private rooms',()=>{
+ assert.match(html,/id="lobbyTitle"><\/h1>/);assert.match(html,/id="copyRoomId"/);
+ assert.match(app,/const idHeader = !!roomId;/);
+ assert.match(app,/\$\('lobbyTitle'\)\.textContent = roomId;/);
+ assert.doesNotMatch(app,/roomAccessPermission/);
  assert.match(app,/connect\(adapter, access = \{\}\)/);
 });
 test('copy feedback only claims success after awaited clipboard write, with selection fallback',()=>{

@@ -45,7 +45,7 @@
     if (records.some(record => [...record.addedNodes, ...record.removedNodes].some(containsCard))) syncCardMotion();
   });
   motionObserver.observe(document.querySelector('main'), {childList:true,subtree:true});
-  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null, roomAccessPermission = null;
+  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
   const sessionFinishListeners = new Set();
   let connectionBlocked = false, connectionMessage = '';
   const screenListeners = new Set(), screenNames = { homeScreen: 'home', lobbyScreen: 'lobby', battleScreen: 'battle', guidePanel: 'guide', joinPanel: 'join' };
@@ -211,9 +211,8 @@
   function renderLobby() {
     $('playerCount').textContent = view.players.length + '/8';
     const roomId = typeof view.roomId === 'string' ? view.roomId : '';
-    const permission = view.roomPermission === 0 || view.roomPermission === 1 ? view.roomPermission : roomAccessPermission;
-    const idHeader = !!roomId && permission !== 0;
-    $('lobbyTitle').textContent = !transport ? 'ルーム' : idHeader ? roomId : '公開ルーム';
+    const idHeader = !!roomId;
+    $('lobbyTitle').textContent = roomId;
     $('lobbyTitle').classList.toggle('is-room-id', idHeader);
     $('copyRoomId').classList.toggle('hide', !idHeader);
     $('lobbyHeaderSpacer').classList.toggle('hide', idHeader);
@@ -221,7 +220,7 @@
     $('roomCopyFallback').classList.add('hide');
     const manage = canManageLobby(), hostId = transport ? view.hostId : 'p1';
     let clockNote = document.getElementById('onlineTurnRule'); if (!clockNote) { clockNote = el('p', 'turn-rule-note'); clockNote.id = 'onlineTurnRule'; $('roomIdentity').after(clockNote); } clockNote.textContent = '1手30秒 · 時間切れは前の宣言＋1（初手1）'; clockNote.classList.remove('hide');
-    $('roomIdentity').classList.toggle('hide', !roomId || idHeader); $('roomIdentity').textContent = roomId && !idHeader ? 'ルームID ' + roomId : '';
+    $('roomIdentity').classList.add('hide'); $('roomIdentity').textContent = '';
     $('lobbyError').textContent = '';
     const selected = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
     if (!selected) selectedBot = view.players.find(p => p.kind === 'bot')?.id;
@@ -570,7 +569,7 @@
     },
     connect(adapter, access = {}) {
       if (!adapter || typeof adapter.subscribe !== 'function' || typeof adapter.send !== 'function') throw new TypeError('Adapter requires subscribe(onPublicView) and send(action).');
-      timer.cancel(); detachTransport(); transport = adapter; roomAccessPermission = access.roomPermission === 0 || access.roomPermission === 1 ? access.roomPermission : null; state = null; view = null;
+      timer.cancel(); detachTransport(); transport = adapter; state = null; view = null;
       let first = true;
       unsubscribe = adapter.subscribe(publicState => {
         if (transport !== adapter) return;
