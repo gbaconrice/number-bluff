@@ -212,7 +212,7 @@
     const roomId = typeof view.roomId === 'string' ? view.roomId : '';
     const permission = view.roomPermission === 0 || view.roomPermission === 1 ? view.roomPermission : roomAccessPermission;
     const idHeader = !!roomId && permission !== 0;
-    $('lobbyTitle').textContent = !transport ? '練習ルーム' : idHeader ? roomId : '公開ルーム';
+    $('lobbyTitle').textContent = !transport ? 'ルーム' : idHeader ? roomId : '公開ルーム';
     $('lobbyTitle').classList.toggle('is-room-id', idHeader);
     $('copyRoomId').classList.toggle('hide', !idHeader);
     $('lobbyHeaderSpacer').classList.toggle('hide', idHeader);
@@ -478,7 +478,7 @@
       steps.forEach(([title, text], index) => {
         const section = el('section', 'guide-step');
         section.append(el('b', 'step-number', index + 1), el('h3', '', title), el('p', '', text));
-        section.append(window.NumberBluffGuideDiagrams.create(document, index)); if (index === 1) section.append(el('p', 'turn-rule-note', '人間の手番は1手30秒（BOT練習も同じ）。時間切れは前の宣言＋1（初手は1）を自動宣言します。入力途中の数字は送信しません。計算演出の後、10秒で次のラウンドに進みます。優勝結果では自動再戦しません。')); container.append(section);
+        section.append(window.NumberBluffGuideDiagrams.create(document, index)); if (index === 1) section.append(el('p', 'turn-rule-note', '人間の手番は1手30秒。時間切れは前の宣言＋1（初手は1）を自動宣言します。入力途中の数字は送信しません。計算演出の後、10秒で次のラウンドに進みます。優勝結果では自動再戦しません。')); container.append(section);
       });
 
     } else if (tab === 'cards') {
@@ -491,7 +491,7 @@
       [...grouped.values()].filter(x => x.card.kind !== 'number').forEach(({ card, count }) => { const item = el('button', 'catalogue-item'); item.type = 'button'; item.setAttribute('aria-label', card.label + ' の効果'); item.onclick = () => cardDetail(card, count); item.append(cardNode(card), el('small', '', '×1')); specials.append(item); }); container.append(specials);
     } else if (tab === 'bots') {
 
-      const descriptions = ['判断にゆらぎが多め。まずはのんびり練習したい人に。','見えているカードと公開済みの情報からバランスよく判断。','公開情報から合計の可能性を比較し、慎重に挑戦します。'];
+      const descriptions = ['判断にゆらぎが多め。','見えているカードと公開済みの情報からバランスよく判断。','公開情報から合計の可能性を比較し、慎重に挑戦します。'];
       ['easy','normal','hard'].forEach((d, i) => { const row = el('div', 'guide-bot'), copy = el('div'); copy.append(el('h3', '', difficultyNames[d]), el('p', '', descriptions[i])); row.append(image(avatars[i]), copy); container.append(row); });
       container.append(el('p', '', 'BOTも自分のカードや山札の中身は見ていません。難易度を変えても、見える情報は同じです。'));
     } else {

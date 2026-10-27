@@ -206,7 +206,7 @@ test('round results never increment streaks and BOTs never collect human streak 
  r=E.challenge(s,'p2',seeded());assert.equal(r.result.winner,'p2');assert.equal(r.players[0].currentStreak,2);assert.equal(r.players[0].bestStreak,4);assert.equal(r.players[1].currentStreak,0);assert.equal(r.players[1].bestStreak,0);
 });
 
-test('ranking eligibility captures initial humans, allows BOTs and ignores practice and abandonment',()=>{
+test('ranking eligibility captures initial humans, allows BOTs and ignores single-human matches and abandonment',()=>{
  const rng=seeded(888);
  const lobby=E.createLobby({botCount:2});
  lobby.players[1]={...lobby.players[1],kind:'human',difficulty:null};
@@ -225,10 +225,10 @@ test('ranking eligibility captures initial humans, allows BOTs and ignores pract
  assert.equal(botWin.players[0].currentStreak,0);assert.equal(botWin.players[0].bestStreak,5);assert.equal(botWin.players[2].bestStreak,0);
  const abandoned=E.returnToLobby(started);
  assert.equal(abandoned.rankingEligible,false);assert.equal(abandoned.players[0].currentStreak,2);
- const practiceLobby={...abandoned,players:abandoned.players.map(p=>p.id==='p2'?{...p,kind:'bot',difficulty:'normal'}:p)};
- const practice=E.startGame(practiceLobby,rng);assert.equal(practice.rankingEligible,false);
+ const singleHumanLobby={...abandoned,players:abandoned.players.map(p=>p.id==='p2'?{...p,kind:'bot',difficulty:'normal'}:p)};
+ const singleHumanMatch=E.startGame(singleHumanLobby,rng);assert.equal(singleHumanMatch.rankingEligible,false);
  for(const winner of ['p1','p3']){
-  const result=finish(practice,winner);
+  const result=finish(singleHumanMatch,winner);
   assert.equal(result.players[0].currentStreak,2);assert.equal(result.players[0].bestStreak,5);
  }
  const changed={...humanWin,players:humanWin.players.map(p=>p.id==='p2'?{...p,kind:'bot',difficulty:'normal'}:p)};

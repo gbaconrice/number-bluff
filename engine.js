@@ -67,7 +67,7 @@
     let players=s.players.map(p=>p.id===loser?{...p,life:Math.max(0,p.life-1),eliminated:p.life<=1}:p);
     const survivors=players.filter(p=>p.life>0),winner=survivors.length===1?survivors[0].id:null;
     // Eligibility is captured at match start: at least two humans, BOTs allowed.
-    // Only eligible completed matches affect streaks; practice/abandonment do not. These
+    // Only eligible completed matches affect streaks; ineligible matches/abandonment do not. These
     // transient counters are not a leaderboard or a platform submission.
     if(winner)players=players.map(p=>{
       if(s.rankingEligible!==true)return {...p,wins:p.wins+(p.id===winner?1:0)};
