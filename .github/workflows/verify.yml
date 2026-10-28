@@ -35,6 +35,8 @@ jobs:
         run: |
           npm run build:compact
           node tools/compare-builds.cjs
+      - name: External launch shell success and failure
+        run: node tools/loader-smoke.cjs
       - name: Real synthesized audio and sound toggle
         run: node tools/audio-output.mjs
       - name: Centered hidden card and fine reflective detail
