@@ -23,6 +23,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: npm ci --ignore-scripts
       - run: npm test
       - run: npm install --no-save --package-lock=false --ignore-scripts playwright@1.57.0
       - run: npx --no-install playwright install chromium

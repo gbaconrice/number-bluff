@@ -123,6 +123,13 @@ test('native exit failure preserves session and blocks another create until succ
  const session=await actions.create(0);await assert.rejects(actions.exit(),/exit failed/);assert.equal(bridge.getSession(),session);await assert.rejects(actions.create(0),/not exited/);
  await actions.exit();assert.equal(bridge.getSession(),null);await actions.create(1);assert.equal(receivers,1);await actions.exit();
 });
+test('receiver ignores old-room and unscoped membership events after a room transition',async()=>{
+ let actions,listener;const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',name:'U'}})},room:{receiveMessage:fn=>listener=fn,create:async()=>({errno:0,data:{room_id:'new'}}),join(){},sendMessage:async()=>({errno:0}),exit:async()=>({errno:0})}};
+ await install({sdk,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions=a}});
+ await actions.create(0);await actions.exit();const session=await actions.create(0);let view;session.subscribe(v=>view=v);
+ for(const data of [{room_id:'old',user_id:'x',user_name:'X'},{user_id:'x',user_name:'X'}])listener({type:'aitools_game_joinroom',data});
+ assert.equal(view.players.length,1);listener({type:'aitools_game_joinroom',data:{room_id:'new',user_id:'x',user_name:'X'}});assert.equal(view.players.length,2);await actions.exit();
+});
 test('canceled delayed create exits before retry and failed cleanup is retried first',async()=>{
  let actions,resolveCreate,creates=0,exits=0;const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',name:'U'}})},room:{receiveMessage(){},create:()=>{creates++;return creates===1?new Promise(r=>resolveCreate=r):Promise.resolve({errno:0,data:{room_id:'next'}})},join(){},sendMessage:async()=>({errno:0}),exit:async()=>({errno:++exits===1?1:0})}};
  const bridge=await install({sdk,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions=a}});

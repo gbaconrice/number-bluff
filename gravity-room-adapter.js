@@ -228,7 +228,7 @@
     const supplied=normalizeProfile?normalizeProfile(own.data):{name:own.data.name||own.data.user_name,avatarUrl:own.data.portrait||own.data.portait};
     const me=profile({userId:myId,...supplied});me.userId=myId;client.configureLocalProfile(me);
     const member=raw=>{const p=normalizeMember?normalizeMember(raw):{userId:String(raw?.user_id||''),name:raw?.user_name||raw?.name,avatarUrl:raw?.portrait||raw?.portait};return id(p?.userId)?profile(p):null;};
-    let active=null, pending=false, listenerGeneration=0, requestGeneration=0, discovery=null, activeRoom=null, nativeJoined=false, leaving=null;
+    let active=null, pending=false, listenerGeneration=0, requestGeneration=0, discovery=null, activeRoom=null, nativeJoined=false, leaving=null, allowUnscopedMembership=true;
     async function leave(){
       if(leaving)return leaving;
       if(!nativeJoined)return;
@@ -242,13 +242,16 @@
     }
     function attachReceiver(handler){
       let receiver=receivers.get(sdk.room);
-      if(!receiver){receiver={handler};receivers.set(sdk.room,receiver);sdk.room.receiveMessage(payload=>receiver.handler?.(payload));}
-      else receiver.handler=handler;
+      if(!receiver){receiver={handler,everEntered:true};receivers.set(sdk.room,receiver);allowUnscopedMembership=true;sdk.room.receiveMessage(payload=>receiver.handler?.(payload));}
+      else {allowUnscopedMembership=!receiver.everEntered;receiver.everEntered=true;receiver.handler=handler;}
     }
     function sendControl(body){return Promise.resolve(sdk.room.sendMessage({message:JSON.stringify({protocol:'number-bluff',version:VERSION,...body})})).then(r=>{if(r?.errno!==undefined&&r.errno!==0)throw new Error('GRAVITY send failed.');});}
     function handle(payload){
       if(!payload?.data)return;const data=payload.data,uid=String(data.user_id||'');
       if(data.room_id!==undefined&&String(data.room_id)!==activeRoom)return;
+      // Once a room has been replaced, an unscoped membership event may belong
+      // to the previous room. Do not apply it to the new session.
+      if(data.room_id===undefined&&!allowUnscopedMembership&&['aitools_game_joinroom','aitools_game_exitroom'].includes(payload.type))return;
       if(payload.type==='aitools_game_sendmsg'&&id(uid)&&typeof data.msg_data==='string'&&data.msg_data.length<=LIMIT){
         let m;try{m=JSON.parse(data.msg_data);}catch{}
         if(m?.protocol==='number-bluff'&&m.version===VERSION&&m.roomId===activeRoom){

@@ -182,7 +182,7 @@
     if (roomBusy) return;
     const status = $(kind === 'create' ? 'roomCreateStatus' : 'roomJoinStatus');
     const button = $(kind === 'create' ? 'startGame' : 'joinRoom');
-    if (typeof roomActions[kind] !== 'function') { if (kind === 'create' && !roomAdapterExpected && !$('privateRoom').checked) { createLocalHostRoom(); return; } status.textContent = '接続待ち'; return; }
+    if (typeof roomActions[kind] !== 'function') { if (kind === 'create' && !roomAdapterExpected && !$('privateRoom').checked) { createLocalHostRoom(); return; } status.textContent = kind === 'create' && $('privateRoom').checked ? 'プライベートルームは準備中です。' : '接続待ち'; return; }
     const request = ++roomRequest; roomBusy = true; button.disabled = true; status.textContent = '接続中…';
     try {
       const adapter = await roomActions[kind](kind === 'join' ? roomId : ($('privateRoom').checked ? 1 : 0));
@@ -436,6 +436,7 @@
         await roomActions.exit();
       }
       const finished = captureSessionFinish();
+      if (screen === 'battleScreen') closeConfirm();
       timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished);
     } catch {
       const status = $(screen === 'lobbyScreen' ? 'lobbyError' : 'onlineBattleStatus');

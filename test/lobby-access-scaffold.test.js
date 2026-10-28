@@ -37,6 +37,11 @@ test('explicit exit submits score only after successful native exit and supports
  await context.exitRoom();assert.equal(submissions,0);assert.equal(detached,0);assert.match(status.textContent,/退出できません/);
  ok=true;await context.exitRoom();assert.equal(submissions,1);assert.equal(detached,1);
 });
+test('offline exit closes the battle confirmation without native SDK or ranking submission',async()=>{
+ const source=app.slice(app.indexOf('  let exiting = false;'),app.indexOf("  $('startGame').onclick"));let closed=0,detached=0,submitted=0;
+ const context={transport:null,roomActions:{},captureSessionFinish:()=>null,timer:{cancel(){}},closeConfirm(){closed++},detachTransport(){detached++},show(){},publishSessionFinish(result){if(result)submitted++},screen:'battleScreen',state:{},view:{}};
+ vm.createContext(context);vm.runInContext(source+'\nthis.exitRoom=exitRoom;',context);await context.exitRoom();assert.equal(closed,1);assert.equal(detached,1);assert.equal(submitted,0);
+});
 test('lobby shows actual ID and copy for both public and private rooms',()=>{
  assert.match(html,/id="lobbyTitle"><\/h1>/);assert.match(html,/id="copyRoomId"/);
  assert.match(app,/const idHeader = !!roomId;/);

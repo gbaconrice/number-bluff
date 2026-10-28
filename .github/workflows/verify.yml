@@ -19,6 +19,8 @@ jobs:
         with:
           node-version: '22'
           registry-url: https://registry.npmjs.org
+      - name: Install locked development dependencies
+        run: npm ci --ignore-scripts
       - name: Engine and scheduler tests
         run: npm test
       - name: Install browser test dependency (no runtime dependencies)
