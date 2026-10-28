@@ -7,6 +7,7 @@
 })(typeof globalThis==='object'?globalThis:this,function(G,R){
   'use strict';
   const VERSION=1, TURN_MS=30000, LIMIT=48000, DIFFICULTIES=['easy','normal','hard'];
+  const receivers=new WeakMap();
   const clone=x=>JSON.parse(JSON.stringify(x));
   const id=x=>typeof x==='string'&&x.length>0&&x.length<=128&&!/[\u0000-\u001f]/.test(x);
   const safeName=x=>typeof x==='string'&&x.trim()?x.trim().slice(0,24):'プレイヤー';
@@ -218,48 +219,99 @@
     return Object.freeze(adapter);
   }
 
-  async function install({sdk,client,resolveHost,normalizeMember,normalizeProfile,onStatus,rng}={}){
+  async function install({sdk,client,normalizeMember,normalizeProfile,onStatus,rng,discoveryMs=1000}={}){
     if(!sdk?.user?.getMyUserInfo||!sdk?.room?.create||!sdk?.room?.join||!sdk?.room?.receiveMessage||!sdk?.room?.sendMessage)throw new TypeError('AgentSDK user and room methods are required.');
     if(!client?.configureRoomActions)throw new TypeError('NumberBluffClient is required.');
     client.setRoomAdapterExpected(true);
     const own=await sdk.user.getMyUserInfo();if(own?.errno!==0||!id(String(own.data?.user_id||'')))throw new Error('GRAVITY profile unavailable.');
     const myId=String(own.data.user_id);
-    const supplied=normalizeProfile?normalizeProfile(own.data):{name:own.data.name,avatarUrl:own.data.portrait};
+    const supplied=normalizeProfile?normalizeProfile(own.data):{name:own.data.name||own.data.user_name,avatarUrl:own.data.portrait||own.data.portait};
     const me=profile({userId:myId,...supplied});me.userId=myId;client.configureLocalProfile(me);
     const member=raw=>{const p=normalizeMember?normalizeMember(raw):{userId:String(raw?.user_id||''),name:raw?.user_name||raw?.name,avatarUrl:raw?.portrait||raw?.portait};return id(p?.userId)?profile(p):null;};
-    let active=null, pending=false, listenerGeneration=0, requestGeneration=0;
+    let active=null, pending=false, listenerGeneration=0, requestGeneration=0, discovery=null, activeRoom=null, nativeJoined=false, leaving=null;
+    async function leave(){
+      if(leaving)return leaving;
+      if(!nativeJoined)return;
+      leaving=(async()=>{
+        if(typeof sdk.room.exit!=='function')throw new Error('GRAVITY exit unavailable.');
+        const result=await sdk.room.exit();
+        if(result?.errno!==0)throw new Error('GRAVITY exit failed.');
+        nativeJoined=false;listenerGeneration++;discovery=null;activeRoom=null;active?.close();active=null;
+      })();
+      try{return await leaving;}finally{leaving=null;}
+    }
+    function attachReceiver(handler){
+      let receiver=receivers.get(sdk.room);
+      if(!receiver){receiver={handler};receivers.set(sdk.room,receiver);sdk.room.receiveMessage(payload=>receiver.handler?.(payload));}
+      else receiver.handler=handler;
+    }
+    function sendControl(body){return Promise.resolve(sdk.room.sendMessage({message:JSON.stringify({protocol:'number-bluff',version:VERSION,...body})})).then(r=>{if(r?.errno!==undefined&&r.errno!==0)throw new Error('GRAVITY send failed.');});}
     function handle(payload){
-      if(!active||!payload?.data)return;const data=payload.data,uid=String(data.user_id||'');
+      if(!payload?.data)return;const data=payload.data,uid=String(data.user_id||'');
+      if(data.room_id!==undefined&&String(data.room_id)!==activeRoom)return;
+      if(payload.type==='aitools_game_sendmsg'&&id(uid)&&typeof data.msg_data==='string'&&data.msg_data.length<=LIMIT){
+        let m;try{m=JSON.parse(data.msg_data);}catch{}
+        if(m?.protocol==='number-bluff'&&m.version===VERSION&&m.roomId===activeRoom){
+          if(m.type==='host-discover'&&active?.getStatus().isHost&&id(m.nonce))void sendControl({roomId:activeRoom,type:'host-claim',nonce:m.nonce}).catch(()=>{});
+          if(m.type==='host-claim'&&discovery&&m.nonce===discovery.nonce&&discovery.roster.has(uid)&&uid!==myId){
+            discovery.claims.add(uid);
+            if(discovery.pinned&&uid!==discovery.pinned){active?.close();active=null;onStatus?.({kind:'host-session-changed'});}
+          }
+        }
+      }
+      if(!active)return;
       if(payload.type==='aitools_game_sendmsg')active.receive(uid,data.msg_data);
       else if(payload.type==='aitools_game_joinroom'){const p=member(data);if(p)active.addMember(p);}
       else if(payload.type==='aitools_game_exitroom')active.removeMember(uid);
     }
-    async function enter(kind,requestedId){
-      if(pending)throw new Error('Room request already pending.');pending=true;const request=++requestGeneration;
-      if(active)active.close();active=null;++listenerGeneration;
+    async function enter(kind,requestedId,permission=0){
+      // A canceled request may have entered a native room even if cleanup failed.
+      // A later user retry first attempts the outstanding exit, never a second create.
+      if(nativeJoined&&!active&&!pending&&!leaving)await leave();
+      if(pending||nativeJoined||leaving)throw new Error('Room request already pending or room not exited.');pending=true;const request=++requestGeneration;
       try{
         if(kind==='join'&&!id(requestedId))throw new TypeError('Room ID required.');
-        const result=await (kind==='create'?sdk.room.create({max_players:8,room_permission:0}):sdk.room.join({room_id:requestedId}));
-        if(request!==requestGeneration)throw new Error('Room request canceled.');
+        if(kind==='create'&&permission!==0&&permission!==1)throw new TypeError('Invalid room permission.');
+        const result=await (kind==='create'?sdk.room.create({max_players:8,room_permission:permission}):sdk.room.join({room_id:requestedId}));
         if(result?.errno!==0)throw new Error('GRAVITY room request failed.');
+        nativeJoined=true;
+        if(request!==requestGeneration)throw new Error('Room request canceled.');
         if(active)active.close();active=null;
-        const buffered=[],generation=++listenerGeneration;
-        // Register synchronously immediately after success, before host resolution awaits.
-        sdk.room.receiveMessage(payload=>{if(generation!==listenerGeneration)return;if(active)handle(payload);else if(buffered.length<64)buffered.push(payload);});
         const data=result.data||{},roomId=String(data.room_id||requestedId||'');
-        // AI Studio says first user is creator. This ordering is an assumption to verify on-device.
-        // Pin this identity for the session; later roster reorder/host_declare never replaces it.
-        const hostUserId=kind==='create'?myId:String((resolveHost?await resolveHost(data):data.user_list?.[0]?.user_id)||'');
+        if(!id(roomId))throw new Error('Verified room ID required.');
+        const buffered=[],generation=++listenerGeneration;activeRoom=roomId;
+        attachReceiver(payload=>{if(generation!==listenerGeneration)return;handle(payload);if(!active&&buffered.length<64)buffered.push(payload);});
+        let hostUserId=myId;
+        if(kind==='join'){
+          const roster=new Set((Array.isArray(data.user_list)?data.user_list:[]).map(member).filter(Boolean).map(p=>p.userId));
+          const nonce=String(Date.now())+'-'+String(Math.random()).slice(2);
+          discovery={nonce,roster,claims:new Set(),pinned:null};
+          await sendControl({roomId,type:'host-discover',nonce});
+          await new Promise(resolve=>setTimeout(resolve,discoveryMs));
+          if(request!==requestGeneration)throw new Error('Room request canceled.');
+          if(discovery.claims.size!==1)throw new Error('Host discovery ambiguous or unavailable.');
+          hostUserId=[...discovery.claims][0];discovery.pinned=hostUserId;
+        }else discovery=null;
         if(request!==requestGeneration)throw new Error('Room request canceled.');
         if(!id(roomId)||!id(hostUserId))throw new Error('Verified room and host IDs are required.');
         active=createSession({roomId,userId:myId,hostUserId,name:me.name,avatarUrl:me.avatarUrl,rng,onStatus,
           members:Array.isArray(data.user_list)?data.user_list.map(member).filter(Boolean):[],
           sendMessage:async message=>{const response=await sdk.room.sendMessage({message});if(response?.errno!==undefined&&response.errno!==0)throw new Error('GRAVITY send failed.');}
         });for(const payload of buffered)handle(payload);return active;
-      }finally{pending=false;}
+      }catch(error){if(nativeJoined){try{await leave();}catch{onStatus?.({kind:'exit-error'});}}throw error;}finally{pending=false;}
     }
-    client.configureRoomActions({create:()=>enter('create'),join:roomId=>enter('join',roomId)});
-    return Object.freeze({resync:()=>active?.resync(),close:()=>{requestGeneration++;listenerGeneration++;active?.close();active=null;},getSession:()=>active});
+    async function list(){
+      if(typeof sdk.room.getPublicRoomList!=='function')throw new Error('Public room list unavailable.');
+      const result=await sdk.room.getPublicRoomList();
+      if(result?.errno!==0||!Array.isArray(result.data?.list))throw new Error('Public room list failed.');
+      return result.data.list.map(r=>{
+        const roomId=String(r?.room_id||'');
+        if(!id(roomId)||!Number.isInteger(r.max_players)||r.max_players<1||!Number.isInteger(r.gamer_num)||r.gamer_num<0||r.gamer_num>r.max_players)throw new Error('Invalid room list.');
+        return {roomId,maxPlayers:r.max_players,gamerNum:r.gamer_num,createTime:r.create_time};
+      });
+    }
+    client.configureRoomActions({create:permission=>enter('create',undefined,permission),join:roomId=>enter('join',roomId),list,exit:leave});
+    return Object.freeze({resync:()=>active?.resync(),close:()=>{requestGeneration++;if(nativeJoined)void leave().catch(()=>onStatus?.({kind:'exit-error'}));},getSession:()=>active});
   }
   return Object.freeze({createSession,install,protocolVersion:VERSION,turnDurationMs:TURN_MS});
 });

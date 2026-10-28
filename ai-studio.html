@@ -1911,7 +1911,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     if (records.some(record => [...record.addedNodes, ...record.removedNodes].some(containsCard))) syncCardMotion();
   });
   motionObserver.observe(document.querySelector('main'), {childList:true,subtree:true});
-  let roomActions = {}, roomRequest = 0, roomAdapterExpected = false, cancelRoomOperation = null;
+  let roomActions = {}, roomRequest = 0, listRequest = 0, roomBusy = false, roomAdapterExpected = false, cancelRoomOperation = null;
   const sessionFinishListeners = new Set();
   let connectionBlocked = false, connectionMessage = '';
   const screenListeners = new Set(), screenNames = { homeScreen: 'home', lobbyScreen: 'lobby', battleScreen: 'battle', guidePanel: 'guide', joinPanel: 'join' };
@@ -2045,25 +2045,20 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     paintConnectionStatus();
   }
   async function requestRoom(kind, roomId) {
-    // AI Studio handoff: wire private creation before enabling this branch.
-    // Never silently create a public room while the private option is selected.
-    if (kind === 'create' && $('privateRoom').checked) {
-      $('roomCreateStatus').textContent = 'プライベートルームは準備中です。公開ルームはチェックを外して作成できます。';
-      return;
-    }
+    if (roomBusy) return;
     const status = $(kind === 'create' ? 'roomCreateStatus' : 'roomJoinStatus');
     const button = $(kind === 'create' ? 'startGame' : 'joinRoom');
-    if (typeof roomActions[kind] !== 'function') { if (kind === 'create' && !roomAdapterExpected) { createLocalHostRoom(); return; } status.textContent = '接続待ち'; return; }
-    const request = ++roomRequest; button.disabled = true; status.textContent = '接続中…';
+    if (typeof roomActions[kind] !== 'function') { if (kind === 'create' && !roomAdapterExpected && !$('privateRoom').checked) { createLocalHostRoom(); return; } status.textContent = '接続待ち'; return; }
+    const request = ++roomRequest; roomBusy = true; button.disabled = true; status.textContent = '接続中…';
     try {
-      const adapter = await roomActions[kind](...(kind === 'join' ? [roomId] : []));
+      const adapter = await roomActions[kind](kind === 'join' ? roomId : ($('privateRoom').checked ? 1 : 0));
       if (request !== roomRequest) { adapter?.close?.(); return; }
-      if (adapter) window.NumberBluffClient.connect(adapter, { roomPermission: kind === 'create' ? 0 : null });
+      if (adapter) window.NumberBluffClient.connect(adapter, { roomPermission: kind === 'create' ? ($('privateRoom').checked ? 1 : 0) : null });
       status.textContent = view ? '' : connectionMessage || 'ホストからの情報を待っています…';
     } catch { if (request === roomRequest) status.textContent = '接続できませんでした。もう一度お試しください。'; }
-    finally { if (request === roomRequest) button.disabled = false; }
+    finally { roomBusy = false; if (request === roomRequest) button.disabled = false; }
   }
-  function cancelRoomRequest() { ++roomRequest; if (cancelRoomOperation) cancelRoomOperation(); $('startGame').disabled = false; $('joinRoom').disabled = false; $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = ''; }
+  function cancelRoomRequest() { ++roomRequest; ++listRequest; if (cancelRoomOperation) cancelRoomOperation(); $('startGame').disabled = false; $('joinRoom').disabled = false; $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = ''; }
   function createLocalHostRoom() {
     detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: localProfile.name, botCount: 0 }); state.players[0].avatarUrl = localProfile.avatarUrl; avatarChoice = {}; selectedBot = null;
     view = G.publicView(state, human); renderLobby(); show('lobbyScreen');
@@ -2297,15 +2292,45 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     }
     $('roomCopyStatus').classList.remove('hide');
   };
-  $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = () => { const finished = captureSessionFinish(); cancelRoomRequest(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
+  let exiting = false;
+  async function exitRoom() {
+    if (exiting) return;
+    exiting = true;
+    try {
+      if (transport) {
+        if (typeof roomActions.exit !== 'function') throw new Error('Exit unavailable');
+        await roomActions.exit();
+      }
+      const finished = captureSessionFinish();
+      timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished);
+    } catch {
+      const status = $(screen === 'lobbyScreen' ? 'lobbyError' : 'onlineBattleStatus');
+      status.textContent = '退出できませんでした。もう一度お試しください。'; status.classList.remove('hide');
+    } finally { exiting = false; }
+  }
+  $('startGame').onclick = () => requestRoom('create'); $('lobbyBack').onclick = exitRoom;
   $('joinForm').onsubmit = event => { event.preventDefault(); const id = $('roomId').value.trim(); if (id) requestRoom('join', id); };
-  $('refreshPublicRooms').onclick = () => {
-    // UI scaffold only. No undocumented SDK response mapping or fake rooms.
-    $('publicRoomsList').replaceChildren();
-    $('publicRoomsStatus').textContent = '公開ルーム一覧の取得機能は未接続です。ルームIDで参加できます。';
+  $('refreshPublicRooms').onclick = async () => {
+    const request = ++listRequest, list = $('publicRoomsList'), status = $('publicRoomsStatus');
+    list.replaceChildren(); status.textContent = '取得中…';
+    try {
+      if (typeof roomActions.list !== 'function') throw new Error('unavailable');
+      const rooms = await roomActions.list();
+      if (request !== listRequest || screen !== 'joinPanel') return;
+      if (!rooms.length) { status.textContent = '公開ルームはありません。'; return; }
+      status.textContent = '';
+      for (const room of rooms) {
+        const button = document.createElement('button'); button.type = 'button';
+        button.textContent = room.roomId + '  ' + room.gamerNum + '/' + room.maxPlayers;
+        button.onclick = () => requestRoom('join', room.roomId);
+        list.append(button);
+      }
+    } catch {
+      if (request === listRequest && screen === 'joinPanel') status.textContent = '公開ルーム一覧を取得できませんでした。';
+    }
   };
   $('privateRoom').onchange = () => { $('roomCreateStatus').textContent = ''; };
-  $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
+  $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); void $('refreshPublicRooms').onclick(); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
   $('addBot').onclick = addBot;
   $('removeBot').onclick = () => { if (transport) { lobbyAction('removeBot', { target: selectedBot }); return; } state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
   document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { if (transport) { lobbyAction('setBotAvatar', { target: selectedBot, avatar: Number(button.dataset.avatar) }); return; } avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
@@ -2328,7 +2353,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   function confirmExit() { gameplayFeedback.stop(); specialEffects.stop(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); specialSVG.refresh(); }
   function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); syncCardMotion(); }
   $('homeBtn').onclick = confirmExit; $('cancelRestart').onclick = closeConfirm;
-  $('confirmRestart').onclick = () => { timer.cancel(); closeConfirm(); const finished = captureSessionFinish(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished); };
+  $('confirmRestart').onclick = exitRoom;
   function overlay(id, trigger) { if (screen === 'homeScreen' || screen === 'joinPanel') cancelRoomRequest(); overlayReturn = { screen, trigger }; show(id); }
   function closeOverlay() { const back = overlayReturn || { screen: 'homeScreen', trigger: $('startGame') }; show(back.screen); back.trigger?.focus(); overlayReturn = null; }
   $('homeRules').onclick = () => { overlay('guidePanel', $('homeRules')); guide('rules'); };
@@ -2425,7 +2450,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     setRoomAdapterExpected(required = true) { roomAdapterExpected = !!required; },
     configureRoomActions(actions) {
       if (!actions || typeof actions.create !== 'function' || typeof actions.join !== 'function') throw new TypeError('Room actions require create() and join(roomId).');
-      roomAdapterExpected = true; roomActions = { create: actions.create, join: actions.join };
+      roomAdapterExpected = true; roomActions = { create: actions.create, join: actions.join, list: actions.list, exit: actions.exit };
     },
     configureLocalProfile(profile) {
       if (!profile || typeof profile.name !== 'string' || !profile.name.trim()) throw new TypeError('Normalized profile requires name.');
@@ -2463,6 +2488,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
 })(typeof globalThis==='object'?globalThis:this,function(G,R){
   'use strict';
   const VERSION=1, TURN_MS=30000, LIMIT=48000, DIFFICULTIES=['easy','normal','hard'];
+  const receivers=new WeakMap();
   const clone=x=>JSON.parse(JSON.stringify(x));
   const id=x=>typeof x==='string'&&x.length>0&&x.length<=128&&!/[\u0000-\u001f]/.test(x);
   const safeName=x=>typeof x==='string'&&x.trim()?x.trim().slice(0,24):'プレイヤー';
@@ -2674,48 +2700,99 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     return Object.freeze(adapter);
   }
 
-  async function install({sdk,client,resolveHost,normalizeMember,normalizeProfile,onStatus,rng}={}){
+  async function install({sdk,client,normalizeMember,normalizeProfile,onStatus,rng,discoveryMs=1000}={}){
     if(!sdk?.user?.getMyUserInfo||!sdk?.room?.create||!sdk?.room?.join||!sdk?.room?.receiveMessage||!sdk?.room?.sendMessage)throw new TypeError('AgentSDK user and room methods are required.');
     if(!client?.configureRoomActions)throw new TypeError('NumberBluffClient is required.');
     client.setRoomAdapterExpected(true);
     const own=await sdk.user.getMyUserInfo();if(own?.errno!==0||!id(String(own.data?.user_id||'')))throw new Error('GRAVITY profile unavailable.');
     const myId=String(own.data.user_id);
-    const supplied=normalizeProfile?normalizeProfile(own.data):{name:own.data.name,avatarUrl:own.data.portrait};
+    const supplied=normalizeProfile?normalizeProfile(own.data):{name:own.data.name||own.data.user_name,avatarUrl:own.data.portrait||own.data.portait};
     const me=profile({userId:myId,...supplied});me.userId=myId;client.configureLocalProfile(me);
     const member=raw=>{const p=normalizeMember?normalizeMember(raw):{userId:String(raw?.user_id||''),name:raw?.user_name||raw?.name,avatarUrl:raw?.portrait||raw?.portait};return id(p?.userId)?profile(p):null;};
-    let active=null, pending=false, listenerGeneration=0, requestGeneration=0;
+    let active=null, pending=false, listenerGeneration=0, requestGeneration=0, discovery=null, activeRoom=null, nativeJoined=false, leaving=null;
+    async function leave(){
+      if(leaving)return leaving;
+      if(!nativeJoined)return;
+      leaving=(async()=>{
+        if(typeof sdk.room.exit!=='function')throw new Error('GRAVITY exit unavailable.');
+        const result=await sdk.room.exit();
+        if(result?.errno!==0)throw new Error('GRAVITY exit failed.');
+        nativeJoined=false;listenerGeneration++;discovery=null;activeRoom=null;active?.close();active=null;
+      })();
+      try{return await leaving;}finally{leaving=null;}
+    }
+    function attachReceiver(handler){
+      let receiver=receivers.get(sdk.room);
+      if(!receiver){receiver={handler};receivers.set(sdk.room,receiver);sdk.room.receiveMessage(payload=>receiver.handler?.(payload));}
+      else receiver.handler=handler;
+    }
+    function sendControl(body){return Promise.resolve(sdk.room.sendMessage({message:JSON.stringify({protocol:'number-bluff',version:VERSION,...body})})).then(r=>{if(r?.errno!==undefined&&r.errno!==0)throw new Error('GRAVITY send failed.');});}
     function handle(payload){
-      if(!active||!payload?.data)return;const data=payload.data,uid=String(data.user_id||'');
+      if(!payload?.data)return;const data=payload.data,uid=String(data.user_id||'');
+      if(data.room_id!==undefined&&String(data.room_id)!==activeRoom)return;
+      if(payload.type==='aitools_game_sendmsg'&&id(uid)&&typeof data.msg_data==='string'&&data.msg_data.length<=LIMIT){
+        let m;try{m=JSON.parse(data.msg_data);}catch{}
+        if(m?.protocol==='number-bluff'&&m.version===VERSION&&m.roomId===activeRoom){
+          if(m.type==='host-discover'&&active?.getStatus().isHost&&id(m.nonce))void sendControl({roomId:activeRoom,type:'host-claim',nonce:m.nonce}).catch(()=>{});
+          if(m.type==='host-claim'&&discovery&&m.nonce===discovery.nonce&&discovery.roster.has(uid)&&uid!==myId){
+            discovery.claims.add(uid);
+            if(discovery.pinned&&uid!==discovery.pinned){active?.close();active=null;onStatus?.({kind:'host-session-changed'});}
+          }
+        }
+      }
+      if(!active)return;
       if(payload.type==='aitools_game_sendmsg')active.receive(uid,data.msg_data);
       else if(payload.type==='aitools_game_joinroom'){const p=member(data);if(p)active.addMember(p);}
       else if(payload.type==='aitools_game_exitroom')active.removeMember(uid);
     }
-    async function enter(kind,requestedId){
-      if(pending)throw new Error('Room request already pending.');pending=true;const request=++requestGeneration;
-      if(active)active.close();active=null;++listenerGeneration;
+    async function enter(kind,requestedId,permission=0){
+      // A canceled request may have entered a native room even if cleanup failed.
+      // A later user retry first attempts the outstanding exit, never a second create.
+      if(nativeJoined&&!active&&!pending&&!leaving)await leave();
+      if(pending||nativeJoined||leaving)throw new Error('Room request already pending or room not exited.');pending=true;const request=++requestGeneration;
       try{
         if(kind==='join'&&!id(requestedId))throw new TypeError('Room ID required.');
-        const result=await (kind==='create'?sdk.room.create({max_players:8,room_permission:0}):sdk.room.join({room_id:requestedId}));
-        if(request!==requestGeneration)throw new Error('Room request canceled.');
+        if(kind==='create'&&permission!==0&&permission!==1)throw new TypeError('Invalid room permission.');
+        const result=await (kind==='create'?sdk.room.create({max_players:8,room_permission:permission}):sdk.room.join({room_id:requestedId}));
         if(result?.errno!==0)throw new Error('GRAVITY room request failed.');
+        nativeJoined=true;
+        if(request!==requestGeneration)throw new Error('Room request canceled.');
         if(active)active.close();active=null;
-        const buffered=[],generation=++listenerGeneration;
-        // Register synchronously immediately after success, before host resolution awaits.
-        sdk.room.receiveMessage(payload=>{if(generation!==listenerGeneration)return;if(active)handle(payload);else if(buffered.length<64)buffered.push(payload);});
         const data=result.data||{},roomId=String(data.room_id||requestedId||'');
-        // AI Studio says first user is creator. This ordering is an assumption to verify on-device.
-        // Pin this identity for the session; later roster reorder/host_declare never replaces it.
-        const hostUserId=kind==='create'?myId:String((resolveHost?await resolveHost(data):data.user_list?.[0]?.user_id)||'');
+        if(!id(roomId))throw new Error('Verified room ID required.');
+        const buffered=[],generation=++listenerGeneration;activeRoom=roomId;
+        attachReceiver(payload=>{if(generation!==listenerGeneration)return;handle(payload);if(!active&&buffered.length<64)buffered.push(payload);});
+        let hostUserId=myId;
+        if(kind==='join'){
+          const roster=new Set((Array.isArray(data.user_list)?data.user_list:[]).map(member).filter(Boolean).map(p=>p.userId));
+          const nonce=String(Date.now())+'-'+String(Math.random()).slice(2);
+          discovery={nonce,roster,claims:new Set(),pinned:null};
+          await sendControl({roomId,type:'host-discover',nonce});
+          await new Promise(resolve=>setTimeout(resolve,discoveryMs));
+          if(request!==requestGeneration)throw new Error('Room request canceled.');
+          if(discovery.claims.size!==1)throw new Error('Host discovery ambiguous or unavailable.');
+          hostUserId=[...discovery.claims][0];discovery.pinned=hostUserId;
+        }else discovery=null;
         if(request!==requestGeneration)throw new Error('Room request canceled.');
         if(!id(roomId)||!id(hostUserId))throw new Error('Verified room and host IDs are required.');
         active=createSession({roomId,userId:myId,hostUserId,name:me.name,avatarUrl:me.avatarUrl,rng,onStatus,
           members:Array.isArray(data.user_list)?data.user_list.map(member).filter(Boolean):[],
           sendMessage:async message=>{const response=await sdk.room.sendMessage({message});if(response?.errno!==undefined&&response.errno!==0)throw new Error('GRAVITY send failed.');}
         });for(const payload of buffered)handle(payload);return active;
-      }finally{pending=false;}
+      }catch(error){if(nativeJoined){try{await leave();}catch{onStatus?.({kind:'exit-error'});}}throw error;}finally{pending=false;}
     }
-    client.configureRoomActions({create:()=>enter('create'),join:roomId=>enter('join',roomId)});
-    return Object.freeze({resync:()=>active?.resync(),close:()=>{requestGeneration++;listenerGeneration++;active?.close();active=null;},getSession:()=>active});
+    async function list(){
+      if(typeof sdk.room.getPublicRoomList!=='function')throw new Error('Public room list unavailable.');
+      const result=await sdk.room.getPublicRoomList();
+      if(result?.errno!==0||!Array.isArray(result.data?.list))throw new Error('Public room list failed.');
+      return result.data.list.map(r=>{
+        const roomId=String(r?.room_id||'');
+        if(!id(roomId)||!Number.isInteger(r.max_players)||r.max_players<1||!Number.isInteger(r.gamer_num)||r.gamer_num<0||r.gamer_num>r.max_players)throw new Error('Invalid room list.');
+        return {roomId,maxPlayers:r.max_players,gamerNum:r.gamer_num,createTime:r.create_time};
+      });
+    }
+    client.configureRoomActions({create:permission=>enter('create',undefined,permission),join:roomId=>enter('join',roomId),list,exit:leave});
+    return Object.freeze({resync:()=>active?.resync(),close:()=>{requestGeneration++;if(nativeJoined)void leave().catch(()=>onStatus?.({kind:'exit-error'}));},getSession:()=>active});
   }
   return Object.freeze({createSession,install,protocolVersion:VERSION,turnDurationMs:TURN_MS});
 });

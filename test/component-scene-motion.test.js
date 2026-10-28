@@ -4,7 +4,7 @@ const {readFileSync}=require('node:fs'); const readFile=async (url)=>readFileSyn
 const vm=require('node:vm');
 
 const source = readFileSync(new URL('../tools/scene-motion/component-scene-motion.source.js', baseURL), 'utf8')
-  .replace(/^import .*;\n/gm, '');
+  .replace(/^import .*;\r?\n/gm, '');
 
 function harness({canAnimate=true,reduced=false,canvasSupport=true}={}) {
   let doc;
