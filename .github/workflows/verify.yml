@@ -19,6 +19,8 @@ jobs:
         with:
           node-version: '22'
           registry-url: https://registry.npmjs.org
+      - name: Install locked development dependencies
+        run: npm ci --ignore-scripts
       - name: Engine and scheduler tests
         run: npm test
       - name: Install browser test dependency (no runtime dependencies)
@@ -29,6 +31,12 @@ jobs:
         run: sudo apt-get install -y --no-install-recommends -o Acquire::http::Timeout=30 -o Acquire::Retries=1 fonts-ipafont-gothic
       - name: Build single HTML handoff
         run: node tools/build-single-html.mjs
+      - name: Build and compare compact export
+        run: |
+          npm run build:compact
+          node tools/compare-builds.cjs
+      - name: External launch shell success and failure
+        run: node tools/loader-smoke.cjs
       - name: Real synthesized audio and sound toggle
         run: node tools/audio-output.mjs
       - name: Centered hidden card and fine reflective detail
@@ -115,6 +123,7 @@ jobs:
         with:
           name: preview-browser-results
           path: |
+            artifacts/compact-compare/
             artifacts/art-glow-preview/
             artifacts/hidden-card-back/
             artifacts/special-render-benchmark/

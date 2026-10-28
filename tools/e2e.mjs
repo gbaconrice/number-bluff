@@ -234,6 +234,7 @@ async function begin(page,width,count){await configure(page,count);await page.lo
 
 async function exit(page){
  await page.locator('#homeBtn').click();await page.locator('#confirmRestart').click();
+ await page.locator('#homeScreen').waitFor({state:'visible'});
  assert.equal(await page.locator('#homeScreen').isVisible(),true);
 }
 async function setDraft(page,value){
@@ -485,6 +486,12 @@ try{
      await peers.get('host').page.evaluate(event=>window.__mockReceive?.(event),event);
      return{errno:0,data:{room_id:'MOCK-ROOM',user_list:[profiles.host,profiles.guest]}};
     }
+    if(method==='list')return {errno:0,data:{list:[]}};
+    if(method==='exit'){
+     peer.joined=false;
+     for(const [other,target] of peers)if(other!==key&&target.joined)await target.page.evaluate(event=>window.__mockReceive?.(event),{type:'aitools_game_exitroom',data:{room_id:'MOCK-ROOM',user_id:profiles[key].user_id}});
+     return {errno:0,data:{}};
+    }
     if(method==='send'){
      const body=JSON.parse(args.message);traffic.push({key,body});assert.equal('deck' in (body.view||{}),false,'private draw pile must never enter SDK transport');
      for(const [other,target]of peers)if(other!==key&&target.joined)await target.page.evaluate(event=>window.__mockReceive?.(event),{type:'aitools_game_sendmsg',data:{user_id:profiles[key].user_id,msg_data:args.message}});
@@ -494,7 +501,7 @@ try{
    });
    await page.addInitScript(()=>{
     window.__gameOverMessages=[];window.addEventListener('message',event=>{if(event.data?.type==='gameOver')window.__gameOverMessages.push(event.data);});
-    window.AgentSDK={user:{getMyUserInfo:()=>window.__mockSdkCall('profile')},room:{create:args=>window.__mockSdkCall('create',args).then(result=>{window.__createCompletions=(window.__createCompletions||0)+1;return result;}),join:args=>window.__mockSdkCall('join',args).then(result=>{window.__joinCompletions=(window.__joinCompletions||0)+1;return result;}),receiveMessage:callback=>{window.__mockReceive=callback;},sendMessage:args=>window.__mockSdkCall('send',args)}};
+    window.AgentSDK={user:{getMyUserInfo:()=>window.__mockSdkCall('profile')},room:{create:args=>window.__mockSdkCall('create',args).then(result=>{window.__createCompletions=(window.__createCompletions||0)+1;return result;}),join:args=>window.__mockSdkCall('join',args).then(result=>{window.__joinCompletions=(window.__joinCompletions||0)+1;return result;}),getPublicRoomList:()=>window.__mockSdkCall('list'),exit:()=>window.__mockSdkCall('exit'),receiveMessage:callback=>{window.__mockReceive=event=>{try{if(JSON.parse(event.data?.msg_data||'null')?.type==='host-claim')window.__hostClaimReceived=true;}catch{}callback(event);};},sendMessage:args=>window.__mockSdkCall('send',args)}};
    });
   };
   try{
@@ -504,7 +511,7 @@ try{
    await hp.locator('#startGame').click();await hp.locator('#lobbyScreen').waitFor({state:'visible'});
    assert.equal(await hp.locator('#lobbyPlayers [data-seat]').count(),1);assert.equal(await hp.locator('#beginGame').isDisabled(),true);assert.equal(await hp.locator('[data-seat="p1"] strong').textContent(),'ホスト 花子');
    assert.equal(await hp.locator('[data-seat="p1"] img.profile-avatar').getAttribute('src'),profiles.host.portrait);
-   await gp.locator('#joinGame').click();assert.equal(await gp.locator('#joinLocal').count(),0);await gp.locator('#roomId').fill('MOCK-ROOM');await gp.locator('#joinRoom').click();await gp.locator('[data-seat="p2"]').waitFor();await hp.locator('[data-seat="p2"]').waitFor();
+   await gp.locator('#joinGame').click();assert.equal(await gp.locator('#joinLocal').count(),0);await gp.locator('#roomId').fill('MOCK-ROOM');await gp.locator('#joinRoom').click();await gp.waitForFunction(()=>window.__hostClaimReceived);await gp.clock.runFor(1100);await gp.locator('[data-seat="p2"]').waitFor();await hp.locator('[data-seat="p2"]').waitFor();
    assert.equal(await gp.locator('#beginGame').isDisabled(),true);assert.equal(await gp.locator('#addBot').isDisabled(),true);assert.equal(await hp.locator('#lobbyPlayers [data-seat]').count(),2);assert.equal(await gp.locator('[data-seat="p2"] strong').textContent(),'ゲスト 太郎');
    await shot(hp,'mock-sdk','host-lobby');await shot(gp,'mock-sdk','guest-lobby');await hp.locator('#beginGame').click();await gp.locator('#battleScreen').waitFor({state:'visible'});
    await hp.locator('#rulesBtn').focus();await hp.setViewportSize({width:844,height:390});await hp.waitForTimeout(50);await landscapeReachability(hp,'mock-sdk-native74',74);await shot(hp,'mock-sdk','native74-landscape');await hp.setViewportSize({width:390,height:844});await hp.waitForTimeout(50);
@@ -540,7 +547,7 @@ try{
    await exit(gp);await gp.waitForFunction(()=>window.__gameOverMessages.length===1);assert.deepEqual(await gp.evaluate(()=>window.__gameOverMessages),[{type:'gameOver',score:3}]);
    const guestSends=traffic.filter(t=>t.key==='guest').length;await gp.clock.runFor(31000);assert.equal(traffic.filter(t=>t.key==='guest').length,guestSends,'home exit must close session heartbeat');assert.equal(await gp.locator('#homeScreen').isVisible(),true);
    await hp.locator('#lobbyScreen').waitFor({state:'visible'});assert.equal(await hp.locator('#lobbyPlayers [data-seat]').count(),1,'authenticated guest departure must remove that guest');assert.equal(await hp.locator('#beginGame').isDisabled(),true);assert.deepEqual(await hp.evaluate(()=>window.__gameOverMessages),[],'peer departure must not submit my native score');
-   await hp.locator('#lobbyBack').click();assert.equal(await hp.locator('#homeScreen').isVisible(),true);await hp.waitForFunction(()=>window.__gameOverMessages.length===1);assert.deepEqual(await hp.evaluate(()=>window.__gameOverMessages),[{type:'gameOver',score:1}]);
+   await hp.locator('#lobbyBack').click();await hp.locator('#homeScreen').waitFor({state:'visible'});await hp.waitForFunction(()=>window.__gameOverMessages.length===1);assert.deepEqual(await hp.evaluate(()=>window.__gameOverMessages),[{type:'gameOver',score:1}]);
    const hostSends=traffic.filter(t=>t.key==='host').length;await hp.clock.runFor(31000);assert.equal(traffic.filter(t=>t.key==='host').length,hostSends,'host exit must cancel room callbacks');
    // Repeated stale DOM events cannot submit another closing message.
    await gp.locator('#confirmRestart').evaluate(e=>e.click());await hp.locator('#lobbyBack').evaluate(e=>e.click());await hp.waitForTimeout(50);await gp.waitForTimeout(50);

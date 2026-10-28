@@ -179,3 +179,6 @@ AI Studio で実仕様を確認して接続する箇所：
 
 ### ラウンド結果の自動進行
 計算・公開演出の標準再生時間を確保した後、10秒で次のラウンドへ進みます。オンラインはホストだけが期限を管理し、手動の「次へ」もホスト限定です。ゲストは残秒を表示するだけです。ホストが演出を早送りしても共有の自動期限は短縮しません。ローカル対戦も同じです。優勝結果（試合終了）では自動再戦しません。背景タブではタイマー実行が遅れるため、復帰・再同期時にも期限を判定します。
+
+## External launch shell (2026-10-28)
+The user supplied a GRAVITY device diagnostic showing successful GitHub Pages JS/CSS loads and AgentSDK/room/user existence. This does not verify multiplayer or ranking. `node tools/build-gravity-loader.mjs` writes `gravity-launch.html` (under 5,000 characters) and versioned same-document `releases/20261028-1/game.js` / `game.css`. It preserves the original ordered classic scripts, UI and absolute assets without an iframe, eval or runtime source rewriting. The shell displays a small local CSS light while loading and removes it immediately when CSS, application initialization and essential home images are ready. Failures/timeouts show a reload button. Publication must include the matching release assets before giving the shell to AI Studio. Bump the release directory for subsequent runtime changes; do not silently mix versions. External-host availability is now an additional dependency. Native SDK APIs, multiple-device synchronization and ranking still require actual device tests.

@@ -3,6 +3,19 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+test('compact export is deterministic, auditable and keeps third-party notices', async () => {
+  const { buildCompact } = await import('../tools/build-compact-html.mjs');
+  const { build, auditHTML } = await import('../tools/build-single-html.mjs');
+  const output = await buildCompact();
+  assert.equal(output, await buildCompact());
+  assert.equal(output, fs.readFileSync(path.resolve(__dirname, '../ai-studio.compact.html'), 'utf8').replace(/\r\n/g, '\n'));
+  assert.equal(build().replace(/\r\n/g, '\n'), fs.readFileSync(path.resolve(__dirname, '../ai-studio.html'), 'utf8').replace(/\r\n/g, '\n'));
+  assert.doesNotThrow(() => auditHTML(output));
+  assert.ok(Buffer.byteLength(output) < Buffer.byteLength(build()));
+  for (const text of ['Javierrocadev', 'number-flow@0.6.2', 'canvas-confetti']) assert.ok(output.includes(text), text);
+  const vm = require('node:vm');
+  for (const match of output.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new vm.Script(match[1]);
+});
 async function fixture(t, files) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'number-bluff-package-'));
   t.after(() => fs.rmSync(root, { recursive:true, force:true }));

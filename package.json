@@ -2,7 +2,16 @@
   "name": "number-bluff",
   "version": "0.0.0",
   "private": true,
-  "scripts": { "test": "node --test test/*.test.js" },
-  "engines": { "node": ">=18" }
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "build:compact": "node tools/build-compact-html.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "clean-css": "5.3.3",
+    "html-minifier-terser": "7.2.0",
+    "terser": "5.51.2"
+  }
 }
-

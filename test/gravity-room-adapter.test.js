@@ -78,20 +78,69 @@ test('BOT scheduling belongs to host and cancelled callbacks cannot act after ex
  const t=setup();await act(t.host,t.view(t.host),'addBot');await act(t.host,t.view(t.host),'startGame');t.flush();await act(t.host,t.view(t.host),'declare',{value:1});t.flush();await act(t.guest,t.view(t.guest),'declare',{value:2});t.flush();
  assert.equal(t.jobs.size,1);const callback=[...t.jobs.values()][0],before=t.view(t.host).revision;t.host.close();callback();assert.equal(t.jobs.size,0);assert.equal(t.view(t.host).revision,before);
 });
-test('SDK facade maps portrait/portait, pins first roster host, registers immediately after success',async()=>{
- let listenerCount=0,actions,configured,listener,events=[];
- const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'guest',name:'Real name',portrait:'https://example.com/me.png'}})},room:{receiveMessage:fn=>{events.push('listen');listenerCount++;listener=fn;},create:async()=>({errno:0,data:{room_id:'r'}}),join:async()=>{events.push('join');return{errno:0,data:{room_id:'r',user_list:[{user_id:'host',name:'Host',portrait:'https://example.com/h.png'},{user_id:'guest',name:'Guest'}]}};},sendMessage:async()=>({errno:0})}};
- const client={setRoomAdapterExpected(){},configureLocalProfile:p=>configured=p,configureRoomActions:a=>actions=a};
- const bridge=await install({sdk,client});assert.equal(listenerCount,0);assert.equal(configured.name,'Real name');assert.equal(configured.avatarUrl,'https://example.com/me.png');
- const session=await actions.join('r');assert.deepEqual(events,['join','listen']);assert.equal(session.getStatus().isHost,false);
- listener({type:'aitools_game_joinroom',data:{user_id:'new',user_name:'New',portait:'https://example.com/new.png'}});
- assert.equal(session.receive('new',JSON.stringify({protocol:'number-bluff',version:1,roomId:'r',type:'host_declare'})),false);
- bridge.close();
+test('SDK discovers one host from authenticated sender independent of roster order',async()=>{
+ let count=0,actions,configured,listener;
+ const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'guest',name:'Real name',portrait:'https://example.com/me.png'}})},room:{receiveMessage:fn=>{count++;listener=fn},create:async()=>({errno:0,data:{room_id:'r'}}),join:async()=>({errno:0,data:{room_id:'r',user_list:[{user_id:'guest',name:'Guest'},{user_id:'host',name:'Host'}]}}),sendMessage:async({message})=>{const m=JSON.parse(message);if(m.type==='host-discover')listener({type:'aitools_game_sendmsg',data:{user_id:'host',msg_data:JSON.stringify({...m,type:'host-claim'})}});return {errno:0}}}};
+ const bridge=await install({sdk,discoveryMs:1,client:{setRoomAdapterExpected(){},configureLocalProfile:p=>configured=p,configureRoomActions:a=>actions=a}});
+ assert.equal(configured.name,'Real name');const session=await actions.join('r');assert.equal(session.getStatus().isHost,false);assert.equal(count,1);bridge.close();
 });
-test('SDK join without a first host ID fails closed and blank/unsafe avatars stay neutral',async()=>{
- let actions,profile;
- const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',name:'U',portrait:'javascript:bad'}})},room:{receiveMessage(){},create(){},join:async()=>({errno:0,data:{room_id:'r',user_list:[]}}),sendMessage(){}}};
- await install({sdk,client:{setRoomAdapterExpected(){},configureLocalProfile:p=>profile=p,configureRoomActions:a=>actions=a}});assert.equal(profile.avatarUrl,null);await assert.rejects(actions.join('r'),/Verified room and host/);
+test('SDK host discovery refuses missing and conflicting claims',async()=>{
+ let actions,listener,mode='none';const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',name:'U',portrait:'javascript:bad'}})},room:{exit:async()=>({errno:0}),receiveMessage:fn=>listener=fn,create(){},join:async()=>({errno:0,data:{room_id:'r',user_list:[{user_id:'u'},{user_id:'a'},{user_id:'b'}]}}),sendMessage:async({message})=>{const m=JSON.parse(message);if(m.type==='host-discover'&&mode==='conflict')for(const uid of ['a','b'])listener({type:'aitools_game_sendmsg',data:{user_id:uid,msg_data:JSON.stringify({...m,type:'host-claim'})}});return {errno:0}}}};
+ let profile;await install({sdk,discoveryMs:1,client:{setRoomAdapterExpected(){},configureLocalProfile:p=>profile=p,configureRoomActions:a=>actions=a}});assert.equal(profile.avatarUrl,null);await assert.rejects(actions.join('r'),/Host discovery/);mode='conflict';await assert.rejects(actions.join('r'),/Host discovery/);
+});
+test('host discovery ignores non-roster sender, wrong room and stale nonce',async()=>{
+ let actions,listener;const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',name:'U'}})},room:{receiveMessage:fn=>listener=fn,exit:async()=>({errno:0}),create(){},join:async()=>({errno:0,data:{room_id:'r',user_list:[{user_id:'u'},{user_id:'host'}]}}),sendMessage:async({message})=>{const m=JSON.parse(message);if(m.type==='host-discover')for(const [uid,patch] of [['intruder',{}],['host',{roomId:'old'}],['host',{nonce:'old'}]])listener({type:'aitools_game_sendmsg',data:{user_id:uid,msg_data:JSON.stringify({...m,type:'host-claim',...patch})}});return {errno:0}}}};
+ await install({sdk,discoveryMs:1,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions=a}});await assert.rejects(actions.join('r'),/Host discovery/);
+});
+test('late competing roster claim freezes the guest; unrelated claims do not',async()=>{
+ let actions,listener,nonce,status=[];const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',name:'U'}})},room:{receiveMessage:fn=>listener=fn,exit:async()=>({errno:0}),create(){},join:async()=>({errno:0,data:{room_id:'r',user_list:[{user_id:'u'},{user_id:'a'},{user_id:'b'}]}}),sendMessage:async({message})=>{const m=JSON.parse(message);if(m.type==='host-discover'){nonce=m.nonce;listener({type:'aitools_game_sendmsg',data:{user_id:'a',msg_data:JSON.stringify({...m,type:'host-claim'})}});}return {errno:0}}}};
+ const bridge=await install({sdk,discoveryMs:1,onStatus:e=>status.push(e.kind),client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions=a}});const session=await actions.join('r');
+ const claim=(uid,roomId,n)=>listener({type:'aitools_game_sendmsg',data:{user_id:uid,msg_data:JSON.stringify({protocol:'number-bluff',version:1,type:'host-claim',roomId,nonce:n})}});
+ claim('intruder','r',nonce);claim('b','old',nonce);claim('b','r','stale');assert.equal(session.getStatus().closed,false);claim('b','r',nonce);assert.equal(session.getStatus().closed,true);assert.equal(bridge.getSession(),null);assert.ok(status.includes('host-session-changed'));await actions.exit();
+});
+test('SDK creator responds to discovery and guest receives authoritative lobby',async()=>{
+ const listeners=new Map(), actions={}, clients={};
+ function sdk(uid){return {user:{getMyUserInfo:async()=>({errno:0,data:{user_id:uid,name:uid}})},room:{receiveMessage:fn=>listeners.set(uid,fn),create:async()=>({errno:0,data:{room_id:'r'}}),join:async()=>{listeners.get('host')?.({type:'aitools_game_joinroom',data:{room_id:'r',user_id:uid,user_name:uid}});return {errno:0,data:{room_id:'r',user_list:[{user_id:uid,name:uid},{user_id:'host',name:'host'}]}}},exit:async()=>({errno:0}),sendMessage:async({message})=>{for(const [other,fn] of listeners)if(other!==uid)fn({type:'aitools_game_sendmsg',data:{room_id:'r',user_id:uid,msg_data:message}});return {errno:0}}}};}
+ for(const uid of ['host','guest']){clients[uid]=await install({sdk:sdk(uid),discoveryMs:1,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions[uid]=a}});}
+ const host=await actions.host.create(0);let hv;host.subscribe(v=>hv=v);const guest=await actions.guest.join('r');let gv;guest.subscribe(v=>gv=v);assert.equal(hv.players.length,2);assert.equal(gv.viewerId,'p2');assert.equal(gv.hostId,'p1');await actions.guest.exit();await actions.host.exit();
+});
+test('SDK profile accepts documented alternate field spellings',async()=>{
+ let profile;
+ const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',user_name:'Alternate',portait:'https://example.com/u.png'}})},room:{receiveMessage(){},create(){},join(){},sendMessage(){}}};
+ await install({sdk,client:{setRoomAdapterExpected(){},configureLocalProfile:p=>profile=p,configureRoomActions(){}}});
+ assert.equal(profile.name,'Alternate');assert.equal(profile.avatarUrl,'https://example.com/u.png');
+});
+test('SDK creation forwards public and private permissions and list uses no invented arguments',async()=>{
+ let actions,created=[],listArgs;
+ const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',name:'U'}})},room:{exit:async()=>({errno:0}),receiveMessage(){},create:async o=>{created.push(o);return {errno:0,data:{room_id:'r'}}},join(){},sendMessage:async()=>({errno:0}),getPublicRoomList:async(...args)=>{listArgs=args;return {errno:0,data:{list:[{room_id:'r',max_players:8,gamer_num:2,create_time:12}]}}}}};
+ const bridge=await install({sdk,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions=a}});
+ await actions.create(0);await actions.exit();await actions.create(1);assert.deepEqual(created,[{max_players:8,room_permission:0},{max_players:8,room_permission:1}]);
+ assert.deepEqual(await actions.list(),[{roomId:'r',maxPlayers:8,gamerNum:2,createTime:12}]);assert.deepEqual(listArgs,[]);bridge.close();
+});
+test('SDK public list distinguishes empty results from failed or malformed results',async()=>{
+ let actions,result={errno:0,data:{list:[]}};
+ const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',name:'U'}})},room:{receiveMessage(){},create(){},join(){},sendMessage(){},getPublicRoomList:async()=>result}};
+ await install({sdk,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions=a}});
+ assert.deepEqual(await actions.list(),[]);result={errno:1};await assert.rejects(actions.list());result={errno:0,data:{list:[{room_id:'x',max_players:2,gamer_num:3}]}};await assert.rejects(actions.list());
+});
+test('native exit failure preserves session and blocks another create until successful retry',async()=>{
+ let actions,exits=0,receivers=0;const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',name:'U'}})},room:{receiveMessage(){receivers++},create:async()=>({errno:0,data:{room_id:'r'}}),join(){},sendMessage:async()=>({errno:0}),exit:async()=>({errno:++exits===1?1:0})}};
+ const bridge=await install({sdk,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions=a}});
+ const session=await actions.create(0);await assert.rejects(actions.exit(),/exit failed/);assert.equal(bridge.getSession(),session);await assert.rejects(actions.create(0),/not exited/);
+ await actions.exit();assert.equal(bridge.getSession(),null);await actions.create(1);assert.equal(receivers,1);await actions.exit();
+});
+test('receiver ignores old-room and unscoped membership events after a room transition',async()=>{
+ let actions,listener;const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',name:'U'}})},room:{receiveMessage:fn=>listener=fn,create:async()=>({errno:0,data:{room_id:'new'}}),join(){},sendMessage:async()=>({errno:0}),exit:async()=>({errno:0})}};
+ await install({sdk,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions=a}});
+ await actions.create(0);await actions.exit();const session=await actions.create(0);let view;session.subscribe(v=>view=v);
+ for(const data of [{room_id:'old',user_id:'x',user_name:'X'},{user_id:'x',user_name:'X'}])listener({type:'aitools_game_joinroom',data});
+ assert.equal(view.players.length,1);listener({type:'aitools_game_joinroom',data:{room_id:'new',user_id:'x',user_name:'X'}});assert.equal(view.players.length,2);await actions.exit();
+});
+test('canceled delayed create exits before retry and failed cleanup is retried first',async()=>{
+ let actions,resolveCreate,creates=0,exits=0;const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'u',name:'U'}})},room:{receiveMessage(){},create:()=>{creates++;return creates===1?new Promise(r=>resolveCreate=r):Promise.resolve({errno:0,data:{room_id:'next'}})},join(){},sendMessage:async()=>({errno:0}),exit:async()=>({errno:++exits===1?1:0})}};
+ const bridge=await install({sdk,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions=a}});
+ const pending=actions.create(0);await assert.rejects(actions.create(0),/pending/);bridge.close();resolveCreate({errno:0,data:{room_id:'old'}});await assert.rejects(pending,/canceled/);assert.equal(exits,1);assert.equal(creates,1);
+ await actions.create(0);assert.equal(exits,2);assert.equal(creates,2);await actions.exit();
 });
 test('silent host timeout and silent guest departure stop stuck matches without migration or awards',async()=>{
  let time=0, callbacks=[],statuses=[];
@@ -131,7 +180,7 @@ test('old guest bye cannot abandon a new membership or match',async()=>{
 });
 test('closing bridge while SDK request is pending cannot resurrect a live session',async()=>{
  let actions,resolveCreate;const promise=new Promise(r=>resolveCreate=r);
- const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'host',name:'Host'}})},room:{receiveMessage(){},create:()=>promise,join(){},sendMessage:async()=>({errno:0})}};
+ const sdk={user:{getMyUserInfo:async()=>({errno:0,data:{user_id:'host',name:'Host'}})},room:{exit:async()=>({errno:0}),receiveMessage(){},create:()=>promise,join(){},sendMessage:async()=>({errno:0})}};
  const bridge=await install({sdk,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions=a}});const pending=actions.create();bridge.close();resolveCreate({errno:0,data:{room_id:'r'}});await assert.rejects(pending,/canceled/);assert.equal(bridge.getSession(),null);
 });
 test('verified same-user rejoin without an exit resets sequence while fencing previous revision',async()=>{
@@ -171,4 +220,30 @@ test('snapshot ranking eligibility is an explicit boolean',()=>{
   assert.equal(t.guest.receive('host',JSON.stringify(invalid)),false);assert.deepEqual(t.view(t.guest),before);
  }
  assert.equal(before.rankingEligible,false);
+});
+
+test('second-room membership uses fresh sender-bound confirmation without unscoped events',async()=>{
+ const listeners=new Map(),actions={},clients={},sent=[];let roomId='first';
+ function sdk(uid){return {user:{getMyUserInfo:async()=>({errno:0,data:{user_id:uid,name:uid}})},room:{
+ receiveMessage:fn=>listeners.set(uid,fn),create:async()=>({errno:0,data:{room_id:roomId}}),
+ join:async()=>({errno:0,data:{room_id:roomId,user_list:[{user_id:'guest'},{user_id:'host'}]}}),exit:async()=>({errno:0}),
+ sendMessage:async({message})=>{sent.push({uid,m:JSON.parse(message)});for(const [other,fn]of listeners)if(other!==uid)fn({type:'aitools_game_sendmsg',data:{user_id:uid,msg_data:message}});return {errno:0};}}};}
+ for(const uid of ['host','guest'])clients[uid]=await install({sdk:sdk(uid),discoveryMs:1,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions[uid]=a}});
+ await actions.host.create();await actions.guest.join(roomId);await actions.guest.exit();await actions.host.exit();
+ roomId='second';const host=await actions.host.create();let hv;host.subscribe(v=>hv=v);
+ // Delayed old native notifications cannot add or remove current participants.
+ listeners.get('host')({type:'aitools_game_joinroom',data:{user_id:'old',user_name:'Old'}});
+ assert.equal(hv.players.length,1);
+ const guest=await actions.guest.join(roomId);let gv;guest.subscribe(v=>gv=v);
+ assert.equal(hv.players.length,2);assert.equal(gv.viewerId,'p2');
+ const confirmation=sent.findLast(x=>x.m.type==='member-confirm').m;
+ listeners.get('host')({type:'aitools_game_sendmsg',data:{user_id:'intruder',msg_data:JSON.stringify(confirmation)}});
+ assert.equal(hv.players.length,2);
+ listeners.get('host')({type:'aitools_game_exitroom',data:{user_id:'guest'}});
+ assert.equal(hv.players.length,2);
+ guest.close();assert.equal(hv.players.length,1);
+ // A consumed admission cannot be replayed to recreate the departed seat.
+ listeners.get('host')({type:'aitools_game_sendmsg',data:{user_id:'guest',msg_data:JSON.stringify(confirmation)}});
+ assert.equal(hv.players.length,1);
+ await actions.guest.exit();await actions.host.exit();
 });
