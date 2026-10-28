@@ -221,3 +221,29 @@ test('snapshot ranking eligibility is an explicit boolean',()=>{
  }
  assert.equal(before.rankingEligible,false);
 });
+
+test('second-room membership uses fresh sender-bound confirmation without unscoped events',async()=>{
+ const listeners=new Map(),actions={},clients={},sent=[];let roomId='first';
+ function sdk(uid){return {user:{getMyUserInfo:async()=>({errno:0,data:{user_id:uid,name:uid}})},room:{
+ receiveMessage:fn=>listeners.set(uid,fn),create:async()=>({errno:0,data:{room_id:roomId}}),
+ join:async()=>({errno:0,data:{room_id:roomId,user_list:[{user_id:'guest'},{user_id:'host'}]}}),exit:async()=>({errno:0}),
+ sendMessage:async({message})=>{sent.push({uid,m:JSON.parse(message)});for(const [other,fn]of listeners)if(other!==uid)fn({type:'aitools_game_sendmsg',data:{user_id:uid,msg_data:message}});return {errno:0};}}};}
+ for(const uid of ['host','guest'])clients[uid]=await install({sdk:sdk(uid),discoveryMs:1,client:{setRoomAdapterExpected(){},configureLocalProfile(){},configureRoomActions:a=>actions[uid]=a}});
+ await actions.host.create();await actions.guest.join(roomId);await actions.guest.exit();await actions.host.exit();
+ roomId='second';const host=await actions.host.create();let hv;host.subscribe(v=>hv=v);
+ // Delayed old native notifications cannot add or remove current participants.
+ listeners.get('host')({type:'aitools_game_joinroom',data:{user_id:'old',user_name:'Old'}});
+ assert.equal(hv.players.length,1);
+ const guest=await actions.guest.join(roomId);let gv;guest.subscribe(v=>gv=v);
+ assert.equal(hv.players.length,2);assert.equal(gv.viewerId,'p2');
+ const confirmation=sent.findLast(x=>x.m.type==='member-confirm').m;
+ listeners.get('host')({type:'aitools_game_sendmsg',data:{user_id:'intruder',msg_data:JSON.stringify(confirmation)}});
+ assert.equal(hv.players.length,2);
+ listeners.get('host')({type:'aitools_game_exitroom',data:{user_id:'guest'}});
+ assert.equal(hv.players.length,2);
+ guest.close();assert.equal(hv.players.length,1);
+ // A consumed admission cannot be replayed to recreate the departed seat.
+ listeners.get('host')({type:'aitools_game_sendmsg',data:{user_id:'guest',msg_data:JSON.stringify(confirmation)}});
+ assert.equal(hv.players.length,1);
+ await actions.guest.exit();await actions.host.exit();
+});

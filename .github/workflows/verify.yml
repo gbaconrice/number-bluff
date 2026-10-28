@@ -31,6 +31,10 @@ jobs:
         run: sudo apt-get install -y --no-install-recommends -o Acquire::http::Timeout=30 -o Acquire::Retries=1 fonts-ipafont-gothic
       - name: Build single HTML handoff
         run: node tools/build-single-html.mjs
+      - name: Build and compare compact export
+        run: |
+          npm run build:compact
+          node tools/compare-builds.cjs
       - name: Real synthesized audio and sound toggle
         run: node tools/audio-output.mjs
       - name: Centered hidden card and fine reflective detail

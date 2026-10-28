@@ -2711,6 +2711,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     const me=profile({userId:myId,...supplied});me.userId=myId;client.configureLocalProfile(me);
     const member=raw=>{const p=normalizeMember?normalizeMember(raw):{userId:String(raw?.user_id||''),name:raw?.user_name||raw?.name,avatarUrl:raw?.portrait||raw?.portait};return id(p?.userId)?profile(p):null;};
     let active=null, pending=false, listenerGeneration=0, requestGeneration=0, discovery=null, activeRoom=null, nativeJoined=false, leaving=null, allowUnscopedMembership=true;
+    const admissions=new Map();
     async function leave(){
       if(leaving)return leaving;
       if(!nativeJoined)return;
@@ -2718,7 +2719,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
         if(typeof sdk.room.exit!=='function')throw new Error('GRAVITY exit unavailable.');
         const result=await sdk.room.exit();
         if(result?.errno!==0)throw new Error('GRAVITY exit failed.');
-        nativeJoined=false;listenerGeneration++;discovery=null;activeRoom=null;active?.close();active=null;
+        nativeJoined=false;admissions.clear();listenerGeneration++;discovery=null;activeRoom=null;active?.close();active=null;
       })();
       try{return await leaving;}finally{leaving=null;}
     }
@@ -2737,9 +2738,23 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       if(payload.type==='aitools_game_sendmsg'&&id(uid)&&typeof data.msg_data==='string'&&data.msg_data.length<=LIMIT){
         let m;try{m=JSON.parse(data.msg_data);}catch{}
         if(m?.protocol==='number-bluff'&&m.version===VERSION&&m.roomId===activeRoom){
-          if(m.type==='host-discover'&&active?.getStatus().isHost&&id(m.nonce))void sendControl({roomId:activeRoom,type:'host-claim',nonce:m.nonce}).catch(()=>{});
+          if(m.type==='host-discover'&&active?.getStatus().isHost&&id(m.nonce)&&uid!==myId){
+            for(const [key,value] of admissions)if(value.expires<Date.now())admissions.delete(key);
+            if(admissions.size<32||admissions.has(uid)){
+              const ticket=String(Date.now())+'-'+String(Math.random()).slice(2);
+              admissions.set(uid,{ticket,nonce:m.nonce,expires:Date.now()+15000});
+              void sendControl({roomId:activeRoom,type:'host-claim',nonce:m.nonce,ticket}).catch(()=>{});
+            }
+          }
+          if(m.type==='member-confirm'&&active?.getStatus().isHost){
+            const pending=admissions.get(uid);
+            if(pending&&pending.expires>=Date.now()&&m.ticket===pending.ticket&&m.nonce===pending.nonce){
+              admissions.delete(uid);
+              active.addMember(profile({userId:uid,name:m.name,avatarUrl:m.avatarUrl}));
+            }
+          }
           if(m.type==='host-claim'&&discovery&&m.nonce===discovery.nonce&&discovery.roster.has(uid)&&uid!==myId){
-            discovery.claims.add(uid);
+            discovery.claims.add(uid);if(id(m.ticket))discovery.tickets.set(uid,m.ticket);
             if(discovery.pinned&&uid!==discovery.pinned){active?.close();active=null;onStatus?.({kind:'host-session-changed'});}
           }
         }
@@ -2770,7 +2785,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
         if(kind==='join'){
           const roster=new Set((Array.isArray(data.user_list)?data.user_list:[]).map(member).filter(Boolean).map(p=>p.userId));
           const nonce=String(Date.now())+'-'+String(Math.random()).slice(2);
-          discovery={nonce,roster,claims:new Set(),pinned:null};
+          discovery={nonce,roster,claims:new Set(),tickets:new Map(),pinned:null};
           await sendControl({roomId,type:'host-discover',nonce});
           await new Promise(resolve=>setTimeout(resolve,discoveryMs));
           if(request!==requestGeneration)throw new Error('Room request canceled.');
@@ -2782,7 +2797,9 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
         active=createSession({roomId,userId:myId,hostUserId,name:me.name,avatarUrl:me.avatarUrl,rng,onStatus,
           members:Array.isArray(data.user_list)?data.user_list.map(member).filter(Boolean):[],
           sendMessage:async message=>{const response=await sdk.room.sendMessage({message});if(response?.errno!==undefined&&response.errno!==0)throw new Error('GRAVITY send failed.');}
-        });for(const payload of buffered)handle(payload);return active;
+        });for(const payload of buffered)handle(payload);
+        if(kind==='join'&&discovery?.tickets.has(hostUserId))await sendControl({roomId,type:'member-confirm',nonce:discovery.nonce,ticket:discovery.tickets.get(hostUserId),name:me.name,avatarUrl:me.avatarUrl});
+        return active;
       }catch(error){if(nativeJoined){try{await leave();}catch{onStatus?.({kind:'exit-error'});}}throw error;}finally{pending=false;}
     }
     async function list(){

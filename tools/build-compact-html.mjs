@@ -12,7 +12,7 @@ export async function buildCompact(projectRoot = root) {
     collapseWhitespace: false,
     removeComments: false,
     minifyCSS: { level: 1 },
-    minifyJS: { compress: false, mangle: false, format: { comments: /^!/ } }
+    minifyJS: { compress: { passes: 2 }, mangle: true, format: { comments: /^!/ } }
   });
   auditHTML(output);
   return output;
