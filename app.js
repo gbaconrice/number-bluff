@@ -214,7 +214,6 @@
     $('roomCopyStatus').textContent = ''; $('roomCopyStatus').classList.add('hide');
     $('roomCopyFallback').classList.add('hide');
     const manage = canManageLobby(), hostId = transport ? view.hostId : 'p1';
-    let clockNote = document.getElementById('onlineTurnRule'); if (!clockNote) { clockNote = el('p', 'turn-rule-note'); clockNote.id = 'onlineTurnRule'; $('roomIdentity').after(clockNote); } clockNote.textContent = '1手30秒 · 時間切れは前の宣言＋1（初手1）'; clockNote.classList.remove('hide');
     $('roomIdentity').classList.add('hide'); $('roomIdentity').textContent = '';
     $('lobbyError').textContent = '';
     const selected = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
