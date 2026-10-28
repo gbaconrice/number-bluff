@@ -431,7 +431,7 @@
     if (exiting) return;
     exiting = true;
     try {
-      if (transport) {
+      if (transport && roomAdapterExpected) {
         if (typeof roomActions.exit !== 'function') throw new Error('Exit unavailable');
         await roomActions.exit();
       }

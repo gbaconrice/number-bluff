@@ -234,6 +234,7 @@ async function begin(page,width,count){await configure(page,count);await page.lo
 
 async function exit(page){
  await page.locator('#homeBtn').click();await page.locator('#confirmRestart').click();
+ await page.locator('#homeScreen').waitFor({state:'visible'});
  assert.equal(await page.locator('#homeScreen').isVisible(),true);
 }
 async function setDraft(page,value){
@@ -546,7 +547,7 @@ try{
    await exit(gp);await gp.waitForFunction(()=>window.__gameOverMessages.length===1);assert.deepEqual(await gp.evaluate(()=>window.__gameOverMessages),[{type:'gameOver',score:3}]);
    const guestSends=traffic.filter(t=>t.key==='guest').length;await gp.clock.runFor(31000);assert.equal(traffic.filter(t=>t.key==='guest').length,guestSends,'home exit must close session heartbeat');assert.equal(await gp.locator('#homeScreen').isVisible(),true);
    await hp.locator('#lobbyScreen').waitFor({state:'visible'});assert.equal(await hp.locator('#lobbyPlayers [data-seat]').count(),1,'authenticated guest departure must remove that guest');assert.equal(await hp.locator('#beginGame').isDisabled(),true);assert.deepEqual(await hp.evaluate(()=>window.__gameOverMessages),[],'peer departure must not submit my native score');
-   await hp.locator('#lobbyBack').click();assert.equal(await hp.locator('#homeScreen').isVisible(),true);await hp.waitForFunction(()=>window.__gameOverMessages.length===1);assert.deepEqual(await hp.evaluate(()=>window.__gameOverMessages),[{type:'gameOver',score:1}]);
+   await hp.locator('#lobbyBack').click();await hp.locator('#homeScreen').waitFor({state:'visible'});await hp.waitForFunction(()=>window.__gameOverMessages.length===1);assert.deepEqual(await hp.evaluate(()=>window.__gameOverMessages),[{type:'gameOver',score:1}]);
    const hostSends=traffic.filter(t=>t.key==='host').length;await hp.clock.runFor(31000);assert.equal(traffic.filter(t=>t.key==='host').length,hostSends,'host exit must cancel room callbacks');
    // Repeated stale DOM events cannot submit another closing message.
    await gp.locator('#confirmRestart').evaluate(e=>e.click());await hp.locator('#lobbyBack').evaluate(e=>e.click());await hp.waitForTimeout(50);await gp.waitForTimeout(50);

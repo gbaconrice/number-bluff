@@ -32,7 +32,7 @@ test('public list handles empty, error, selection and stale responses',async()=>
 test('explicit exit submits score only after successful native exit and supports retry',async()=>{
  const source=app.slice(app.indexOf('  let exiting = false;'),app.indexOf("  $('startGame').onclick"));
  let ok=false,submissions=0,detached=0;const status={textContent:'',classList:{remove(){}}};
- const context={transport:{},roomActions:{exit:async()=>{if(!ok)throw Error('exit failed')}},captureSessionFinish:()=>({score:3}),timer:{cancel(){}},detachTransport(){detached++},show(){},publishSessionFinish(){submissions++},screen:'lobbyScreen',$:()=>status,state:{},view:{}};
+ const context={transport:{},roomAdapterExpected:true,roomActions:{exit:async()=>{if(!ok)throw Error('exit failed')}},captureSessionFinish:()=>({score:3}),timer:{cancel(){}},detachTransport(){detached++},show(){},publishSessionFinish(){submissions++},screen:'lobbyScreen',$:()=>status,state:{},view:{}};
  vm.createContext(context);vm.runInContext(source+'\nthis.exitRoom=exitRoom;',context);
  await context.exitRoom();assert.equal(submissions,0);assert.equal(detached,0);assert.match(status.textContent,/退出できません/);
  ok=true;await context.exitRoom();assert.equal(submissions,1);assert.equal(detached,1);
