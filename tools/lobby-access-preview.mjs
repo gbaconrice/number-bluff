@@ -5,7 +5,7 @@ import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 const root=fileURLToPath(new URL('../',import.meta.url)),out=root+'artifacts/';await mkdir(out,{recursive:true});
-const server=http.createServer(async(req,res)=>{try{const p=new URL(req.url,'http://local').pathname;if(p.includes('..'))throw Error();const f=p==='/'?'/index.html':p;res.writeHead(200,{'content-type':f.endsWith('.js')?'text/javascript':f.endsWith('.css')?'text/css':f.endsWith('.html')?'text/html':'image/webp'}).end(await readFile(root+f));}catch{res.writeHead(404).end();}});await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;const report=[];
+const server=http.createServer(async(req,res)=>{try{const p=new URL(req.url,'http://local').pathname;if(p.includes('..'))throw Error();const f=p==='/'?'/index.html':p;const body=await readFile(root+f);res.writeHead(200,{'content-type':f.endsWith('.js')?'text/javascript':f.endsWith('.css')?'text/css':f.endsWith('.html')?'text/html':'image/webp'}).end(body);}catch{res.writeHead(404).end();}});await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;const report=[];
 try{browser=await chromium.launch({headless:true,args:['--no-sandbox']});for(const width of[320,390,1280]){
  const page=await browser.newPage({viewport:{width,height:844},reducedMotion:'reduce'});await page.goto(`http://127.0.0.1:${server.address().port}`);
  assert.match(await page.locator('#startGame').textContent(),/ルームを作成/);assert.equal(await page.locator('#privateRoom').isChecked(),false);
