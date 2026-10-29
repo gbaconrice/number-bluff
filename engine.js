@@ -34,7 +34,7 @@
     for(const p of alive(s)) hands[p.id]=draw(pool,rng);
     return updated(s,{...pool,hands,phase:'play',round:s.round+1,bid:null,last:null,turn:s.starter,result:null,history:[]});
   }
-  function startGame(s,rng) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;return deal({...s,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:s.players.filter(p=>p.kind==='human').length>=2,starter:s.players[0].id},rng);}
+  function startGame(s,rng) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;return deal({...s,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:s.players.filter(p=>p.kind==='human').length>=2||(s.players.filter(p=>p.kind==='human').length===1&&s.players.some(p=>p.kind==='bot'&&p.difficulty==='hard')),starter:s.players[0].id},rng);}
   function rematch(s,rng) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:s.players.map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng);}
   // A room survives leaving a match. The UI must confirm abandoning active play;
   // no winner is awarded here. createLobby is reserved for a genuinely new room.
@@ -66,7 +66,7 @@
     const outcome=evaluateCards(handCards,extraCard),loser=s.bid>outcome.sum?s.last:who;
     let players=s.players.map(p=>p.id===loser?{...p,life:Math.max(0,p.life-1),eliminated:p.life<=1}:p);
     const survivors=players.filter(p=>p.life>0),winner=survivors.length===1?survivors[0].id:null;
-    // Eligibility is captured at match start: at least two humans, BOTs allowed.
+    // Eligibility is captured at match start: two humans, or one human with a hard BOT.
     // Only eligible completed matches affect streaks; ineligible matches/abandonment do not. These
     // transient counters are not a leaderboard or a platform submission.
     if(winner)players=players.map(p=>{

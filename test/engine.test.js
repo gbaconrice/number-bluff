@@ -206,7 +206,7 @@ test('round results never increment streaks and BOTs never collect human streak 
  r=E.challenge(s,'p2',seeded());assert.equal(r.result.winner,'p2');assert.equal(r.players[0].currentStreak,2);assert.equal(r.players[0].bestStreak,4);assert.equal(r.players[1].currentStreak,0);assert.equal(r.players[1].bestStreak,0);
 });
 
-test('ranking eligibility captures initial humans, allows BOTs and ignores single-human matches and abandonment',()=>{
+test('ranking eligibility captures initial humans, allows BOTs and ignores easy/normal-only single-human matches and abandonment',()=>{
  const rng=seeded(888);
  const lobby=E.createLobby({botCount:2});
  lobby.players[1]={...lobby.players[1],kind:'human',difficulty:null};
@@ -234,4 +234,40 @@ test('ranking eligibility captures initial humans, allows BOTs and ignores singl
  const changed={...humanWin,players:humanWin.players.map(p=>p.id==='p2'?{...p,kind:'bot',difficulty:'normal'}:p)};
  assert.equal(E.rematch(changed,rng).rankingEligible,false,'rematch captures its own starting roster');
  assert.equal(E.rematch(humanWin,rng).rankingEligible,true,'eliminated human returns for rematch');
+});
+
+test('ranking qualification is two humans OR one human plus at least one hard BOT at match start',()=>{
+ const cases=[
+  {humans:2,bots:[],eligible:true},{humans:2,bots:['easy'],eligible:true},
+  {humans:1,bots:['hard'],eligible:true},{humans:1,bots:['easy','hard','normal'],eligible:true},
+  {humans:1,bots:['easy'],eligible:false},{humans:1,bots:['normal'],eligible:false},
+  {humans:1,bots:['easy','normal'],eligible:false},{humans:0,bots:['hard','hard'],eligible:false}
+ ];
+ for(const c of cases){
+  const lobby=E.createLobby({botCount:c.humans+c.bots.length-1});
+  lobby.players=lobby.players.map((p,i)=>({...p,kind:i<c.humans?'human':'bot',difficulty:i<c.humans?null:c.bots[i-c.humans]}));
+  const started=E.startGame(lobby,seeded());assert.equal(started.rankingEligible,c.eligible,JSON.stringify(c));
+  assert.equal(E.publicView(started,'p1').rankingEligible,c.eligible);
+ }
+});
+test('hard-BOT solo win, loss, abandonment and rematch preserve best and capture eligibility anew',()=>{
+ const rng=seeded(4242);let lobby=E.createLobby({difficulty:'hard'});
+ lobby.players[0]={...lobby.players[0],currentStreak:2,bestStreak:5};
+ const started=E.startGame(lobby,rng);
+ const finish=(state,winner)=>{
+  const ids=['n1_1','n2_1'];
+  return E.challenge({...state,phase:'play',hands:{p1:card(ids[0]),p2:card(ids[1])},deck:E.FULL_DECK.filter(c=>!ids.includes(c.id)),discard:[],bid:winner==='p1'?1:99,last:'p1',turn:'p2',players:state.players.map(p=>({...p,life:p.id==='p3'?0:p.id===winner?3:1,eliminated:p.id==='p3'}))},'p2',rng);
+ };
+ const won=finish(started,'p1');assert.equal(won.phase,'finished');assert.equal(won.players[0].currentStreak,3);assert.equal(won.players[0].bestStreak,5);
+ assert.equal(E.challenge(won,'p2',rng),won,'repeated finish does not double-count');
+ const lost=finish(started,'p2');assert.equal(lost.players[0].currentStreak,0);assert.equal(lost.players[0].bestStreak,5);assert.equal(lost.players[1].bestStreak,0);
+ const abandoned=E.returnToLobby(started);assert.equal(abandoned.players[0].currentStreak,2);assert.equal(abandoned.players[0].bestStreak,5);
+ const downgraded=E.setDifficulty(abandoned,'p2','normal');const unranked=E.startGame(downgraded,rng);assert.equal(unranked.rankingEligible,false);
+ for(const winner of ['p1','p2']){const r=finish(unranked,winner);assert.equal(r.players[0].currentStreak,2);assert.equal(r.players[0].bestStreak,5);}
+ assert.equal(E.rematch(won,rng).rankingEligible,true);
+ assert.equal(E.rematch({...won,players:won.players.map(p=>p.kind==='bot'?{...p,difficulty:'easy'}:p)},rng).rankingEligible,false);
+ // Qualification stays fixed when the qualifying hard BOT is eliminated before the final round.
+ const mixed=E.startGame(E.setDifficulty(E.createLobby({botCount:2,difficulty:'hard'}),'p2','easy'),rng);
+ const afterElimination={...mixed,players:mixed.players.map(p=>p.id==='p3'?{...p,life:0,eliminated:true}:p)};
+ assert.equal(finish(afterElimination,'p1').players[0].currentStreak,1);
 });
