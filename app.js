@@ -380,7 +380,7 @@
     if (transport && view?.phase === 'reveal' && next.phase === 'reveal' && next.revision === view.revision && next.hostId === view.hostId && next.roundClock?.token === view.roundClock?.token && next.roundClock) { view = next; paintTurnDisplay(); return; }
     if (transport && view?.phase === 'play' && next.phase === 'play' && next.revision === view.revision && next.hostId === view.hostId && next.turnClock && next.turnClock.token === view.turnClock?.token) { view = next; paintTurnDisplay(); return; }
     const previous = view; view = next; clearError();
-    if (connectionMessage === 'ホストからの情報を待っています…') { connectionMessage = ''; paintConnectionStatus(); }
+    if (connectionMessage === 'ホストからの情報を待っています…' || (previous?.phase === 'lobby' && view.phase === 'play' && ['参加者が退出したため、対戦を中止してロビーに戻りました。', '参加者との接続が切れました。', '扱える数字の上限に達したため、勝敗をつけずロビーに戻りました。'].includes(connectionMessage))) { connectionMessage = ''; paintConnectionStatus(); }
     if (view.phase === 'lobby') { cancelPresentation(); presentationKey = null; renderLobby(); } else renderBattle(previous);
     const checkpoint = view.scoreCheckpoint, me = view.players.find(p => p.id === human);
     if (checkpoint && checkpoint.userIds?.includes(me?.userId)) publishSessionFinish(captureSessionFinish(checkpoint.reason, checkpoint.game));
@@ -575,6 +575,7 @@
       sessionFinishListeners.add(listener); return () => sessionFinishListeners.delete(listener);
     },
     reportConnectionStatus(event) {
+      if (event?.kind === 'send-recovered') { if (connectionMessage === '送信できませんでした。接続を確認してください。') { connectionMessage = ''; paintConnectionStatus(); } return; }
       const messages = { 'turn-number-limit': '扱える数字の上限に達したため、勝敗をつけずロビーに戻りました。', 'host-lost': 'ホストが退出しました。ホームに戻って参加し直してください。', 'host-timeout': 'ホストとの接続が切れました。ホームに戻って参加し直してください。', 'send-error': '送信できませんでした。接続を確認してください。', 'participant-timeout': '参加者との接続が切れました。', 'player-left-match-abandoned': '参加者が退出したため、対戦を中止してロビーに戻りました。', 'host-session-changed': 'ホストの接続が変わりました。ホームに戻って参加し直してください。', 'session-ended': '接続を終了しました。ホームに戻って参加し直してください。', 'join-waiting': 'ホストからの情報を待っています…', 'room-full': 'このルームは満員です。', 'profile-error': 'GRAVITYのプロフィールを取得できません。再読み込みしてください。' };
       if (!event || !messages[event.kind]) return;
       connectionMessage = messages[event.kind];

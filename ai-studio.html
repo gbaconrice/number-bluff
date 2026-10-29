@@ -209,7 +209,7 @@ h3 { font-size: 12px; margin-bottom: 7px; }
   .example-cards .kind-max0 { letter-spacing: -.08em; }
 }
 .home-icons .icon-caption { border-radius: 6px; padding: 3px 6px; color: #fff5e8; line-height: 1.3; }
-.wins-badge { position: absolute; right: 2px; bottom: 2px; z-index: 1; font-size: 8px; line-height: 1.2; padding: 2px 4px; background: #233357e8; color: #fff0bd; border-radius: 5px; font-weight: 800; }
+.wins-badge { position: absolute; right: 2px; top: 17px; z-index: 1; font-size: 8px; line-height: 1.2; padding: 2px 4px; background: #233357e8; color: #fff0bd; border-radius: 5px; font-weight: 800; }
 .battle-player { position: relative; }
 /* Keep turn announcements legible over the bright decorative cloud bank. */
 #status { background: #102449f2; border-radius: 8px; color: #fff7e6; text-shadow: 0 1px 2px #050e26; }
@@ -259,6 +259,8 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .battle-grid.many { row-gap: 6px; }
 .battle-grid.many .player-info { height: 42px; display: grid; grid-template-columns: 26px 1fr; grid-template-rows: 13px 24px; align-items: center; padding: 2px; margin-bottom: 3px; }
 .battle-grid.many .player-name { font-size: 10px; line-height: 12px; grid-column: 1/-1; }
+.battle-grid.many .player-name { padding-right: 27px; }
+.battle-grid.many .wins-badge { top: 1px; }
 .battle-grid.many .person-placeholder, .battle-grid.many .player-info img.avatar { height: 24px; width: 24px; margin: 0 auto; }
 .battle-grid.many .hearts { font-size: 10px; line-height: 12px; letter-spacing: 0; }
 .bid-panel { min-height: 58px; height: 58px; margin: 6px auto; max-width: 88%; border-radius: 14px; }
@@ -482,7 +484,6 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .screen-return { min-width: 144px; min-height: 44px; padding: 10px 24px; background: #172b55; box-shadow: 0 3px 16px #06112b80; pointer-events: auto; }
 #battleScreen .topbar .battle-exit { border-radius: 12px; font-size: 12px; }
 
-.player-info:has(.wins-badge) .hearts { padding-right: 24px; }
 #returnRoomLobby { margin-top: 10px; }
 
 </style><style>
@@ -645,9 +646,9 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .player-card .card-art-band { top:var(--card-cap-height,20%); height:var(--card-band-height,15%); background-size:100% var(--card-band-size,666.6666667%); background-position:center var(--card-band-position,23.5294118%); }
 .player-card:not(.hidden):not(.out) .card-value { position: absolute; top: 12%; height: 26%; left: 5%; right: 5%; z-index: 2; display: flex; align-items: center; justify-content: center; color: #19294f; text-shadow: 0 1px 2px #ffffff, 0 0 5px #ffffff; }
 .player-card.kind-extra .card-value { color: #f8f5ed; text-shadow: 0 1px 3px #152241, 0 0 5px #152241; }
-.player-card.kind-reset .card-content { container-type: inline-size; }
+.player-card.kind-reset .card-content, .player-card.kind-max0 .card-content { container-type: inline-size; }
 .player-card.kind-reset:not(.hidden):not(.out) .card-value { font-size: 11cqw; }
-.player-card.kind-max0 .card-value { font-size: inherit; }
+.player-card.kind-max0:not(.hidden):not(.out) .card-value { font-size: 20cqw; }
 
 .step-art .player-card { transform: none; }
 /* Preserve full identity + portrait cards in the two tight supported layouts. */
@@ -2266,7 +2267,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     if (transport && view?.phase === 'reveal' && next.phase === 'reveal' && next.revision === view.revision && next.hostId === view.hostId && next.roundClock?.token === view.roundClock?.token && next.roundClock) { view = next; paintTurnDisplay(); return; }
     if (transport && view?.phase === 'play' && next.phase === 'play' && next.revision === view.revision && next.hostId === view.hostId && next.turnClock && next.turnClock.token === view.turnClock?.token) { view = next; paintTurnDisplay(); return; }
     const previous = view; view = next; clearError();
-    if (connectionMessage === 'ホストからの情報を待っています…') { connectionMessage = ''; paintConnectionStatus(); }
+    if (connectionMessage === 'ホストからの情報を待っています…' || (previous?.phase === 'lobby' && view.phase === 'play' && ['参加者が退出したため、対戦を中止してロビーに戻りました。', '参加者との接続が切れました。', '扱える数字の上限に達したため、勝敗をつけずロビーに戻りました。'].includes(connectionMessage))) { connectionMessage = ''; paintConnectionStatus(); }
     if (view.phase === 'lobby') { cancelPresentation(); presentationKey = null; renderLobby(); } else renderBattle(previous);
     const checkpoint = view.scoreCheckpoint, me = view.players.find(p => p.id === human);
     if (checkpoint && checkpoint.userIds?.includes(me?.userId)) publishSessionFinish(captureSessionFinish(checkpoint.reason, checkpoint.game));
@@ -2461,6 +2462,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       sessionFinishListeners.add(listener); return () => sessionFinishListeners.delete(listener);
     },
     reportConnectionStatus(event) {
+      if (event?.kind === 'send-recovered') { if (connectionMessage === '送信できませんでした。接続を確認してください。') { connectionMessage = ''; paintConnectionStatus(); } return; }
       const messages = { 'turn-number-limit': '扱える数字の上限に達したため、勝敗をつけずロビーに戻りました。', 'host-lost': 'ホストが退出しました。ホームに戻って参加し直してください。', 'host-timeout': 'ホストとの接続が切れました。ホームに戻って参加し直してください。', 'send-error': '送信できませんでした。接続を確認してください。', 'participant-timeout': '参加者との接続が切れました。', 'player-left-match-abandoned': '参加者が退出したため、対戦を中止してロビーに戻りました。', 'host-session-changed': 'ホストの接続が変わりました。ホームに戻って参加し直してください。', 'session-ended': '接続を終了しました。ホームに戻って参加し直してください。', 'join-waiting': 'ホストからの情報を待っています…', 'room-full': 'このルームは満員です。', 'profile-error': 'GRAVITYのプロフィールを取得できません。再読み込みしてください。' };
       if (!event || !messages[event.kind]) return;
       connectionMessage = messages[event.kind];
@@ -2540,7 +2542,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     let state=null, latest=null, closed=false, hostLost=false, timer=null, generation=0;
     let epoch=isHost?(options.epoch||String(Date.now())+'-'+String(Math.random()).slice(2)):null;
     let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, scheduledRevision=null;
-    let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0, scoreCheckpoint=null;
+    let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0, scoreCheckpoint=null, sendSerial=0, lastSendSuccess=0, lastSendFailure=0, sendErrorPending=false;
     const roundAdvance=R.create({now,set:later,clear,expire(){if(!isHost||closed||hostLost||state?.phase!=='reveal')return;state=G.nextRound(state,rng);publish('round-timeout');}});
     const status=(kind,detail={})=>{lastStatus={kind,...detail};onStatus({...lastStatus});};
     function cancel(){scheduledRevision=null;generation++;if(timer!==null)clear(timer);timer=null;}
@@ -2549,7 +2551,8 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       if(closed||hostLost)return Promise.resolve(false);
       const message=JSON.stringify({protocol:'number-bluff',version:VERSION,roomId,epoch,...body});
       if(message.length>LIMIT)throw new RangeError('Room message exceeds protocol limit.');
-      return Promise.resolve(sendMessage(message)).catch(error=>{status('send-error');throw error;});
+      const serial=++sendSerial;
+      return Promise.resolve(sendMessage(message)).then(result=>{lastSendSuccess=Math.max(lastSendSuccess,serial);if(!closed&&!hostLost&&serial>lastSendFailure&&sendErrorPending){sendErrorPending=false;if(lastStatus?.kind==='send-error')status('send-recovered');else onStatus({kind:'send-recovered'});}return result;},error=>{lastSendFailure=Math.max(lastSendFailure,serial);if(!closed&&!hostLost&&serial>lastSendSuccess){sendErrorPending=true;status('send-error');}throw error;});
     }
     function seatFor(uid){return state?.players.find(p=>p.userId===uid);}
     function localize(wire){
@@ -2903,7 +2906,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
         // best streak from this play session, even if their current streak is now 0.
         win.parent.postMessage({ type: 'gameOver', score: result.player.bestStreak }, '*');
       });
-      const resume = () => { if (!closed && !win.document?.hidden) Promise.resolve(bridge.resync()).catch(() => client.reportConnectionStatus({ kind: 'send-error' })); };
+      const resume = () => { if (!closed && !win.document?.hidden) Promise.resolve(bridge.resync()).catch(() => {}); };
       win.addEventListener('resize', update); win.document?.addEventListener('focusout', update);
       win.document?.addEventListener('visibilitychange', resume);
       const pagehide = () => { bridge.close(); client.reportConnectionStatus({ kind: 'session-ended' }); };

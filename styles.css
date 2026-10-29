@@ -208,7 +208,7 @@ h3 { font-size: 12px; margin-bottom: 7px; }
   .example-cards .kind-max0 { letter-spacing: -.08em; }
 }
 .home-icons .icon-caption { border-radius: 6px; padding: 3px 6px; color: #fff5e8; line-height: 1.3; }
-.wins-badge { position: absolute; right: 2px; bottom: 2px; z-index: 1; font-size: 8px; line-height: 1.2; padding: 2px 4px; background: #233357e8; color: #fff0bd; border-radius: 5px; font-weight: 800; }
+.wins-badge { position: absolute; right: 2px; top: 17px; z-index: 1; font-size: 8px; line-height: 1.2; padding: 2px 4px; background: #233357e8; color: #fff0bd; border-radius: 5px; font-weight: 800; }
 .battle-player { position: relative; }
 /* Keep turn announcements legible over the bright decorative cloud bank. */
 #status { background: #102449f2; border-radius: 8px; color: #fff7e6; text-shadow: 0 1px 2px #050e26; }
@@ -258,6 +258,8 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .battle-grid.many { row-gap: 6px; }
 .battle-grid.many .player-info { height: 42px; display: grid; grid-template-columns: 26px 1fr; grid-template-rows: 13px 24px; align-items: center; padding: 2px; margin-bottom: 3px; }
 .battle-grid.many .player-name { font-size: 10px; line-height: 12px; grid-column: 1/-1; }
+.battle-grid.many .player-name { padding-right: 27px; }
+.battle-grid.many .wins-badge { top: 1px; }
 .battle-grid.many .person-placeholder, .battle-grid.many .player-info img.avatar { height: 24px; width: 24px; margin: 0 auto; }
 .battle-grid.many .hearts { font-size: 10px; line-height: 12px; letter-spacing: 0; }
 .bid-panel { min-height: 58px; height: 58px; margin: 6px auto; max-width: 88%; border-radius: 14px; }
@@ -481,5 +483,4 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .screen-return { min-width: 144px; min-height: 44px; padding: 10px 24px; background: #172b55; box-shadow: 0 3px 16px #06112b80; pointer-events: auto; }
 #battleScreen .topbar .battle-exit { border-radius: 12px; font-size: 12px; }
 
-.player-info:has(.wins-badge) .hearts { padding-right: 24px; }
 #returnRoomLobby { margin-top: 10px; }

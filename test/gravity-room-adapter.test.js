@@ -11,6 +11,21 @@ function setup(){
  return {host,guest,nodes,queue,sent,statuses,jobs,make,flush,view,randomCalls:()=>randomCalls};
 }
 const act=(s,v,type,extra={})=>s.send({type,player:v.viewerId,revision:v.revision,...extra});
+test('send error clears only after a newer successful send',async()=>{
+ const pending=[],statuses=[];
+ const guest=createSession({roomId:'r',userId:'guest',hostUserId:'host',heartbeat:false,onStatus:s=>statuses.push(s.kind),sendMessage:()=>new Promise((resolve,reject)=>pending.push({resolve,reject}))});
+ pending.shift().resolve(); await Promise.resolve();
+ const first=guest.resync(), second=guest.resync(); const old=pending.shift(), newer=pending.shift();
+ old.reject(Error('offline')); await assert.rejects(first); assert.equal(statuses.at(-1),'send-error');
+ newer.resolve(); await second; assert.equal(statuses.at(-1),'send-recovered');
+ const stale=guest.resync(), latest=guest.resync(); const staleRequest=pending.shift(), latestRequest=pending.shift();
+ latestRequest.reject(Error('offline')); await assert.rejects(latest); staleRequest.resolve(); await stale; assert.equal(statuses.at(-1),'send-error');
+ const retry=guest.resync(); pending.shift().resolve(); await retry; assert.equal(statuses.at(-1),'send-recovered');
+ const failure=guest.resync(); pending.shift().reject(Error('offline')); await assert.rejects(failure);
+ const fixture=setup(), packet=JSON.parse(fixture.sent.findLast(x=>JSON.parse(x.message).type==='snapshot').message);
+ packet.roomId='r'; packet.reason='round-timeout'; assert.equal(guest.receive('host',JSON.stringify(packet)),true); assert.equal(statuses.at(-1),'round-timeout');
+ const afterStatus=guest.resync(); pending.shift().resolve(); await afterStatus; assert.equal(statuses.at(-1),'send-recovered');
+});
 test('host alone, join and authoritative start provide own-card filtering without deck transmission',async()=>{
  const t=setup();assert.equal(t.view(t.guest).players.length,2);assert.equal(t.view(t.guest).hostId,'p1');
  await act(t.guest,t.view(t.guest),'startGame');t.flush();assert.equal(t.view(t.host).phase,'lobby');assert.equal(t.randomCalls(),0);
