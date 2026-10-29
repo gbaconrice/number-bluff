@@ -106,10 +106,12 @@
     const bot=view.players.find(p=>p.id===view.viewerId);
     if(view.phase!=='play'||view.turn!==view.viewerId||!bot||bot.kind!=='bot')return null;
     const totals=possibleTotals(view).sort((a,b)=>a-b),difficulty=bot.difficulty||'normal';
-    const noise=random(rng),quantile=difficulty==='easy'?.25+noise*.5:difficulty==='hard'?.55:.4+noise*.2;
+    // A small fresh per-decision tendency varies caution without creating a fixed character tell.
+    const noise=random(rng),tendency=(random(rng)-.5)*.06;
+    const quantile=(difficulty==='easy'?.25+noise*.5:difficulty==='hard'?.55:.4+noise*.2)+tendency;
     const target=Math.max(1,Math.floor(totals[Math.min(totals.length-1,Math.floor(quantile*totals.length))]));
     const safe=view.bid===null?1:totals.filter(sum=>sum>=view.bid).length/totals.length;
-    const threshold=difficulty==='hard'?.48:difficulty==='normal'?.35+noise*.2:.15+noise*.6;
+    const threshold=(difficulty==='hard'?.48:difficulty==='normal'?.35+noise*.2:.15+noise*.6)-tendency;
     if(view.bid!==null&&(safe<threshold||view.bid===Number.MAX_SAFE_INTEGER))return {type:'challenge'};
     const minimum=view.bid===null?1:view.bid+1;
     return {type:'declare',value:Math.max(minimum,Math.min(target,minimum+(difficulty==='hard'?3:difficulty==='normal'?5:8)))};
