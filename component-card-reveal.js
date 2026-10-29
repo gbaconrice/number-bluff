@@ -50,6 +50,11 @@ independently, filtered, repainted, recolored, or replaced.
 })(typeof globalThis === 'object' ? globalThis : this, function () {
   'use strict';
   const REVEAL_MS = 400, GOLD_MS = 650;
+  function scopeOrder(key, prior) {
+    const m=typeof key==='string'&&/^(\d+):(\d+):(\d+)(?::|$)/.exec(key);if(!m)return {order:0,scope:prior};
+    const parts=m.slice(1).map(Number);if(!parts.every(Number.isSafeInteger))return {order:0,scope:prior};
+    if(!prior)return {order:1,scope:parts};for(let i=0;i<3;i++)if(parts[i]!==prior[i])return {order:parts[i]>prior[i]?1:-1,scope:parts};return {order:0,scope:prior};
+  }
   function createController(options = {}) {
     const doc = options.document || (typeof document !== 'undefined' ? document : null);
     const win = options.window || doc?.defaultView;
@@ -57,7 +62,8 @@ independently, filtered, repainted, recolored, or replaced.
     const set = clock.setTimeout.bind(clock), clear = clock.clearTimeout.bind(clock);
     const media = win?.matchMedia?.('(prefers-reduced-motion: reduce)');
     const seenReveal = new Set(), seenGold = new Set(), active = new Set();
-    let destroyed = false, goldEffect = null;
+    let destroyed = false, goldEffect = null, scope = null, goldWater = -2;
+    function advanceScope(key){const next=scopeOrder(key,scope);if(next.order<0)return false;if(next.order>0){scope=next.scope;seenReveal.clear();seenGold.clear();goldWater=-2;}return true;}
     const quiet = () => destroyed || !doc || doc.hidden || options.reducedMotion === true || !!media?.matches;
     const validKey = key => (typeof key === 'string' && key.length > 0) || typeof key === 'number';
     const attached = node => node && node.isConnected !== false && !!node.parentNode;
@@ -78,8 +84,9 @@ independently, filtered, repainted, recolored, or replaced.
           face.parentNode || !attached(back) || !back.classList.contains('hidden') ||
           face.classList.contains('hidden') || face.classList.contains('out') ||
           face.dataset.revealed !== 'true') return false;
-      const duplicate = seenReveal.has(key);
-      seenReveal.add(key);
+      const stale = !advanceScope(key);
+      const duplicate = stale || seenReveal.has(key);
+      if(!stale){seenReveal.add(key);if(seenReveal.size>128)seenReveal.delete(seenReveal.values().next().value);}
       if (duplicate || quiet() || typeof face.animate !== 'function') {
         back.replaceWith(face); return false;
       }
@@ -122,12 +129,13 @@ independently, filtered, repainted, recolored, or replaced.
       // searches for every card or derives a private value from its appearance.
       if (destroyed || !validKey(key) || !attached(node) ||
           !node.classList.contains('player-card') || node.classList.contains('out')) return false;
-      if (seenGold.has(key)) {
+      const validScope=advanceScope(key);const match=typeof key==='string'&&/^\d+:\d+:\d+:p[1-8]:(null|\d+)$/.exec(key);const bid=match?(match[1]==='null'?-1:Number(match[1])):null;
+      if (!validScope || (match && bid<=goldWater) || seenGold.has(key)) {
         // A replacement rerender must not leave an orphaned old-node animation.
         if (goldEffect && goldEffect.node !== node) goldEffect.settle();
         return false;
       }
-      seenGold.add(key);
+      if(match)goldWater=bid;else{seenGold.add(key);if(seenGold.size>128)seenGold.delete(seenGold.values().next().value);}
       if (goldEffect) goldEffect.settle();
       if (quiet() || typeof node.animate !== 'function') return false;
       const rim = doc.createElement('span'), light = doc.createElement('span');
@@ -169,7 +177,7 @@ independently, filtered, repainted, recolored, or replaced.
       else media?.removeListener?.(onPreference);
       seenReveal.clear(); seenGold.clear();
     }
-    return Object.freeze({ reveal, gold, settleAll, destroy, get activeCount() { return active.size; } });
+    return Object.freeze({ reveal, gold, settleAll, destroy, get activeCount() { return active.size; }, get retainedCount() { return seenReveal.size + seenGold.size; } });
   }
   return Object.freeze({ createController, REVEAL_MS, GOLD_MS });
 });

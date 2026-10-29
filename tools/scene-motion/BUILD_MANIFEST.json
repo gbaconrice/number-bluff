@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-27T02:14:46.219Z",
+  "generatedAt": "2026-10-29T20:16:36.973Z",
   "dependencies": [
     {
       "name": "number-flow",
@@ -27,14 +27,14 @@
   ],
   "files": {
     "component-scene-motion.js": {
-      "bytes": 33568,
-      "gzip9": 11930,
-      "sha256": "c1026c1b5e255a48b7a0db0986354db9b614f9d0e28bee32dd95ed52ad2ee063"
+      "bytes": 33892,
+      "gzip9": 12077,
+      "sha256": "d8ed534b21076240da1f52a6fcdeac5023d3e34310c93daef40fbb0189624b1f"
     },
     "component-scene-motion.raw.js": {
-      "bytes": 57659,
-      "gzip9": 15001,
-      "sha256": "1c5945e9fce5d7af79a1d1f91f2cce4bcdb93b5db942d80d13222742b5d7188a"
+      "bytes": 58358,
+      "gzip9": 15194,
+      "sha256": "6ecb552f723dd64075f2c9ecbcb05873e1eb41d6f36b85e7622b185dfd6d4231"
     },
     "component-scene-motion.css": {
       "bytes": 893,

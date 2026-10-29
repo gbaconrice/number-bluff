@@ -22,7 +22,12 @@
     async function setup() {
       if (!adapter?.install) throw new TypeError('GRAVITY adapter is required.');
       let bridge = null, closed = false, top = exclusionHeight(win.innerHeight), lastWidth = win.innerWidth;
-      const sent = new Set();
+      let latestSession=-1, checkpointGames=Object.create(null);
+      function alreadySent(result){
+        if(result.sessionId<latestSession)return true;
+        if(result.sessionId>latestSession){latestSession=result.sessionId;checkpointGames=Object.create(null);}
+        const game=result.game||0, previous=checkpointGames[result.reason];if(previous!==undefined&&game<=previous)return true;checkpointGames[result.reason]=game;return false;
+      }
       const update = () => {
         // Keep the native-header band stable while a software keyboard shrinks the viewport.
         const active = win.document?.activeElement;
@@ -42,9 +47,7 @@
             typeof result.viewerId !== 'string' || result.player?.id !== result.viewerId ||
             result.player?.kind !== 'human' || !Number.isSafeInteger(result.player.bestStreak) || result.player.bestStreak < 0) return;
         if (result.reason !== 'explicit-exit' && (!Number.isSafeInteger(result.game) || result.game < 1)) return;
-        const key = JSON.stringify([result.roomId, result.sessionId, result.reason, result.game || 0]);
-        if (sent.has(key)) return;
-        sent.add(key);
+        if (alreadySent(result)) return;
         // Send the locally tracked best; native acceptance/high-score retention is unverified.
         // Send only their authoritative
         // best streak from this play session, even if their current streak is now 0.

@@ -110,3 +110,4 @@ test('static: complete runtime licenses retained and no unresolved/dynamic impor
   const manifest=JSON.parse(await readFile(new URL('../tools/scene-motion/BUILD_MANIFEST.json',baseURL)));assert.deepEqual(manifest.unresolvedImports,[]);
   assert.ok(!/\bimport\s*\(/.test(js));assert.ok(!/\bfetch\s*\(|XMLHttpRequest|WebSocket\s*\(/.test(js));
 });
+test('victory dedupe stays bounded across 10000 numeric rounds and rejects stale returns',()=>{const h=harness({reduced:true});for(let round=1;round<=10000;round++){const key=`1:1:${round}`;assert.equal(h.api.begin(key),true);h.api.celebrate({key,confirmed:true,won:true});assert.ok(h.api.state.seenWinCount<=1);}h.api.reset();assert.equal(h.api.begin('1:1:1'),false);assert.equal(h.api.begin('1:1:10000'),true);assert.equal(h.api.celebrate({key:'1:1:10000',confirmed:true,won:true}),false);});

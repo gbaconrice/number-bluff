@@ -13,7 +13,8 @@ function create() {
   if (singleton && !singleton.state.destroyed) return singleton;
   const media = win.matchMedia('(prefers-reduced-motion: reduce)');
   const numbers = new Map();
-  const seenWins = new Set();
+  const seenWins = new Set(); let latestScope=null;
+  function advanceScope(key){const m=/^(\d+):(\d+):(\d+)(?::|$)/.exec(key);if(!m)return true;const next=m.slice(1).map(Number);if(!next.every(Number.isSafeInteger))return true;if(latestScope){for(let i=0;i<3;i++){if(next[i]<latestScope[i])return false;if(next[i]>latestScope[i]){seenWins.clear();latestScope=next;return true;}}return true;}latestScope=next;return true;}
   let currentKey = null, active = false, suppressed = false, enabled = true;
   let destroyed = false, canvas = null, cannon = null, burstCount = 0;
   let running = false, generation = 0;
@@ -63,7 +64,7 @@ function create() {
 
   const api = {
     begin(key) {
-      if (destroyed || !validKey(key)) return false;
+      if (destroyed || !validKey(key) || !advanceScope(key)) return false;
       if (currentKey !== key) {
         stopConfetti(); finishNumbers(); currentKey = key; suppressed = false;
       }
@@ -104,7 +105,7 @@ function create() {
       if (seenWins.has(key)) return false;
       // Consume the result even when hidden, skipped or reduced-motion. Repeated
       // rendering / reconnects must not produce a delayed or duplicate reward.
-      seenWins.add(key);
+      seenWins.add(key);if(seenWins.size>128)seenWins.delete(seenWins.values().next().value);
       if (!allowed()) return false;
       if (!canvas) {
         canvas = doc.createElement('canvas');

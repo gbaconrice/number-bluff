@@ -105,3 +105,4 @@ test('all physical special combinations allow full 400ms activations and finish 
  }
  assert.equal(longest[2],2610);assert.equal(longest[8],3770);
 });
+test('production result scopes stay bounded and never replay an older round',()=>{const p=createPresenter({reducedMotion:true}),r=result({p1:n('a',1)});for(let round=1;round<=10000;round++){assert.equal(p.play(`3:1:${round}`,r),true);assert.ok(p.retainedCount<=1);}assert.equal(p.play('3:1:1',r),false);assert.equal(p.play('3:1:10000',r),false);assert.equal(p.play('4:1:1',r),true);});
