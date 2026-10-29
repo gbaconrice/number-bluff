@@ -123,6 +123,7 @@
     if(action.type==='challenge')return challenge(s,action.player,rng);
     if(action.type==='nextRound')return nextRound(s,rng);
     if(action.type==='rematch')return rematch(s,rng);
+    if(action.type==='returnToLobby'&&s.phase==='finished')return returnToLobby(s);
     return s;
   }
   function assertInvariant(s) {

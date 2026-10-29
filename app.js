@@ -126,7 +126,7 @@
       }
       node.classList.toggle('is-adding', frame.phase === 'sum' && frame.cardId === card.id);
       node.classList.toggle('is-zeroed', frame.removedCardId === card.id);
-      if (frame.removedCardId === card.id && !node.querySelector('.presentation-zero-stamp')) node.append(el('span', 'presentation-zero-stamp', '0'));
+      if (frame.removedCardId === card.id && !node.querySelector('.presentation-zero-stamp')) node.append(zeroEffectBadge());
     }
     renderResult();
     const specialKind = {extra:'extra',max:'max0',multiply:'double',reset:'reset'}[frame.phase];
@@ -161,11 +161,11 @@
   }
   function clearError() { $('inputError').textContent = ''; $('number').removeAttribute('aria-invalid'); }
   function fail(message) { $('inputError').textContent = message; $('number').setAttribute('aria-invalid', 'true'); }
-  function captureSessionFinish() {
+  function captureSessionFinish(reason = 'explicit-exit', game = view?.game) {
     if (!transport || !view || !Number.isSafeInteger(view.game) || view.game < 1) return null;
     const player = view.players.find(p => p.id === human && p.kind === 'human');
     if (!player || !Number.isSafeInteger(player.bestStreak) || player.bestStreak < 0) return null;
-    return { reason: 'explicit-exit', sessionId: roomEpoch, roomId: view.roomId,
+    return { reason, game, sessionId: roomEpoch, roomId: view.roomId,
       viewerId: human, player: { id: player.id, kind: player.kind, bestStreak: player.bestStreak } };
   }
   function publishSessionFinish(result) {
@@ -259,6 +259,12 @@
     $('next').disabled=!canManageLobby();
     if(remaining>0)turnDisplayTimer=setTimeout(paintTurnDisplay,200);
   }
+  function zeroEffectBadge() {
+    const badge = el('span', 'presentation-zero-stamp');
+    badge.setAttribute('role', 'img'); badge.setAttribute('aria-label', '黒猫の効果で0');
+    badge.innerHTML = '<svg viewBox="0 0 64 68" aria-hidden="true" focusable="false"><g fill="#f7b9d3" stroke="#fff0c6" stroke-width="1.6"><ellipse cx="10" cy="23" rx="7" ry="10" transform="rotate(-28 10 23)"/><ellipse cx="24" cy="12" rx="7" ry="10" transform="rotate(-8 24 12)"/><ellipse cx="41" cy="12" rx="7" ry="10" transform="rotate(8 41 12)"/><ellipse cx="55" cy="23" rx="7" ry="10" transform="rotate(28 55 23)"/></g><path d="M32 27C24 27 21 34 14 41C6 49 11 62 21 62C26 62 28 59 32 59C36 59 39 62 44 62C55 62 59 49 51 41C44 34 40 27 32 27Z" fill="#29213d" stroke="#ffe7ba" stroke-width="2"/></svg>';
+    badge.append(el('b', 'zero-effect-value', '0')); return badge;
+  }
   function renderPlayers() {
     cardReveal.settleAll();
     const grid = $('playerGrid'), scrollTop = grid.scrollTop; grid.replaceChildren(); grid.classList.toggle('many', view.players.length > 4); grid.dataset.count = view.players.length;
@@ -276,7 +282,7 @@
       node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : hidden ? name(p.id) + 'の非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
       if (view.phase !== 'play' && card) { node.classList.add('presentation-card'); node.dataset.cardId = card.id; node.dataset.revealed = hidden ? 'back' : 'true'; }
       block.append(info, node);
-      if (p.wins > 0) block.append(el('span', 'wins-badge', p.wins + '勝'));
+      if (p.wins > 0) info.append(el('span', 'wins-badge', p.wins + '勝'));
       grid.append(block);
     }
     grid.scrollTop = scrollTop; paintTurnDisplay();
@@ -288,7 +294,7 @@
     $('resultTitle').textContent = $('battlePhase').textContent;
     $('calculationHeading').textContent = ({hold:'グラビティ！',reveal:'カードを公開',extra:'もう1枚、公開',max:'最大の1枚を0に',sum:'数字を足して…',multiply:'合計を2倍！',compare:'宣言と比べる',outcome:'判定結果'})[f.phase] || '計算の流れ';
     const line = (label, expression) => { const row = el('div', 'calc-line'); if (label) row.append(el('div', '', label)); row.append(el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
-    if (f.extraVisible && r.extraCard) { const extra = el('div', 'extra-reveal'); const card = cardNode(r.extraCard); if (f.phase === 'extra') card.classList.add('presentation-extra'); if (f.removedCardId === r.extraCard.id) { card.classList.add('is-zeroed'); card.append(el('span', 'presentation-zero-stamp', '0')); } extra.append(el('span', '', '「?」で追加公開'), card); $('calculationSteps').append(extra); }
+    if (f.extraVisible && r.extraCard) { const extra = el('div', 'extra-reveal'); const card = cardNode(r.extraCard); if (f.phase === 'extra') card.classList.add('presentation-extra'); if (f.removedCardId === r.extraCard.id) { card.classList.add('is-zeroed'); card.append(zeroEffectBadge()); } extra.append(el('span', '', '「?」で追加公開'), card); $('calculationSteps').append(extra); }
     if (f.removedCardId && r.removedCard) line('MAX→0', r.removedCard.label + ' → 0');
     if (f.terms.length) line('', f.terms.map(t => t.value < 0 ? '(' + t.value + ')' : String(t.value)).join(' + ') + ' = ' + (f.multiplierApplied ? r.baseSum : f.runningTotal));
     if (f.multiplierApplied) line('×2', r.baseSum + ' × 2 = ' + r.sum);
@@ -300,6 +306,9 @@
     $('next').textContent = '結果を見る'; $('next').disabled = connectionBlocked;
   }
   function renderResult() {
+    const lobbyReturn = $('returnRoomLobby');
+    lobbyReturn.classList.toggle('hide', view.phase !== 'finished' || !!(presentationFrame && !presentationFrame.complete));
+    lobbyReturn.disabled = connectionBlocked || !canManageLobby();
     const r = view.result; $('calculationSteps').replaceChildren();
     if (!r) { $('resultText').textContent = ''; $('finalTotal').textContent = ''; return; }
     if (presentationFrame && !presentationFrame.complete) { renderStagedResult(); return; }
@@ -373,6 +382,8 @@
     const previous = view; view = next; clearError();
     if (connectionMessage === 'ホストからの情報を待っています…') { connectionMessage = ''; paintConnectionStatus(); }
     if (view.phase === 'lobby') { cancelPresentation(); presentationKey = null; renderLobby(); } else renderBattle(previous);
+    const checkpoint = view.scoreCheckpoint, me = view.players.find(p => p.id === human);
+    if (checkpoint && checkpoint.userIds?.includes(me?.userId)) publishSessionFinish(captureSessionFinish(checkpoint.reason, checkpoint.game));
   }
   function apply(next) {
     if (next === state) return false;
@@ -476,6 +487,7 @@
     if (value === null || (view?.bid !== null && value <= view?.bid) || !action('declare', value)) { fail('前より大きな1以上の整数を入力してください（最大9007199254740991）。'); $('declare').focus(); }
   };
   $('challenge').onclick = () => action('challenge');
+  $('returnRoomLobby').onclick = () => { if (view?.phase !== 'finished' || presenter.active || connectionBlocked || !canManageLobby()) return; if (action('returnToLobby') && !transport) show('lobbyScreen', 'beginGame'); };
   $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; audio.stop(); specialEffects.stop(); cardReveal.settleAll(); sceneMotion.skip(); presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
   document.querySelectorAll('[data-digit]').forEach(button => { button.onclick = () => {
     if ($('declare').disabled) return;

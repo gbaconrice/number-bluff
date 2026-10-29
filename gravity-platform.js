@@ -34,17 +34,19 @@
       bridge = await adapter.install({ sdk, client, onStatus: event => client.reportConnectionStatus(event) });
       client.setRoomRequestCanceler?.(() => bridge.close());
       const unsubscribe = client.onSessionFinish(result => {
-        // gameOver opens a native results popup. Never fire it for round/match updates,
-        // rematches, visibility changes, disconnect events or automatic abandonment.
-        if (closed || !result || result.reason !== 'explicit-exit' ||
+        // User-selected checkpoints: explicit exit, host rematch or return to lobby.
+        // Native UI interruption/acknowledgment behavior is not documented; verify on device.
+        if (closed || !result || !['explicit-exit','rematch-checkpoint','lobby-checkpoint'].includes(result.reason) ||
             typeof result.roomId !== 'string' || !result.roomId ||
             !Number.isSafeInteger(result.sessionId) || result.sessionId < 0 ||
             typeof result.viewerId !== 'string' || result.player?.id !== result.viewerId ||
             result.player?.kind !== 'human' || !Number.isSafeInteger(result.player.bestStreak) || result.player.bestStreak < 0) return;
-        const key = JSON.stringify([result.roomId, result.sessionId]);
+        if (result.reason !== 'explicit-exit' && (!Number.isSafeInteger(result.game) || result.game < 1)) return;
+        const key = JSON.stringify([result.roomId, result.sessionId, result.reason, result.game || 0]);
         if (sent.has(key)) return;
         sent.add(key);
-        // GRAVITY records the user's personal best. Send only their authoritative
+        // Send the locally tracked best; native acceptance/high-score retention is unverified.
+        // Send only their authoritative
         // best streak from this play session, even if their current streak is now 0.
         win.parent.postMessage({ type: 'gameOver', score: result.player.bestStreak }, '*');
       });

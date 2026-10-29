@@ -247,3 +247,14 @@ test('second-room membership uses fresh sender-bound confirmation without unscop
  assert.equal(hv.players.length,1);
  await actions.guest.exit();await actions.host.exit();
 });
+
+test('host can return a completed match to the same lobby and admit another participant',async()=>{
+ const t=setup();await act(t.host,t.view(t.host),'startGame');t.flush();
+ for(let i=0;i<3;i++){await act(t.host,t.view(t.host),'declare',{value:999});t.flush();await act(t.guest,t.view(t.guest),'challenge');t.flush();if(i<2){await act(t.host,t.view(t.host),'nextRound');t.flush();}}
+ const before=t.view(t.host),stats=before.players.map(p=>[p.wins,p.currentStreak,p.bestStreak]);
+ await act(t.guest,t.view(t.guest),'returnToLobby');t.flush();assert.equal(t.view(t.host).phase,'finished');
+ await act(t.host,t.view(t.host),'returnToLobby');t.flush();const lobby=t.view(t.guest);
+ assert.equal(lobby.phase,'lobby');assert.equal(lobby.roomId,before.roomId);assert.deepEqual(lobby.players.map(p=>[p.wins,p.currentStreak,p.bestStreak]),stats);assert.ok(lobby.players.every(p=>p.life===3&&!p.eliminated));
+ t.host.addMember({userId:'late',name:'Late arrival'});t.flush();assert.equal(t.view(t.host).players.length,3);
+ await act(t.host,t.view(t.host),'startGame');t.flush();assert.equal(t.view(t.guest).phase,'play');assert.equal(t.view(t.guest).game,before.game+1);
+});
