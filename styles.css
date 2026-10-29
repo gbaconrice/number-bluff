@@ -258,6 +258,8 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .battle-grid.many { row-gap: 6px; }
 .battle-grid.many .player-info { height: 42px; display: grid; grid-template-columns: 26px 1fr; grid-template-rows: 13px 24px; align-items: center; padding: 2px; margin-bottom: 3px; }
 .battle-grid.many .player-name { font-size: 10px; line-height: 12px; grid-column: 1/-1; }
+.battle-grid.many .player-name { padding-right: 27px; }
+.battle-grid.many .wins-badge { top: 1px; }
 .battle-grid.many .person-placeholder, .battle-grid.many .player-info img.avatar { height: 24px; width: 24px; margin: 0 auto; }
 .battle-grid.many .hearts { font-size: 10px; line-height: 12px; letter-spacing: 0; }
 .bid-panel { min-height: 58px; height: 58px; margin: 6px auto; max-width: 88%; border-radius: 14px; }

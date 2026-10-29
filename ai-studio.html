@@ -259,6 +259,8 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .battle-grid.many { row-gap: 6px; }
 .battle-grid.many .player-info { height: 42px; display: grid; grid-template-columns: 26px 1fr; grid-template-rows: 13px 24px; align-items: center; padding: 2px; margin-bottom: 3px; }
 .battle-grid.many .player-name { font-size: 10px; line-height: 12px; grid-column: 1/-1; }
+.battle-grid.many .player-name { padding-right: 27px; }
+.battle-grid.many .wins-badge { top: 1px; }
 .battle-grid.many .person-placeholder, .battle-grid.many .player-info img.avatar { height: 24px; width: 24px; margin: 0 auto; }
 .battle-grid.many .hearts { font-size: 10px; line-height: 12px; letter-spacing: 0; }
 .bid-panel { min-height: 58px; height: 58px; margin: 6px auto; max-width: 88%; border-radius: 14px; }
@@ -2460,6 +2462,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       sessionFinishListeners.add(listener); return () => sessionFinishListeners.delete(listener);
     },
     reportConnectionStatus(event) {
+      if (event?.kind === 'send-recovered') { if (connectionMessage === '送信できませんでした。接続を確認してください。') { connectionMessage = ''; paintConnectionStatus(); } return; }
       const messages = { 'turn-number-limit': '扱える数字の上限に達したため、勝敗をつけずロビーに戻りました。', 'host-lost': 'ホストが退出しました。ホームに戻って参加し直してください。', 'host-timeout': 'ホストとの接続が切れました。ホームに戻って参加し直してください。', 'send-error': '送信できませんでした。接続を確認してください。', 'participant-timeout': '参加者との接続が切れました。', 'player-left-match-abandoned': '参加者が退出したため、対戦を中止してロビーに戻りました。', 'host-session-changed': 'ホストの接続が変わりました。ホームに戻って参加し直してください。', 'session-ended': '接続を終了しました。ホームに戻って参加し直してください。', 'join-waiting': 'ホストからの情報を待っています…', 'room-full': 'このルームは満員です。', 'profile-error': 'GRAVITYのプロフィールを取得できません。再読み込みしてください。' };
       if (!event || !messages[event.kind]) return;
       connectionMessage = messages[event.kind];
@@ -2539,7 +2542,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     let state=null, latest=null, closed=false, hostLost=false, timer=null, generation=0;
     let epoch=isHost?(options.epoch||String(Date.now())+'-'+String(Math.random()).slice(2)):null;
     let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, scheduledRevision=null;
-    let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0, scoreCheckpoint=null;
+    let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0, scoreCheckpoint=null, sendSerial=0, lastSendSuccess=0, lastSendFailure=0;
     const roundAdvance=R.create({now,set:later,clear,expire(){if(!isHost||closed||hostLost||state?.phase!=='reveal')return;state=G.nextRound(state,rng);publish('round-timeout');}});
     const status=(kind,detail={})=>{lastStatus={kind,...detail};onStatus({...lastStatus});};
     function cancel(){scheduledRevision=null;generation++;if(timer!==null)clear(timer);timer=null;}
@@ -2548,7 +2551,8 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       if(closed||hostLost)return Promise.resolve(false);
       const message=JSON.stringify({protocol:'number-bluff',version:VERSION,roomId,epoch,...body});
       if(message.length>LIMIT)throw new RangeError('Room message exceeds protocol limit.');
-      return Promise.resolve(sendMessage(message)).catch(error=>{status('send-error');throw error;});
+      const serial=++sendSerial;
+      return Promise.resolve(sendMessage(message)).then(result=>{lastSendSuccess=Math.max(lastSendSuccess,serial);if(!closed&&!hostLost&&serial>lastSendFailure&&lastStatus?.kind==='send-error')status('send-recovered');return result;},error=>{lastSendFailure=Math.max(lastSendFailure,serial);if(!closed&&!hostLost&&serial>lastSendSuccess)status('send-error');throw error;});
     }
     function seatFor(uid){return state?.players.find(p=>p.userId===uid);}
     function localize(wire){
