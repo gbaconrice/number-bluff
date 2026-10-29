@@ -59,7 +59,7 @@ h3 { font-size: 12px; margin-bottom: 7px; }
 .battle-meta { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 2px 8px; font: 750 clamp(11px,3vw,14px)/1.4 system-ui,sans-serif; color: #fff; }
 .battle-grid { display: grid; margin-bottom: 8px; }
 .battle-player { min-width: 0; text-align: center; }
-.player-info { border: 1px solid #7893ca; background: #0a2047ce; }
+.player-info { position: relative; border: 1px solid #7893ca; background: #0a2047ce; }
 .battle-player.self .player-info { border-color: #ffe7a3; box-shadow: 0 0 8px #ffe7a344; }
 .battle-player.active .player-info { border-color: #dce7ff; box-shadow: inset 0 0 0 2px #b6c9ff,inset 0 0 10px #a5beff66; }
 .player-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -209,7 +209,7 @@ h3 { font-size: 12px; margin-bottom: 7px; }
   .example-cards .kind-max0 { letter-spacing: -.08em; }
 }
 .home-icons .icon-caption { border-radius: 6px; padding: 3px 6px; color: #fff5e8; line-height: 1.3; }
-.wins-badge { position: absolute; right: 3px; bottom: 3px; z-index: 1; font-size: 8px; line-height: 1.2; padding: 2px 4px; background: #233357e8; color: #fff0bd; border-radius: 5px; font-weight: 800; }
+.wins-badge { position: absolute; right: 2px; bottom: 2px; z-index: 1; font-size: 8px; line-height: 1.2; padding: 2px 4px; background: #233357e8; color: #fff0bd; border-radius: 5px; font-weight: 800; }
 .battle-player { position: relative; }
 /* Keep turn announcements legible over the bright decorative cloud bank. */
 #status { background: #102449f2; border-radius: 8px; color: #fff7e6; text-shadow: 0 1px 2px #050e26; }
@@ -482,6 +482,9 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .screen-return { min-width: 144px; min-height: 44px; padding: 10px 24px; background: #172b55; box-shadow: 0 3px 16px #06112b80; pointer-events: auto; }
 #battleScreen .topbar .battle-exit { border-radius: 12px; font-size: 12px; }
 
+.player-info:has(.wins-badge) .hearts { padding-right: 24px; }
+#returnRoomLobby { margin-top: 10px; }
+
 </style><style>
 /* In-flow game examples: real cards and portraits always belong to a clear role. */
 #guideContent[data-tab="rules"] .guide-step { padding: 12px 12px 12px 43px; min-height: 0; }
@@ -568,7 +571,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .presentation-card.is-dealing { animation:card-deal 300ms cubic-bezier(.2,.72,.2,1) both; }
 .presentation-card.is-adding { animation:card-contribute 300ms ease-out both; }
 .presentation-card.is-zeroed .card-value { opacity:.28; text-decoration:line-through; }
-.presentation-zero-stamp { position:absolute; z-index:4; right:6%; bottom:12%; padding:3px 9px; border:2px solid #c4fbff; border-radius:8px; background:#133c4e; color:#e6ffff; font-weight:900; transform:rotate(-9deg); animation:zero-stamp 260ms ease-out both; }
+
 .presentation-extra { animation:extra-draw 340ms ease-out both; }
 #result[data-presentation-phase="multiply"] .final-total,
 #result[data-presentation-phase="multiply"] #finalTotal { animation:total-emphasis 430ms ease-out both; }
@@ -594,7 +597,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .presentation-card.is-dealing { animation:card-deal-rich 420ms cubic-bezier(.15,.8,.24,1) both; }
 .presentation-card.is-adding { animation:card-contribute-rich 320ms ease-out both; }
 .presentation-card.is-zeroed { box-shadow:inset 0 0 0 2px #b5f6ff88,0 0 14px #7de9ff66; }
-.presentation-zero-stamp { bottom:10%; right:8%; padding:4px 10px; box-shadow:0 0 16px #79eaff66; }
+
 .presentation-bid-pulse { position:relative; animation:bid-declaration-rich 500ms cubic-bezier(.18,.8,.3,1) both; }
 .presentation-bid-pulse::after { content:''; position:absolute; inset:0; border:2px solid #ffdf8c99; border-radius:inherit; pointer-events:none; animation:declaration-ring 650ms ease-out both; }
 #result .result-message { position:relative; isolation:isolate; overflow:hidden; }
@@ -626,6 +629,11 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 
 /* Individual life slots keep the exact text/width and never intercept input. */
 .life-heart { display:inline-block; transform-origin:center; pointer-events:none; }
+
+/* A black-cat paw seals the affected card while keeping zero legible at small sizes. */
+.presentation-zero-stamp { position:absolute; z-index:4; right:6%; bottom:8%; width:42%; max-width:74px; aspect-ratio:64/68; filter:drop-shadow(0 2px 3px #1b103a88); transform:rotate(-9deg); animation:zero-stamp 260ms ease-out both; }
+.presentation-zero-stamp svg { display:block; width:100%; height:100%; }
+.presentation-zero-stamp .zero-effect-value { position:absolute; inset:42% 16% 10%; display:grid; place-items:center; font:900 .64em/1 system-ui,sans-serif; color:#fff6d5; text-shadow:0 1px 2px #0008; }
 
 </style><style>
 /* Shared physical card and full-size artwork surface. Static header-band extension preserves the complete illustration. */
@@ -793,7 +801,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 </style></head><body><main>
 <section id="homeScreen" class="screen home"><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""></div><div class="home-actions"><label class="private-room-option"><input id="privateRoom" type="checkbox"><span>プライベートルームにする</span></label><button id="startGame" data-intent="createRoom" class="pill gold">ルームを作成 <span>›</span></button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button><button id="homeSoundToggle" class="sound-toggle" data-sound-toggle aria-label="音をオフにする" aria-pressed="false"><b aria-hidden="true">♪</b><span class="icon-caption">音</span></button></nav></section>
 <section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><h1 id="lobbyTitle"></h1><button id="copyRoomId" class="room-copy hide" type="button" aria-label="ルームIDをコピー">コピー</button><span id="lobbyHeaderSpacer" class="topbar-spacer" aria-hidden="true"></span></header><p id="roomIdentity" class="room-identity hide"></p><p id="roomCopyStatus" class="room-status hide" role="status" aria-live="polite"></p><input id="roomCopyFallback" class="room-copy-fallback hide" readonly aria-label="コピーするルームID"><p id="onlineLobbyStatus" class="room-status hide" role="status" aria-live="polite"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button><footer class="screen-return-bar"><button id="lobbyBack" class="screen-return" aria-label="ホームへ戻る">ホームへ戻る</button></footer></section>
-<section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle battle-exit" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">終了</button><h1 id="battleTitle"><span id="battlePhase" class="hide"></span><span class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></span></h1><button id="battleSoundToggle" class="circle sound-toggle" data-sound-toggle aria-label="音をオフにする" aria-pressed="false">♪</button><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><p id="onlineBattleStatus" class="room-status hide" role="status" aria-live="polite"></p><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" tabindex="0" aria-label="プレイヤーとカード（上下にスクロール）"></div><section id="gamePanel"><div class="bid-panel glass"><div id="bidActor" aria-hidden="true"></div><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" class="sr-only" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><button id="declare" class="declare-region gold" aria-describedby="inputHint inputError"><span id="number" aria-label="宣言する数字"></span><span class="declare-label">宣言</span></button><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="sr-only">前より大きな1以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><div id="resultAnnouncement" class="sr-only" role="status" aria-live="polite"></div><section id="result" class="hide"><h2 id="resultTitle" class="sr-only" tabindex="-1">ラウンド結果</h2><section class="calculation glass" aria-live="off"><div><h3 id="calculationHeading">計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span id="totalLabel">最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><div id="resultAvatar" aria-hidden="true"></div><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button></section></section>
+<section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle battle-exit" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">終了</button><h1 id="battleTitle"><span id="battlePhase" class="hide"></span><span class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></span></h1><button id="battleSoundToggle" class="circle sound-toggle" data-sound-toggle aria-label="音をオフにする" aria-pressed="false">♪</button><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><p id="onlineBattleStatus" class="room-status hide" role="status" aria-live="polite"></p><section id="restartConfirm" class="glass hide" aria-labelledby="restartTitle"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></section><div id="playerGrid" class="battle-grid" tabindex="0" aria-label="プレイヤーとカード（上下にスクロール）"></div><section id="gamePanel"><div class="bid-panel glass"><div id="bidActor" aria-hidden="true"></div><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="status" class="sr-only" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button></div><div class="decisions"><button id="declare" class="declare-region gold" aria-describedby="inputHint inputError"><span id="number" aria-label="宣言する数字"></span><span class="declare-label">宣言</span></button><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="sr-only">前より大きな1以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><div id="resultAnnouncement" class="sr-only" role="status" aria-live="polite"></div><section id="result" class="hide"><h2 id="resultTitle" class="sr-only" tabindex="-1">ラウンド結果</h2><section class="calculation glass" aria-live="off"><div><h3 id="calculationHeading">計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span id="totalLabel">最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><div id="resultAvatar" aria-hidden="true"></div><p id="resultText"></p></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button><button id="returnRoomLobby" class="pill blue hide" type="button">ルームロビーに戻る</button></section></section>
 <section id="guidePanel" class="screen hide" aria-label="ゲームガイド"><header class="topbar"><h1 id="guideTitle" class="sr-only">遊び方</h1></header><div class="guide-tabs" role="tablist" aria-label="ガイド"><button data-tab="rules" role="tab">遊び方</button><button data-tab="cards" role="tab">カード図鑑</button><button data-tab="bots" role="tab">BOT</button><button data-tab="examples" role="tab">計算例</button></div><article id="guideContent" tabindex="-1"></article><dialog id="cardDetail"><button id="closeCardDetail" class="circle" aria-label="カード詳細を閉じる">×</button><div id="cardDetailContent"></div></dialog><footer class="screen-return-bar"><button id="closeGuide" class="screen-return" aria-label="ガイドを閉じる">閉じる</button></footer></section>
 <section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><h1 id="joinTitle">ルームに参加</h1></header><form id="joinForm" class="join-form glass"><label class="sr-only" for="roomId">ルームID</label><input id="roomId" name="roomId" placeholder="ルームID" autocomplete="off" maxlength="64" required><button id="joinRoom" data-intent="joinRoom" class="pill blue" type="submit">参加する</button><p id="roomJoinStatus" class="room-status" role="status" aria-live="polite"></p></form><section id="joinPublicPanel" class="public-room-panel glass" aria-labelledby="publicRoomsTitle"><div class="public-room-heading"><h2 id="publicRoomsTitle">公開ルーム一覧</h2><button id="refreshPublicRooms" type="button">更新</button></div><p id="publicRoomsStatus" class="room-status" role="status" aria-live="polite">公開ルーム一覧は準備中です。ルームIDで参加できます。</p><div id="publicRoomsList" class="public-room-list"></div></section><footer class="screen-return-bar"><button id="closeJoin" class="screen-return" aria-label="ホームへ戻る">ホームへ戻る</button></footer></section>
 </main><script>
@@ -922,6 +930,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
     if(action.type==='challenge')return challenge(s,action.player,rng);
     if(action.type==='nextRound')return nextRound(s,rng);
     if(action.type==='rematch')return rematch(s,rng);
+    if(action.type==='returnToLobby'&&s.phase==='finished')return returnToLobby(s);
     return s;
   }
   function assertInvariant(s) {
@@ -2003,7 +2012,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       }
       node.classList.toggle('is-adding', frame.phase === 'sum' && frame.cardId === card.id);
       node.classList.toggle('is-zeroed', frame.removedCardId === card.id);
-      if (frame.removedCardId === card.id && !node.querySelector('.presentation-zero-stamp')) node.append(el('span', 'presentation-zero-stamp', '0'));
+      if (frame.removedCardId === card.id && !node.querySelector('.presentation-zero-stamp')) node.append(zeroEffectBadge());
     }
     renderResult();
     const specialKind = {extra:'extra',max:'max0',multiply:'double',reset:'reset'}[frame.phase];
@@ -2136,6 +2145,12 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     $('next').disabled=!canManageLobby();
     if(remaining>0)turnDisplayTimer=setTimeout(paintTurnDisplay,200);
   }
+  function zeroEffectBadge() {
+    const badge = el('span', 'presentation-zero-stamp');
+    badge.setAttribute('role', 'img'); badge.setAttribute('aria-label', '黒猫の効果で0');
+    badge.innerHTML = '<svg viewBox="0 0 64 68" aria-hidden="true" focusable="false"><g fill="#f7b9d3" stroke="#fff0c6" stroke-width="1.6"><ellipse cx="10" cy="23" rx="7" ry="10" transform="rotate(-28 10 23)"/><ellipse cx="24" cy="12" rx="7" ry="10" transform="rotate(-8 24 12)"/><ellipse cx="41" cy="12" rx="7" ry="10" transform="rotate(8 41 12)"/><ellipse cx="55" cy="23" rx="7" ry="10" transform="rotate(28 55 23)"/></g><path d="M32 27C24 27 21 34 14 41C6 49 11 62 21 62C26 62 28 59 32 59C36 59 39 62 44 62C55 62 59 49 51 41C44 34 40 27 32 27Z" fill="#29213d" stroke="#ffe7ba" stroke-width="2"/></svg>';
+    badge.append(el('b', 'zero-effect-value', '0')); return badge;
+  }
   function renderPlayers() {
     cardReveal.settleAll();
     const grid = $('playerGrid'), scrollTop = grid.scrollTop; grid.replaceChildren(); grid.classList.toggle('many', view.players.length > 4); grid.dataset.count = view.players.length;
@@ -2153,7 +2168,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : hidden ? name(p.id) + 'の非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
       if (view.phase !== 'play' && card) { node.classList.add('presentation-card'); node.dataset.cardId = card.id; node.dataset.revealed = hidden ? 'back' : 'true'; }
       block.append(info, node);
-      if (p.wins > 0) block.append(el('span', 'wins-badge', p.wins + '勝'));
+      if (p.wins > 0) info.append(el('span', 'wins-badge', p.wins + '勝'));
       grid.append(block);
     }
     grid.scrollTop = scrollTop; paintTurnDisplay();
@@ -2165,7 +2180,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     $('resultTitle').textContent = $('battlePhase').textContent;
     $('calculationHeading').textContent = ({hold:'グラビティ！',reveal:'カードを公開',extra:'もう1枚、公開',max:'最大の1枚を0に',sum:'数字を足して…',multiply:'合計を2倍！',compare:'宣言と比べる',outcome:'判定結果'})[f.phase] || '計算の流れ';
     const line = (label, expression) => { const row = el('div', 'calc-line'); if (label) row.append(el('div', '', label)); row.append(el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
-    if (f.extraVisible && r.extraCard) { const extra = el('div', 'extra-reveal'); const card = cardNode(r.extraCard); if (f.phase === 'extra') card.classList.add('presentation-extra'); if (f.removedCardId === r.extraCard.id) { card.classList.add('is-zeroed'); card.append(el('span', 'presentation-zero-stamp', '0')); } extra.append(el('span', '', '「?」で追加公開'), card); $('calculationSteps').append(extra); }
+    if (f.extraVisible && r.extraCard) { const extra = el('div', 'extra-reveal'); const card = cardNode(r.extraCard); if (f.phase === 'extra') card.classList.add('presentation-extra'); if (f.removedCardId === r.extraCard.id) { card.classList.add('is-zeroed'); card.append(zeroEffectBadge()); } extra.append(el('span', '', '「?」で追加公開'), card); $('calculationSteps').append(extra); }
     if (f.removedCardId && r.removedCard) line('MAX→0', r.removedCard.label + ' → 0');
     if (f.terms.length) line('', f.terms.map(t => t.value < 0 ? '(' + t.value + ')' : String(t.value)).join(' + ') + ' = ' + (f.multiplierApplied ? r.baseSum : f.runningTotal));
     if (f.multiplierApplied) line('×2', r.baseSum + ' × 2 = ' + r.sum);
@@ -2177,6 +2192,9 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     $('next').textContent = '結果を見る'; $('next').disabled = connectionBlocked;
   }
   function renderResult() {
+    const lobbyReturn = $('returnRoomLobby');
+    lobbyReturn.classList.toggle('hide', view.phase !== 'finished' || !!(presentationFrame && !presentationFrame.complete));
+    lobbyReturn.disabled = connectionBlocked || !canManageLobby();
     const r = view.result; $('calculationSteps').replaceChildren();
     if (!r) { $('resultText').textContent = ''; $('finalTotal').textContent = ''; return; }
     if (presentationFrame && !presentationFrame.complete) { renderStagedResult(); return; }
@@ -2353,6 +2371,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     if (value === null || (view?.bid !== null && value <= view?.bid) || !action('declare', value)) { fail('前より大きな1以上の整数を入力してください（最大9007199254740991）。'); $('declare').focus(); }
   };
   $('challenge').onclick = () => action('challenge');
+  $('returnRoomLobby').onclick = () => { if (view?.phase !== 'finished' || presenter.active || connectionBlocked || !canManageLobby()) return; if (action('returnToLobby') && !transport) show('lobbyScreen', 'beginGame'); };
   $('next').onclick = event => { if (connectionBlocked) return; if (presenter.active) { nextReadyAt = performance.now() + 400; audio.stop(); specialEffects.stop(); cardReveal.settleAll(); sceneMotion.skip(); presenter.skip(); return; } if (event.detail > 1 || performance.now() < nextReadyAt) return; action(view.phase === 'finished' ? 'rematch' : 'nextRound'); };
   document.querySelectorAll('[data-digit]').forEach(button => { button.onclick = () => {
     if ($('declare').disabled) return;

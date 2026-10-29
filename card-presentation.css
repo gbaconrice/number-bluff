@@ -5,7 +5,7 @@
 .presentation-card.is-dealing { animation:card-deal 300ms cubic-bezier(.2,.72,.2,1) both; }
 .presentation-card.is-adding { animation:card-contribute 300ms ease-out both; }
 .presentation-card.is-zeroed .card-value { opacity:.28; text-decoration:line-through; }
-.presentation-zero-stamp { position:absolute; z-index:4; right:6%; bottom:12%; padding:3px 9px; border:2px solid #c4fbff; border-radius:8px; background:#133c4e; color:#e6ffff; font-weight:900; transform:rotate(-9deg); animation:zero-stamp 260ms ease-out both; }
+
 .presentation-extra { animation:extra-draw 340ms ease-out both; }
 #result[data-presentation-phase="multiply"] .final-total,
 #result[data-presentation-phase="multiply"] #finalTotal { animation:total-emphasis 430ms ease-out both; }
@@ -31,7 +31,7 @@
 .presentation-card.is-dealing { animation:card-deal-rich 420ms cubic-bezier(.15,.8,.24,1) both; }
 .presentation-card.is-adding { animation:card-contribute-rich 320ms ease-out both; }
 .presentation-card.is-zeroed { box-shadow:inset 0 0 0 2px #b5f6ff88,0 0 14px #7de9ff66; }
-.presentation-zero-stamp { bottom:10%; right:8%; padding:4px 10px; box-shadow:0 0 16px #79eaff66; }
+
 .presentation-bid-pulse { position:relative; animation:bid-declaration-rich 500ms cubic-bezier(.18,.8,.3,1) both; }
 .presentation-bid-pulse::after { content:''; position:absolute; inset:0; border:2px solid #ffdf8c99; border-radius:inherit; pointer-events:none; animation:declaration-ring 650ms ease-out both; }
 #result .result-message { position:relative; isolation:isolate; overflow:hidden; }
@@ -63,3 +63,8 @@
 
 /* Individual life slots keep the exact text/width and never intercept input. */
 .life-heart { display:inline-block; transform-origin:center; pointer-events:none; }
+
+/* A black-cat paw seals the affected card while keeping zero legible at small sizes. */
+.presentation-zero-stamp { position:absolute; z-index:4; right:6%; bottom:8%; width:42%; max-width:74px; aspect-ratio:64/68; filter:drop-shadow(0 2px 3px #1b103a88); transform:rotate(-9deg); animation:zero-stamp 260ms ease-out both; }
+.presentation-zero-stamp svg { display:block; width:100%; height:100%; }
+.presentation-zero-stamp .zero-effect-value { position:absolute; inset:42% 16% 10%; display:grid; place-items:center; font:900 .64em/1 system-ui,sans-serif; color:#fff6d5; text-shadow:0 1px 2px #0008; }
