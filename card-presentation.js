@@ -55,11 +55,16 @@
     return Object.freeze(steps);
   }
 
+  function scopeOrder(key, prior) {
+    const m=typeof key==='string'&&/^(\d+):(\d+):(\d+)(?::|$)/.exec(key);if(!m)return {order:0,scope:prior};
+    const parts=m.slice(1).map(Number);if(!parts.every(Number.isSafeInteger))return {order:0,scope:prior};
+    if(!prior)return {order:1,scope:parts};for(let i=0;i<3;i++)if(parts[i]!==prior[i])return {order:parts[i]>prior[i]?1:-1,scope:parts};return {order:0,scope:prior};
+  }
   function createPresenter({clock = {}, onPhase = () => {}, onComplete = () => {}, reducedMotion = false} = {}) {
     const set = clock.setTimeout ? clock.setTimeout.bind(clock) : setTimeout;
     const clear = clock.clearTimeout ? clock.clearTimeout.bind(clock) : clearTimeout;
     let token = 0, pending = [], destroyed = false, key = null, frames = null, current = null, active = false;
-    const seen = new Set();
+    const seen = new Set(); let scope = null;
     function cancel() {
       token++; pending.forEach(clear); pending = []; active = false; frames = null; current = null; key = null;
     }
@@ -72,9 +77,10 @@
       if (frame.complete) { active = false; pending.forEach(clear); pending = []; onComplete(frame, key); }
     }
     function play(nextKey, result, players = []) {
-      if (destroyed || seen.has(nextKey)) return false;
+      if (destroyed) return false; const nextScope=scopeOrder(nextKey,scope);if(nextScope.order<0)return false;if(nextScope.order>0){seen.clear();scope=nextScope.scope;}
+      if(seen.has(nextKey)) return false;
       const nextFrames = plan(result, players);
-      cancel(); key = nextKey; seen.add(nextKey); frames = nextFrames; active = true;
+      cancel(); key = nextKey; seen.add(nextKey);if(seen.size>128)seen.delete(seen.values().next().value); frames = nextFrames; active = true;
       const ticket = token;
       if (reducedMotion) { emit(frames[frames.length - 1], ticket); return true; }
       emit(frames[0],ticket);
@@ -89,7 +95,7 @@
       emit(final, token); return true;
     }
     function destroy() { if (destroyed) return; cancel(); destroyed = true; seen.clear(); }
-    return {play, skip, cancel, destroy, get active(){return active;}, get state(){return current;}};
+    return {play, skip, cancel, destroy, get active(){return active;}, get state(){return current;}, get retainedCount(){return seen.size;}};
   }
   return {plan, createPresenter};
 });

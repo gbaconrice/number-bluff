@@ -114,6 +114,8 @@ jobs:
           path: artifacts/scene-mobile-components.png
           if-no-files-found: ignore
           retention-days: 7
+      - name: Eight-player session polish regression
+        run: node tools/session-polish.mjs
       - name: Browser regression and responsive checks
         run: node tools/e2e.mjs
       - name: Require early visual checks
