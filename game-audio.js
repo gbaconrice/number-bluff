@@ -7,6 +7,8 @@
   // Each tuple is [frequency, seconds, offset, endFrequency, waveform, gain].
   const cues = {
     tap: [[780, .055, 0, 620, 'sine', .13]],
+    turn: [[659, .10, 0, 784, 'sine', .10], [988, .13, .075, 1047, 'sine', .06]],
+    life: [[330, .18, 0, 247, 'triangle', .10], [247, .20, .07, 220, 'sine', .07]],
     deal: [[330, .10, 0, 650, 'triangle', .11], [440, .10, .065, 880, 'triangle', .10], [660, .14, .13, 990, 'sine', .10]],
     declare: [[440, .12, 0, 660, 'triangle', .16], [880, .18, .07, 880, 'sine', .08]],
     challenge: [[196, .22, 0, 98, 'triangle', .20], [392, .20, .035, 196, 'sine', .13], [784, .11, .09, 440, 'sine', .07]],

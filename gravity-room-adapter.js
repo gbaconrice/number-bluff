@@ -16,7 +16,7 @@
   function createSession(options){
     const {roomId,userId,hostUserId,sendMessage}=options;
     if(!id(roomId)||!id(userId)||!id(hostUserId)||typeof sendMessage!=='function')throw new TypeError('Verified room, user, host IDs and sendMessage are required.');
-    const isHost=userId===hostUserId, rng=options.rng||Math.random;
+    const isHost=userId===hostUserId, rng=options.rng||Math.random, emoteRng=options.emoteRng||Math.random;
     const later=options.setTimeout||setTimeout, clear=options.clearTimeout||clearTimeout;
     const onStatus=typeof options.onStatus==='function'?options.onStatus:()=>{};
     const members=new Map(), listeners=new Set(), emoteListeners=new Set(), sequences=new Map(), seen=new Map(), emoteTimes=new Map(), emoteSequences=new Map();
@@ -78,7 +78,7 @@
       const rev=state.revision,ticket=generation;scheduledRevision=rev;
       timer=later(()=>{timer=null;if(closed||hostLost||ticket!==generation||state.revision!==rev)return;
         const action=G.chooseBotAction(G.botView(state,bot.id),rng);
-        if(action){const next=G.dispatch(state,{...action,player:bot.id,revision:rev},rng);if(next!==state){state=next;publish();}}
+        if(action){const next=G.dispatch(state,{...action,player:bot.id,revision:rev},rng);if(next!==state){state=next;publish();if(emoteRng()<.12)relayEmote(bot.id,Math.floor(emoteRng()*4));}}
       },options.botDelay??650);
     }
     function publish(reason){
@@ -115,11 +115,11 @@
       publish(active?'player-left-match-abandoned':'player-left');return true;
     }
     function emitEmote(event){for(const fn of emoteListeners)fn({...event});}
+    function relayEmote(player,kind){const event={player,kind,game:state.game,round:state.round};emitEmote(event);void transmit({type:'emote-relay',sequence:++emoteSequence,event}).catch(()=>{});}
     function processEmote(sender,kind){
       const actor=seatFor(sender), time=now();
-      if(!isHost||closed||hostLost||state?.phase!=='play'||!members.has(sender)||!actor||actor.kind!=='human'||!Number.isInteger(kind)||kind<0||kind>3||time-(emoteTimes.get(sender)??-Infinity)<3000)return false;
-      emoteTimes.set(sender,time);const event={player:actor.id,kind,game:state.game,round:state.round};
-      emitEmote(event);void transmit({type:'emote-relay',sequence:++emoteSequence,event}).catch(()=>{});return true;
+      if(!isHost||closed||hostLost||!['play','reveal','finished'].includes(state?.phase)||!members.has(sender)||!actor||actor.kind!=='human'||!Number.isInteger(kind)||kind<0||kind>3||time-(emoteTimes.get(sender)??-Infinity)<3000)return false;
+      emoteTimes.set(sender,time);relayEmote(actor.id,kind);return true;
     }
     function processAction(sender,action){
       if(!isHost||closed||hostLost||!members.has(sender)||!action||typeof action!=='object')return false;
@@ -145,7 +145,7 @@
       if(typeof v.rankingEligible!=='boolean')return false;
       if(v.scoreCheckpoint!=null){const c=v.scoreCheckpoint;if(!['rematch-checkpoint','lobby-checkpoint'].includes(c.reason)||!Number.isSafeInteger(c.game)||c.game<1||c.game>v.game||!Array.isArray(c.userIds)||c.userIds.length>8||!c.userIds.every(id))return false;}
       if(v.turnClock!==undefined&&v.turnClock!==null){const c=v.turnClock;if(v.phase!=='play'||typeof c.token!=='string'||c.token.length>256||c.player!==v.turn||!v.players.some(p=>p.id===c.player&&p.kind==='human')||!Number.isFinite(c.deadline)||!Number.isFinite(c.serverNow)||c.deadline-c.serverNow>TURN_MS)return false;}
-      if(v.roundClock!==undefined&&v.roundClock!==null){const c=v.roundClock;if(v.phase!=='reveal'||typeof c.token!=='string'||c.token.length>256||!Number.isFinite(c.deadline)||!Number.isFinite(c.readyAt)||!Number.isFinite(c.serverNow)||c.deadline-c.readyAt!==10000||c.readyAt-c.serverNow>10000)return false;}
+      if(v.roundClock!==undefined&&v.roundClock!==null){const c=v.roundClock;if(v.phase!=='reveal'||typeof c.token!=='string'||c.token.length>256||!Number.isFinite(c.deadline)||!Number.isFinite(c.readyAt)||!Number.isFinite(c.serverNow)||c.deadline-c.readyAt!==(v.players.some(p=>p?.kind==='human'&&p.life>0)?10000:1000)||c.readyAt-c.serverNow>10000)return false;}
       if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;
       if(new Set(v.players.map(p=>p?.id)).size!==v.players.length)return false;
       if(v.players.some(p=>!p||typeof p!=='object'||!/^p[1-8]$/.test(p.id)||!['human','bot'].includes(p.kind)||typeof p.name!=='string'||p.name.length>24||!Number.isInteger(p.life)||p.life<0||p.life>3||!Number.isSafeInteger(p.wins)||p.wins<0))return false;
@@ -195,7 +195,7 @@
       }
       if(message.type==='emote-relay'){
         const e=message.event;
-        if(isHost||sender!==hostUserId||message.epoch!==epoch||!Number.isSafeInteger(message.sequence)||message.sequence<=acceptedEmoteSequence||!latest||latest.phase!=='play'||!e||e.game!==latest.game||e.round!==latest.round||!latest.players.some(p=>p.id===e.player&&p.kind==='human')||!Number.isInteger(e.kind)||e.kind<0||e.kind>3)return false;
+        if(isHost||sender!==hostUserId||message.epoch!==epoch||!Number.isSafeInteger(message.sequence)||message.sequence<=acceptedEmoteSequence||!latest||!['play','reveal','finished'].includes(latest.phase)||!e||e.game!==latest.game||e.round!==latest.round||!latest.players.some(p=>p.id===e.player&&['human','bot'].includes(p.kind))||!Number.isInteger(e.kind)||e.kind<0||e.kind>3)return false;
         acceptedEmoteSequence=message.sequence;emitEmote(e);return true;
       }
       if(message.type==='action'){
@@ -226,7 +226,7 @@
     const adapter={
       subscribe(fn){if(typeof fn!=='function')throw new TypeError('Listener required');listeners.add(fn);if(latest)fn(clone(latest));return()=>listeners.delete(fn);},
       subscribeEmotes(fn){if(typeof fn!=='function')throw new TypeError('Listener required');emoteListeners.add(fn);return()=>emoteListeners.delete(fn);},
-      sendEmote(kind){if(closed||hostLost||!Number.isInteger(kind)||kind<0||kind>3)return Promise.resolve(false);if(isHost)return Promise.resolve(processEmote(userId,kind));if(!epoch||latest?.phase!=='play')return Promise.resolve(false);return transmit({type:'emote',kind,sequence:++commandSequence,game:latest.game,round:latest.round});},
+      sendEmote(kind){if(closed||hostLost||!Number.isInteger(kind)||kind<0||kind>3)return Promise.resolve(false);if(isHost)return Promise.resolve(processEmote(userId,kind));if(!epoch||!['play','reveal','finished'].includes(latest?.phase))return Promise.resolve(false);return transmit({type:'emote',kind,sequence:++commandSequence,game:latest.game,round:latest.round});},
       send(action){if(closed||hostLost)return Promise.reject(new Error('Room is disconnected.'));if(isHost)return Promise.resolve(processAction(userId,action));if(!epoch)return Promise.reject(new Error('Waiting for host.'));return transmit({type:'action',sequence:++commandSequence,action});},
       receive,addMember,removeMember,
       resync(){return isHost?(publish(),Promise.resolve()):transmit({type:'resync'});},

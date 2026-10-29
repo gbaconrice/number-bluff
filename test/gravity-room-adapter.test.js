@@ -1,10 +1,10 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const {createSession,install}=require('../gravity-room-adapter');
-function setup(randomValue=.99){
+function setup(randomValue=.99,emoteRng=()=>1){
  const nodes=new Map(),queue=[],sent=[],statuses={},jobs=new Map();let jobId=0,randomCalls=0;
  const timers={setTimeout(fn){jobs.set(++jobId,fn);return jobId;},clearTimeout(n){jobs.delete(n);}};
- const make=(uid,host='host')=>{statuses[uid]=[];const session=createSession({roomId:'room-1',userId:uid,hostUserId:host,name:uid,epoch:'test-epoch',heartbeat:false,rng:()=>{randomCalls++;return randomValue;},...timers,onStatus:s=>statuses[uid].push(s),sendMessage:message=>{sent.push({sender:uid,message});queue.push({sender:uid,message});}});nodes.set(uid,session);return session;};
+ const make=(uid,host='host')=>{statuses[uid]=[];const session=createSession({roomId:'room-1',userId:uid,hostUserId:host,name:uid,epoch:'test-epoch',heartbeat:false,rng:()=>{randomCalls++;return randomValue;},emoteRng,...timers,onStatus:s=>statuses[uid].push(s),sendMessage:message=>{sent.push({sender:uid,message});queue.push({sender:uid,message});}});nodes.set(uid,session);return session;};
  const flush=()=>{let n=0;while(queue.length){assert.ok(++n<100,'No message feedback loop');const m=queue.shift();for(const [uid,node]of nodes)if(uid!==m.sender)node.receive(m.sender,m.message);}};
  const view=s=>{let v;s.subscribe(x=>{v=x;})();return v;};
  const host=make('host'),guest=make('guest');host.addMember({userId:'guest',name:'guest'});flush();
@@ -294,6 +294,8 @@ test('emotes are host-relayed, bounded, throttled and restricted to current huma
  assert.equal(t.guest.receive('intruder',JSON.stringify({...packet,sequence:99})),false);
  assert.equal(t.guest.receive('host',JSON.stringify({...packet,sequence:99,event:{...packet.event,kind:4}})),false);
  assert.equal(t.guest.receive('host',JSON.stringify(packet)),false,'relay replay rejected');
+ await act(t.host,t.view(t.host),'declare',{value:1});t.flush();await act(t.guest,t.view(t.guest),'challenge');t.flush();
+ assert.equal(t.view(t.host).phase,'reveal');assert.equal(await t.host.sendEmote(3),true);t.flush();assert.equal(guestEvents.at(-1).kind,3,'emotes remain available during result presentation');
  t.host.removeMember('guest');t.flush();assert.equal(t.host.receive('guest',JSON.stringify({protocol:'number-bluff',version:1,roomId:'room-1',epoch:'test-epoch',type:'emote',kind:0})),false);
 });
 
@@ -306,4 +308,11 @@ test('departure and replacement cause a fresh host-only shuffle on next match',a
  const h=t.view(t.host),r=t.view(replacement);assert.equal(h.hostId,'p1');assert.equal(h.game,2);
  assert.deepEqual(h.players.map(p=>[p.id,p.userId]),r.players.map(p=>[p.id,p.userId]));
  assert.equal(h.hands[h.viewerId],null);assert.equal(r.hands[r.viewerId],null);
+});
+
+test('host relays occasional BOT emotes independently of the action and hidden card',async()=>{
+ const t=setup(.99,()=>0);await act(t.host,t.view(t.host),'addBot');await act(t.host,t.view(t.host),'startGame');t.flush();const events=[];t.guest.subscribeEmotes(e=>events.push(e));
+ await act(t.host,t.view(t.host),'declare',{value:1});t.flush();await act(t.guest,t.view(t.guest),'declare',{value:2});t.flush();
+ for(const fn of [...t.jobs.values()])fn();t.flush();
+ assert.ok(events.some(e=>e.player==='p3'&&e.kind===0));
 });
