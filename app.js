@@ -304,7 +304,7 @@
       const p = held ? presentationPrevious?.find(old => old.id === player.id) || player : player;
       const block = el('div', 'battle-player' + (view.phase === 'play' && p.id === view.last ? ' last-bidder' : '') + (p.id === human ? ' self' : '') + (p.id === view.turn ? ' active' : '') + (p.eliminated ? ' eliminated' : ''));
       block.dataset.player = p.id;
-      const info = el('div', 'player-info'); const playerName = el('div', 'player-name', name(p.id)); if(p.kind === 'human' && p.currentStreak >= 3) { const mark=el('span','streak-mark', p.currentStreak >= 5 ? ' ✦✦' : ' ✦'); mark.setAttribute('aria-label', p.currentStreak + '連勝'); playerName.append(mark); } info.append(playerName, playerAvatar(p.id));
+      const info = el('div', 'player-info'); const playerName = el('div', 'player-name', name(p.id)); if(p.kind === 'human' && p.currentStreak >= 3) { const mark=el('span','streak-mark', p.currentStreak >= 5 ? ' ✦✦' : ' ✦'); mark.setAttribute('aria-label', p.currentStreak + '連勝'); playerName.append(mark); } const avatar=el('div','emote-anchor'); avatar.append(playerAvatar(p.id),el('div','emote-slot')); info.append(playerName, avatar);
       const hearts = el('div', 'hearts' + (p.life === 1 && !p.eliminated ? ' low-life' : '')); for (let i = 0; i < 3; i++) { const heart = el('span', 'life-heart', i < p.life ? '♥' : '♡'); heart.setAttribute('aria-hidden', 'true'); hearts.append(heart); } hearts.setAttribute('aria-label', name(p.id) + 'のライフ ' + p.life + ' / 3'); info.append(hearts);
       const card = view.hands[p.id], out = !Object.prototype.hasOwnProperty.call(view.hands, p.id) && p.eliminated;
       const hidden = !out && ((view.phase === 'play' && p.id === human) || (presentationFrame && !presentationFrame.revealedIds.includes(card?.id)));
@@ -313,7 +313,7 @@
       if (!hidden && !out && card && view.phase !== 'play' && (!presentationFrame || presentationFrame.complete)) { node.dataset.detailCard = card.id; node.setAttribute('role','button'); node.tabIndex=0; }
       node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : hidden ? name(p.id) + 'の非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
       if (view.phase !== 'play' && card) { node.classList.add('presentation-card'); node.dataset.cardId = card.id; node.dataset.revealed = hidden ? 'back' : 'true'; }
-      block.append(info, el('div','emote-slot'), node);
+      block.append(info, node);
       if (p.wins > 0 || (p.kind === 'human' && p.currentStreak > 0)) { const badge=el('span','wins-badge'); if(p.wins > 0) badge.append(el('span','', '通算' + p.wins + '勝')); if(p.kind === 'human' && p.currentStreak > 0) badge.append(el('span','', p.currentStreak + '連勝')); info.append(badge); }
       grid.append(block);
     }
@@ -366,13 +366,12 @@
     const loser = view.players.find(p => p.id === r.loser);
     $('resultAvatar').replaceChildren(playerAvatar(r.winner || r.loser));
     $('resultText').textContent = (r.bid > r.sum ? name(r.bidder) : name(r.challenger)) + 'の負け（' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum + '）' + (r.winner ? '　' + name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p=>p.id===r.winner).wins + '勝' : '');
-    $('next').textContent = canManageLobby() ? (r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›') : (r.winner ? '次の対戦を待っています' : '次のラウンドを待っています');
+    $('next').textContent = canManageLobby() ? (r.winner ? 'もう一度遊ぶ' : '次のラウンドへ　›') : (r.winner ? '次の対戦を待っています' : '次のラウンドを待っています');
     $('next').disabled = !canManageLobby(); paintTurnDisplay();
   }
   function renderBattle(previous = null) {
     const active = view.phase === 'play', yourTurn = active && view.turn === human && !connectionBlocked;
     (active ? $('gamePanel') : $('result')).prepend(emoteBar); syncEmoteButtons();
-    (active ? $('keypad') : $('result')).append($('deckIndicator'));
     document.querySelector('.nb-background')?.setAttribute('data-round-tone',String(view.round%3));
     gameplayFeedback.begin(roomEpoch + ':' + view.game + ':' + view.round);
     let startPresentation = false;
@@ -391,13 +390,10 @@
     }
     $('roundLabel').textContent = 'ラウンド ' + view.round; $('survivorCount').textContent = '生存者 ' + view.players.filter(p => !p.eliminated).length + '/' + view.players.length;
     document.querySelector('.turn-countdown')?.remove();
-    if (active && view.turnClock) { const badge = el('span', 'turn-countdown'); badge.dataset.player = view.turn; document.querySelector('.input-console').prepend(badge); paintTurnDisplay(); }
+    if (active && view.turnClock) { const badge = el('span', 'turn-countdown'); badge.dataset.player = view.turn; $('battleTitle').append(badge); paintTurnDisplay(); }
     document.querySelector('.bid-panel').classList.toggle('has-bid', active && view.bid !== null);
     $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : name(view.turn) + ' の番'; $('bidActor').replaceChildren(playerAvatar(view.last || view.turn));
     $('deckCount').textContent = '山札 ' + view.deckCount + '枚'; $('deckIndicator').dataset.layers = view.deckCount === 0 ? '0' : view.deckCount < 10 ? '1' : view.deckCount < 24 ? '2' : '3';
-    const history = $('bidHistory'); history.replaceChildren();
-    for (const bid of view.history.filter(item => item.type === 'declare').slice(-4)) { const item=el('span','bid-history-item'); item.setAttribute('aria-label',name(bid.player)+' の宣言 '+bid.value); item.append(el('span','bid-history-name',name(bid.player)),el('strong','bid-history-value',String(bid.value))); history.append(item); }
-    history.classList.toggle('hide', !active || !history.childElementCount);
     $('battleScreen').classList.toggle('duel', active && view.players.filter(p=>!p.eliminated).length === 2); $('battleScreen').classList.toggle('spectating', active && !!view.players.find(p=>p.id===human)?.eliminated);
     $('battleScreen').classList.toggle('is-result', !active); $('battlePhase').textContent = view.phase === 'finished' ? '対戦結果' : 'ラウンド結果'; $('battlePhase').classList.toggle('hide', active); $('battleTitle').querySelector('.battle-meta').classList.toggle('hide', !active);
     $('gamePanel').classList.toggle('hide', !active); $('result').classList.toggle('hide', active); $('result').classList.toggle('open', !active);
@@ -578,6 +574,7 @@
   function closeOverlay() { const back = overlayReturn || { screen: 'homeScreen', trigger: $('startGame') }; show(back.screen); back.trigger?.focus(); overlayReturn = null; }
   $('homeRules').onclick = () => { overlay('guidePanel', $('homeRules')); guide('rules'); };
   $('rulesBtn').onclick = () => { overlay('guidePanel', $('rulesBtn')); guide('rules'); };
+  $('lobbyRules').onclick = () => { overlay('guidePanel', $('lobbyRules')); guide('rules'); };
   $('closeGuide').onclick = closeOverlay;
   document.querySelectorAll('.guide-tabs button[data-tab]').forEach(button => { button.onclick = () => guide(button.dataset.tab); });
   function guide(tab) {
@@ -699,7 +696,7 @@
         human = publicState.viewerId;
         $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = '';
         receive(publicState);
-        if (first || screen === 'lobbyScreen' || (publicState.phase === 'lobby' && screen === 'battleScreen')) { show(publicState.phase === 'lobby' ? 'lobbyScreen' : 'battleScreen'); first = false; }
+        if (first || screen === 'lobbyScreen' || (publicState.phase === 'lobby' && screen === 'battleScreen') || (screen === 'guidePanel' && overlayReturn?.screen === 'lobbyScreen' && publicState.phase !== 'lobby')) { overlayReturn = null; show(publicState.phase === 'lobby' ? 'lobbyScreen' : 'battleScreen'); first = false; }
       });
       unsubscribeEmotes = adapter.subscribeEmotes?.(event => { if (transport === adapter) showEmote(event); });
       const connection = adapter.getStatus?.(); if (connection?.kind) window.NumberBluffClient.reportConnectionStatus(connection);
