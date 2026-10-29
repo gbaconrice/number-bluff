@@ -395,7 +395,7 @@
     $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : name(view.turn) + ' の番'; $('bidActor').replaceChildren(playerAvatar(view.last || view.turn));
     $('deckCount').textContent = '山札 ' + view.deckCount + '枚'; $('deckIndicator').dataset.layers = view.deckCount === 0 ? '0' : view.deckCount < 10 ? '1' : view.deckCount < 24 ? '2' : '3';
     const history = $('bidHistory'); history.replaceChildren();
-    for (const bid of view.history.filter(item => item.type === 'declare').slice(-4)) history.append(el('span', 'bid-history-item', name(bid.player) + ' ' + bid.value));
+    for (const bid of view.history.filter(item => item.type === 'declare').slice(-4)) { const item=el('span','bid-history-item'); item.setAttribute('aria-label',name(bid.player)+' の宣言 '+bid.value); item.append(el('span','bid-history-name',name(bid.player)),el('strong','bid-history-value',String(bid.value))); history.append(item); }
     history.classList.toggle('hide', !active || !history.childElementCount);
     $('battleScreen').classList.toggle('duel', active && view.players.filter(p=>!p.eliminated).length === 2); $('battleScreen').classList.toggle('spectating', active && !!view.players.find(p=>p.id===human)?.eliminated);
     $('battleScreen').classList.toggle('is-result', !active); $('battlePhase').textContent = view.phase === 'finished' ? '対戦結果' : 'ラウンド結果'; $('battlePhase').classList.toggle('hide', active); $('battleTitle').querySelector('.battle-meta').classList.toggle('hide', !active);

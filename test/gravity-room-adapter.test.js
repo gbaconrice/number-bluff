@@ -1,10 +1,10 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const {createSession,install}=require('../gravity-room-adapter');
-function setup(randomValue=.99,emoteRng=()=>1){
+function setup(randomValue=.99,emoteRng=()=>1,now=Date.now){
  const nodes=new Map(),queue=[],sent=[],statuses={},jobs=new Map();let jobId=0,randomCalls=0;
  const timers={setTimeout(fn){jobs.set(++jobId,fn);return jobId;},clearTimeout(n){jobs.delete(n);}};
- const make=(uid,host='host')=>{statuses[uid]=[];const session=createSession({roomId:'room-1',userId:uid,hostUserId:host,name:uid,epoch:'test-epoch',heartbeat:false,rng:()=>{randomCalls++;return randomValue;},emoteRng,...timers,onStatus:s=>statuses[uid].push(s),sendMessage:message=>{sent.push({sender:uid,message});queue.push({sender:uid,message});}});nodes.set(uid,session);return session;};
+ const make=(uid,host='host')=>{statuses[uid]=[];const session=createSession({roomId:'room-1',userId:uid,hostUserId:host,name:uid,epoch:'test-epoch',heartbeat:false,rng:()=>{randomCalls++;return randomValue;},emoteRng,now,...timers,onStatus:s=>statuses[uid].push(s),sendMessage:message=>{sent.push({sender:uid,message});queue.push({sender:uid,message});}});nodes.set(uid,session);return session;};
  const flush=()=>{let n=0;while(queue.length){assert.ok(++n<100,'No message feedback loop');const m=queue.shift();for(const [uid,node]of nodes)if(uid!==m.sender)node.receive(m.sender,m.message);}};
  const view=s=>{let v;s.subscribe(x=>{v=x;})();return v;};
  const host=make('host'),guest=make('guest');host.addMember({userId:'guest',name:'guest'});flush();
@@ -323,7 +323,15 @@ test('host alone advances bot-only result once, without auto-rematching the fini
  const due=()=>{let n=0;while(true){const item=[...jobs].find(([,j])=>j.at<=now);if(!item)break;assert.ok(++n<100);jobs.delete(item[0]);item[1].fn();}};
  await action('addBot');await action('addBot');await action('startGame');
  for(let i=0;i<3;i++){assert.equal(latest.turn,'p1');await action('declare',{value:999,turnToken:latest.turnClock.token});due();assert.equal(latest.phase,'reveal');if(i<2)await action('nextRound');}
- assert.equal(latest.players.find(p=>p.id==='p1').life,0);assert.equal(latest.roundClock.deadline-latest.roundClock.readyAt,1000);
+ assert.equal(latest.players.find(p=>p.id==='p1').life,0);assert.ok(latest.players.filter(p=>p.kind==='bot').every(p=>p.life===3),'both remaining BOTs can still have full life');assert.equal(latest.roundClock.deadline-latest.roundClock.readyAt,1000);
  const stale=[...jobs.values()].find(j=>j.at===latest.roundClock.deadline).fn,oldRound=latest.round;now=latest.roundClock.deadline;due();assert.ok(latest.round>oldRound||latest.phase==='finished');const after=latest.revision;stale();assert.equal(latest.revision,after,'stale deadline cannot advance twice');
  for(let n=0;n<100&&latest.phase!=='finished';n++){now+=20000;due();}assert.equal(latest.phase,'finished');const completed=latest;now+=100000;due();assert.equal(latest.phase,'finished');assert.equal(latest.game,completed.game);assert.equal(latest.players.reduce((sum,p)=>sum+p.wins,0),1);host.close();
+});
+
+test('rejoining identity gets fresh emote sequence while old membership packets remain fenced',async()=>{
+ let clock=1000;const t=setup(.99,()=>1,()=>clock);await act(t.host,t.view(t.host),'startGame');t.flush();const v=t.view(t.guest),generation=v.emoteGenerations[v.viewerId],events=[];t.host.subscribeEmotes(e=>events.push(e));
+ const old={protocol:'number-bluff',version:1,roomId:'room-1',epoch:'test-epoch',type:'emote',kind:2,sequence:20,membership:generation,game:v.game,round:v.round};
+ assert.equal(t.host.receive('guest',JSON.stringify(old)),true);const oldRelay=JSON.parse(t.sent.findLast(x=>x.sender==='host'&&JSON.parse(x.message).type==='emote-relay').message);clock+=5000;t.host.addMember({userId:'guest',name:'guest again'});const rejoined=t.make('guest');t.flush();const fresh=t.view(rejoined);assert.notEqual(fresh.emoteGenerations[fresh.viewerId],generation);assert.equal(rejoined.receive('host',JSON.stringify({...oldRelay,sequence:999})),false,'old relay must not revive a prior membership');
+ assert.equal(t.host.receive('guest',JSON.stringify({...old,sequence:21})),false,'old connection remains fenced even with a higher sequence');await rejoined.sendEmote(1);t.flush();const sent=JSON.parse(t.sent.findLast(x=>x.sender==='guest'&&JSON.parse(x.message).type==='emote').message);assert.equal(sent.sequence,1);assert.equal(events.length,2);assert.equal(events.at(-1).kind,1);
+ clock+=5000;assert.equal(t.host.receive('guest',JSON.stringify({...old,sequence:22})),false);assert.equal(events.length,2);
 });

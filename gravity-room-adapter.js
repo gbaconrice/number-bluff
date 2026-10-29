@@ -19,14 +19,14 @@
     const isHost=userId===hostUserId, rng=options.rng||Math.random, emoteRng=options.emoteRng||Math.random;
     const later=options.setTimeout||setTimeout, clear=options.clearTimeout||clearTimeout;
     const onStatus=typeof options.onStatus==='function'?options.onStatus:()=>{};
-    const members=new Map(), listeners=new Set(), emoteListeners=new Set(), sequences=new Map(), seen=new Map(), emoteTimes=new Map(), emoteSequences=new Map();
+    const members=new Map(), listeners=new Set(), emoteListeners=new Set(), sequences=new Map(), seen=new Map(), emoteTimes=new Map(), emoteSequences=new Map(), emoteGenerations=new Map();
     const now=options.now||Date.now;
     const heartbeatMs=options.heartbeatMs??5000, timeoutMs=options.timeoutMs??30000;
     if(!Number.isFinite(heartbeatMs)||heartbeatMs<100||!Number.isFinite(timeoutMs)||timeoutMs<heartbeatMs*3)throw new RangeError('Use a bounded heartbeat and a timeout of at least three intervals.');
     let heartbeatTimer=null,lastHostSeen=now();
     let state=null, latest=null, closed=false, hostLost=false, timer=null, generation=0;
     let epoch=isHost?(options.epoch||String(Date.now())+'-'+String(Math.random()).slice(2)):null;
-    let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, emoteSequence=0, acceptedEmoteSequence=0, scheduledRevision=null;
+    let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, emoteSequence=0, acceptedEmoteSequence=0, scheduledRevision=null, membershipSerial=0;
     let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0, scoreCheckpoint=null, sendSerial=0, lastSendSuccess=0, lastSendFailure=0, sendErrorPending=false;
     const roundAdvance=R.create({now,set:later,clear,expire(){if(!isHost||closed||hostLost||state?.phase!=='reveal')return;state=G.nextRound(state,rng);publish('round-timeout');}});
     const status=(kind,detail={})=>{lastStatus={kind,...detail};onStatus({...lastStatus});};
@@ -85,7 +85,7 @@
       if(state.phase!=='reveal')roundAdvance.cancel();
       if(expireTurn()||roundAdvance.check())return;syncTurn();roundAdvance.sync(state);
       G.assertInvariant(state);
-      const wire={...G.publicView(state,'__broadcast__'),hostId:seatFor(hostUserId).id,roomId,scoreCheckpoint,roundClock:roundAdvance.get()?{...roundAdvance.get(),serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);
+      const wire={...G.publicView(state,'__broadcast__'),hostId:seatFor(hostUserId).id,roomId,scoreCheckpoint,roundClock:roundAdvance.get()?{...roundAdvance.get(),serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);wire.emoteGenerations=Object.fromEntries(state.players.filter(p=>p.kind==='human').map(p=>[p.id,emoteGenerations.get(p.userId)]));
       const own=localize(wire);if(own)emit(own);
       void transmit({type:'snapshot',sequence:++hostSequence,view:wire,reason:reason||null}).catch(()=>{});
       if(reason)status(reason);scheduleBot();
@@ -94,6 +94,7 @@
       if(closed||!raw||!id(raw.userId))return false;
       const p=profile(raw);members.set(p.userId,p);seen.set(p.userId,now());
       if(!isHost||p.userId===hostUserId)return true;
+      emoteGenerations.set(p.userId,++membershipSerial);emoteSequences.delete(p.userId);
       const existing=seatFor(p.userId);
       if(existing){sequences.delete(p.userId);state={...state,revision:state.revision+1,players:state.players.map(x=>x.id===existing.id?{...x,name:p.name,avatarUrl:p.avatarUrl}:x)};publish();return true;}
       if(state.phase!=='lobby'){status('join-waiting',{userId:p.userId});return false;}
@@ -105,7 +106,7 @@
     function removeMember(uid){
       if(closed)return false;
       if(uid===hostUserId){hostLost=true;cancel();cancelTurn();roundAdvance.cancel();turnClock=null;stopHeartbeat();status('host-lost');return true;}
-      if(!members.has(uid))return false;members.delete(uid);seen.delete(uid);sequences.delete(uid);emoteTimes.delete(uid);emoteSequences.delete(uid);
+      if(!members.has(uid))return false;members.delete(uid);seen.delete(uid);sequences.delete(uid);emoteTimes.delete(uid);emoteSequences.delete(uid);emoteGenerations.delete(uid);
       if(!isHost)return true;
       const seat=seatFor(uid);if(!seat)return true;
       const active=state.phase!=='lobby';
@@ -115,7 +116,7 @@
       publish(active?'player-left-match-abandoned':'player-left');return true;
     }
     function emitEmote(event){for(const fn of emoteListeners)fn({...event});}
-    function relayEmote(player,kind){const event={player,kind,game:state.game,round:state.round};emitEmote(event);void transmit({type:'emote-relay',sequence:++emoteSequence,event}).catch(()=>{});}
+    function relayEmote(player,kind){const actor=state.players.find(p=>p.id===player);const event={player,kind,game:state.game,round:state.round,membership:actor?.kind==='human'?emoteGenerations.get(actor.userId):null};emitEmote(event);void transmit({type:'emote-relay',sequence:++emoteSequence,event}).catch(()=>{});}
     function processEmote(sender,kind){
       const actor=seatFor(sender), time=now();
       if(!isHost||closed||hostLost||!['play','reveal','finished'].includes(state?.phase)||!members.has(sender)||!actor||actor.kind!=='human'||!Number.isInteger(kind)||kind<0||kind>3||time-(emoteTimes.get(sender)??-Infinity)<3000)return false;
@@ -143,6 +144,7 @@
     function validSnapshot(v){
       if(!v||!['lobby','play','reveal','finished'].includes(v.phase)||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.players)||v.players.length<1||v.players.length>8)return false;
       if(typeof v.rankingEligible!=='boolean')return false;
+      if(!v.emoteGenerations||typeof v.emoteGenerations!=='object'||Array.isArray(v.emoteGenerations)||Object.keys(v.emoteGenerations).length>8||!v.players.filter(p=>p?.kind==='human').every(p=>Number.isSafeInteger(v.emoteGenerations[p.id])&&v.emoteGenerations[p.id]>0)||!Object.keys(v.emoteGenerations).every(key=>v.players.some(p=>p?.id===key&&p.kind==='human')))return false;
       if(v.scoreCheckpoint!=null){const c=v.scoreCheckpoint;if(!['rematch-checkpoint','lobby-checkpoint'].includes(c.reason)||!Number.isSafeInteger(c.game)||c.game<1||c.game>v.game||!Array.isArray(c.userIds)||c.userIds.length>8||!c.userIds.every(id))return false;}
       if(v.turnClock!==undefined&&v.turnClock!==null){const c=v.turnClock;if(v.phase!=='play'||typeof c.token!=='string'||c.token.length>256||c.player!==v.turn||!v.players.some(p=>p.id===c.player&&p.kind==='human')||!Number.isFinite(c.deadline)||!Number.isFinite(c.serverNow)||c.deadline-c.serverNow>TURN_MS)return false;}
       if(v.roundClock!==undefined&&v.roundClock!==null){const c=v.roundClock;if(v.phase!=='reveal'||typeof c.token!=='string'||c.token.length>256||!Number.isFinite(c.deadline)||!Number.isFinite(c.readyAt)||!Number.isFinite(c.serverNow)||c.deadline-c.readyAt!==(v.players.some(p=>p?.kind==='human'&&p.life>0)?10000:1000)||c.readyAt-c.serverNow>10000)return false;}
@@ -190,12 +192,12 @@
         lastHostSeen=now();epoch=message.epoch;acceptedHostSequence=message.sequence;emit(own);if(message.reason)status(message.reason);return true;
       }
       if(message.type==='emote'){
-        if(!isHost||message.epoch!==epoch||!members.has(sender)||message.game!==state?.game||message.round!==state?.round||!Number.isSafeInteger(message.sequence)||message.sequence<1||message.sequence<=(emoteSequences.get(sender)||0))return false;
+        if(!isHost||message.epoch!==epoch||!members.has(sender)||message.membership!==emoteGenerations.get(sender)||message.game!==state?.game||message.round!==state?.round||!Number.isSafeInteger(message.sequence)||message.sequence<1||message.sequence<=(emoteSequences.get(sender)||0))return false;
         emoteSequences.set(sender,message.sequence);seen.set(sender,now());return processEmote(sender,message.kind);
       }
       if(message.type==='emote-relay'){
         const e=message.event;
-        if(isHost||sender!==hostUserId||message.epoch!==epoch||!Number.isSafeInteger(message.sequence)||message.sequence<=acceptedEmoteSequence||!latest||!['play','reveal','finished'].includes(latest.phase)||!e||e.game!==latest.game||e.round!==latest.round||!latest.players.some(p=>p.id===e.player&&['human','bot'].includes(p.kind))||!Number.isInteger(e.kind)||e.kind<0||e.kind>3)return false;
+        if(isHost||sender!==hostUserId||message.epoch!==epoch||!Number.isSafeInteger(message.sequence)||message.sequence<=acceptedEmoteSequence||!latest||!['play','reveal','finished'].includes(latest.phase)||!e||e.game!==latest.game||e.round!==latest.round||!latest.players.some(p=>p.id===e.player&&((p.kind==='human'&&e.membership===latest.emoteGenerations?.[p.id])||(p.kind==='bot'&&e.membership===null)))||!Number.isInteger(e.kind)||e.kind<0||e.kind>3)return false;
         acceptedEmoteSequence=message.sequence;emitEmote(e);return true;
       }
       if(message.type==='action'){
@@ -220,17 +222,17 @@
       },heartbeatMs);
       if(typeof heartbeatTimer?.unref==='function')heartbeatTimer.unref();
     }
-    const self=profile({userId,name:options.name,avatarUrl:options.avatarUrl});members.set(userId,self);
+    const self=profile({userId,name:options.name,avatarUrl:options.avatarUrl});members.set(userId,self);if(isHost)emoteGenerations.set(userId,++membershipSerial);
     if(isHost){state=G.createLobby({name:self.name,botCount:0});state={...state,players:state.players.map(p=>({...p,...self}))};}
     for(const member of options.members||[])if(member&&id(member.userId)){members.set(member.userId,profile(member));seen.set(member.userId,now());}
     const adapter={
       subscribe(fn){if(typeof fn!=='function')throw new TypeError('Listener required');listeners.add(fn);if(latest)fn(clone(latest));return()=>listeners.delete(fn);},
       subscribeEmotes(fn){if(typeof fn!=='function')throw new TypeError('Listener required');emoteListeners.add(fn);return()=>emoteListeners.delete(fn);},
-      sendEmote(kind){if(closed||hostLost||!Number.isInteger(kind)||kind<0||kind>3)return Promise.resolve(false);if(isHost)return Promise.resolve(processEmote(userId,kind));if(!epoch||!['play','reveal','finished'].includes(latest?.phase))return Promise.resolve(false);return transmit({type:'emote',kind,sequence:++commandSequence,game:latest.game,round:latest.round});},
+      sendEmote(kind){if(closed||hostLost||!Number.isInteger(kind)||kind<0||kind>3)return Promise.resolve(false);if(isHost)return Promise.resolve(processEmote(userId,kind));if(!epoch||!['play','reveal','finished'].includes(latest?.phase))return Promise.resolve(false);return transmit({type:'emote',kind,sequence:++commandSequence,membership:latest.emoteGenerations?.[latest.viewerId],game:latest.game,round:latest.round});},
       send(action){if(closed||hostLost)return Promise.reject(new Error('Room is disconnected.'));if(isHost)return Promise.resolve(processAction(userId,action));if(!epoch)return Promise.reject(new Error('Waiting for host.'));return transmit({type:'action',sequence:++commandSequence,action});},
       receive,addMember,removeMember,
       resync(){return isHost?(publish(),Promise.resolve()):transmit({type:'resync'});},
-      close(){if(closed)return;void transmit({type:'bye',revision:latest?.revision}).catch(()=>{});closed=true;cancel();cancelTurn();roundAdvance.cancel();turnClock=null;stopHeartbeat();listeners.clear();emoteListeners.clear();emoteTimes.clear();emoteSequences.clear();status('closed');},
+      close(){if(closed)return;void transmit({type:'bye',revision:latest?.revision}).catch(()=>{});closed=true;cancel();cancelTurn();roundAdvance.cancel();turnClock=null;stopHeartbeat();listeners.clear();emoteListeners.clear();emoteTimes.clear();emoteSequences.clear();emoteGenerations.clear();status('closed');},
       getStatus(){return {...(lastStatus||{}),roomId,isHost,closed,hostLost,ready:!!latest};}
     };
     if(isHost){for(const member of members.values())if(member.userId!==userId)addMember(member);publish();}

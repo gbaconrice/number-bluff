@@ -486,7 +486,8 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 
 #returnRoomLobby { margin-top: 10px; }
 
-.bid-history{display:flex;justify-content:flex-start;gap:.35rem;flex-wrap:nowrap;overflow-x:auto;max-width:100%;margin:.25rem auto;font-size:.72rem}.bid-history-item{flex:0 0 auto;max-width:12rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:.12rem .45rem;border-radius:1rem;background:rgba(255,255,255,.15)}
+.bid-history{display:flex;justify-content:flex-start;gap:.35rem;flex-wrap:nowrap;overflow-x:auto;max-width:100%;margin:.25rem auto;font-size:.72rem}.bid-history-item{display:flex;gap:.25rem;flex:0 0 auto;max-width:12rem;white-space:nowrap;padding:.12rem .45rem;border-radius:1rem;background:rgba(255,255,255,.15)}
+.bid-history-name{min-width:0;overflow:hidden;text-overflow:ellipsis}.bid-history-value{flex:0 0 auto}
 @keyframes doubt-actor-pop{0%{filter:brightness(1)}35%{filter:brightness(1.55);transform:scale(1.06)}100%{filter:brightness(1);transform:scale(1)}}
 .doubt-actor{animation:doubt-actor-pop .6s ease-out}
 @media (prefers-reduced-motion:reduce){.doubt-actor{animation:none}}
