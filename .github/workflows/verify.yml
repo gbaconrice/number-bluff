@@ -114,6 +114,8 @@ jobs:
           path: artifacts/scene-mobile-components.png
           if-no-files-found: ignore
           retention-days: 7
+      - name: Battle header consistency
+        run: node tools/header-regression.mjs
       - name: Lobby guide synchronization
         run: node tools/lobby-guide.mjs
       - name: Eight-player session polish regression

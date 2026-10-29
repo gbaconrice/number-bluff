@@ -73,7 +73,7 @@
   let transport = null, unsubscribe = null, unsubscribeEmotes = null, turnDisplayTimer = null, pendingAction = null;
   function clearPendingAction(){if(pendingAction){clearTimeout(pendingAction.timer);pendingAction=null;}}
   const emoteImages = ['assets/emote-bunny-surprised.webp','assets/emote-cat-confident.webp','assets/emote-cloud-anxious.webp','assets/emote-star-skeptical.webp'];
-  const emoteLabels = ['驚き','得意','不安','疑い'];
+  const emoteLabels = ['驚き','喜び','不安','疑い'];
   const emotes = new Map(); let emoteCooldown = 0, emoteTimer = null;
   function clearEmotes(){emotes.clear();clearTimeout(emoteTimer);emoteTimer=null;emoteCooldown=0;syncEmoteButtons();}
   function showEmote(event){
@@ -566,8 +566,8 @@
     $('number').textContent = next; suggested = false; clearError();
   }; });
   $('backspace').onclick = () => { if (!$('declare').disabled) { $('number').textContent = $('number').textContent.slice(0, -1); suggested = false; clearError(); } };
-  function confirmExit() { gameplayFeedback.stop(); specialEffects.stop(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus(); specialSVG.refresh(); }
-  function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus(); syncCardMotion(); }
+  function confirmExit() { gameplayFeedback.stop(); specialEffects.stop(); cardReveal.settleAll(); sceneMotion.leave(); $('restartTitle').textContent = '対戦を終了してホームへ？'; $('restartText').textContent = '現在の対戦は終了します。続ける場合はキャンセルしてください。'; $('confirmRestart').textContent = '終了して戻る'; $('restartConfirm').classList.remove('hide'); $('homeBtn').setAttribute('aria-expanded', 'true'); $('cancelRestart').focus({preventScroll:true}); specialSVG.refresh(); }
+  function closeConfirm() { $('restartConfirm').classList.add('hide'); $('homeBtn').setAttribute('aria-expanded', 'false'); $('homeBtn').focus({preventScroll:true}); syncCardMotion(); }
   $('homeBtn').onclick = confirmExit; $('cancelRestart').onclick = closeConfirm;
   $('confirmRestart').onclick = exitRoom;
   function overlay(id, trigger) { if (screen === 'homeScreen' || screen === 'joinPanel') cancelRoomRequest(); overlayReturn = { screen, trigger }; show(id); }
