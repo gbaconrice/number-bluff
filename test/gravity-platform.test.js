@@ -63,3 +63,5 @@ test('SDK setup error leaves expected-online mode, visible status, and can retry
   await assert.rejects(P.start({...f,sdk:{}}),/profile/); assert.equal(f.client.expected,true); assert.equal(f.statuses.at(-1).kind,'profile-error');
   f.adapter.install=async()=>({resync(){},close(){},getSession(){}}); assert.ok(await P.start({...f,sdk:{}}));
 });
+
+test('explicit post-match checkpoints send each own best once per match and action',async()=>{const f=fixture();await P.start({...f,sdk:{}});for(const reason of ['rematch-checkpoint','lobby-checkpoint']){f.finish(exit({reason,game:2}));f.finish(exit({reason,game:2}));}assert.equal(f.messages.length,2);assert.ok(f.messages.every(m=>m.message.score===5));f.finish(exit({reason:'rematch-checkpoint',game:3}));assert.equal(f.messages.length,3);f.finish(exit({reason:'lobby-checkpoint'}));assert.equal(f.messages.length,3);});

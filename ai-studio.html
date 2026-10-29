@@ -2047,11 +2047,11 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   }
   function clearError() { $('inputError').textContent = ''; $('number').removeAttribute('aria-invalid'); }
   function fail(message) { $('inputError').textContent = message; $('number').setAttribute('aria-invalid', 'true'); }
-  function captureSessionFinish() {
+  function captureSessionFinish(reason = 'explicit-exit', game = view?.game) {
     if (!transport || !view || !Number.isSafeInteger(view.game) || view.game < 1) return null;
     const player = view.players.find(p => p.id === human && p.kind === 'human');
     if (!player || !Number.isSafeInteger(player.bestStreak) || player.bestStreak < 0) return null;
-    return { reason: 'explicit-exit', sessionId: roomEpoch, roomId: view.roomId,
+    return { reason, game, sessionId: roomEpoch, roomId: view.roomId,
       viewerId: human, player: { id: player.id, kind: player.kind, bestStreak: player.bestStreak } };
   }
   function publishSessionFinish(result) {
@@ -2268,6 +2268,8 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     const previous = view; view = next; clearError();
     if (connectionMessage === 'ホストからの情報を待っています…') { connectionMessage = ''; paintConnectionStatus(); }
     if (view.phase === 'lobby') { cancelPresentation(); presentationKey = null; renderLobby(); } else renderBattle(previous);
+    const checkpoint = view.scoreCheckpoint, me = view.players.find(p => p.id === human);
+    if (checkpoint && checkpoint.userIds?.includes(me?.userId)) publishSessionFinish(captureSessionFinish(checkpoint.reason, checkpoint.game));
   }
   function apply(next) {
     if (next === state) return false;
@@ -2538,7 +2540,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     let state=null, latest=null, closed=false, hostLost=false, timer=null, generation=0;
     let epoch=isHost?(options.epoch||String(Date.now())+'-'+String(Math.random()).slice(2)):null;
     let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, scheduledRevision=null;
-    let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0;
+    let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0, scoreCheckpoint=null;
     const roundAdvance=R.create({now,set:later,clear,expire(){if(!isHost||closed||hostLost||state?.phase!=='reveal')return;state=G.nextRound(state,rng);publish('round-timeout');}});
     const status=(kind,detail={})=>{lastStatus={kind,...detail};onStatus({...lastStatus});};
     function cancel(){scheduledRevision=null;generation++;if(timer!==null)clear(timer);timer=null;}
@@ -2595,7 +2597,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       if(state.phase!=='reveal')roundAdvance.cancel();
       if(expireTurn()||roundAdvance.check())return;syncTurn();roundAdvance.sync(state);
       G.assertInvariant(state);
-      const wire={...G.publicView(state,'__broadcast__'),hostId:state.players[0].id,roomId,roundClock:roundAdvance.get()?{...roundAdvance.get(),serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);
+      const wire={...G.publicView(state,'__broadcast__'),hostId:state.players[0].id,roomId,scoreCheckpoint,roundClock:roundAdvance.get()?{...roundAdvance.get(),serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);
       const own=localize(wire);if(own)emit(own);
       void transmit({type:'snapshot',sequence:++hostSequence,view:wire,reason:reason||null}).catch(()=>{});
       if(reason)status(reason);scheduleBot();
@@ -2641,11 +2643,12 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
         case 'setDifficulty': if(manages)next=G.setDifficulty(state,action.target,action.difficulty);break;
         case 'setBotAvatar': if(manages&&state.phase==='lobby'&&Number.isInteger(action.avatar)&&action.avatar>=0&&action.avatar<4&&state.players.some(p=>p.id===action.target&&p.kind==='bot'))next={...state,revision:state.revision+1,players:state.players.map(p=>p.id===action.target?{...p,botAvatar:action.avatar}:p)};break;
       }
-      if(next===state)return false;state=next;publish();return true;
+      if(next===state)return false;if(state.phase==='finished'&&['rematch','returnToLobby'].includes(action.type))scoreCheckpoint={reason:action.type==='rematch'?'rematch-checkpoint':'lobby-checkpoint',game:state.game,userIds:state.players.filter(p=>p.kind==='human').map(p=>p.userId)};state=next;publish();return true;
     }
     function validSnapshot(v){
       if(!v||!['lobby','play','reveal','finished'].includes(v.phase)||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.players)||v.players.length<1||v.players.length>8)return false;
       if(typeof v.rankingEligible!=='boolean')return false;
+      if(v.scoreCheckpoint!=null){const c=v.scoreCheckpoint;if(!['rematch-checkpoint','lobby-checkpoint'].includes(c.reason)||!Number.isSafeInteger(c.game)||c.game<1||c.game>v.game||!Array.isArray(c.userIds)||c.userIds.length>8||!c.userIds.every(id))return false;}
       if(v.turnClock!==undefined&&v.turnClock!==null){const c=v.turnClock;if(v.phase!=='play'||typeof c.token!=='string'||c.token.length>256||c.player!==v.turn||!v.players.some(p=>p.id===c.player&&p.kind==='human')||!Number.isFinite(c.deadline)||!Number.isFinite(c.serverNow)||c.deadline-c.serverNow>TURN_MS)return false;}
       if(v.roundClock!==undefined&&v.roundClock!==null){const c=v.roundClock;if(v.phase!=='reveal'||typeof c.token!=='string'||c.token.length>256||!Number.isFinite(c.deadline)||!Number.isFinite(c.readyAt)||!Number.isFinite(c.serverNow)||c.deadline-c.readyAt!==10000||c.readyAt-c.serverNow>10000)return false;}
       if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;
@@ -2884,17 +2887,19 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       bridge = await adapter.install({ sdk, client, onStatus: event => client.reportConnectionStatus(event) });
       client.setRoomRequestCanceler?.(() => bridge.close());
       const unsubscribe = client.onSessionFinish(result => {
-        // gameOver opens a native results popup. Never fire it for round/match updates,
-        // rematches, visibility changes, disconnect events or automatic abandonment.
-        if (closed || !result || result.reason !== 'explicit-exit' ||
+        // User-selected checkpoints: explicit exit, host rematch or return to lobby.
+        // Native UI interruption/acknowledgment behavior is not documented; verify on device.
+        if (closed || !result || !['explicit-exit','rematch-checkpoint','lobby-checkpoint'].includes(result.reason) ||
             typeof result.roomId !== 'string' || !result.roomId ||
             !Number.isSafeInteger(result.sessionId) || result.sessionId < 0 ||
             typeof result.viewerId !== 'string' || result.player?.id !== result.viewerId ||
             result.player?.kind !== 'human' || !Number.isSafeInteger(result.player.bestStreak) || result.player.bestStreak < 0) return;
-        const key = JSON.stringify([result.roomId, result.sessionId]);
+        if (result.reason !== 'explicit-exit' && (!Number.isSafeInteger(result.game) || result.game < 1)) return;
+        const key = JSON.stringify([result.roomId, result.sessionId, result.reason, result.game || 0]);
         if (sent.has(key)) return;
         sent.add(key);
-        // GRAVITY records the user's personal best. Send only their authoritative
+        // Send the locally tracked best; native acceptance/high-score retention is unverified.
+        // Send only their authoritative
         // best streak from this play session, even if their current streak is now 0.
         win.parent.postMessage({ type: 'gameOver', score: result.player.bestStreak }, '*');
       });

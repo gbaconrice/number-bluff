@@ -529,10 +529,10 @@ try{
     }
     const wire=traffic.filter(t=>t.key==='host'&&t.body.type==='snapshot').at(-1).body.view;
     assert.equal(wire.rankingEligible,true,'two actual human clients qualify at match start');assert.equal(wire.players.find(p=>p.userId==='mock-guest').currentStreak,match);assert.equal(wire.players.find(p=>p.userId==='mock-guest').bestStreak,match);
-    if(match<3){await advanceResult(hp);await gp.locator('#gamePanel').waitFor({state:'visible'});for(const p of[hp,gp])assert.deepEqual(await p.evaluate(()=>window.__gameOverMessages),[],'rematch must not submit native score');}
+    if(match<3){await advanceResult(hp);await gp.locator('#gamePanel').waitFor({state:'visible'});assert.deepEqual(await hp.evaluate(()=>window.__gameOverMessages),[{type:'gameOver',score:0}]);assert.deepEqual(await gp.evaluate(()=>window.__gameOverMessages),[{type:'gameOver',score:match}]);for(const p of [hp,gp])await p.evaluate(()=>window.__gameOverMessages.length=0);}
    }
    // A later loss resets current streak, but must retain best3 for native exit.
-   await advanceResult(hp);await gp.locator('#gamePanel').waitFor({state:'visible'});
+   await advanceResult(hp);await gp.locator('#gamePanel').waitFor({state:'visible'});assert.deepEqual(await gp.evaluate(()=>window.__gameOverMessages),[{type:'gameOver',score:3}]);for(const p of [hp,gp])await p.evaluate(()=>window.__gameOverMessages.length=0);
    for(let round=0;round<3;round++){
     if(await hp.locator('#declare').isEnabled()){await setDraft(hp,'1');await hp.locator('#declare').click();}
     await setDraft(gp,'999');await gp.locator('#declare').click();await hp.locator('#challenge').click();await gp.locator('#result').waitFor({state:'visible'});await gp.locator('#next').click();await completePresentation(hp);

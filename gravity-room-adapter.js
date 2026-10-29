@@ -27,7 +27,7 @@
     let state=null, latest=null, closed=false, hostLost=false, timer=null, generation=0;
     let epoch=isHost?(options.epoch||String(Date.now())+'-'+String(Math.random()).slice(2)):null;
     let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, scheduledRevision=null;
-    let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0;
+    let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0, scoreCheckpoint=null;
     const roundAdvance=R.create({now,set:later,clear,expire(){if(!isHost||closed||hostLost||state?.phase!=='reveal')return;state=G.nextRound(state,rng);publish('round-timeout');}});
     const status=(kind,detail={})=>{lastStatus={kind,...detail};onStatus({...lastStatus});};
     function cancel(){scheduledRevision=null;generation++;if(timer!==null)clear(timer);timer=null;}
@@ -84,7 +84,7 @@
       if(state.phase!=='reveal')roundAdvance.cancel();
       if(expireTurn()||roundAdvance.check())return;syncTurn();roundAdvance.sync(state);
       G.assertInvariant(state);
-      const wire={...G.publicView(state,'__broadcast__'),hostId:state.players[0].id,roomId,roundClock:roundAdvance.get()?{...roundAdvance.get(),serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);
+      const wire={...G.publicView(state,'__broadcast__'),hostId:state.players[0].id,roomId,scoreCheckpoint,roundClock:roundAdvance.get()?{...roundAdvance.get(),serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);
       const own=localize(wire);if(own)emit(own);
       void transmit({type:'snapshot',sequence:++hostSequence,view:wire,reason:reason||null}).catch(()=>{});
       if(reason)status(reason);scheduleBot();
@@ -130,11 +130,12 @@
         case 'setDifficulty': if(manages)next=G.setDifficulty(state,action.target,action.difficulty);break;
         case 'setBotAvatar': if(manages&&state.phase==='lobby'&&Number.isInteger(action.avatar)&&action.avatar>=0&&action.avatar<4&&state.players.some(p=>p.id===action.target&&p.kind==='bot'))next={...state,revision:state.revision+1,players:state.players.map(p=>p.id===action.target?{...p,botAvatar:action.avatar}:p)};break;
       }
-      if(next===state)return false;state=next;publish();return true;
+      if(next===state)return false;if(state.phase==='finished'&&['rematch','returnToLobby'].includes(action.type))scoreCheckpoint={reason:action.type==='rematch'?'rematch-checkpoint':'lobby-checkpoint',game:state.game,userIds:state.players.filter(p=>p.kind==='human').map(p=>p.userId)};state=next;publish();return true;
     }
     function validSnapshot(v){
       if(!v||!['lobby','play','reveal','finished'].includes(v.phase)||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.players)||v.players.length<1||v.players.length>8)return false;
       if(typeof v.rankingEligible!=='boolean')return false;
+      if(v.scoreCheckpoint!=null){const c=v.scoreCheckpoint;if(!['rematch-checkpoint','lobby-checkpoint'].includes(c.reason)||!Number.isSafeInteger(c.game)||c.game<1||c.game>v.game||!Array.isArray(c.userIds)||c.userIds.length>8||!c.userIds.every(id))return false;}
       if(v.turnClock!==undefined&&v.turnClock!==null){const c=v.turnClock;if(v.phase!=='play'||typeof c.token!=='string'||c.token.length>256||c.player!==v.turn||!v.players.some(p=>p.id===c.player&&p.kind==='human')||!Number.isFinite(c.deadline)||!Number.isFinite(c.serverNow)||c.deadline-c.serverNow>TURN_MS)return false;}
       if(v.roundClock!==undefined&&v.roundClock!==null){const c=v.roundClock;if(v.phase!=='reveal'||typeof c.token!=='string'||c.token.length>256||!Number.isFinite(c.deadline)||!Number.isFinite(c.readyAt)||!Number.isFinite(c.serverNow)||c.deadline-c.readyAt!==10000||c.readyAt-c.serverNow>10000)return false;}
       if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;

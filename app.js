@@ -161,11 +161,11 @@
   }
   function clearError() { $('inputError').textContent = ''; $('number').removeAttribute('aria-invalid'); }
   function fail(message) { $('inputError').textContent = message; $('number').setAttribute('aria-invalid', 'true'); }
-  function captureSessionFinish() {
+  function captureSessionFinish(reason = 'explicit-exit', game = view?.game) {
     if (!transport || !view || !Number.isSafeInteger(view.game) || view.game < 1) return null;
     const player = view.players.find(p => p.id === human && p.kind === 'human');
     if (!player || !Number.isSafeInteger(player.bestStreak) || player.bestStreak < 0) return null;
-    return { reason: 'explicit-exit', sessionId: roomEpoch, roomId: view.roomId,
+    return { reason, game, sessionId: roomEpoch, roomId: view.roomId,
       viewerId: human, player: { id: player.id, kind: player.kind, bestStreak: player.bestStreak } };
   }
   function publishSessionFinish(result) {
@@ -382,6 +382,8 @@
     const previous = view; view = next; clearError();
     if (connectionMessage === 'ホストからの情報を待っています…') { connectionMessage = ''; paintConnectionStatus(); }
     if (view.phase === 'lobby') { cancelPresentation(); presentationKey = null; renderLobby(); } else renderBattle(previous);
+    const checkpoint = view.scoreCheckpoint, me = view.players.find(p => p.id === human);
+    if (checkpoint && checkpoint.userIds?.includes(me?.userId)) publishSessionFinish(captureSessionFinish(checkpoint.reason, checkpoint.game));
   }
   function apply(next) {
     if (next === state) return false;
