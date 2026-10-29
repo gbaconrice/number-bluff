@@ -1,10 +1,10 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const {createSession,install}=require('../gravity-room-adapter');
-function setup(){
+function setup(randomValue=.99,emoteRng=()=>1,now=Date.now){
  const nodes=new Map(),queue=[],sent=[],statuses={},jobs=new Map();let jobId=0,randomCalls=0;
  const timers={setTimeout(fn){jobs.set(++jobId,fn);return jobId;},clearTimeout(n){jobs.delete(n);}};
- const make=(uid,host='host')=>{statuses[uid]=[];const session=createSession({roomId:'room-1',userId:uid,hostUserId:host,name:uid,epoch:'test-epoch',heartbeat:false,rng:()=>{randomCalls++;return .4;},...timers,onStatus:s=>statuses[uid].push(s),sendMessage:message=>{sent.push({sender:uid,message});queue.push({sender:uid,message});}});nodes.set(uid,session);return session;};
+ const make=(uid,host='host')=>{statuses[uid]=[];const session=createSession({roomId:'room-1',userId:uid,hostUserId:host,name:uid,epoch:'test-epoch',heartbeat:false,rng:()=>{randomCalls++;return randomValue;},emoteRng,now,...timers,onStatus:s=>statuses[uid].push(s),sendMessage:message=>{sent.push({sender:uid,message});queue.push({sender:uid,message});}});nodes.set(uid,session);return session;};
  const flush=()=>{let n=0;while(queue.length){assert.ok(++n<100,'No message feedback loop');const m=queue.shift();for(const [uid,node]of nodes)if(uid!==m.sender)node.receive(m.sender,m.message);}};
  const view=s=>{let v;s.subscribe(x=>{v=x;})();return v;};
  const host=make('host'),guest=make('guest');host.addMember({userId:'guest',name:'guest'});flush();
@@ -272,4 +272,66 @@ test('host can return a completed match to the same lobby and admit another part
  assert.equal(lobby.phase,'lobby');assert.equal(lobby.roomId,before.roomId);assert.deepEqual(lobby.players.map(p=>[p.wins,p.currentStreak,p.bestStreak]),stats);assert.ok(lobby.players.every(p=>p.life===3&&!p.eliminated));
  t.host.addMember({userId:'late',name:'Late arrival'});t.flush();assert.equal(t.view(t.host).players.length,3);
  await act(t.host,t.view(t.host),'startGame');t.flush();assert.equal(t.view(t.guest).phase,'play');assert.equal(t.view(t.guest).game,before.game+1);
+});
+
+test('shuffled order preserves authenticated host authority and identical client seats',async()=>{
+ const t=setup(0);await act(t.host,t.view(t.host),'startGame');t.flush();
+ const h=t.view(t.host),g=t.view(t.guest);
+ assert.equal(h.players[0].id,'p2');assert.equal(h.hostId,'p1');assert.equal(g.hostId,'p1');
+ assert.deepEqual(h.players.map(p=>[p.id,p.userId]),g.players.map(p=>[p.id,p.userId]));
+ assert.equal(h.turn,'p2');await act(t.guest,g,'declare',{value:1});t.flush();
+ assert.equal(t.view(t.host).bid,1);assert.equal(t.view(t.host).turn,'p1');
+ await act(t.guest,t.view(t.guest),'returnToLobby');t.flush();assert.equal(t.view(t.host).phase,'play');
+ await act(t.host,t.view(t.host),'returnToLobby');t.flush();assert.equal(t.view(t.host).phase,'lobby');
+});
+test('emotes are host-relayed, bounded, throttled and restricted to current human members',async()=>{
+ const t=setup();await act(t.host,t.view(t.host),'startGame');t.flush();const hostEvents=[],guestEvents=[];
+ t.host.subscribeEmotes(e=>hostEvents.push(e));t.guest.subscribeEmotes(e=>guestEvents.push(e));
+ assert.equal(await t.guest.sendEmote(2),undefined);t.flush();assert.equal(hostEvents.length,1);assert.deepEqual(guestEvents,hostEvents);
+ await t.guest.sendEmote(1);t.flush();assert.equal(hostEvents.length,1,'host enforces cooldown');
+ assert.equal(await t.host.sendEmote(4),false);
+ const packet=JSON.parse(t.sent.findLast(x=>JSON.parse(x.message).type==='emote-relay').message);
+ assert.equal(t.guest.receive('intruder',JSON.stringify({...packet,sequence:99})),false);
+ assert.equal(t.guest.receive('host',JSON.stringify({...packet,sequence:99,event:{...packet.event,kind:4}})),false);
+ assert.equal(t.guest.receive('host',JSON.stringify(packet)),false,'relay replay rejected');
+ await act(t.host,t.view(t.host),'declare',{value:1});t.flush();await act(t.guest,t.view(t.guest),'challenge');t.flush();
+ assert.equal(t.view(t.host).phase,'reveal');assert.equal(await t.host.sendEmote(3),true);t.flush();assert.equal(guestEvents.at(-1).kind,3,'emotes remain available during result presentation');
+ t.host.removeMember('guest');t.flush();assert.equal(t.host.receive('guest',JSON.stringify({protocol:'number-bluff',version:1,roomId:'room-1',epoch:'test-epoch',type:'emote',kind:0})),false);
+});
+
+test('departure and replacement cause a fresh host-only shuffle on next match',async()=>{
+ const t=setup(0);await act(t.host,t.view(t.host),'startGame');t.flush();const initialCalls=t.randomCalls();
+ t.host.removeMember('guest');t.flush();assert.equal(t.view(t.host).phase,'lobby');
+ t.host.addMember({userId:'replacement',name:'replacement'});const replacement=t.make('replacement');t.flush();
+ const before=t.randomCalls();await act(t.host,t.view(t.host),'startGame');t.flush();
+ assert.equal(before,initialCalls);assert.equal(t.randomCalls()-before,36);
+ const h=t.view(t.host),r=t.view(replacement);assert.equal(h.hostId,'p1');assert.equal(h.game,2);
+ assert.deepEqual(h.players.map(p=>[p.id,p.userId]),r.players.map(p=>[p.id,p.userId]));
+ assert.equal(h.hands[h.viewerId],null);assert.equal(r.hands[r.viewerId],null);
+});
+
+test('host relays occasional BOT emotes independently of the action and hidden card',async()=>{
+ const t=setup(.99,()=>0);await act(t.host,t.view(t.host),'addBot');await act(t.host,t.view(t.host),'startGame');t.flush();const events=[];t.guest.subscribeEmotes(e=>events.push(e));
+ await act(t.host,t.view(t.host),'declare',{value:1});t.flush();await act(t.guest,t.view(t.guest),'declare',{value:2});t.flush();
+ for(const fn of [...t.jobs.values()])fn();t.flush();
+ assert.ok(events.some(e=>e.player==='p3'&&e.kind===0));
+});
+
+test('host alone advances bot-only result once, without auto-rematching the finished game',async()=>{
+ let now=1000,id=0;const jobs=new Map();let latest,wire=[];const host=createSession({roomId:'bot-only',userId:'h',hostUserId:'h',heartbeat:false,rng:()=>.99,emoteRng:()=>1,botDelay:0,now:()=>now,setTimeout(fn,ms){jobs.set(++id,{fn,at:now+ms});return id},clearTimeout(key){jobs.delete(key)},sendMessage(m){wire.push(JSON.parse(m))}});host.subscribe(v=>latest=v);
+ const action=async(type,details={})=>host.send({type,player:latest.viewerId,revision:latest.revision,...details});
+ const due=()=>{let n=0;while(true){const item=[...jobs].find(([,j])=>j.at<=now);if(!item)break;assert.ok(++n<100);jobs.delete(item[0]);item[1].fn();}};
+ await action('addBot');await action('addBot');await action('startGame');
+ for(let i=0;i<3;i++){assert.equal(latest.turn,'p1');await action('declare',{value:999,turnToken:latest.turnClock.token});due();assert.equal(latest.phase,'reveal');if(i<2)await action('nextRound');}
+ assert.equal(latest.players.find(p=>p.id==='p1').life,0);assert.ok(latest.players.filter(p=>p.kind==='bot').every(p=>p.life===3),'both remaining BOTs can still have full life');assert.equal(latest.roundClock.deadline-latest.roundClock.readyAt,10000,'wire clock remains readable by legacy clients');assert.equal(latest.roundClock.deadline-latest.roundClock.serverNow,require('../card-presentation').plan(latest.result,latest.players).at(-1).at+1000);
+ const stale=[...jobs.values()].find(j=>j.at===latest.roundClock.deadline).fn,oldRound=latest.round;now=latest.roundClock.deadline;due();assert.ok(latest.round>oldRound||latest.phase==='finished');const after=latest.revision;stale();assert.equal(latest.revision,after,'stale deadline cannot advance twice');
+ for(let n=0;n<100&&latest.phase!=='finished';n++){now+=20000;due();}assert.equal(latest.phase,'finished');const completed=latest;now+=100000;due();assert.equal(latest.phase,'finished');assert.equal(latest.game,completed.game);assert.equal(latest.players.reduce((sum,p)=>sum+p.wins,0),1);host.close();
+});
+
+test('rejoining identity gets fresh emote sequence while old membership packets remain fenced',async()=>{
+ let clock=1000;const t=setup(.99,()=>1,()=>clock);await act(t.host,t.view(t.host),'startGame');t.flush();const v=t.view(t.guest),generation=v.emoteGenerations[v.viewerId],events=[];t.host.subscribeEmotes(e=>events.push(e));
+ const old={protocol:'number-bluff',version:1,roomId:'room-1',epoch:'test-epoch',type:'emote',kind:2,sequence:20,membership:generation,game:v.game,round:v.round};
+ assert.equal(t.host.receive('guest',JSON.stringify(old)),true);const oldRelay=JSON.parse(t.sent.findLast(x=>x.sender==='host'&&JSON.parse(x.message).type==='emote-relay').message);clock+=5000;t.host.addMember({userId:'guest',name:'guest again'});const rejoined=t.make('guest');t.flush();const fresh=t.view(rejoined);assert.notEqual(fresh.emoteGenerations[fresh.viewerId],generation);assert.equal(rejoined.receive('host',JSON.stringify({...oldRelay,sequence:999})),false,'old relay must not revive a prior membership');
+ assert.equal(t.host.receive('guest',JSON.stringify({...old,sequence:21})),false,'old connection remains fenced even with a higher sequence');await rejoined.sendEmote(1);t.flush();const sent=JSON.parse(t.sent.findLast(x=>x.sender==='guest'&&JSON.parse(x.message).type==='emote').message);assert.equal(sent.sequence,1);assert.equal(events.length,2);assert.equal(events.at(-1).kind,1);
+ clock+=5000;assert.equal(t.host.receive('guest',JSON.stringify({...old,sequence:22})),false);assert.equal(events.length,2);
 });

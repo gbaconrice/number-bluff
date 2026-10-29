@@ -46,7 +46,7 @@
 #result[data-presentation-phase="reset"] #resultAvatar,
 #result[data-presentation-phase="outcome"] #resultAvatar,
 #result[data-presentation-phase="complete"] #resultAvatar { animation:avatar-celebrate 620ms ease-out both; }
-@keyframes card-deal-rich { 0% {opacity:0;transform:translate3d(8px,-28px,0) rotate(-7deg) scale(.88)} 72% {opacity:1;transform:translate3d(0,3px,0) rotate(1deg) scale(1.025)} 100% {opacity:1;transform:none} }
+@keyframes card-deal-rich { 0% {opacity:0;transform:translate3d(var(--deal-x,8px),var(--deal-y,-28px),0) rotate(-7deg) scale(.88)} 72% {opacity:1;transform:translate3d(0,3px,0) rotate(1deg) scale(1.025)} 100% {opacity:1;transform:none} }
 @keyframes card-reveal-rich { 0% {opacity:.12;transform:rotateY(-88deg) translateY(12px) scale(.92)} 68% {opacity:1;transform:rotateY(8deg) translateY(-4px) scale(1.025)} 100% {opacity:1;transform:none} }
 @keyframes card-contribute-rich { 45% {transform:translateY(-7px) scale(1.05)} 100% {transform:none} }
 @keyframes bid-declaration-rich { 0% {transform:scale(.975)} 45% {transform:scale(1.025)} 100% {transform:none} }
@@ -68,3 +68,7 @@
 .presentation-zero-stamp { position:absolute; z-index:4; right:6%; bottom:8%; width:42%; max-width:74px; aspect-ratio:64/68; filter:drop-shadow(0 2px 3px #1b103a88); transform:rotate(-9deg); animation:zero-stamp 260ms ease-out both; }
 .presentation-zero-stamp svg { display:block; width:100%; height:100%; }
 .presentation-zero-stamp .zero-effect-value { position:absolute; inset:42% 16% 10%; display:grid; place-items:center; font:900 .64em/1 system-ui,sans-serif; color:#fff6d5; text-shadow:0 1px 2px #0008; }
+
+@keyframes win-challenge{0%{transform:translateY(3px);opacity:.8}100%{transform:translateY(0);opacity:1}}@keyframes win-defense{0%{transform:scale(.97);opacity:.8}100%{transform:scale(1);opacity:1}}#result[data-presentation-phase] .result-message.win-challenge{animation:win-challenge .4s ease-out}#result[data-presentation-phase] .result-message.win-defense{animation:win-defense .4s ease-out}@media(prefers-reduced-motion:reduce){#result[data-presentation-phase] .result-message.win-challenge,#result[data-presentation-phase] .result-message.win-defense{animation:none}}
+
+.presentation-card.is-collecting{animation:card-collect .4s ease-in-out both}@keyframes card-collect{0%,100%{transform:none;opacity:1}50%{transform:translate(var(--collect-x,0),var(--collect-y,0)) scale(.78);opacity:.35}}@media(prefers-reduced-motion:reduce){.presentation-card.is-collecting{animation:none}}

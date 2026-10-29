@@ -3,7 +3,7 @@
   else root.NumberBluffRoundAdvanceClock = factory(root.NumberBluffPresentation);
 })(typeof globalThis === 'object' ? globalThis : this, function (P) {
   'use strict';
-  const WAIT_MS = 10000;
+  const WAIT_MS = 10000, BOT_ONLY_WAIT_MS = 1000;
   function create({expire,now=Date.now,set=setTimeout,clear=clearTimeout}) {
     let clock=null,pending=null,generation=0;
     function pause(){generation++;if(pending!==null)clear(pending);pending=null;}
@@ -13,10 +13,10 @@
     function sync(state){
       if(state?.phase!=='reveal'||!state.result){cancel();return null;}
       const token=JSON.stringify([state.game,state.round]);
-      if(clock?.token!==token){cancel();const readyAt=now()+P.plan(state.result,state.players).at(-1).at;clock={token,readyAt,deadline:readyAt+WAIT_MS};}
+      if(clock?.token!==token){cancel();const readyAt=now()+P.plan(state.result,state.players).at(-1).at;const wait=state.players.some(p=>p.kind==='human'&&p.life>0)?WAIT_MS:BOT_ONLY_WAIT_MS;clock={token,readyAt,deadline:readyAt+wait};}
       resume();return clock;
     }
     return {sync,check,pause,resume,cancel,get:()=>clock};
   }
-  return {create,WAIT_MS};
+  return {create,WAIT_MS,BOT_ONLY_WAIT_MS};
 });

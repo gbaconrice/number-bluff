@@ -4,7 +4,7 @@ const {createSession,turnDurationMs}=require('../gravity-room-adapter');
 function setup(){
  let clock=100000,serial=0;const skews={};const jobs=new Map(),wire=[],views={},nodes={};
  const timers={now:()=>clock,setTimeout(fn,ms){jobs.set(++serial,{fn,at:clock+ms});return serial;},clearTimeout(id){jobs.delete(id);}};
- function make(uid,skew=0){skews[uid]=skew;nodes[uid]=createSession({roomId:'deadline-room',userId:uid,hostUserId:'h',name:uid,epoch:'timer-epoch',heartbeat:false,rng:()=>.4,...timers,now:()=>clock+skews[uid],sendMessage:message=>wire.push({uid,message})});nodes[uid].subscribe(v=>views[uid]=v);return nodes[uid];}
+ function make(uid,skew=0){skews[uid]=skew;nodes[uid]=createSession({roomId:'deadline-room',userId:uid,hostUserId:'h',name:uid,epoch:'timer-epoch',heartbeat:false,rng:()=>.99,...timers,now:()=>clock+skews[uid],sendMessage:message=>wire.push({uid,message})});nodes[uid].subscribe(v=>views[uid]=v);return nodes[uid];}
  make('h');make('g',3600000);nodes.h.addMember({userId:'g',name:'guest'});
  function flush(){let n=0;while(wire.length){assert.ok(++n<100);const m=wire.shift();for(const uid of Object.keys(nodes))if(uid!==m.uid)nodes[uid].receive(m.uid,m.message);}}
  flush();

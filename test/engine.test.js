@@ -6,7 +6,7 @@ const Scheduler=require('../scheduler');
 const seeded=(seed=1)=>()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
 const card=id=>E.FULL_DECK.find(c=>c.id===id);
 function fixture(ids,{life,discard=[],bid=1}={}){
- const s=E.startGame(E.createLobby({botCount:ids.length-1}),seeded());
+ const s=E.startGame(E.createLobby({botCount:ids.length-1}),seeded()); s.players.sort((a,b)=>a.id.localeCompare(b.id));
  s.hands=Object.fromEntries(ids.map((id,i)=>[`p${i+1}`,card(id)]));
  const used=new Set([...ids,...discard]);s.deck=E.FULL_DECK.filter(c=>!used.has(c.id));s.discard=discard.map(card);
  s.bid=bid;s.last='p1';s.turn='p2';
@@ -54,17 +54,17 @@ test('bid legality, challenge availability, tie loser, negative total',()=>{
 });
 test('elimination, surviving loser or round winner starts, wins once, rematch preserves wins',()=>{
  let s=fixture(['n1_1','n2_1','n3_1'],{life:[1,3,3],bid:100});s=E.challenge(s,'p2',seeded());
- assert.equal(s.players[0].eliminated,true);assert.equal(s.starter,'p2');assert.equal(s.phase,'reveal');
+ assert.equal(s.players.find(p=>p.id==='p1').eliminated,true);assert.equal(s.starter,'p2');assert.equal(s.phase,'reveal');
  s=E.nextRound(s,seeded());assert.equal(s.turn,'p2');assert.equal(Object.keys(s.hands).length,2);
  let t=fixture(['n1_1','n2_1'],{life:[1,3],bid:100});t=E.challenge(t,'p2',seeded());
- assert.equal(t.phase,'finished');assert.equal(t.result.winner,'p2');assert.equal(t.players[1].wins,1);
+ assert.equal(t.phase,'finished');assert.equal(t.result.winner,'p2');assert.equal(t.players.find(p=>p.id==='p2').wins,1);
  assert.equal(E.challenge(t,'p2',seeded()),t);assert.equal(E.nextRound(t,seeded()),t);
- let u=E.rematch(t,seeded());assert.equal(u.players[1].wins,1);assert.ok(u.players.every(p=>p.life===3));assert.equal(u.turn,'p1');assert.equal(u.round,1);assert.equal(u.game,t.game+1);E.assertInvariant(u);
+ let u=E.rematch(t,seeded());assert.equal(u.players.find(p=>p.id==='p2').wins,1);assert.ok(u.players.every(p=>p.life===3));assert.equal(u.turn,u.players[0].id);assert.equal(u.round,1);assert.equal(u.game,t.game+1);E.assertInvariant(u);
  let v=E.challenge(fixture(['n1_1','n2_1'],{bid:100}),'p2',seeded());assert.equal(v.starter,'p1');
 });
 test('lobby caps, config, 2–8 seats, one actual human offline',()=>{
  let s=E.createLobby();for(let i=0;i<20;i++)s=E.addBot(s);assert.equal(s.players.length,8);assert.equal(s.players.filter(p=>p.kind==='human').length,1);assert.equal(E.addBot(s),s);
- s=E.setDifficulty(s,'p3','hard');assert.equal(s.players[2].difficulty,'hard');assert.equal(E.setDifficulty(s,'p3','invalid'),s);
+ s=E.setDifficulty(s,'p3','hard');assert.equal(s.players.find(p=>p.id==='p3').difficulty,'hard');assert.equal(E.setDifficulty(s,'p3','invalid'),s);
  for(let i=8;i>=2;i--)s=E.removeBot(s,`p${i}`);assert.equal(s.players.length,1);assert.equal(E.removeBot(s,'p1'),s);
  for(let n=2;n<=8;n++){const t=E.startGame(E.createLobby({botCount:n-1}),seeded(n));assert.equal(Object.keys(t.hands).length,n);E.assertInvariant(t);assert.equal(E.addBot(t),t);}
 });
@@ -78,7 +78,7 @@ test('BOT cannot distinguish own card or hidden deck order and models extra spec
  const b={...a,hands:{...a.hands,p2:card('double')},deck:a.deck.filter(c=>c.id!=='double').concat(card('n2_1')).reverse()};
  assert.deepEqual(E.botView(a,'p2'),E.botView(b,'p2'));
  for(const difficulty of ['easy','normal','hard']){
-  const av=E.botView(a,'p2'),bv=E.botView(b,'p2');av.players[1].difficulty=difficulty;bv.players[1].difficulty=difficulty;
+  const av=E.botView(a,'p2'),bv=E.botView(b,'p2');av.players.find(p=>p.id==='p2').difficulty=difficulty;bv.players.find(p=>p.id==='p2').difficulty=difficulty;
   assert.deepEqual(E.chooseBotAction(av,seeded(2)),E.chooseBotAction(bv,seeded(2)));
  }
  const totals=E.possibleTotals(E.botView(a,'p2'));assert.ok(totals.some(n=>n<0));assert.ok(totals.some(n=>n>20));
@@ -145,8 +145,8 @@ test('returnToLobby preserves same-room seats, settings, wins and game count',()
  assert.deepEqual(lobby.players.map(({life,eliminated,...rest})=>rest),retained);assert.ok(lobby.players.every(p=>p.life===3&&!p.eliminated));
  assert.deepEqual(lobby.hands,{});assert.deepEqual(lobby.discard,[]);assert.deepEqual(lobby.history,[]);assert.equal(lobby.result,null);assert.equal(lobby.turn,null);assert.equal(lobby.bid,null);assert.equal(lobby.last,null);assert.equal(lobby.round,0);E.assertInvariant(lobby);
  assert.equal(E.returnToLobby(lobby),lobby);
- const started=E.startGame(lobby,seeded(57));assert.equal(started.game,game+1);assert.equal(started.players[1].wins,1);assert.equal(started.players[1].difficulty,'hard');assert.equal(started.players[1].name,'Named p2');E.assertInvariant(started);
- const rematched=E.rematch(s,seeded(57));assert.equal(rematched.players[1].wins,1);assert.equal(rematched.players[1].difficulty,'hard');assert.equal(rematched.game,game+1);
+ const started=E.startGame(lobby,seeded(57));assert.equal(started.game,game+1);assert.equal(started.players.find(p=>p.id==='p2').wins,1);assert.equal(started.players.find(p=>p.id==='p2').difficulty,'hard');assert.equal(started.players.find(p=>p.id==='p2').name,'Named p2');E.assertInvariant(started);
+ const rematched=E.rematch(s,seeded(57));assert.equal(rematched.players.find(p=>p.id==='p2').wins,1);assert.equal(rematched.players.find(p=>p.id==='p2').difficulty,'hard');assert.equal(rematched.game,game+1);
  assert.ok(E.createLobby().players.every(p=>p.wins===0));
 });
 test('returnToLobby from active play or reveal never awards abandonment victory',()=>{
@@ -159,7 +159,7 @@ test('returnToLobby from active play or reveal never awards abandonment victory'
 
 test('opening declaration and every BOT difficulty require at least one, even for negative totals',()=>{
  for(const difficulty of ['easy','normal','hard'])for(let seed=1;seed<=24;seed++){
-  const s=fixture(['n-10_1','n-5_1'],{bid:null});s.last=null;s.players[1].difficulty=difficulty;
+  const s=fixture(['n-10_1','n-5_1'],{bid:null});s.last=null;s.players.find(p=>p.id==='p2').difficulty=difficulty;
   const action=E.chooseBotAction(E.botView(s,'p2'),seeded(seed));
   assert.equal(action.type,'declare');assert.ok(Number.isSafeInteger(action.value)&&action.value>=1);
   assert.notEqual(E.dispatch(s,{...action,player:'p2',revision:s.revision},seeded(seed)),s);
@@ -188,22 +188,22 @@ test('human streak counters change once per completed match and survive rematch 
  };
  assert.ok(lobby.players.every(p=>p.currentStreak===0&&p.bestStreak===0));
  let s=finish(E.startGame(lobby,rng),'p1');
- assert.equal(s.phase,'finished');assert.equal(s.players[0].currentStreak,1);assert.equal(s.players[0].bestStreak,1);
+ assert.equal(s.phase,'finished');assert.equal(s.players.find(p=>p.id==='p1').currentStreak,1);assert.equal(s.players.find(p=>p.id==='p1').bestStreak,1);
  assert.equal(E.challenge(s,'p2',rng),s,'duplicate completion cannot award another streak');
- s=E.rematch(s,rng);assert.equal(s.players[0].currentStreak,1);
- const abandoned=E.returnToLobby(s);assert.equal(abandoned.players[0].currentStreak,1);assert.equal(abandoned.players[0].bestStreak,1);
- s=finish(s,'p1');assert.equal(s.players[0].currentStreak,2);assert.equal(s.players[0].bestStreak,2);
+ s=E.rematch(s,rng);assert.equal(s.players.find(p=>p.id==='p1').currentStreak,1);
+ const abandoned=E.returnToLobby(s);assert.equal(abandoned.players.find(p=>p.id==='p1').currentStreak,1);assert.equal(abandoned.players.find(p=>p.id==='p1').bestStreak,1);
+ s=finish(s,'p1');assert.equal(s.players.find(p=>p.id==='p1').currentStreak,2);assert.equal(s.players.find(p=>p.id==='p1').bestStreak,2);
  s=finish(E.rematch(s,rng),'p2');
- assert.equal(s.players[0].currentStreak,0);assert.equal(s.players[0].bestStreak,2);
- assert.equal(s.players[1].currentStreak,1);assert.equal(s.players[1].bestStreak,1);
- assert.equal(E.publicView(s,'p1').players[0].bestStreak,2);
+ assert.equal(s.players.find(p=>p.id==='p1').currentStreak,0);assert.equal(s.players.find(p=>p.id==='p1').bestStreak,2);
+ assert.equal(s.players.find(p=>p.id==='p2').currentStreak,1);assert.equal(s.players.find(p=>p.id==='p2').bestStreak,1);
+ assert.equal(E.publicView(s,'p1').players.find(p=>p.id==='p1').bestStreak,2);
  assert.ok(E.createLobby().players.every(p=>p.currentStreak===0&&p.bestStreak===0),'a genuinely new session starts fresh');
 });
 test('round results never increment streaks and BOTs never collect human streak counters',()=>{
  let s=fixture(['n1_1','n2_1'],{life:[3,3],bid:1});s.players[0]={...s.players[0],currentStreak:2,bestStreak:4};
- let r=E.challenge(s,'p2',seeded());assert.equal(r.phase,'reveal');assert.equal(r.players[0].currentStreak,2);assert.equal(r.players[0].bestStreak,4);
+ let r=E.challenge(s,'p2',seeded());assert.equal(r.phase,'reveal');assert.equal(r.players.find(p=>p.id==='p1').currentStreak,2);assert.equal(r.players.find(p=>p.id==='p1').bestStreak,4);
  s=fixture(['n1_1','n2_1'],{life:[1,3],bid:99});s.players[0]={...s.players[0],currentStreak:2,bestStreak:4};
- r=E.challenge(s,'p2',seeded());assert.equal(r.result.winner,'p2');assert.equal(r.players[0].currentStreak,2);assert.equal(r.players[0].bestStreak,4);assert.equal(r.players[1].currentStreak,0);assert.equal(r.players[1].bestStreak,0);
+ r=E.challenge(s,'p2',seeded());assert.equal(r.result.winner,'p2');assert.equal(r.players.find(p=>p.id==='p1').currentStreak,2);assert.equal(r.players.find(p=>p.id==='p1').bestStreak,4);assert.equal(r.players.find(p=>p.id==='p2').currentStreak,0);assert.equal(r.players.find(p=>p.id==='p2').bestStreak,0);
 });
 
 test('ranking eligibility captures initial humans, allows BOTs and ignores easy/normal-only single-human matches and abandonment',()=>{
@@ -220,16 +220,16 @@ test('ranking eligibility captures initial humans, allows BOTs and ignores easy/
   return E.challenge(s,'p3',rng);
  };
  const humanWin=finish(started,'p1');
- assert.equal(humanWin.players[0].currentStreak,3);assert.equal(humanWin.players[0].bestStreak,5);
+ assert.equal(humanWin.players.find(p=>p.id==='p1').currentStreak,3);assert.equal(humanWin.players.find(p=>p.id==='p1').bestStreak,5);
  const botWin=finish(started,'p3');
- assert.equal(botWin.players[0].currentStreak,0);assert.equal(botWin.players[0].bestStreak,5);assert.equal(botWin.players[2].bestStreak,0);
+ assert.equal(botWin.players.find(p=>p.id==='p1').currentStreak,0);assert.equal(botWin.players.find(p=>p.id==='p1').bestStreak,5);assert.equal(botWin.players.find(p=>p.id==='p3').bestStreak,0);
  const abandoned=E.returnToLobby(started);
- assert.equal(abandoned.rankingEligible,false);assert.equal(abandoned.players[0].currentStreak,2);
+ assert.equal(abandoned.rankingEligible,false);assert.equal(abandoned.players.find(p=>p.id==='p1').currentStreak,2);
  const singleHumanLobby={...abandoned,players:abandoned.players.map(p=>p.id==='p2'?{...p,kind:'bot',difficulty:'normal'}:p)};
  const singleHumanMatch=E.startGame(singleHumanLobby,rng);assert.equal(singleHumanMatch.rankingEligible,false);
  for(const winner of ['p1','p3']){
   const result=finish(singleHumanMatch,winner);
-  assert.equal(result.players[0].currentStreak,2);assert.equal(result.players[0].bestStreak,5);
+  assert.equal(result.players.find(p=>p.id==='p1').currentStreak,2);assert.equal(result.players.find(p=>p.id==='p1').bestStreak,5);
  }
  const changed={...humanWin,players:humanWin.players.map(p=>p.id==='p2'?{...p,kind:'bot',difficulty:'normal'}:p)};
  assert.equal(E.rematch(changed,rng).rankingEligible,false,'rematch captures its own starting roster');
@@ -258,16 +258,35 @@ test('hard-BOT solo win, loss, abandonment and rematch preserve best and capture
   const ids=['n1_1','n2_1'];
   return E.challenge({...state,phase:'play',hands:{p1:card(ids[0]),p2:card(ids[1])},deck:E.FULL_DECK.filter(c=>!ids.includes(c.id)),discard:[],bid:winner==='p1'?1:99,last:'p1',turn:'p2',players:state.players.map(p=>({...p,life:p.id==='p3'?0:p.id===winner?3:1,eliminated:p.id==='p3'}))},'p2',rng);
  };
- const won=finish(started,'p1');assert.equal(won.phase,'finished');assert.equal(won.players[0].currentStreak,3);assert.equal(won.players[0].bestStreak,5);
+ const won=finish(started,'p1');assert.equal(won.phase,'finished');assert.equal(won.players.find(p=>p.id==='p1').currentStreak,3);assert.equal(won.players.find(p=>p.id==='p1').bestStreak,5);
  assert.equal(E.challenge(won,'p2',rng),won,'repeated finish does not double-count');
- const lost=finish(started,'p2');assert.equal(lost.players[0].currentStreak,0);assert.equal(lost.players[0].bestStreak,5);assert.equal(lost.players[1].bestStreak,0);
- const abandoned=E.returnToLobby(started);assert.equal(abandoned.players[0].currentStreak,2);assert.equal(abandoned.players[0].bestStreak,5);
+ const lost=finish(started,'p2');assert.equal(lost.players.find(p=>p.id==='p1').currentStreak,0);assert.equal(lost.players.find(p=>p.id==='p1').bestStreak,5);assert.equal(lost.players.find(p=>p.id==='p2').bestStreak,0);
+ const abandoned=E.returnToLobby(started);assert.equal(abandoned.players.find(p=>p.id==='p1').currentStreak,2);assert.equal(abandoned.players.find(p=>p.id==='p1').bestStreak,5);
  const downgraded=E.setDifficulty(abandoned,'p2','normal');const unranked=E.startGame(downgraded,rng);assert.equal(unranked.rankingEligible,false);
- for(const winner of ['p1','p2']){const r=finish(unranked,winner);assert.equal(r.players[0].currentStreak,2);assert.equal(r.players[0].bestStreak,5);}
+ for(const winner of ['p1','p2']){const r=finish(unranked,winner);assert.equal(r.players.find(p=>p.id==='p1').currentStreak,2);assert.equal(r.players.find(p=>p.id==='p1').bestStreak,5);}
  assert.equal(E.rematch(won,rng).rankingEligible,true);
  assert.equal(E.rematch({...won,players:won.players.map(p=>p.kind==='bot'?{...p,difficulty:'easy'}:p)},rng).rankingEligible,false);
  // Qualification stays fixed when the qualifying hard BOT is eliminated before the final round.
  const mixed=E.startGame(E.setDifficulty(E.createLobby({botCount:2,difficulty:'hard'}),'p2','easy'),rng);
  const afterElimination={...mixed,players:mixed.players.map(p=>p.id==='p3'?{...p,life:0,eliminated:true}:p)};
- assert.equal(finish(afterElimination,'p1').players[0].currentStreak,1);
+ assert.equal(finish(afterElimination,'p1').players.find(p=>p.id==='p1').currentStreak,1);
+});
+
+test('new matches shuffle players once with reproducible RNG and preserve seat identities',()=>{
+ const lobby=E.createLobby({botCount:7});
+ const first=E.startGame(lobby,seeded(123)), replay=E.startGame(lobby,seeded(123));
+ assert.deepEqual(first.players.map(p=>p.id),replay.players.map(p=>p.id));
+ assert.notDeepEqual(first.players.map(p=>p.id),lobby.players.map(p=>p.id));
+ assert.deepEqual([...first.players.map(p=>p.id)].sort(),lobby.players.map(p=>p.id).sort());
+ assert.equal(first.turn,first.players[0].id);
+ const round=E.nextRound(E.challenge(E.declare(first,first.turn,1),E.declare(first,first.turn,1).turn,seeded(5)),seeded(6));
+ assert.deepEqual(round.players.map(p=>p.id),first.players.map(p=>p.id));
+});
+test('new matches consume fresh RNG for a full deck after lobby return and rematch',()=>{
+ const next=seeded(1234);let calls=0;const rng=()=>{calls++;return next();};const lobby=E.createLobby({botCount:2});
+ const first=E.startGame(lobby,rng), afterFirst=calls;
+ const again=E.startGame(E.returnToLobby(first),rng), afterSecond=calls;
+ assert.equal(afterFirst,37);assert.equal(afterSecond-afterFirst,37);
+ const finished={...again,phase:'finished'};const rematch=E.rematch(finished,rng);
+ assert.equal(calls-afterSecond,37);assert.equal(rematch.deck.length,33);assert.equal(rematch.discard.length,0);
 });

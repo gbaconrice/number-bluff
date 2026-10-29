@@ -34,7 +34,7 @@
     for(const p of alive(s)) hands[p.id]=draw(pool,rng);
     return updated(s,{...pool,hands,phase:'play',round:s.round+1,bid:null,last:null,turn:s.starter,result:null,history:[]});
   }
-  function startGame(s,rng) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;return deal({...s,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:s.players.filter(p=>p.kind==='human').length>=2||(s.players.filter(p=>p.kind==='human').length===1&&s.players.some(p=>p.kind==='bot'&&p.difficulty==='hard')),starter:s.players[0].id},rng);}
+  function startGame(s,rng) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;const players=shuffle(s.players,rng);return deal({...s,players,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:players.filter(p=>p.kind==='human').length>=2||(players.filter(p=>p.kind==='human').length===1&&players.some(p=>p.kind==='bot'&&p.difficulty==='hard')),starter:players[0].id},rng);}
   function rematch(s,rng) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:s.players.map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng);}
   // A room survives leaving a match. The UI must confirm abandoning active play;
   // no winner is awarded here. createLobby is reserved for a genuinely new room.
@@ -106,10 +106,12 @@
     const bot=view.players.find(p=>p.id===view.viewerId);
     if(view.phase!=='play'||view.turn!==view.viewerId||!bot||bot.kind!=='bot')return null;
     const totals=possibleTotals(view).sort((a,b)=>a-b),difficulty=bot.difficulty||'normal';
-    const noise=random(rng),quantile=difficulty==='easy'?.25+noise*.5:difficulty==='hard'?.55:.4+noise*.2;
+    // A small fresh per-decision tendency varies caution without creating a fixed character tell.
+    const noise=random(rng),tendency=(random(rng)-.5)*.06;
+    const quantile=(difficulty==='easy'?.25+noise*.5:difficulty==='hard'?.55:.4+noise*.2)+tendency;
     const target=Math.max(1,Math.floor(totals[Math.min(totals.length-1,Math.floor(quantile*totals.length))]));
     const safe=view.bid===null?1:totals.filter(sum=>sum>=view.bid).length/totals.length;
-    const threshold=difficulty==='hard'?.48:difficulty==='normal'?.35+noise*.2:.15+noise*.6;
+    const threshold=(difficulty==='hard'?.48:difficulty==='normal'?.35+noise*.2:.15+noise*.6)-tendency;
     if(view.bid!==null&&(safe<threshold||view.bid===Number.MAX_SAFE_INTEGER))return {type:'challenge'};
     const minimum=view.bid===null?1:view.bid+1;
     return {type:'declare',value:Math.max(minimum,Math.min(target,minimum+(difficulty==='hard'?3:difficulty==='normal'?5:8)))};
