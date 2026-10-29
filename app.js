@@ -75,7 +75,7 @@
   const emoteImages = ['assets/emote-bunny-surprised.webp','assets/emote-cat-confident.webp','assets/emote-cloud-anxious.webp','assets/emote-star-skeptical.webp'];
   const emoteLabels = ['驚き','得意','不安','疑い'];
   const emotes = new Map(); let emoteCooldown = 0, emoteTimer = null;
-  function clearEmotes(){emotes.clear();clearTimeout(emoteTimer);emoteTimer=null;emoteCooldown=0;emoteBar.querySelectorAll('.emote-button').forEach(b=>b.disabled=false);}
+  function clearEmotes(){emotes.clear();clearTimeout(emoteTimer);emoteTimer=null;emoteCooldown=0;syncEmoteButtons();}
   function showEmote(event){
     if(!['play','reveal','finished'].includes(view?.phase)||event.game!==view.game||event.round!==view.round||!view.players.some(p=>p.id===event.player))return;
     emotes.set(event.player,{kind:event.kind,until:Date.now()+2200});
@@ -105,10 +105,11 @@
     return avatarNames[avatarIndex(id)] + (duplicate ? ' ' + id.slice(1) : '');
   };
   const emoteBar=$('emoteBar');
+  function syncEmoteButtons(){const supported=transport?.supportsEmotes?.()!==false;emoteBar.querySelectorAll('.emote-button').forEach((button,index)=>{button.disabled=!supported||Date.now()<emoteCooldown;button.title=supported?'':'この部屋ではリアクションを利用できません';button.setAttribute('aria-label',emoteLabels[index]+'のリアクション'+(supported?'':'（この部屋では使えません）'));});}
   emoteLabels.forEach((label,kind)=>{const button=el('button','emote-button');button.type='button';button.setAttribute('aria-label',label+'のリアクション');button.append(image(emoteImages[kind]));button.onclick=()=>{
     if(!['play','reveal','finished'].includes(view?.phase)||connectionBlocked||Date.now()<emoteCooldown)return;
     emoteCooldown=Date.now()+3000;emoteBar.querySelectorAll('.emote-button').forEach(b=>b.disabled=true);
-    clearTimeout(emoteTimer);emoteTimer=setTimeout(()=>emoteBar.querySelectorAll('.emote-button').forEach(b=>b.disabled=false),3000);
+    clearTimeout(emoteTimer);emoteTimer=setTimeout(syncEmoteButtons,3000);
     if(transport?.sendEmote)void Promise.resolve(transport.sendEmote(kind)).catch(()=>{});else if(!transport)showEmote({player:human,kind,game:view.game,round:view.round});
   };emoteBar.append(button);});
   const discardButton=el('button','discard-button','捨て札');discardButton.type='button';discardButton.setAttribute('aria-label','公開済みの捨て札を見る');
@@ -370,7 +371,7 @@
   }
   function renderBattle(previous = null) {
     const active = view.phase === 'play', yourTurn = active && view.turn === human && !connectionBlocked;
-    (active ? $('gamePanel') : $('result')).prepend(emoteBar);
+    (active ? $('gamePanel') : $('result')).prepend(emoteBar); syncEmoteButtons();
     (active ? $('keypad') : $('result')).append($('deckIndicator'));
     document.querySelector('.nb-background')?.setAttribute('data-round-tone',String(view.round%3));
     gameplayFeedback.begin(roomEpoch + ':' + view.game + ':' + view.round);

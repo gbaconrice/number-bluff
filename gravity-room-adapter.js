@@ -85,7 +85,11 @@
       if(state.phase!=='reveal')roundAdvance.cancel();
       if(expireTurn()||roundAdvance.check())return;syncTurn();roundAdvance.sync(state);
       G.assertInvariant(state);
-      const wire={...G.publicView(state,'__broadcast__'),hostId:seatFor(hostUserId).id,roomId,scoreCheckpoint,roundClock:roundAdvance.get()?{...roundAdvance.get(),serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);wire.emoteGenerations=Object.fromEntries(state.players.filter(p=>p.kind==='human').map(p=>[p.id,emoteGenerations.get(p.userId)]));
+      // Release 4 validates a 10s interval; preserve its wire shape while the
+      // authoritative deadline remains the shorter BOT-only deadline. Presentation
+      // still gates the button until the result is ready.
+      const round=roundAdvance.get();
+      const wire={...G.publicView(state,'__broadcast__'),hostId:seatFor(hostUserId).id,roomId,scoreCheckpoint,roundClock:round?{...round,readyAt:round.deadline-R.WAIT_MS,serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);wire.emoteGenerations=Object.fromEntries(state.players.filter(p=>p.kind==='human').map(p=>[p.id,emoteGenerations.get(p.userId)]));
       const own=localize(wire);if(own)emit(own);
       void transmit({type:'snapshot',sequence:++hostSequence,view:wire,reason:reason||null}).catch(()=>{});
       if(reason)status(reason);scheduleBot();
@@ -144,10 +148,10 @@
     function validSnapshot(v){
       if(!v||!['lobby','play','reveal','finished'].includes(v.phase)||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.players)||v.players.length<1||v.players.length>8)return false;
       if(typeof v.rankingEligible!=='boolean')return false;
-      if(!v.emoteGenerations||typeof v.emoteGenerations!=='object'||Array.isArray(v.emoteGenerations)||Object.keys(v.emoteGenerations).length>8||!v.players.filter(p=>p?.kind==='human').every(p=>Number.isSafeInteger(v.emoteGenerations[p.id])&&v.emoteGenerations[p.id]>0)||!Object.keys(v.emoteGenerations).every(key=>v.players.some(p=>p?.id===key&&p.kind==='human')))return false;
+      if(v.emoteGenerations!==undefined&&(!v.emoteGenerations||typeof v.emoteGenerations!=='object'||Array.isArray(v.emoteGenerations)||Object.keys(v.emoteGenerations).length>8||!v.players.filter(p=>p?.kind==='human').every(p=>Number.isSafeInteger(v.emoteGenerations[p.id])&&v.emoteGenerations[p.id]>0)||!Object.keys(v.emoteGenerations).every(key=>v.players.some(p=>p?.id===key&&p.kind==='human'))))return false;
       if(v.scoreCheckpoint!=null){const c=v.scoreCheckpoint;if(!['rematch-checkpoint','lobby-checkpoint'].includes(c.reason)||!Number.isSafeInteger(c.game)||c.game<1||c.game>v.game||!Array.isArray(c.userIds)||c.userIds.length>8||!c.userIds.every(id))return false;}
       if(v.turnClock!==undefined&&v.turnClock!==null){const c=v.turnClock;if(v.phase!=='play'||typeof c.token!=='string'||c.token.length>256||c.player!==v.turn||!v.players.some(p=>p.id===c.player&&p.kind==='human')||!Number.isFinite(c.deadline)||!Number.isFinite(c.serverNow)||c.deadline-c.serverNow>TURN_MS)return false;}
-      if(v.roundClock!==undefined&&v.roundClock!==null){const c=v.roundClock;if(v.phase!=='reveal'||typeof c.token!=='string'||c.token.length>256||!Number.isFinite(c.deadline)||!Number.isFinite(c.readyAt)||!Number.isFinite(c.serverNow)||c.deadline-c.readyAt!==(v.players.some(p=>p?.kind==='human'&&p.life>0)?10000:1000)||c.readyAt-c.serverNow>10000)return false;}
+      if(v.roundClock!==undefined&&v.roundClock!==null){const c=v.roundClock;if(v.phase!=='reveal'||typeof c.token!=='string'||c.token.length>256||!Number.isFinite(c.deadline)||!Number.isFinite(c.readyAt)||!Number.isFinite(c.serverNow)||![10000,...(v.players.some(p=>p?.kind==='human'&&p.life>0)?[]:[1000])].includes(c.deadline-c.readyAt)||c.readyAt-c.serverNow>10000)return false;}
       if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;
       if(new Set(v.players.map(p=>p?.id)).size!==v.players.length)return false;
       if(v.players.some(p=>!p||typeof p!=='object'||!/^p[1-8]$/.test(p.id)||!['human','bot'].includes(p.kind)||typeof p.name!=='string'||p.name.length>24||!Number.isInteger(p.life)||p.life<0||p.life>3||!Number.isSafeInteger(p.wins)||p.wins<0))return false;
@@ -227,8 +231,9 @@
     for(const member of options.members||[])if(member&&id(member.userId)){members.set(member.userId,profile(member));seen.set(member.userId,now());}
     const adapter={
       subscribe(fn){if(typeof fn!=='function')throw new TypeError('Listener required');listeners.add(fn);if(latest)fn(clone(latest));return()=>listeners.delete(fn);},
+      supportsEmotes(){return isHost||Number.isSafeInteger(latest?.emoteGenerations?.[latest.viewerId]);},
       subscribeEmotes(fn){if(typeof fn!=='function')throw new TypeError('Listener required');emoteListeners.add(fn);return()=>emoteListeners.delete(fn);},
-      sendEmote(kind){if(closed||hostLost||!Number.isInteger(kind)||kind<0||kind>3)return Promise.resolve(false);if(isHost)return Promise.resolve(processEmote(userId,kind));if(!epoch||!['play','reveal','finished'].includes(latest?.phase))return Promise.resolve(false);return transmit({type:'emote',kind,sequence:++commandSequence,membership:latest.emoteGenerations?.[latest.viewerId],game:latest.game,round:latest.round});},
+      sendEmote(kind){if(closed||hostLost||!Number.isInteger(kind)||kind<0||kind>3)return Promise.resolve(false);if(isHost)return Promise.resolve(processEmote(userId,kind));if(!epoch||!['play','reveal','finished'].includes(latest?.phase)||!Number.isSafeInteger(latest?.emoteGenerations?.[latest.viewerId]))return Promise.resolve(false);return transmit({type:'emote',kind,sequence:++commandSequence,membership:latest.emoteGenerations?.[latest.viewerId],game:latest.game,round:latest.round});},
       send(action){if(closed||hostLost)return Promise.reject(new Error('Room is disconnected.'));if(isHost)return Promise.resolve(processAction(userId,action));if(!epoch)return Promise.reject(new Error('Waiting for host.'));return transmit({type:'action',sequence:++commandSequence,action});},
       receive,addMember,removeMember,
       resync(){return isHost?(publish(),Promise.resolve()):transmit({type:'resync'});},

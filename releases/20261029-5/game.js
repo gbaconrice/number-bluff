@@ -1189,7 +1189,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   const emoteImages = ['https://tanabe0422.github.io/number-bluff/assets/emote-bunny-surprised.webp','https://tanabe0422.github.io/number-bluff/assets/emote-cat-confident.webp','https://tanabe0422.github.io/number-bluff/assets/emote-cloud-anxious.webp','https://tanabe0422.github.io/number-bluff/assets/emote-star-skeptical.webp'];
   const emoteLabels = ['驚き','得意','不安','疑い'];
   const emotes = new Map(); let emoteCooldown = 0, emoteTimer = null;
-  function clearEmotes(){emotes.clear();clearTimeout(emoteTimer);emoteTimer=null;emoteCooldown=0;emoteBar.querySelectorAll('.emote-button').forEach(b=>b.disabled=false);}
+  function clearEmotes(){emotes.clear();clearTimeout(emoteTimer);emoteTimer=null;emoteCooldown=0;syncEmoteButtons();}
   function showEmote(event){
     if(!['play','reveal','finished'].includes(view?.phase)||event.game!==view.game||event.round!==view.round||!view.players.some(p=>p.id===event.player))return;
     emotes.set(event.player,{kind:event.kind,until:Date.now()+2200});
@@ -1219,10 +1219,11 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     return avatarNames[avatarIndex(id)] + (duplicate ? ' ' + id.slice(1) : '');
   };
   const emoteBar=$('emoteBar');
+  function syncEmoteButtons(){const supported=transport?.supportsEmotes?.()!==false;emoteBar.querySelectorAll('.emote-button').forEach((button,index)=>{button.disabled=!supported||Date.now()<emoteCooldown;button.title=supported?'':'この部屋ではリアクションを利用できません';button.setAttribute('aria-label',emoteLabels[index]+'のリアクション'+(supported?'':'（この部屋では使えません）'));});}
   emoteLabels.forEach((label,kind)=>{const button=el('button','emote-button');button.type='button';button.setAttribute('aria-label',label+'のリアクション');button.append(image(emoteImages[kind]));button.onclick=()=>{
     if(!['play','reveal','finished'].includes(view?.phase)||connectionBlocked||Date.now()<emoteCooldown)return;
     emoteCooldown=Date.now()+3000;emoteBar.querySelectorAll('.emote-button').forEach(b=>b.disabled=true);
-    clearTimeout(emoteTimer);emoteTimer=setTimeout(()=>emoteBar.querySelectorAll('.emote-button').forEach(b=>b.disabled=false),3000);
+    clearTimeout(emoteTimer);emoteTimer=setTimeout(syncEmoteButtons,3000);
     if(transport?.sendEmote)void Promise.resolve(transport.sendEmote(kind)).catch(()=>{});else if(!transport)showEmote({player:human,kind,game:view.game,round:view.round});
   };emoteBar.append(button);});
   const discardButton=el('button','discard-button','捨て札');discardButton.type='button';discardButton.setAttribute('aria-label','公開済みの捨て札を見る');
@@ -1484,7 +1485,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   }
   function renderBattle(previous = null) {
     const active = view.phase === 'play', yourTurn = active && view.turn === human && !connectionBlocked;
-    (active ? $('gamePanel') : $('result')).prepend(emoteBar);
+    (active ? $('gamePanel') : $('result')).prepend(emoteBar); syncEmoteButtons();
     (active ? $('keypad') : $('result')).append($('deckIndicator'));
     document.querySelector('.nb-background')?.setAttribute('data-round-tone',String(view.round%3));
     gameplayFeedback.begin(roomEpoch + ':' + view.game + ':' + view.round);
@@ -1911,7 +1912,11 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       if(state.phase!=='reveal')roundAdvance.cancel();
       if(expireTurn()||roundAdvance.check())return;syncTurn();roundAdvance.sync(state);
       G.assertInvariant(state);
-      const wire={...G.publicView(state,'__broadcast__'),hostId:seatFor(hostUserId).id,roomId,scoreCheckpoint,roundClock:roundAdvance.get()?{...roundAdvance.get(),serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);wire.emoteGenerations=Object.fromEntries(state.players.filter(p=>p.kind==='human').map(p=>[p.id,emoteGenerations.get(p.userId)]));
+      // Release 4 validates a 10s interval; preserve its wire shape while the
+      // authoritative deadline remains the shorter BOT-only deadline. Presentation
+      // still gates the button until the result is ready.
+      const round=roundAdvance.get();
+      const wire={...G.publicView(state,'__broadcast__'),hostId:seatFor(hostUserId).id,roomId,scoreCheckpoint,roundClock:round?{...round,readyAt:round.deadline-R.WAIT_MS,serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);wire.emoteGenerations=Object.fromEntries(state.players.filter(p=>p.kind==='human').map(p=>[p.id,emoteGenerations.get(p.userId)]));
       const own=localize(wire);if(own)emit(own);
       void transmit({type:'snapshot',sequence:++hostSequence,view:wire,reason:reason||null}).catch(()=>{});
       if(reason)status(reason);scheduleBot();
@@ -1970,10 +1975,10 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     function validSnapshot(v){
       if(!v||!['lobby','play','reveal','finished'].includes(v.phase)||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.players)||v.players.length<1||v.players.length>8)return false;
       if(typeof v.rankingEligible!=='boolean')return false;
-      if(!v.emoteGenerations||typeof v.emoteGenerations!=='object'||Array.isArray(v.emoteGenerations)||Object.keys(v.emoteGenerations).length>8||!v.players.filter(p=>p?.kind==='human').every(p=>Number.isSafeInteger(v.emoteGenerations[p.id])&&v.emoteGenerations[p.id]>0)||!Object.keys(v.emoteGenerations).every(key=>v.players.some(p=>p?.id===key&&p.kind==='human')))return false;
+      if(v.emoteGenerations!==undefined&&(!v.emoteGenerations||typeof v.emoteGenerations!=='object'||Array.isArray(v.emoteGenerations)||Object.keys(v.emoteGenerations).length>8||!v.players.filter(p=>p?.kind==='human').every(p=>Number.isSafeInteger(v.emoteGenerations[p.id])&&v.emoteGenerations[p.id]>0)||!Object.keys(v.emoteGenerations).every(key=>v.players.some(p=>p?.id===key&&p.kind==='human'))))return false;
       if(v.scoreCheckpoint!=null){const c=v.scoreCheckpoint;if(!['rematch-checkpoint','lobby-checkpoint'].includes(c.reason)||!Number.isSafeInteger(c.game)||c.game<1||c.game>v.game||!Array.isArray(c.userIds)||c.userIds.length>8||!c.userIds.every(id))return false;}
       if(v.turnClock!==undefined&&v.turnClock!==null){const c=v.turnClock;if(v.phase!=='play'||typeof c.token!=='string'||c.token.length>256||c.player!==v.turn||!v.players.some(p=>p.id===c.player&&p.kind==='human')||!Number.isFinite(c.deadline)||!Number.isFinite(c.serverNow)||c.deadline-c.serverNow>TURN_MS)return false;}
-      if(v.roundClock!==undefined&&v.roundClock!==null){const c=v.roundClock;if(v.phase!=='reveal'||typeof c.token!=='string'||c.token.length>256||!Number.isFinite(c.deadline)||!Number.isFinite(c.readyAt)||!Number.isFinite(c.serverNow)||c.deadline-c.readyAt!==(v.players.some(p=>p?.kind==='human'&&p.life>0)?10000:1000)||c.readyAt-c.serverNow>10000)return false;}
+      if(v.roundClock!==undefined&&v.roundClock!==null){const c=v.roundClock;if(v.phase!=='reveal'||typeof c.token!=='string'||c.token.length>256||!Number.isFinite(c.deadline)||!Number.isFinite(c.readyAt)||!Number.isFinite(c.serverNow)||![10000,...(v.players.some(p=>p?.kind==='human'&&p.life>0)?[]:[1000])].includes(c.deadline-c.readyAt)||c.readyAt-c.serverNow>10000)return false;}
       if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;
       if(new Set(v.players.map(p=>p?.id)).size!==v.players.length)return false;
       if(v.players.some(p=>!p||typeof p!=='object'||!/^p[1-8]$/.test(p.id)||!['human','bot'].includes(p.kind)||typeof p.name!=='string'||p.name.length>24||!Number.isInteger(p.life)||p.life<0||p.life>3||!Number.isSafeInteger(p.wins)||p.wins<0))return false;
@@ -2053,8 +2058,9 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     for(const member of options.members||[])if(member&&id(member.userId)){members.set(member.userId,profile(member));seen.set(member.userId,now());}
     const adapter={
       subscribe(fn){if(typeof fn!=='function')throw new TypeError('Listener required');listeners.add(fn);if(latest)fn(clone(latest));return()=>listeners.delete(fn);},
+      supportsEmotes(){return isHost||Number.isSafeInteger(latest?.emoteGenerations?.[latest.viewerId]);},
       subscribeEmotes(fn){if(typeof fn!=='function')throw new TypeError('Listener required');emoteListeners.add(fn);return()=>emoteListeners.delete(fn);},
-      sendEmote(kind){if(closed||hostLost||!Number.isInteger(kind)||kind<0||kind>3)return Promise.resolve(false);if(isHost)return Promise.resolve(processEmote(userId,kind));if(!epoch||!['play','reveal','finished'].includes(latest?.phase))return Promise.resolve(false);return transmit({type:'emote',kind,sequence:++commandSequence,membership:latest.emoteGenerations?.[latest.viewerId],game:latest.game,round:latest.round});},
+      sendEmote(kind){if(closed||hostLost||!Number.isInteger(kind)||kind<0||kind>3)return Promise.resolve(false);if(isHost)return Promise.resolve(processEmote(userId,kind));if(!epoch||!['play','reveal','finished'].includes(latest?.phase)||!Number.isSafeInteger(latest?.emoteGenerations?.[latest.viewerId]))return Promise.resolve(false);return transmit({type:'emote',kind,sequence:++commandSequence,membership:latest.emoteGenerations?.[latest.viewerId],game:latest.game,round:latest.round});},
       send(action){if(closed||hostLost)return Promise.reject(new Error('Room is disconnected.'));if(isHost)return Promise.resolve(processAction(userId,action));if(!epoch)return Promise.reject(new Error('Waiting for host.'));return transmit({type:'action',sequence:++commandSequence,action});},
       receive,addMember,removeMember,
       resync(){return isHost?(publish(),Promise.resolve()):transmit({type:'resync'});},
