@@ -643,7 +643,7 @@ blurred, rainbow infinite border replaced with a 1.5px gold-only masked rim,
 GPU-transform rotation and a single 650ms pass. No third-party artwork used.
 All geometry/opacity motion is finite. Images/numerals are not transformed
 independently, filtered, repainted, recolored, or replaced.
- 
+
 
 */
 /*

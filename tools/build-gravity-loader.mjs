@@ -5,7 +5,7 @@ import {build,ASSET_BASE} from './build-single-html.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 export function buildLoader(){
  const html=build(root).replace(/\r\n/g,'\n'), version='20261029-5', base=ASSET_BASE+'releases/'+version+'/';
- const css=[...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(m=>m[1]).join('\n');
+ const css=[...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(m=>m[1]).join('\n').trimEnd()+'\n';
  const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
  const markup=html.match(/<body>([\s\S]*?)<script>/)[1];
  const js=`try {\ndocument.body.insertAdjacentHTML('beforeend',${JSON.stringify(markup)});\n${scripts.join('\n;\n')}\nwindow.NumberBluffBootReady=true;\n} catch(error) { window.NumberBluffBootError=error; }\n`;

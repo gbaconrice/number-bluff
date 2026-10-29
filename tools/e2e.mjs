@@ -306,7 +306,7 @@ async function setup(width,packaged=false,initialize=null){
  await page.goto(origin+(packaged?'/ai-studio.html':''));assert.equal(await page.evaluate(()=>window.__audioStarts),0,'no sound may autoplay before user input');return{context,page,errors,external,mapped};
 }
 try{
- browser=await chromium.launch();
+ browser=await chromium.launch(process.env.NB_CHROMIUM?{executablePath:process.env.NB_CHROMIUM}:{});
  if(visualOnly){
   const {context,page,errors,external}=await setup(390);
   try{

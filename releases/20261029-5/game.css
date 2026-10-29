@@ -845,4 +845,3 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 @media (prefers-reduced-motion: reduce) {
   .nb-scene-confetti { display: none !important; }
 }
-
