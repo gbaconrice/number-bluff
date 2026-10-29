@@ -70,7 +70,8 @@
     apply(G.declare(state, human, value));
   } });
   let presentationFrame = null, presentationPrevious = null, presentationKey = null, roomEpoch = 0, nextReadyAt = 0;
-  let transport = null, unsubscribe = null, unsubscribeEmotes = null, turnDisplayTimer = null;
+  let transport = null, unsubscribe = null, unsubscribeEmotes = null, turnDisplayTimer = null, pendingAction = null;
+  function clearPendingAction(){if(pendingAction){clearTimeout(pendingAction.timer);pendingAction=null;}}
   const emoteImages = ['assets/cloud-bunny.webp','assets/moon-cat.webp','assets/blue-cloud.webp','assets/star-sprite.webp'];
   const emoteLabels = ['驚き','得意','不安','疑い'];
   const emotes = new Map(); let emoteCooldown = 0, emoteTimer = null;
@@ -193,7 +194,7 @@
     if (result) for (const listener of sessionFinishListeners) { try { listener(result); } catch {} }
   }
   function detachTransport() {
-    audio.stop(); stopTurnDisplay(); localTurnClock.cancel(); localRoundClock.cancel(); cancelPresentation(); presentationKey = null; roomEpoch++;
+    clearPendingAction(); audio.stop(); stopTurnDisplay(); localTurnClock.cancel(); localRoundClock.cancel(); cancelPresentation(); presentationKey = null; roomEpoch++;
     if (typeof unsubscribe === 'function') unsubscribe();
     if (typeof unsubscribeEmotes === 'function') unsubscribeEmotes(); unsubscribeEmotes = null; clearEmotes();
     unsubscribe = null; const old = transport; transport = null; connectionBlocked = false; connectionMessage = '';
@@ -388,8 +389,8 @@
     $('gamePanel').classList.toggle('hide', !active); $('result').classList.toggle('hide', active); $('result').classList.toggle('open', !active);
     const alive = !view.players.find(p => p.id === human)?.eliminated;
     $('status').textContent = active ? yourTurn ? 'あなたの手番です' : alive ? name(view.turn) + ' が考えています…' : 'あなたは脱落しました。残りの対戦を見届けよう。' : '';
-    $('declare').disabled = !yourTurn || view.bid === Number.MAX_SAFE_INTEGER;
-    $('challenge').disabled = !yourTurn || view.bid === null;
+    $('declare').disabled = !yourTurn || !!pendingAction || view.bid === Number.MAX_SAFE_INTEGER;
+    $('challenge').disabled = !yourTurn || !!pendingAction || view.bid === null;
     document.querySelectorAll('#keypad button').forEach(button => { button.disabled = !yourTurn; });
     if (yourTurn) { $('number').textContent = view.bid === null ? '1' : view.bid === Number.MAX_SAFE_INTEGER ? '' : String(view.bid + 1); suggested = true; }
     $('next').disabled = active; renderResult();
@@ -416,6 +417,7 @@
     if (transport && view?.phase === 'reveal' && next.phase === 'reveal' && next.revision === view.revision && next.hostId === view.hostId && next.roundClock?.token === view.roundClock?.token && next.roundClock) { view = next; paintTurnDisplay(); return; }
     if (transport && view?.phase === 'play' && next.phase === 'play' && next.revision === view.revision && next.hostId === view.hostId && next.turnClock && next.turnClock.token === view.turnClock?.token) { view = next; paintTurnDisplay(); return; }
     const previous = view; view = next; clearError();
+    if(pendingAction && (next.revision !== pendingAction.revision || next.phase !== 'play')) clearPendingAction();
     if ($('cardDetail').open && previous && (next.phase === 'play' || next.phase === 'lobby' || next.game !== previous.game || next.round !== previous.round)) $('cardDetail').close();
     if (previous && (next.phase !== 'play' || previous.game !== next.game || previous.round !== next.round)) clearEmotes();
     if (connectionMessage === 'ホストからの情報を待っています…' || (previous?.phase === 'lobby' && view.phase === 'play' && ['参加者が退出したため、対戦を中止してロビーに戻りました。', '参加者との接続が切れました。', '扱える数字の上限に達したため、勝敗をつけずロビーに戻りました。'].includes(connectionMessage))) { connectionMessage = ''; paintConnectionStatus(); }
@@ -448,7 +450,23 @@
   function action(type, value) {
     if (!view || connectionBlocked) return false;
     if (transport && ['nextRound', 'rematch', 'returnToLobby'].includes(type) && !canManageLobby()) return false;
-    if (transport) { const sentView = view; if (type === 'declare') $('declare').disabled = true; Promise.resolve(transport.send({ type, player: human, value, revision: view.revision, turnToken: view.turnClock?.token })).then(accepted => { if (accepted === false && type === 'declare' && view === sentView && !connectionBlocked) { $('declare').disabled = view.turn !== human; fail('宣言できませんでした。現在の手番と数字を確認してください。'); } }).catch(() => { fail('接続を確認して、もう一度お試しください。'); if (type === 'declare' && view === sentView && !connectionBlocked) $('declare').disabled = view.turn !== human; }); return true; }
+    if (transport) {
+      const sentView=view, isMove=['declare','challenge'].includes(type); if(isMove&&pendingAction)return false;
+      if(isMove){
+        const pending={revision:view.revision,token:view.turnClock?.token,timer:null};pendingAction=pending;
+        $('declare').disabled=true;$('challenge').disabled=true;$('status').textContent='確認中…';
+        pending.timer=setTimeout(()=>{
+          if(pendingAction!==pending)return;clearPendingAction();
+          if(view?.phase==='play'&&view.revision===pending.revision&&view.turn===human&&!connectionBlocked){
+            $('declare').disabled=view.bid===Number.MAX_SAFE_INTEGER;$('challenge').disabled=view.bid===null;
+            fail('確認できませんでした。現在の手番を確認してください。');void Promise.resolve(transport?.resync?.()).catch(()=>{});
+          }
+        },4000);
+      }
+      Promise.resolve(transport.send({type,player:human,value,revision:view.revision,turnToken:view.turnClock?.token})).then(accepted=>{
+        if(accepted===false&&isMove&&pendingAction?.revision===sentView.revision){clearPendingAction();if(view?.turn===human&&!connectionBlocked){$('declare').disabled=view.bid===Number.MAX_SAFE_INTEGER;$('challenge').disabled=view.bid===null;fail('宣言できませんでした。現在の手番と数字を確認してください。');}}
+      }).catch(()=>{clearPendingAction();fail('接続を確認して、もう一度試してください。');if(isMove&&view?.turn===human&&!connectionBlocked){$('declare').disabled=view.bid===Number.MAX_SAFE_INTEGER;$('challenge').disabled=view.bid===null;}});return true;
+    }
     if (localTurnClock.check() || localRoundClock.check()) return false;
     const next = G.dispatch(state, { type, player: human, value, revision: view.revision }, Math.random);
     return apply(next);
