@@ -70,7 +70,21 @@
     apply(G.declare(state, human, value));
   } });
   let presentationFrame = null, presentationPrevious = null, presentationKey = null, roomEpoch = 0, nextReadyAt = 0;
-  let transport = null, unsubscribe = null, turnDisplayTimer = null;
+  let transport = null, unsubscribe = null, unsubscribeEmotes = null, turnDisplayTimer = null;
+  const emoteImages = ['assets/cloud-bunny.webp','assets/moon-cat.webp','assets/blue-cloud.webp','assets/star-sprite.webp'];
+  const emoteLabels = ['驚き','得意','不安','疑い'];
+  const emotes = new Map(); let emoteCooldown = 0, emoteTimer = null;
+  function clearEmotes(){emotes.clear();clearTimeout(emoteTimer);emoteTimer=null;emoteCooldown=0;emoteBar.querySelectorAll('button').forEach(b=>b.disabled=false);}
+  function showEmote(event){
+    if(view?.phase!=='play'||event.game!==view.game||event.round!==view.round||!view.players.some(p=>p.id===event.player))return;
+    emotes.set(event.player,{kind:event.kind,until:Date.now()+2200});
+    paintEmotes();setTimeout(()=>{const item=emotes.get(event.player);if(item&&item.until<=Date.now()){emotes.delete(event.player);paintEmotes();}},2250);
+  }
+  function paintEmotes(){
+    for(const block of $('playerGrid').children){block.querySelector('.emote-stamp')?.remove();const item=emotes.get(block.dataset.player);if(!item||item.until<=Date.now())continue;
+      const stamp=image(emoteImages[item.kind],'emote-stamp');stamp.setAttribute('role','img');stamp.setAttribute('aria-label',name(block.dataset.player)+'のリアクション: '+emoteLabels[item.kind]);block.querySelector('.player-info')?.append(stamp);
+    }
+  }
   const el = (tag, cls, text) => { const node = document.createElement(tag); if (cls) node.className = cls; if (text !== undefined) node.textContent = text; return node; };
   const image = (src, cls = '') => { const node = el('img', cls); node.src = src; node.alt = ''; return node; };
   const avatarIndex = id => { const p = view?.players.find(p => p.id === id); const value = p?.botAvatar ?? avatarChoice[id]; return Number.isInteger(value) && value >= 0 && value < 4 ? value : (Math.max(0, Number(String(id).replace(/\D/g, '')) - 1) % 4); };
@@ -89,6 +103,13 @@
     const duplicate = view.players.filter(p => p.kind === 'bot' && avatarIndex(p.id) === avatarIndex(id)).length > 1;
     return avatarNames[avatarIndex(id)] + (duplicate ? ' ' + id.slice(1) : '');
   };
+  const emoteBar=$('emoteBar');
+  emoteLabels.forEach((label,kind)=>{const button=el('button','emote-button');button.type='button';button.setAttribute('aria-label',label+'のリアクション');button.append(image(emoteImages[kind]));button.onclick=()=>{
+    if(view?.phase!=='play'||connectionBlocked||Date.now()<emoteCooldown)return;
+    emoteCooldown=Date.now()+3000;emoteBar.querySelectorAll('button').forEach(b=>b.disabled=true);
+    clearTimeout(emoteTimer);emoteTimer=setTimeout(()=>emoteBar.querySelectorAll('button').forEach(b=>b.disabled=false),3000);
+    if(transport?.sendEmote)void Promise.resolve(transport.sendEmote(kind)).catch(()=>{});else if(!transport)showEmote({player:human,kind,game:view.game,round:view.round});
+  };emoteBar.append(button);});
   const presenter = window.NumberBluffPresentation.createPresenter({
     reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     onPhase: paintPresentationFrame
@@ -121,7 +142,7 @@
       const block = [...$('playerGrid').children].find(n => n.dataset.player === p.id); if (!block) continue;
       let node = block.querySelector('.player-card');
       if (frame.revealedIds.includes(card.id) && node.classList.contains('hidden')) {
-        const face = cardNode(card); face.classList.add('presentation-card'); face.dataset.cardId = card.id; face.dataset.revealed = 'true';
+        const face = cardNode(card); face.classList.add('presentation-card'); face.dataset.cardId = card.id; face.dataset.revealed = 'true'; face.dataset.detailCard = card.id; face.setAttribute('role','button'); face.tabIndex=0;
         if (p.id === human) face.id = 'humanCard'; face.setAttribute('aria-label', name(p.id) + 'のカード ' + card.label); cardReveal.reveal({ key: key + ':' + card.id, back: node, face, authorized: true }); node = face;
       }
       node.classList.toggle('is-adding', frame.phase === 'sum' && frame.cardId === card.id);
@@ -138,7 +159,7 @@
     if (frame.outcomeVisible && !hadOutcome) $('resultAnnouncement').textContent = '最終合計 ' + view.result.sum + '。' + $('resultText').textContent;
   }
   function show(id, focus = null) {
-    if (screen === 'battleScreen' && id !== screen) { audio.stop(); cancelPresentation(true); }
+    if (screen === 'battleScreen' && id !== screen) { if ($('cardDetail').open) $('cardDetail').close(); audio.stop(); cancelPresentation(true); }
     for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
     stopDetailEffect(); screen = id; paintTurnDisplay(); cardReveal.settleAll(); syncCardMotion(); window.scrollTo(0, 0);
     for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
@@ -174,6 +195,7 @@
   function detachTransport() {
     audio.stop(); stopTurnDisplay(); localTurnClock.cancel(); localRoundClock.cancel(); cancelPresentation(); presentationKey = null; roomEpoch++;
     if (typeof unsubscribe === 'function') unsubscribe();
+    if (typeof unsubscribeEmotes === 'function') unsubscribeEmotes(); unsubscribeEmotes = null; clearEmotes();
     unsubscribe = null; const old = transport; transport = null; connectionBlocked = false; connectionMessage = '';
     if (typeof old?.close === 'function') old.close();
     paintConnectionStatus();
@@ -271,30 +293,31 @@
     const held = presentationFrame && !presentationFrame.outcomeVisible;
     for (const player of view.players) {
       const p = held ? presentationPrevious?.find(old => old.id === player.id) || player : player;
-      const block = el('div', 'battle-player' + (p.id === human ? ' self' : '') + (p.id === view.turn ? ' active' : '') + (p.eliminated ? ' eliminated' : ''));
+      const block = el('div', 'battle-player' + (view.phase === 'play' && p.id === view.last ? ' last-bidder' : '') + (p.id === human ? ' self' : '') + (p.id === view.turn ? ' active' : '') + (p.eliminated ? ' eliminated' : ''));
       block.dataset.player = p.id;
-      const info = el('div', 'player-info'); info.append(el('div', 'player-name', name(p.id)), playerAvatar(p.id));
+      const info = el('div', 'player-info'); const playerName = el('div', 'player-name', name(p.id)); if(p.kind === 'human' && p.currentStreak >= 3) { const mark=el('span','streak-mark', p.currentStreak >= 5 ? ' ✦✦' : ' ✦'); mark.setAttribute('aria-label', p.currentStreak + '連勝'); playerName.append(mark); } info.append(playerName, playerAvatar(p.id));
       const hearts = el('div', 'hearts'); for (let i = 0; i < 3; i++) { const heart = el('span', 'life-heart', i < p.life ? '♥' : '♡'); heart.setAttribute('aria-hidden', 'true'); hearts.append(heart); } hearts.setAttribute('aria-label', name(p.id) + 'のライフ ' + p.life + ' / 3'); info.append(hearts);
       const card = view.hands[p.id], out = !Object.prototype.hasOwnProperty.call(view.hands, p.id) && p.eliminated;
       const hidden = !out && ((view.phase === 'play' && p.id === human) || (presentationFrame && !presentationFrame.revealedIds.includes(card?.id)));
       const node = cardNode(card, hidden, out);
       if (p.id === human) node.id = 'humanCard';
+      if (!hidden && !out && card && view.phase !== 'play') { node.dataset.detailCard = card.id; node.setAttribute('role','button'); node.tabIndex=0; }
       node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : hidden ? name(p.id) + 'の非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
       if (view.phase !== 'play' && card) { node.classList.add('presentation-card'); node.dataset.cardId = card.id; node.dataset.revealed = hidden ? 'back' : 'true'; }
       block.append(info, node);
-      if (p.wins > 0) info.append(el('span', 'wins-badge', p.wins + '勝'));
+      if (p.wins > 0 || (p.kind === 'human' && p.currentStreak > 0)) { const badge=el('span','wins-badge'); if(p.wins > 0) badge.append(el('span','', '通算' + p.wins + '勝')); if(p.kind === 'human' && p.currentStreak > 0) badge.append(el('span','', p.currentStreak + '連勝')); info.append(badge); }
       grid.append(block);
     }
-    grid.scrollTop = scrollTop; paintTurnDisplay();
+    grid.scrollTop = scrollTop; paintEmotes(); paintTurnDisplay();
   }
   function renderStagedResult() {
     const r = view.result, f = presentationFrame;
     $('result').dataset.presentationPhase = f.phase;
     $('battlePhase').textContent = f.outcomeVisible && r.winner ? '対戦結果' : 'ラウンド結果';
     $('resultTitle').textContent = $('battlePhase').textContent;
-    $('calculationHeading').textContent = ({hold:'グラビティ！',reveal:'カードを公開',extra:'もう1枚、公開',max:'最大の1枚を0に',sum:'数字を足して…',multiply:'合計を2倍！',compare:'宣言と比べる',outcome:'判定結果'})[f.phase] || '計算の流れ';
+    $('calculationHeading').textContent = ({hold:'ダウト！',reveal:'カードを公開',extra:'もう1枚、公開',max:'最大の1枚を0に',sum:'数字を足して…',multiply:'合計を2倍！',compare:'宣言と比べる',outcome:'判定結果'})[f.phase] || '計算の流れ';
     const line = (label, expression) => { const row = el('div', 'calc-line'); if (label) row.append(el('div', '', label)); row.append(el('div', 'calc-expression', expression)); $('calculationSteps').append(row); };
-    if (f.extraVisible && r.extraCard) { const extra = el('div', 'extra-reveal'); const card = cardNode(r.extraCard); if (f.phase === 'extra') card.classList.add('presentation-extra'); if (f.removedCardId === r.extraCard.id) { card.classList.add('is-zeroed'); card.append(zeroEffectBadge()); } extra.append(el('span', '', '「?」で追加公開'), card); $('calculationSteps').append(extra); }
+    if (f.extraVisible && r.extraCard) { const extra = el('div', 'extra-reveal'); const card = cardNode(r.extraCard); card.dataset.detailCard = r.extraCard.id; card.setAttribute('role','button'); card.tabIndex=0; if (f.phase === 'extra') card.classList.add('presentation-extra'); if (f.removedCardId === r.extraCard.id) { card.classList.add('is-zeroed'); card.append(zeroEffectBadge()); } extra.append(el('span', '', '「?」で追加公開'), card); $('calculationSteps').append(extra); }
     if (f.removedCardId && r.removedCard) line('MAX→0', r.removedCard.label + ' → 0');
     if (f.terms.length) line('', f.terms.map(t => t.value < 0 ? '(' + t.value + ')' : String(t.value)).join(' + ') + ' = ' + (f.multiplierApplied ? r.baseSum : f.runningTotal));
     if (f.multiplierApplied) line('×2', r.baseSum + ' × 2 = ' + r.sum);
@@ -302,7 +325,7 @@
     $('totalLabel').textContent = f.compareVisible ? '最終合計' : '計算中'; sceneMotion.setNumber($('finalTotal'), f.compareVisible ? r.sum : f.runningTotal ?? null);
     $('resultAvatar').replaceChildren(playerAvatar(f.outcomeVisible ? r.winner || r.loser : r.challenger));
     const loser = view.players.find(p => p.id === r.loser);
-    $('resultText').textContent = f.outcomeVisible ? r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') : name(r.challenger) + '「グラビティ！」';
+    $('resultText').textContent = f.outcomeVisible ? r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') : name(r.challenger) + '「ダウト！」';
     $('next').textContent = '結果を見る'; $('next').disabled = connectionBlocked;
   }
   function renderResult() {
@@ -310,6 +333,8 @@
     lobbyReturn.classList.toggle('hide', view.phase !== 'finished' || !!(presentationFrame && !presentationFrame.complete));
     lobbyReturn.disabled = connectionBlocked || !canManageLobby();
     const r = view.result; $('calculationSteps').replaceChildren();
+    const me = view.players.find(p => p.id === human);
+    $('streakSummary').textContent = me && r && (!presentationFrame || presentationFrame.outcomeVisible) ? '現在 ' + (me.currentStreak || 0) + '連勝　最高 ' + (me.bestStreak || 0) + '連勝' : '';
     if (!r) { $('resultText').textContent = ''; $('finalTotal').textContent = ''; return; }
     if (presentationFrame && !presentationFrame.complete) { renderStagedResult(); return; }
     $('result').dataset.presentationPhase = 'complete'; $('calculationHeading').textContent = '計算の流れ'; $('totalLabel').textContent = '最終合計';
@@ -329,7 +354,7 @@
     sceneMotion.setNumber($('finalTotal'), r.sum, { instant: !presenter.active });
     const loser = view.players.find(p => p.id === r.loser);
     $('resultAvatar').replaceChildren(playerAvatar(r.winner || r.loser));
-    $('resultText').textContent = r.winner ? name(r.winner) + 'の優勝！ 通算 ' + view.players.find(p => p.id === r.winner).wins + '勝' : name(r.loser) + (loser.eliminated ? ' が脱落' : ' のライフ −1') + '　' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum;
+    $('resultText').textContent = (r.bid > r.sum ? name(r.bidder) : name(r.challenger)) + 'の負け（' + r.bid + (r.bid > r.sum ? ' > ' : ' ≤ ') + r.sum + '）' + (r.winner ? '　' + name(r.winner) + 'の優勝！' : '');
     $('next').textContent = canManageLobby() ? (r.winner ? 'もう一度遊ぶ　›' : '次のラウンドへ　›') : 'ホストの操作を待っています';
     $('next').disabled = !canManageLobby(); paintTurnDisplay();
   }
@@ -345,10 +370,20 @@
         if (previous?.phase === 'play' && screen === 'battleScreen') { presentationPrevious = previous.players; presentationFrame = window.NumberBluffPresentation.plan(view.result, view.players)[0]; startPresentation = true; }
       }
     }
-    renderPlayers(); $('roundLabel').textContent = 'ラウンド ' + view.round; $('survivorCount').textContent = '生存者 ' + view.players.filter(p => !p.eliminated).length + '/' + view.players.length;
+    renderPlayers();
+    if (startPresentation) for (const id of [view.result.challenger, view.result.bidder]) {
+      const block = [...$('playerGrid').children].find(node => node.dataset.player === id);
+      block?.classList.add('doubt-actor');
+    }
+    $('roundLabel').textContent = 'ラウンド ' + view.round; $('survivorCount').textContent = '生存者 ' + view.players.filter(p => !p.eliminated).length + '/' + view.players.length;
     document.querySelector('.turn-countdown')?.remove();
-    if (active && view.turnClock) { const badge = el('span', 'turn-countdown'); badge.dataset.player = view.turn; $('survivorCount').before(badge); paintTurnDisplay(); }
+    if (active && view.turnClock) { const badge = el('span', 'turn-countdown'); badge.dataset.player = view.turn; document.querySelector('.input-console').prepend(badge); paintTurnDisplay(); }
+    document.querySelector('.bid-panel').classList.toggle('has-bid', active && view.bid !== null);
     $('bid').textContent = view.bid ?? '—'; $('lastBidder').textContent = view.last ? name(view.last) + ' の宣言' : name(view.turn) + ' の番'; $('bidActor').replaceChildren(playerAvatar(view.last || view.turn));
+    const history = $('bidHistory'); history.replaceChildren();
+    for (const bid of view.history.filter(item => item.type === 'declare').slice(-4)) history.append(el('span', 'bid-history-item', name(bid.player) + ' ' + bid.value));
+    history.classList.toggle('hide', !active || !history.childElementCount);
+    $('battleScreen').classList.toggle('duel', active && view.players.filter(p=>!p.eliminated).length === 2); $('battleScreen').classList.toggle('spectating', active && !!view.players.find(p=>p.id===human)?.eliminated);
     $('battleScreen').classList.toggle('is-result', !active); $('battlePhase').textContent = view.phase === 'finished' ? '対戦結果' : 'ラウンド結果'; $('battlePhase').classList.toggle('hide', active); $('battleTitle').querySelector('.battle-meta').classList.toggle('hide', !active);
     $('gamePanel').classList.toggle('hide', !active); $('result').classList.toggle('hide', active); $('result').classList.toggle('open', !active);
     const alive = !view.players.find(p => p.id === human)?.eliminated;
@@ -367,6 +402,7 @@
     }
     if (active && previous?.phase === 'play' && previous.game === view.game && previous.round === view.round && previous.turn !== view.turn && !connectionBlocked && screen === 'battleScreen' && $('restartConfirm').classList.contains('hide')) {
       const player = [...$('playerGrid').children].find(n => n.dataset.player === view.turn);
+      if (yourTurn) { const panel = document.querySelector('.input-console'); panel.classList.remove('turn-ready'); void panel.offsetWidth; panel.classList.add('turn-ready'); audio.play('tap'); }
       gameplayFeedback.play('turn', player?.querySelector('.avatar'), view.bid + ':' + view.turn);
     }
     if (active) { const target = [...$('playerGrid').children].find(n => n.dataset.player === view.turn)?.querySelector('.player-card'); cardReveal.gold({key: roomEpoch + ':' + view.game + ':' + view.round + ':' + view.turn + ':' + view.bid, node: target?.classList.contains('hidden') ? null : target}); }
@@ -380,6 +416,8 @@
     if (transport && view?.phase === 'reveal' && next.phase === 'reveal' && next.revision === view.revision && next.hostId === view.hostId && next.roundClock?.token === view.roundClock?.token && next.roundClock) { view = next; paintTurnDisplay(); return; }
     if (transport && view?.phase === 'play' && next.phase === 'play' && next.revision === view.revision && next.hostId === view.hostId && next.turnClock && next.turnClock.token === view.turnClock?.token) { view = next; paintTurnDisplay(); return; }
     const previous = view; view = next; clearError();
+    if ($('cardDetail').open && previous && (next.phase === 'play' || next.phase === 'lobby' || next.game !== previous.game || next.round !== previous.round)) $('cardDetail').close();
+    if (previous && (next.phase !== 'play' || previous.game !== next.game || previous.round !== next.round)) clearEmotes();
     if (connectionMessage === 'ホストからの情報を待っています…' || (previous?.phase === 'lobby' && view.phase === 'play' && ['参加者が退出したため、対戦を中止してロビーに戻りました。', '参加者との接続が切れました。', '扱える数字の上限に達したため、勝敗をつけずロビーに戻りました。'].includes(connectionMessage))) { connectionMessage = ''; paintConnectionStatus(); }
     if (view.phase === 'lobby') { cancelPresentation(); presentationKey = null; renderLobby(); } else renderBattle(previous);
     const checkpoint = view.scoreCheckpoint, me = view.players.find(p => p.id === human);
@@ -511,7 +549,7 @@
     document.querySelectorAll('.guide-tabs button[data-tab]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.tab === tab)));
     if (tab === 'rules') {
 
-      const steps = [['カードを配る','自分のカードだけ見えません。他の人のカードを見て、全員の合計を予想しよう。'],['数字を宣言','最初は1以上の整数。次の人は、前の宣言より大きな数を宣言します。'],['グラビティ！','直前の宣言が合計を超えていると思ったら、グラビティ！で挑戦。'],['勝敗判定','全カードを公開し、特殊効果を含めて合計。宣言が合計より大きければ宣言者の負け。合計以下なら、疑った側の負け。'],['最後まで生き残ろう','負けるとライフが1減り、0で脱落。最後の1人が優勝！次のラウンドは負けた人から（脱落した場合は、その判定で勝った人から）。']];
+      const steps = [['カードを配る','自分のカードだけ見えません。他の人のカードを見て、全員の合計を予想しよう。'],['数字を宣言','最初は1以上の整数。次の人は、前の宣言より大きな数を宣言します。'],['ダウト！','直前の宣言が合計を超えていると思ったら、ダウト！で挑戦。'],['勝敗判定','全カードを公開し、特殊効果を含めて合計。宣言が合計より大きければ宣言者の負け。合計以下なら、疑った側の負け。'],['最後まで生き残ろう','負けるとライフが1減り、0で脱落。最後の1人が優勝！次のラウンドは負けた人から（脱落した場合は、その判定で勝った人から）。']];
       steps.forEach(([title, text], index) => {
         const section = el('section', 'guide-step');
         section.append(el('b', 'step-number', index + 1), el('h3', '', title), el('p', '', text));
@@ -555,6 +593,14 @@
     const descriptions = { double: '数字の合計を2倍にします。マイナスの合計にも適用。例：(3 + 5 − 5) × 2 = 6。', max0: '場の最大の正の数字カードを1枚だけ0にします。同じ最大値が複数あっても1枚だけ。', extra: '判定時に山札から1枚だけ追加公開。数字も特殊効果も合計に反映。連鎖して追加はしません。', reset: '数字としては0。このラウンドの判定後に全36枚を混ぜ直します。合計自体を0にはしません。' };
     const body = $('cardDetailContent'); body.replaceChildren(cardNode(card), el('h2', '', cardLabel(card) + '（' + count + '枚）'), el('p', '', descriptions[card.kind] || (card.value < 0 ? '合計から ' + Math.abs(card.value) + ' を引きます。' : '合計に ' + card.value + ' を足します。'))); specialEffects.stop(); $('cardDetail').showModal(); $('closeCardDetail').focus(); syncCardMotion(); const detailFace=body.querySelector('.player-card'); detailFace.querySelector('img.card-art').decode().then(()=>{if(detailEpoch===detailEffectEpoch&&$('cardDetail').open&&detailFace.isConnected&&!detailFace.classList.contains('normal-card'))specialEffects.play(detailFace,{priority:true});}).catch(()=>{});
   }
+  function openRevealedCard(target) {
+    const node=target.closest('[data-detail-card]');if(!node||presenter.active||view?.phase==='play'||!view?.result||!node.isConnected)return;
+    const card=[...Object.values(view.result.cards),view.result.extraCard].find(c=>c?.id===node.dataset.detailCard);
+    if(card&&!node.classList.contains('hidden'))cardDetail(card,1);
+  }
+  $('battleScreen').addEventListener('click',event=>openRevealedCard(event.target));
+  $('battleScreen').addEventListener('keydown',event=>{if((event.key==='Enter'||event.key===' ')&&event.target.matches('[data-detail-card]')){event.preventDefault();openRevealedCard(event.target);}});
+  $('cardDetail').addEventListener('click',event=>{if(event.target===$('cardDetail'))$('cardDetail').close();});
   $('closeCardDetail').onclick = () => { stopDetailEffect(); $('cardDetail').close(); specialSVG.refresh(); };
   $('cardDetail').addEventListener('cancel', stopDetailEffect);
   $('cardDetail').addEventListener('beforetoggle', event => { if(event.newState==='closed')stopDetailEffect(); });
@@ -619,6 +665,7 @@
         receive(publicState);
         if (first || screen === 'lobbyScreen' || (publicState.phase === 'lobby' && screen === 'battleScreen')) { show(publicState.phase === 'lobby' ? 'lobbyScreen' : 'battleScreen'); first = false; }
       });
+      unsubscribeEmotes = adapter.subscribeEmotes?.(event => { if (transport === adapter) showEmote(event); });
       const connection = adapter.getStatus?.(); if (connection?.kind) window.NumberBluffClient.reportConnectionStatus(connection);
     },
     disconnect() { timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); }

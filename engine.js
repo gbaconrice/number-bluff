@@ -34,7 +34,7 @@
     for(const p of alive(s)) hands[p.id]=draw(pool,rng);
     return updated(s,{...pool,hands,phase:'play',round:s.round+1,bid:null,last:null,turn:s.starter,result:null,history:[]});
   }
-  function startGame(s,rng) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;return deal({...s,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:s.players.filter(p=>p.kind==='human').length>=2||(s.players.filter(p=>p.kind==='human').length===1&&s.players.some(p=>p.kind==='bot'&&p.difficulty==='hard')),starter:s.players[0].id},rng);}
+  function startGame(s,rng) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;const players=shuffle(s.players,rng);return deal({...s,players,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:players.filter(p=>p.kind==='human').length>=2||(players.filter(p=>p.kind==='human').length===1&&players.some(p=>p.kind==='bot'&&p.difficulty==='hard')),starter:players[0].id},rng);}
   function rematch(s,rng) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:s.players.map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng);}
   // A room survives leaving a match. The UI must confirm abandoning active play;
   // no winner is awarded here. createLobby is reserved for a genuinely new room.

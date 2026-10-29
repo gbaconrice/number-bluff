@@ -19,14 +19,14 @@
     const isHost=userId===hostUserId, rng=options.rng||Math.random;
     const later=options.setTimeout||setTimeout, clear=options.clearTimeout||clearTimeout;
     const onStatus=typeof options.onStatus==='function'?options.onStatus:()=>{};
-    const members=new Map(), listeners=new Set(), sequences=new Map(), seen=new Map();
+    const members=new Map(), listeners=new Set(), emoteListeners=new Set(), sequences=new Map(), seen=new Map(), emoteTimes=new Map(), emoteSequences=new Map();
     const now=options.now||Date.now;
     const heartbeatMs=options.heartbeatMs??5000, timeoutMs=options.timeoutMs??30000;
     if(!Number.isFinite(heartbeatMs)||heartbeatMs<100||!Number.isFinite(timeoutMs)||timeoutMs<heartbeatMs*3)throw new RangeError('Use a bounded heartbeat and a timeout of at least three intervals.');
     let heartbeatTimer=null,lastHostSeen=now();
     let state=null, latest=null, closed=false, hostLost=false, timer=null, generation=0;
     let epoch=isHost?(options.epoch||String(Date.now())+'-'+String(Math.random()).slice(2)):null;
-    let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, scheduledRevision=null;
+    let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, emoteSequence=0, acceptedEmoteSequence=0, scheduledRevision=null;
     let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0, scoreCheckpoint=null, sendSerial=0, lastSendSuccess=0, lastSendFailure=0, sendErrorPending=false;
     const roundAdvance=R.create({now,set:later,clear,expire(){if(!isHost||closed||hostLost||state?.phase!=='reveal')return;state=G.nextRound(state,rng);publish('round-timeout');}});
     const status=(kind,detail={})=>{lastStatus={kind,...detail};onStatus({...lastStatus});};
@@ -85,7 +85,7 @@
       if(state.phase!=='reveal')roundAdvance.cancel();
       if(expireTurn()||roundAdvance.check())return;syncTurn();roundAdvance.sync(state);
       G.assertInvariant(state);
-      const wire={...G.publicView(state,'__broadcast__'),hostId:state.players[0].id,roomId,scoreCheckpoint,roundClock:roundAdvance.get()?{...roundAdvance.get(),serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);
+      const wire={...G.publicView(state,'__broadcast__'),hostId:seatFor(hostUserId).id,roomId,scoreCheckpoint,roundClock:roundAdvance.get()?{...roundAdvance.get(),serverNow:now()}:null,turnClock:turnClock?{...turnClock,serverNow:now()}:null};delete wire.viewerId;wire.history=wire.history.slice(-100);
       const own=localize(wire);if(own)emit(own);
       void transmit({type:'snapshot',sequence:++hostSequence,view:wire,reason:reason||null}).catch(()=>{});
       if(reason)status(reason);scheduleBot();
@@ -105,7 +105,7 @@
     function removeMember(uid){
       if(closed)return false;
       if(uid===hostUserId){hostLost=true;cancel();cancelTurn();roundAdvance.cancel();turnClock=null;stopHeartbeat();status('host-lost');return true;}
-      if(!members.has(uid))return false;members.delete(uid);seen.delete(uid);sequences.delete(uid);
+      if(!members.has(uid))return false;members.delete(uid);seen.delete(uid);sequences.delete(uid);emoteTimes.delete(uid);emoteSequences.delete(uid);
       if(!isHost)return true;
       const seat=seatFor(uid);if(!seat)return true;
       const active=state.phase!=='lobby';
@@ -113,6 +113,13 @@
       if(active)state=G.returnToLobby(state);
       state={...state,revision:state.revision+1,players:state.players.filter(p=>p.id!==seat.id)};
       publish(active?'player-left-match-abandoned':'player-left');return true;
+    }
+    function emitEmote(event){for(const fn of emoteListeners)fn({...event});}
+    function processEmote(sender,kind){
+      const actor=seatFor(sender), time=now();
+      if(!isHost||closed||hostLost||state?.phase!=='play'||!members.has(sender)||!actor||actor.kind!=='human'||!Number.isInteger(kind)||kind<0||kind>3||time-(emoteTimes.get(sender)??-Infinity)<3000)return false;
+      emoteTimes.set(sender,time);const event={player:actor.id,kind,game:state.game,round:state.round};
+      emitEmote(event);void transmit({type:'emote-relay',sequence:++emoteSequence,event}).catch(()=>{});return true;
     }
     function processAction(sender,action){
       if(!isHost||closed||hostLost||!members.has(sender)||!action||typeof action!=='object')return false;
@@ -182,6 +189,15 @@
         const own=localize(message.view);if(!own){status('join-waiting');return false;}
         lastHostSeen=now();epoch=message.epoch;acceptedHostSequence=message.sequence;emit(own);if(message.reason)status(message.reason);return true;
       }
+      if(message.type==='emote'){
+        if(!isHost||message.epoch!==epoch||!members.has(sender)||message.game!==state?.game||message.round!==state?.round||!Number.isSafeInteger(message.sequence)||message.sequence<1||message.sequence<=(emoteSequences.get(sender)||0))return false;
+        emoteSequences.set(sender,message.sequence);seen.set(sender,now());return processEmote(sender,message.kind);
+      }
+      if(message.type==='emote-relay'){
+        const e=message.event;
+        if(isHost||sender!==hostUserId||message.epoch!==epoch||!Number.isSafeInteger(message.sequence)||message.sequence<=acceptedEmoteSequence||!latest||latest.phase!=='play'||!e||e.game!==latest.game||e.round!==latest.round||!latest.players.some(p=>p.id===e.player&&p.kind==='human')||!Number.isInteger(e.kind)||e.kind<0||e.kind>3)return false;
+        acceptedEmoteSequence=message.sequence;emitEmote(e);return true;
+      }
       if(message.type==='action'){
         if(!isHost||message.epoch!==epoch||!members.has(sender)||!Number.isSafeInteger(message.sequence)||message.sequence<=0||message.sequence<=(sequences.get(sender)||0))return false;
         seen.set(sender,now());
@@ -209,10 +225,12 @@
     for(const member of options.members||[])if(member&&id(member.userId)){members.set(member.userId,profile(member));seen.set(member.userId,now());}
     const adapter={
       subscribe(fn){if(typeof fn!=='function')throw new TypeError('Listener required');listeners.add(fn);if(latest)fn(clone(latest));return()=>listeners.delete(fn);},
+      subscribeEmotes(fn){if(typeof fn!=='function')throw new TypeError('Listener required');emoteListeners.add(fn);return()=>emoteListeners.delete(fn);},
+      sendEmote(kind){if(closed||hostLost||!Number.isInteger(kind)||kind<0||kind>3)return Promise.resolve(false);if(isHost)return Promise.resolve(processEmote(userId,kind));if(!epoch||latest?.phase!=='play')return Promise.resolve(false);return transmit({type:'emote',kind,sequence:++commandSequence,game:latest.game,round:latest.round});},
       send(action){if(closed||hostLost)return Promise.reject(new Error('Room is disconnected.'));if(isHost)return Promise.resolve(processAction(userId,action));if(!epoch)return Promise.reject(new Error('Waiting for host.'));return transmit({type:'action',sequence:++commandSequence,action});},
       receive,addMember,removeMember,
       resync(){return isHost?(publish(),Promise.resolve()):transmit({type:'resync'});},
-      close(){if(closed)return;void transmit({type:'bye',revision:latest?.revision}).catch(()=>{});closed=true;cancel();cancelTurn();roundAdvance.cancel();turnClock=null;stopHeartbeat();listeners.clear();status('closed');},
+      close(){if(closed)return;void transmit({type:'bye',revision:latest?.revision}).catch(()=>{});closed=true;cancel();cancelTurn();roundAdvance.cancel();turnClock=null;stopHeartbeat();listeners.clear();emoteListeners.clear();emoteTimes.clear();emoteSequences.clear();status('closed');},
       getStatus(){return {...(lastStatus||{}),roomId,isHost,closed,hostLost,ready:!!latest};}
     };
     if(isHost){for(const member of members.values())if(member.userId!==userId)addMember(member);publish();}
