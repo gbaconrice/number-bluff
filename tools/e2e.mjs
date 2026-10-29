@@ -34,7 +34,7 @@ const origin=`http://127.0.0.1:${server.address().port}`,results=[];
 let browser;
 const watchdog=setTimeout(async()=>{results.push({status:'failed',stage:'global-timeout'});await writeFile(new URL('results.json',output),JSON.stringify(results,null,2));process.exit(1);},12*60*1000);watchdog.unref();
 async function settleCardMotion(page){await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>a.playState==='running'&&a.effect?.getTiming().iterations!==Infinity&&a.effect?.target?.closest?.('.presentation-card,.presentation-extra,.presentation-zero-stamp,.presentation-vortex,.presentation-bid-pulse,.presentation-refresh,.final-total,#result .result-message,#result .calculation,#resultAvatar,#finalTotal')).map(a=>a.finished.catch(()=>{})));});}
-async function completePresentation(page){if(await page.locator('#result').getAttribute('data-presentation-phase')!=='complete')await page.clock.runFor(5000);assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'complete');await settleCardMotion(page);}
+async function completePresentation(page){for(let i=0;i<45&&await page.locator('#result').getAttribute('data-presentation-phase')!=='complete';i++)await page.clock.runFor(100);assert.equal(await page.locator('#result').getAttribute('data-presentation-phase'),'complete');await settleCardMotion(page);}
 async function advanceResult(page){await completePresentation(page);await page.clock.runFor(401);await page.locator('#next').click();}
 async function readyCardArt(page){
  await page.locator('img.card-art').evaluateAll(async els=>Promise.all(els.filter(e=>e.getClientRects().length).map(async image=>{await image.decode();if(!image.naturalWidth)throw Error('Missing original card art '+image.src);})));await page.waitForTimeout(50);
@@ -212,7 +212,7 @@ async function art(page){
   const evidence=[];for(const name of names){const im=new Image();im.src=`assets/${name}.webp`;await im.decode();const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0);const d=x.getImageData(0,0,c.width,c.height).data;let transparent=0,visible=0;for(let i=3;i<d.length;i+=4){if(d[i]===0)transparent++;if(d[i]>0)visible++;}evidence.push({name,width:c.width,height:c.height,transparent,visible});}
   for(const im of document.querySelectorAll('img'))await im.decode();return evidence;
  },assets);
- for(const a of evidence){assert.ok(a.width>=512&&a.height>=512&&a.visible>0);if(originalFaces.includes(a.name)){const kind=Object.keys(specialByKind).find(k=>specialByKind[k]===a.name);assert.deepEqual([a.width,a.height],faceDimensions(kind,Object.keys(faceByValue).find(v=>faceByValue[v]===a.name)));}else if(!a.name.startsWith('celestial-background'))assert.ok(a.transparent>0);}
+ for(const a of evidence){if(a.name.startsWith('emote-')){assert.deepEqual([a.width,a.height],a.name==='emote-cloud-anxious'?[384,241]:[384,384]);assert.ok(a.visible>0&&a.transparent>0);}else assert.ok(a.width>=512&&a.height>=512&&a.visible>0);if(originalFaces.includes(a.name)){const kind=Object.keys(specialByKind).find(k=>specialByKind[k]===a.name);assert.deepEqual([a.width,a.height],faceDimensions(kind,Object.keys(faceByValue).find(v=>faceByValue[v]===a.name)));}else if(!a.name.startsWith('celestial-background'))assert.ok(a.transparent>0);}
  const imgs=await page.locator('.home-brand,.home-art img').evaluateAll(els=>els.map(e=>({src:e.getAttribute('src'),fit:getComputedStyle(e).objectFit,left:e.getBoundingClientRect().left,right:e.getBoundingClientRect().right,w:innerWidth})));
  for(const i of imgs){assert.equal(i.fit,'contain');assert.ok(i.left>=0&&i.right<=i.w,`home artwork clips horizontally: ${JSON.stringify(i)}`);}
  return evidence;
@@ -317,7 +317,7 @@ try{
    results.push({scenario:'early-visual-preview-not-full-regression',status:'passed',errors,external});
   }catch(error){await page.screenshot({path:fileURLToPath(new URL('early-visual-failure.png',output)),fullPage:true}).catch(()=>{});throw error;}finally{await context.close();}
  }else{
- for(const width of [320,390,844,1280]){
+ for(const width of (process.env.NB_E2E_WIDTHS?process.env.NB_E2E_WIDTHS.split(',').map(Number):[320,390,844,1280])){
   const {context,page,errors,external}=await setup(width);
   try{
    await page.locator('#startGame').waitFor({state:'visible'});assert.equal(await page.locator('.home-actions button').count(),2);assert.equal(await page.locator('.home-icons button').count(),2);assert.equal(await page.locator('#homeCards,.hero-copy').count(),0);assert.doesNotMatch(await page.locator('#homeScreen').textContent(),/だませる|見抜ける|カード図鑑/);await shot(page,width,'home');await page.evaluate(()=>NumberBluffClient.setRoomAdapterExpected(true));await page.locator('#startGame').click();assert.match(await page.locator('#roomCreateStatus').textContent(),/接続待ち/);assert.equal(await page.locator('#homeScreen').isVisible(),true);await page.evaluate(()=>NumberBluffClient.setRoomAdapterExpected(false));const artwork=await art(page);await backgroundChecks(page,width);

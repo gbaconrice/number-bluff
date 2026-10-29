@@ -316,3 +316,14 @@ test('host relays occasional BOT emotes independently of the action and hidden c
  for(const fn of [...t.jobs.values()])fn();t.flush();
  assert.ok(events.some(e=>e.player==='p3'&&e.kind===0));
 });
+
+test('host alone advances bot-only result once, without auto-rematching the finished game',async()=>{
+ let now=1000,id=0;const jobs=new Map();let latest,wire=[];const host=createSession({roomId:'bot-only',userId:'h',hostUserId:'h',heartbeat:false,rng:()=>.99,emoteRng:()=>1,botDelay:0,now:()=>now,setTimeout(fn,ms){jobs.set(++id,{fn,at:now+ms});return id},clearTimeout(key){jobs.delete(key)},sendMessage(m){wire.push(JSON.parse(m))}});host.subscribe(v=>latest=v);
+ const action=async(type,details={})=>host.send({type,player:latest.viewerId,revision:latest.revision,...details});
+ const due=()=>{let n=0;while(true){const item=[...jobs].find(([,j])=>j.at<=now);if(!item)break;assert.ok(++n<100);jobs.delete(item[0]);item[1].fn();}};
+ await action('addBot');await action('addBot');await action('startGame');
+ for(let i=0;i<3;i++){assert.equal(latest.turn,'p1');await action('declare',{value:999,turnToken:latest.turnClock.token});due();assert.equal(latest.phase,'reveal');if(i<2)await action('nextRound');}
+ assert.equal(latest.players.find(p=>p.id==='p1').life,0);assert.equal(latest.roundClock.deadline-latest.roundClock.readyAt,1000);
+ const stale=[...jobs.values()].find(j=>j.at===latest.roundClock.deadline).fn,oldRound=latest.round;now=latest.roundClock.deadline;due();assert.ok(latest.round>oldRound||latest.phase==='finished');const after=latest.revision;stale();assert.equal(latest.revision,after,'stale deadline cannot advance twice');
+ for(let n=0;n<100&&latest.phase!=='finished';n++){now+=20000;due();}assert.equal(latest.phase,'finished');const completed=latest;now+=100000;due();assert.equal(latest.phase,'finished');assert.equal(latest.game,completed.game);assert.equal(latest.players.reduce((sum,p)=>sum+p.wins,0),1);host.close();
+});
