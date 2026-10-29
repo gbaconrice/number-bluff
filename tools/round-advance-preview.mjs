@@ -5,12 +5,12 @@ import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 const root=fileURLToPath(new URL('../',import.meta.url)),output=root+'artifacts/';await mkdir(output,{recursive:true});
-const server=http.createServer(async(req,res)=>{try{const pathname=new URL(req.url,'http://local').pathname;if(pathname.includes('..'))throw Error();const path=pathname==='/'?'/index.html':pathname;res.writeHead(200,{'content-type':path.endsWith('.js')?'text/javascript':path.endsWith('.css')?'text/css':path.endsWith('.html')?'text/html':'image/webp'}).end(await readFile(root+path));}catch{res.writeHead(404).end();}});
+const server=http.createServer(async(req,res)=>{try{const pathname=new URL(req.url,'http://local').pathname;if(pathname.includes('..'))throw Error();const path=pathname==='/'?'/index.html':pathname;const bytes=await readFile(root+path);res.writeHead(200,{'content-type':path.endsWith('.js')?'text/javascript':path.endsWith('.css')?'text/css':path.endsWith('.html')?'text/html':'image/webp'}).end(bytes);}catch{res.writeHead(404).end();}});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));let browser;const report=[];
-try{browser=await chromium.launch({headless:true,args:['--no-sandbox']});for(const width of[390,1280]){
+try{browser=await chromium.launch({headless:true,args:['--no-sandbox'],...(process.env.NB_CHROMIUM?{executablePath:process.env.NB_CHROMIUM}:{})});for(const width of[390,1280]){
  const page=await browser.newPage({viewport:{width,height:844}});await page.clock.install({time:new Date('2026-10-27T00:00:00Z')});await page.clock.pauseAt(new Date('2026-10-27T00:00:01Z'));await page.goto(`http://127.0.0.1:${server.address().port}`);
  await page.evaluate(()=>{
-  const nodes={},views={},queue=[];const common={roomId:'round-ui',hostUserId:'h',heartbeat:false,rng:()=>.4};
+  const nodes={},views={},queue=[];const common={roomId:'round-ui',hostUserId:'h',heartbeat:false,rng:()=>.99};
   for(const uid of ['h','g']){nodes[uid]=NumberBluffGravity.createSession({...common,userId:uid,name:uid==='h'?'ホスト':'ゲスト',sendMessage:raw=>queue.push({uid,raw})});nodes[uid].subscribe(v=>views[uid]=v);}
   nodes.h.addMember({userId:'g',name:'ゲスト'});
   const flush=()=>{let count=0;while(queue.length){if(++count>100)throw Error('message loop');const m=queue.shift();for(const uid of ['h','g'])if(uid!==m.uid)nodes[uid].receive(m.uid,m.raw);}};
