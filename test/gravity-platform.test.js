@@ -58,6 +58,13 @@ test('duplicate bootstrap installs once, resume resyncs only visible, cleanup re
   f.events.get('pagehide')(); assert.equal(f.counts().closes,1); assert.equal(f.statuses.at(-1).kind,'session-ended');
   a.close(); a.close(); assert.equal(f.counts().closes,2); assert.equal(f.events.size,0); assert.equal(f.docEvents.size,0);
 });
+test('late resume failure does not independently reissue a stale send warning', async () => {
+  const f=fixture(); let reject;
+  f.adapter.install=async()=>({close(){},resync:()=>new Promise((_,r)=>{reject=r;}),getSession(){}});
+  const bridge=await P.start({...f,sdk:{}}); f.docEvents.get('visibilitychange')();
+  reject(Error('late failure')); await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(f.statuses.some(s=>s.kind==='send-error'),false); bridge.close();
+});
 test('SDK setup error leaves expected-online mode, visible status, and can retry', async () => {
   const f=fixture(); f.adapter.install=async()=>{throw Error('profile');};
   await assert.rejects(P.start({...f,sdk:{}}),/profile/); assert.equal(f.client.expected,true); assert.equal(f.statuses.at(-1).kind,'profile-error');

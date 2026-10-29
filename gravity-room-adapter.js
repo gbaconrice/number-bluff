@@ -27,7 +27,7 @@
     let state=null, latest=null, closed=false, hostLost=false, timer=null, generation=0;
     let epoch=isHost?(options.epoch||String(Date.now())+'-'+String(Math.random()).slice(2)):null;
     let commandSequence=0, hostSequence=0, acceptedHostSequence=-1, scheduledRevision=null;
-    let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0, scoreCheckpoint=null, sendSerial=0, lastSendSuccess=0, lastSendFailure=0;
+    let lastStatus=null, turnClock=null, turnTimer=null, turnGeneration=0, scoreCheckpoint=null, sendSerial=0, lastSendSuccess=0, lastSendFailure=0, sendErrorPending=false;
     const roundAdvance=R.create({now,set:later,clear,expire(){if(!isHost||closed||hostLost||state?.phase!=='reveal')return;state=G.nextRound(state,rng);publish('round-timeout');}});
     const status=(kind,detail={})=>{lastStatus={kind,...detail};onStatus({...lastStatus});};
     function cancel(){scheduledRevision=null;generation++;if(timer!==null)clear(timer);timer=null;}
@@ -37,7 +37,7 @@
       const message=JSON.stringify({protocol:'number-bluff',version:VERSION,roomId,epoch,...body});
       if(message.length>LIMIT)throw new RangeError('Room message exceeds protocol limit.');
       const serial=++sendSerial;
-      return Promise.resolve(sendMessage(message)).then(result=>{lastSendSuccess=Math.max(lastSendSuccess,serial);if(!closed&&!hostLost&&serial>lastSendFailure&&lastStatus?.kind==='send-error')status('send-recovered');return result;},error=>{lastSendFailure=Math.max(lastSendFailure,serial);if(!closed&&!hostLost&&serial>lastSendSuccess)status('send-error');throw error;});
+      return Promise.resolve(sendMessage(message)).then(result=>{lastSendSuccess=Math.max(lastSendSuccess,serial);if(!closed&&!hostLost&&serial>lastSendFailure&&sendErrorPending){sendErrorPending=false;if(lastStatus?.kind==='send-error')status('send-recovered');else onStatus({kind:'send-recovered'});}return result;},error=>{lastSendFailure=Math.max(lastSendFailure,serial);if(!closed&&!hostLost&&serial>lastSendSuccess){sendErrorPending=true;status('send-error');}throw error;});
     }
     function seatFor(uid){return state?.players.find(p=>p.userId===uid);}
     function localize(wire){

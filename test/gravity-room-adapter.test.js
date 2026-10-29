@@ -21,6 +21,10 @@ test('send error clears only after a newer successful send',async()=>{
  const stale=guest.resync(), latest=guest.resync(); const staleRequest=pending.shift(), latestRequest=pending.shift();
  latestRequest.reject(Error('offline')); await assert.rejects(latest); staleRequest.resolve(); await stale; assert.equal(statuses.at(-1),'send-error');
  const retry=guest.resync(); pending.shift().resolve(); await retry; assert.equal(statuses.at(-1),'send-recovered');
+ const failure=guest.resync(); pending.shift().reject(Error('offline')); await assert.rejects(failure);
+ const fixture=setup(), packet=JSON.parse(fixture.sent.findLast(x=>JSON.parse(x.message).type==='snapshot').message);
+ packet.roomId='r'; packet.reason='round-timeout'; assert.equal(guest.receive('host',JSON.stringify(packet)),true); assert.equal(statuses.at(-1),'round-timeout');
+ const afterStatus=guest.resync(); pending.shift().resolve(); await afterStatus; assert.equal(statuses.at(-1),'send-recovered');
 });
 test('host alone, join and authoritative start provide own-card filtering without deck transmission',async()=>{
  const t=setup();assert.equal(t.view(t.guest).players.length,2);assert.equal(t.view(t.guest).hostId,'p1');

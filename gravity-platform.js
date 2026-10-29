@@ -50,7 +50,7 @@
         // best streak from this play session, even if their current streak is now 0.
         win.parent.postMessage({ type: 'gameOver', score: result.player.bestStreak }, '*');
       });
-      const resume = () => { if (!closed && !win.document?.hidden) Promise.resolve(bridge.resync()).catch(() => client.reportConnectionStatus({ kind: 'send-error' })); };
+      const resume = () => { if (!closed && !win.document?.hidden) Promise.resolve(bridge.resync()).catch(() => {}); };
       win.addEventListener('resize', update); win.document?.addEventListener('focusout', update);
       win.document?.addEventListener('visibilitychange', resume);
       const pagehide = () => { bridge.close(); client.reportConnectionStatus({ kind: 'session-ended' }); };
