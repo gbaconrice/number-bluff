@@ -7,9 +7,9 @@
 .player-card .card-art-band { top:var(--card-cap-height,20%); height:var(--card-band-height,15%); background-size:100% var(--card-band-size,666.6666667%); background-position:center var(--card-band-position,23.5294118%); }
 .player-card:not(.hidden):not(.out) .card-value { position: absolute; top: 12%; height: 26%; left: 5%; right: 5%; z-index: 2; display: flex; align-items: center; justify-content: center; color: #19294f; text-shadow: 0 1px 2px #ffffff, 0 0 5px #ffffff; }
 .player-card.kind-extra .card-value { color: #f8f5ed; text-shadow: 0 1px 3px #152241, 0 0 5px #152241; }
-.player-card.kind-reset .card-content { container-type: inline-size; }
+.player-card.kind-reset .card-content, .player-card.kind-max0 .card-content { container-type: inline-size; }
 .player-card.kind-reset:not(.hidden):not(.out) .card-value { font-size: 11cqw; }
-.player-card.kind-max0 .card-value { font-size: inherit; }
+.player-card.kind-max0:not(.hidden):not(.out) .card-value { font-size: 20cqw; }
 
 .step-art .player-card { transform: none; }
 /* Preserve full identity + portrait cards in the two tight supported layouts. */
