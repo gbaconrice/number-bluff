@@ -550,3 +550,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
  #battleScreen:not(.is-result):has(>.battle-grid.many) .decisions{grid-template-rows:90px 88px;gap:4px}
  #battleScreen:not(.is-result):has(>.battle-grid.many) .decisions .declare-region{padding:0}
 }
+
+/* Use the reserved identity area for a readable avatar, not an undersized icon. */
+.battle-grid .player-info .emote-anchor > .avatar,
+.battle-grid.many .player-info .emote-anchor > .avatar { width:48px; height:48px; margin:0; flex-shrink:0; }

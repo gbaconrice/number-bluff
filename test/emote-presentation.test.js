@@ -49,3 +49,6 @@ test('final expressive sticker identities, alpha dimensions and provenance match
  });
  assert.match(css,/prefers-reduced-motion:reduce\)\{[^}]*\.battle-grid \.player-info \.emote-slot img\.emote-stamp\{animation:none/);
 });
+
+// The reserved pop area must also show the ordinary player identity at a useful size.
+test("ordinary battle avatars fill their reserved identity area",()=>{assert.match(css,/\.battle-grid\.many \.player-info \.emote-anchor > \.avatar \{ width:48px; height:48px;/);});
