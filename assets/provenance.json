@@ -262,6 +262,150 @@
       "sha256": "76fd1eb6d42d005ad09bc72b9d300db3bff66a694c25d943a8b5d0b4d46ab9f1",
       "source": "Offline optical sprite derived from React Bits Galaxy Star(); see THIRD_PARTY_NOTICES.top-motion.txt",
       "encoding": "PNG RGBA; application integration only"
+    },
+    {
+      "file": "bot-amber-fox.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 81766,
+      "sha256": "fb7747339a1b07b9f2e62d9968d036a1c31e17110e62316cbdbdee3ab8b1a79e",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-chick.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 57196,
+      "sha256": "33ad7f54081ba23ac84d694f6ff3825a89654abc369979e5c7601022778547e1",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-crowned-black-cat.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 111676,
+      "sha256": "d3b472bb73437043b7ac49efb7895f0d5f0b9089f8caaf58f7f028bec450591d",
+      "source": "Reference-guided original avatar based on the crowned black cat in the existing MAX-to-zero card; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-deer.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 89326,
+      "sha256": "4064e316759d278b04eecc91bda93a7028a6b010232fa7a12ab1230e9bdbde0d",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-dog.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 80986,
+      "sha256": "954c5b8759b984e534014b39a6df6bd725e5ae365f8d436ab35b8076a0605457",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-hedgehog.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 110328,
+      "sha256": "978be61a098fa6325f698a7ed883572c888286c2e79ffc371e986a1daee61a3f",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-moon-owl.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 63354,
+      "sha256": "dd9dd2ef2fe2325cb1c3e8eb8b62db6e60c0d0e5d16f5a6bb514ff2eaa366a4c",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-moon-spirit.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 54646,
+      "sha256": "400c4d54ba4d1d1b91a4604b4eb39e8ea19058cb2b33da8032eaf7219444ebed",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-otter.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 77760,
+      "sha256": "3a1a39641e361c519d3db1336cb3ba4f16e6a0fd0757ae58a1593078a17240c7",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-panda.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 78784,
+      "sha256": "2b3a270a4614ff7d93fa06d4cbda0eb12f25849c75cebd2f983e4a591e9dcaa5",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-penguin.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 64674,
+      "sha256": "6b057d4a991357fe54d0d92085bfa51de441ae3bf380165f283fba7d577b91f1",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-seal.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 55564,
+      "sha256": "6fc79437da2897346d021a5f8bac922f22a899bc423b26a701c4e260d92a218b",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-sheep.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 74926,
+      "sha256": "9b3f97f1db433ca61abef7197d1c7964da2a9ec0707dfb7aadd94628060f54cb",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-sleepy-bear.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 79514,
+      "sha256": "0b8bdae1e353c3e59eafd649d3e63d893a48a84abed6cdcd26c683e9cd3457ff",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-squirrel.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 90702,
+      "sha256": "83956f3230600020b18966e3bd4721c34a7358064a61c7a3012fa501e40b4c5d",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
+    },
+    {
+      "file": "bot-tanuki.webp",
+      "width": 384,
+      "height": 384,
+      "bytes": 97660,
+      "sha256": "1331267d8fdab6a1e7fbf0119bcb21bb845cb7db508b393e029b5c826ba95cdf",
+      "source": "Reference-guided original avatar in the existing Number Bluff character-art style; random-only BOT character",
+      "encoding": "Lossless WebP VP8L RGBA, 384x384; alpha retained"
     }
   ],
   "notes": [

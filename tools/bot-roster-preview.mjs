@@ -38,6 +38,10 @@ try{
     await page.waitForFunction(()=>['p3','p4'].every(id=>document.querySelector(`#playerGrid [data-player="${id}"] .player-name`)?.textContent!=='ランダム'));
     const resolvedNames=await Promise.all(['p3','p4'].map(id=>page.locator(`#playerGrid [data-player="${id}"] .player-name`).textContent()));
     assert.ok(resolvedNames.every(name=>name&&name!=='ランダム'),'random choices resolve to named characters before play');
+    await page.waitForFunction(()=>{const portraits=[...document.querySelectorAll('#playerGrid img.bot-character-avatar')];return portraits.length===7&&portraits.every(image=>image.complete&&image.naturalWidth>0&&image.naturalHeight>0);});
+    const portraits=await page.locator('#playerGrid img.bot-character-avatar').evaluateAll(images=>images.map(image=>image.getAttribute('src')));
+    assert.equal(portraits.length,7,'every BOT seat has a portrait');
+    assert.equal(new Set(portraits).size,portraits.length,'the resolved roster has no duplicate portraits');
     const battleBounds=await page.evaluate(()=>{const grid=document.querySelector('#playerGrid').getBoundingClientRect(),cards=[...document.querySelectorAll('#playerGrid .player-card')].map(card=>{const r=card.getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom};});return{grid:{left:grid.left,right:grid.right},documentWidth:document.documentElement.scrollWidth,viewportWidth:innerWidth,cards};});
     assert.equal(battleBounds.documentWidth,battleBounds.viewportWidth,'eight-player game remains within the mobile viewport');
     assert.equal(battleBounds.cards.length,8);

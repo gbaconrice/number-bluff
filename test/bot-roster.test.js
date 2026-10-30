@@ -1,9 +1,21 @@
 'use strict';
-const test=require('node:test'),assert=require('node:assert/strict');
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const G=require('../engine');
 const seeded=seed=>()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
 const bots=state=>state.players.filter(player=>player.kind==='bot');
 const resolved=state=>bots(state).map(player=>player.botCharacterId);
+function webpMetadata(bytes){
+ assert.equal(bytes.toString('ascii',0,4),'RIFF');assert.equal(bytes.toString('ascii',8,12),'WEBP');
+ assert.equal(bytes.readUInt32LE(4)+8,bytes.length,'complete RIFF payload');
+ for(let offset=12;offset+8<=bytes.length;){
+  const chunk=bytes.toString('ascii',offset,offset+4),size=bytes.readUInt32LE(offset+4),data=offset+8;
+  assert.ok(data+size<=bytes.length,`${chunk} chunk stays inside the file`);
+  if(chunk==='VP8X')return{width:1+bytes.readUIntLE(data+4,3),height:1+bytes.readUIntLE(data+7,3),alpha:(bytes[data]&16)!==0};
+  if(chunk==='VP8L'&&bytes[data]===0x2f)return{width:1+bytes[data+1]+((bytes[data+2]&63)<<8),height:1+((bytes[data+2]>>6)|(bytes[data+3]<<2)|((bytes[data+4]&15)<<10)),alpha:(bytes[data+4]&16)!==0};
+  offset=data+size+(size&1);
+ }
+ throw new Error('WebP has no supported image header');
+}
 
 test('the character catalog has four direct choices and sixteen named random-only portraits',()=>{
  assert.equal(G.BOT_CHARACTERS.length,20);
@@ -17,6 +29,20 @@ test('the character catalog has four direct choices and sixteen named random-onl
   ['dog','ゆきいぬ'],['panda','まめぱん'],['penguin','ぺんころ'],['moon-spirit','つきもち']
  ]);
  assert.ok(G.BOT_CHARACTERS.slice(4).every(character=>character.image===`assets/bot-${character.id}.webp`));
+});
+
+test('all random-only portraits are present, transparent 384px WebP and provenance hashes match',()=>{
+ const records=require('../assets/provenance.json').assets.filter(asset=>asset.file.startsWith('bot-'));
+ const randomCharacters=G.BOT_CHARACTERS.filter(character=>character.randomOnly);
+ assert.equal(records.length,randomCharacters.length,'one provenance record per random portrait');
+ for(const character of randomCharacters){
+  const file=path.join(__dirname,'..',character.image),bytes=fs.readFileSync(file),metadata=webpMetadata(bytes);
+  assert.deepEqual(metadata,{width:384,height:384,alpha:true},character.id);
+  const record=records.find(asset=>asset.file===path.basename(file));
+  assert.ok(record,`${character.id} provenance exists`);
+  assert.equal(record.bytes,bytes.length,`${character.id} byte size`);
+  assert.equal(record.sha256,crypto.createHash('sha256').update(bytes).digest('hex'),`${character.id} SHA-256`);
+ }
 });
 
 test('lobby selection rejects unknown or already-used main characters and permits many random seats',()=>{
