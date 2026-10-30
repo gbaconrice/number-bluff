@@ -20,6 +20,7 @@ test('reaction stickers read as independent pop stickers without changing player
  assert.match(css,/\.battle-grid\.many \.emote-slot\{width:64px;height:64px\}/);
  assert.match(css,/\.battle-grid\.many \.player-info \{ height: 99px;[^}]*grid-template-rows: 11px 64px 20px;/);
  assert.match(css,/\.player-vitals\{display:grid;grid-row:3;grid-template-columns:minmax\(0,1fr\);grid-template-rows:14px 10px;/);
+ assert.doesNotMatch(css,/\.battle-grid\.many \.wins-badge \{[^}]*grid-(?:column|row):/);
  assert.match(css,/\.battle-grid:not\(\.many\) \.emote-slot\{width:64px;height:64px\}/);
 });
 
