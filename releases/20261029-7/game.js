@@ -1296,7 +1296,8 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     if (frame.outcomeVisible && !hadOutcome) $('resultAnnouncement').textContent = '最終合計 ' + view.result.sum + '。' + $('resultText').textContent;
   }
   function show(id, focus = null) {
-    if (screen === 'battleScreen' && id !== screen) { if ($('discardDetail').open) $('discardDetail').close(); if ($('cardDetail').open) $('cardDetail').close(); audio.stop(); cancelPresentation(true); }
+    if (id !== screen && $('cardDetail').open) $('cardDetail').close();
+    if (screen === 'battleScreen' && id !== screen) { if ($('discardDetail').open) $('discardDetail').close(); audio.stop(); cancelPresentation(true); }
     for (const node of document.querySelectorAll('.screen')) node.classList.toggle('hide', node.id !== id);
     stopDetailEffect(); screen = id; paintTurnDisplay(); cardReveal.settleAll(); syncCardMotion(); window.scrollTo(0, 0);
     for (const listener of screenListeners) { try { listener(screenNames[id]); } catch {} }
