@@ -186,7 +186,10 @@
     const content = window.NumberBluffCardArt.content(document, card);
     content.append(el('span', 'card-value', cardLabel(card)));
     if (card.kind === 'number') { node.classList.add('normal-card'); node.dataset.artValue = String(card.value); }
-    content.append(window.NumberBluffCardArt.create(document, card));
+    const art = window.NumberBluffCardArt.create(document, card); node.classList.add('art-pending');
+    const artReady = () => node.classList.remove('art-pending'); art.addEventListener('load', artReady);
+    if (art.complete && art.naturalWidth > 0) artReady();
+    content.append(art);
     node.append(content);
     return node;
   }
@@ -226,7 +229,7 @@
   }
   function cancelRoomRequest() { ++roomRequest; ++listRequest; if (cancelRoomOperation) cancelRoomOperation(); $('startGame').disabled = false; $('joinRoom').disabled = false; $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = ''; }
   function createLocalHostRoom() {
-    detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: localProfile.name, botCount: 0 }); state.players[0].avatarUrl = localProfile.avatarUrl; avatarChoice = {}; selectedBot = null;
+    $('roomId').value = ''; detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: localProfile.name, botCount: 0 }); state.players[0].avatarUrl = localProfile.avatarUrl; avatarChoice = {}; selectedBot = null;
     view = G.publicView(state, human); renderLobby(); show('lobbyScreen');
   }
   const canManageLobby = () => !connectionBlocked && (!transport || (typeof view?.hostId === 'string' && view.hostId === human));
@@ -518,7 +521,7 @@
       }
       const finished = captureSessionFinish();
       if (screen === 'battleScreen') closeConfirm();
-      timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished);
+      $('roomId').value = ''; timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); publishSessionFinish(finished);
     } catch {
       const status = $(screen === 'lobbyScreen' ? 'lobbyError' : 'onlineBattleStatus');
       status.textContent = '退出できませんでした。もう一度お試しください。'; status.classList.remove('hide');
@@ -533,8 +536,9 @@
       if (typeof roomActions.list !== 'function') throw new Error('unavailable');
       const rooms = await roomActions.list();
       if (request !== listRequest || screen !== 'joinPanel') return;
+      if (!Array.isArray(rooms)) throw new TypeError('Invalid room list');
       if (!rooms.length) { status.textContent = '公開ルームはありません。'; return; }
-      status.textContent = '';
+      status.textContent = '公開ルーム ' + rooms.length + '件';
       for (const room of rooms) {
         const button = document.createElement('button'); button.type = 'button';
         button.textContent = room.roomId + '  ' + room.gamerNum + '/' + room.maxPlayers;
@@ -694,6 +698,7 @@
         if (!publicState || typeof publicState.viewerId !== 'string' || !Array.isArray(publicState.players) || !publicState.players.some(player => player.id === publicState.viewerId && player.kind === 'human')) {
           throw new TypeError('Adapter public view must identify its authenticated human viewer.');
         }
+        if (first) $('roomId').value = '';
         human = publicState.viewerId;
         $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = '';
         receive(publicState);
@@ -702,6 +707,6 @@
       unsubscribeEmotes = adapter.subscribeEmotes?.(event => { if (transport === adapter) showEmote(event); });
       const connection = adapter.getStatus?.(); if (connection?.kind) window.NumberBluffClient.reportConnectionStatus(connection);
     },
-    disconnect() { timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); }
+    disconnect() { $('roomId').value = ''; timer.cancel(); detachTransport(); state = null; view = null; show('homeScreen', 'startGame'); }
   });
 })();

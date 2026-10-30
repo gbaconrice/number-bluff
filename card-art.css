@@ -30,3 +30,7 @@
 
 /* Keep numerals above the special optical texture, independent of removed foil. */
 .player-card:not(.hidden):not(.out) .card-value{z-index:4}
+
+/* Keep disclosed values readable while artwork is loading or unavailable. */
+.player-card.art-pending .card-art { visibility: hidden; }
+.player-card.special.art-pending:not(.hidden):not(.out) .card-value { color: #19294f; text-shadow: 0 1px 2px #fff, 0 0 5px #fff; }
