@@ -408,7 +408,7 @@
     if (active && previous && (previous.phase !== 'play' || previous.round !== view.round || previous.game !== view.game)) {
       audio.play('deal');
       const gridRect=$('playerGrid').getBoundingClientRect(), sourceX=gridRect.left+gridRect.width/2, sourceY=gridRect.top;
-      $('playerGrid').querySelectorAll('.player-card').forEach((node, i) => { const rect=node.getBoundingClientRect(); const clamp=n=>Math.max(-120,Math.min(120,n)); node.style.setProperty('--deal-x',clamp(sourceX-(rect.left+rect.width/2))+'px'); node.style.setProperty('--deal-y',clamp(sourceY-(rect.top+rect.height/2))+'px'); node.classList.add('presentation-card', 'is-dealing'); node.style.animationDelay = (i * 25) + 'ms'; });
+      if (!yourTurn) $('playerGrid').querySelectorAll('.player-card').forEach((node, i) => { const rect=node.getBoundingClientRect(); const clamp=n=>Math.max(-120,Math.min(120,n)); node.style.setProperty('--deal-x',clamp(sourceX-(rect.left+rect.width/2))+'px'); node.style.setProperty('--deal-y',clamp(sourceY-(rect.top+rect.height/2))+'px'); node.classList.add('presentation-card', 'is-dealing'); node.style.animationDelay = (i * 25) + 'ms'; });
     } else if (active && previous && previous.bid !== view.bid) {
       audio.play('declare');
       const panel = document.querySelector('.bid-panel'); panel.classList.remove('presentation-bid-pulse','bid-big'); void panel.offsetWidth; panel.classList.toggle('bid-big', previous.bid !== null && view.bid - previous.bid >= 10); panel.classList.add('presentation-bid-pulse');

@@ -370,11 +370,13 @@ main { position: relative; z-index: 1; }
 .topbar>button:first-child { grid-column: 1; }
 .topbar>button:last-child:not(:first-child) { grid-column: 3; }
 #battleScreen .topbar { grid-template-columns: 40px minmax(0,1fr) 40px 40px; gap: 4px; }
-#battleScreen .topbar .circle { width: 100%; min-height: 40px; }
+#battleScreen .topbar .circle { position: relative; width: 100%; min-height: 40px; }
+#homeSoundToggle::before, #battleScreen .topbar .circle::before { content: ""; position: absolute; inset: -3px; }
 .sound-toggle { position: relative; }
 .sound-toggle.is-muted::after { content: ""; position: absolute; width: 23px; height: 2px; top: 50%; left: 50%; background: currentColor; transform: translate(-50%,-50%) rotate(-45deg); pointer-events: none; }
-#homeSoundToggle.is-muted::after { top: 22px; }
-#battleSoundToggle { grid-column: 3; font-size: 21px; }
+#homeSoundToggle, #battleSoundToggle { font-size: 21px; }
+#homeSoundToggle { position: absolute; top: 2px; right: 44px; width: 40px; min-height: 40px; z-index: 2; }
+#battleSoundToggle { grid-column: 3; }
 #battleScreen .topbar #rulesBtn { grid-column: 4; }
 .room-status { font-size: 12px; line-height: 1.5; margin: 5px 0 0; text-align: center; color: #fff2d6; }
 .room-status:empty { display: none; }
@@ -393,7 +395,7 @@ main { position: relative; z-index: 1; }
 .player-card.special .card-value { text-shadow: 0 2px 4px #0a1949; }
 .battle-grid.many .player-card.kind-reset, .player-card.kind-reset, .battle-grid.many .player-card.kind-max0, .player-card.kind-max0 { padding-top: 20%; }
 @media(max-width:350px) {
-  .home { padding-top: 40px; padding-bottom: 18px; }
+  .home { padding-top: 42px; padding-bottom: 18px; }
   .home-art { min-height: 205px; }
   .home-brand { width: 92%; }
   .home-scene { width: 122%; left: -11%; bottom: -8%; }
