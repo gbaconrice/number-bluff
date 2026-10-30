@@ -16,7 +16,7 @@
   function createSession(options){
     const {roomId,userId,hostUserId,sendMessage}=options;
     if(!id(roomId)||!id(userId)||!id(hostUserId)||typeof sendMessage!=='function')throw new TypeError('Verified room, user, host IDs and sendMessage are required.');
-    const isHost=userId===hostUserId, rng=options.rng||Math.random, emoteRng=options.emoteRng||Math.random;
+    const isHost=userId===hostUserId, rng=options.rng||Math.random, characterRng=options.characterRng||G.independentRandom, emoteRng=options.emoteRng||Math.random;
     const later=options.setTimeout||setTimeout, clear=options.clearTimeout||clearTimeout;
     const onStatus=typeof options.onStatus==='function'?options.onStatus:()=>{};
     const members=new Map(), listeners=new Set(), emoteListeners=new Set(), sequences=new Map(), seen=new Map(), emoteTimes=new Map(), emoteSequences=new Map(), emoteGenerations=new Map();
@@ -104,7 +104,11 @@
       if(state.phase!=='lobby'){status('join-waiting',{userId:p.userId});return false;}
       if(state.players.length>=8){const bot=state.players.find(x=>x.kind==='bot');if(bot)state=G.removeBot(state,bot.id);else {status('room-full');return false;}}
       const next=G.addBot(state);const added=next.players.find(x=>!state.players.some(y=>x.id===y.id));
-      state={...next,players:next.players.map(x=>x.id===added.id?{...x,kind:'human',difficulty:null,...p}:x)};
+       state={...next,players:next.players.map(x=>{
+         if(x.id!==added.id)return x;
+         const {botSelection,botCharacterId,botAvatar,...seat}=x;
+         return {...seat,kind:'human',difficulty:null,...p};
+       })};
       publish();return true;
     }
     function removeMember(uid){
@@ -135,13 +139,14 @@
       switch(action.type){
         case 'declare': case 'challenge': next=G.dispatch(state,{type:action.type,player:actor.id,value:action.value,revision:state.revision},rng);break;
         case 'nextRound': if(manages)next=G.nextRound(state,rng);break;
-        case 'rematch': if(manages)next=G.rematch(state,rng);break;
+        case 'rematch': if(manages)next=G.rematch(state,rng,characterRng);break;
         case 'returnToLobby': if(manages)next=G.returnToLobby(state);break;
-        case 'startGame': if(manages)next=G.startGame(state,rng);break;
+        case 'startGame': if(manages)next=G.startGame(state,rng,characterRng);break;
         case 'addBot': if(manages)next=G.addBot(state,action.difficulty||'normal');break;
         case 'removeBot': if(manages)next=G.removeBot(state,action.target);break;
         case 'setDifficulty': if(manages)next=G.setDifficulty(state,action.target,action.difficulty);break;
-        case 'setBotAvatar': if(manages&&state.phase==='lobby'&&Number.isInteger(action.avatar)&&action.avatar>=0&&action.avatar<4&&state.players.some(p=>p.id===action.target&&p.kind==='bot'))next={...state,revision:state.revision+1,players:state.players.map(p=>p.id===action.target?{...p,botAvatar:action.avatar}:p)};break;
+        case 'setBotAvatar': if(manages&&state.phase==='lobby'&&Number.isInteger(action.avatar)&&action.avatar>=0&&action.avatar<4)next=G.setBotSelection(state,action.target,G.MAIN_BOT_CHARACTERS[action.avatar].id);break;
+        case 'setBotSelection': if(manages&&state.phase==='lobby')next=G.setBotSelection(state,action.target,action.selection);break;
       }
       if(next===state)return false;if(state.phase==='finished'&&['rematch','returnToLobby'].includes(action.type))scoreCheckpoint={reason:action.type==='rematch'?'rematch-checkpoint':'lobby-checkpoint',game:state.game,userIds:state.players.filter(p=>p.kind==='human').map(p=>p.userId)};state=next;publish();return true;
     }
@@ -155,6 +160,18 @@
       if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;
       if(new Set(v.players.map(p=>p?.id)).size!==v.players.length)return false;
       if(v.players.some(p=>!p||typeof p!=='object'||!/^p[1-8]$/.test(p.id)||!['human','bot'].includes(p.kind)||typeof p.name!=='string'||p.name.length>24||!Number.isInteger(p.life)||p.life<0||p.life>3||!Number.isSafeInteger(p.wins)||p.wins<0))return false;
+      const bots=v.players.filter(p=>p.kind==='bot'),mainIds=new Set(G.MAIN_BOT_CHARACTERS.map(c=>c.id)),allIds=new Set(G.BOT_CHARACTERS.map(c=>c.id));
+      if(v.players.some(p=>p.kind==='human'&&['botSelection','botCharacterId'].some(key=>p[key]!==undefined)))return false;
+      if(bots.some(p=>(p.botSelection!==undefined&&p.botSelection!=='random'&&!mainIds.has(p.botSelection))||(p.botAvatar!==undefined&&(!Number.isInteger(p.botAvatar)||p.botAvatar<0||p.botAvatar>3))||(p.botCharacterId!==undefined&&!allIds.has(p.botCharacterId))))return false;
+      const fixedChoices=bots.filter(p=>p.botSelection!==undefined&&p.botSelection!=='random').map(p=>p.botSelection);
+      if(new Set(fixedChoices).size!==fixedChoices.length)return false;
+      const resolved=bots.filter(p=>p.botCharacterId!==undefined).map(p=>p.botCharacterId);
+      if(new Set(resolved).size!==resolved.length)return false;
+      const inMatch=['play','reveal','finished'].includes(v.phase);
+      if(resolved.length&&inMatch&&resolved.length!==bots.length)return false;
+      if(bots.some(p=>p.botCharacterId!==undefined&&p.botSelection!==undefined&&p.botSelection!=='random'&&p.botCharacterId!==p.botSelection))return false;
+      if(inMatch&&bots.some(p=>p.botSelection!==undefined&&!p.botCharacterId))return false;
+      if(v.phase==='lobby'&&bots.some(p=>p.botSelection==='random'&&p.botCharacterId!==undefined))return false;
       if(v.players.some(p=>['currentStreak','bestStreak'].some(key=>p[key]!==undefined&&(!Number.isSafeInteger(p[key])||p[key]<0))||(p.currentStreak||0)>(p.bestStreak||0)))return false;
       if(!v.hands||typeof v.hands!=='object'||!Array.isArray(v.discard)||v.discard.length>36||!Array.isArray(v.history)||v.history.length>1000)return false;
       const validCard=c=>c===null||(typeof c==='object'&&G.FULL_DECK.some(x=>x.id===c?.id&&x.kind===c.kind&&x.value===c.value&&x.label===c.label));

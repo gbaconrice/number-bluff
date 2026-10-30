@@ -85,15 +85,15 @@ test('BOT cannot distinguish own card or hidden deck order and models extra spec
 });
 test('RNG injection, deterministic replay, immutable transitions and stale revision guard',()=>{
  assert.throws(()=>E.startGame(E.createLobby()));assert.throws(()=>E.startGame(E.createLobby(),()=>1));
- function run(){let s=E.startGame(E.createLobby({botCount:7}),seeded(10));const rng=seeded(20);for(let i=0;i<60;i++){if(s.phase==='play'){s=E.declare(s,s.turn,1);s=E.challenge(s,s.turn,rng);}else if(s.phase==='reveal')s=E.nextRound(s,rng);else s=E.rematch(s,rng);}return s;}
+  function run(){const rng=seeded(10),characterRng=seeded(11);let s=E.startGame(E.createLobby({botCount:7}),rng,characterRng);for(let i=0;i<60;i++){if(s.phase==='play'){s=E.declare(s,s.turn,1);s=E.challenge(s,s.turn,rng);}else if(s.phase==='reveal')s=E.nextRound(s,rng);else s=E.rematch(s,rng,characterRng);}return s;}
  assert.deepEqual(run(),run());
  const s=freezeDeep(E.startGame(E.createLobby(),seeded()));const action={type:'declare',player:s.turn,value:1,revision:s.revision};const t=E.dispatch(s,action,seeded());assert.notEqual(t,s);assert.equal(E.dispatch(t,action,seeded()),t);E.challenge(freezeDeep(t),t.turn,seeded());
 });
 test('10,000 challenge rounds conserve physical deck, finish, rematch and wins',()=>{
- const rng=seeded(991);let s=E.startGame(E.createLobby({botCount:7}),rng),games=0;
+  const rng=seeded(991),characterRng=seeded(992);let s=E.startGame(E.createLobby({botCount:7}),rng,characterRng),games=0;
  for(let i=0;i<10000;i++){
   E.assertInvariant(s);s=E.declare(s,s.turn,i%3===0?100:1);s=E.challenge(s,s.turn,rng);E.assertInvariant(s);
-  if(s.phase==='finished'){games++;assert.equal(s.players.reduce((n,p)=>n+p.wins,0),games);s=E.rematch(s,rng);}else s=E.nextRound(s,rng);
+   if(s.phase==='finished'){games++;assert.equal(s.players.reduce((n,p)=>n+p.wins,0),games);s=E.rematch(s,rng,characterRng);}else s=E.nextRound(s,rng);
  }
  assert.ok(games>400);
 });
@@ -110,9 +110,9 @@ test('BOT predicts public discard refill when ? meets exhausted draw pile',()=>{
 test('all bot difficulties complete 2- and 8-seat matches with legal public-view actions',()=>{
  for(const difficulty of ['easy','normal','hard'])for(const count of [2,8]){
   const rng=seeded(count*100+difficulty.length);
-  let s=E.startGame(E.createLobby({botCount:count-1,difficulty}),rng);
-  // Convert the test driver seat to a bot solely to simulate a complete match.
-  s={...s,players:s.players.map(p=>({...p,kind:'bot',difficulty}))};
+   let lobby=E.createLobby({botCount:count-1,difficulty});
+   lobby={...lobby,players:lobby.players.map(p=>p.kind==='human'?{...p,kind:'bot',difficulty,botSelection:'random'}:{...p,difficulty})};
+   let s=E.startGame(lobby,rng,seeded(count*200+difficulty.length));
   let actions=0;
   while(s.phase!=='finished'&&actions<2000){
    if(s.phase==='reveal')s=E.nextRound(s,rng);
@@ -123,7 +123,7 @@ test('all bot difficulties complete 2- and 8-seat matches with legal public-view
  }
 });
 test('human actors use the same core transitions for future adapter',()=>{
- let s=E.startGame(E.createLobby({botCount:7}),seeded());s={...s,players:s.players.map(p=>({...p,kind:'human',difficulty:null}))};
+  let s=E.startGame(E.createLobby({botCount:7}),seeded(),seeded(3));s={...s,players:s.players.map(p=>{const{botAvatar,botCharacterId,botSelection,...human}=p;return{...human,kind:'human',difficulty:null};})};
  for(let i=0;i<8;i++){const prev=s;s=E.declare(s,s.turn,i+1);assert.notEqual(s,prev);}
  s=E.challenge(s,s.turn,seeded());assert.equal(s.phase,'reveal');E.assertInvariant(s);
 });

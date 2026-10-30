@@ -122,6 +122,8 @@ jobs:
         run: node tools/deal-timing.mjs
       - name: Home sound control position
         run: node tools/home-sound-position.mjs
+      - name: BOT roster selection and small-screen layout
+        run: node tools/bot-roster-preview.mjs
       - name: Battle header consistency
         run: node tools/header-regression.mjs
       - name: Lobby guide synchronization

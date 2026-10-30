@@ -49,7 +49,8 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
   assert.equal(await page.evaluate(() => window.__audioStartCount), 0, 'no automatic sound before interaction');
   const button = page.locator('#homeSoundToggle');
-  assert.equal(await button.textContent(),'♪','HOME uses the same sound icon as the battle screen');
+  const homeIcon = button.locator('b');
+  assert.equal(await homeIcon.textContent(), await page.locator('#battleSoundToggle').textContent(), 'HOME uses the same sound icon as the battle screen');
   const soundBox = await button.boundingBox(); assert.ok(soundBox.width>=40 && soundBox.height>=40,'sound target remains tappable');
   await button.tap(); // mute
   assert.equal(await button.getAttribute('aria-pressed'), 'true');
@@ -64,7 +65,7 @@ try {
   assert.equal(await button.getAttribute('aria-pressed'), 'false');
   await button.tap(); await page.reload();
   assert.equal(await button.getAttribute('aria-pressed'), 'true', 'mute preference survives reload');
-  assert.equal(await button.textContent(),'♪');
+  assert.equal(await button.locator('b').textContent(), await page.locator('#battleSoundToggle').textContent());
   assert.equal(await page.evaluate(() => window.__audioStartCount), 0, 'muted reload does not autoplay');
   await button.tap(); // restore sound after the persisted-muted reload
   await page.waitForFunction(() => window.__liveAudioPeak > .005);
