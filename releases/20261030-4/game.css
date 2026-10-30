@@ -2,7 +2,7 @@
 /* Base and component styles. Responsive rules retain cascade order; obsolete overrides removed. */
 :root { color-scheme: dark; font-family: ui-rounded,"Hiragino Maru Gothic ProN","Yu Gothic",system-ui,sans-serif; color: #fff5e8; background: #101a3d; --cream: #fff0c6; --line: #9aade2; --ink: #182b59; }
 * { box-sizing: border-box; }
-body { margin: 0; background: #101a3d url("https://gbrice.github.io/number-bluff/assets/celestial-background-v3.webp") center/cover fixed; min-height: 100dvh; }
+body { margin: 0; background: #101a3d url("https://gbaconrice.github.io/number-bluff/assets/celestial-background-v3.webp") center/cover fixed; min-height: 100dvh; }
 main { margin: auto; }
 .screen { position: relative; }
 [hidden], .hide { display: none!important; }
@@ -576,11 +576,11 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .nb-background { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; user-select:none; contain:strict; }
 .nb-background * { pointer-events:none; }
 /* Overscan exceeds the complete travel envelope, so the sky never exposes an edge. */
-.nb-background__scene { position:absolute; inset:-10%; background:#101a3d url("https://gbrice.github.io/number-bluff/assets/celestial-background-v3.webp") center / cover no-repeat; animation:nb-scene-travel 22s ease-in-out -5.5s infinite alternate; }
+.nb-background__scene { position:absolute; inset:-10%; background:#101a3d url("https://gbaconrice.github.io/number-bluff/assets/celestial-background-v3.webp") center / cover no-repeat; animation:nb-scene-travel 22s ease-in-out -5.5s infinite alternate; }
 .nb-background__nebula { position:absolute; inset:-15%; background:radial-gradient(ellipse at 15% 65%,#985cff48,transparent 45%),radial-gradient(ellipse at 85% 24%,#56c4ff40,transparent 40%); opacity:.65; animation:nb-nebula-drift 12s ease-in-out -3s infinite alternate; }
 /* Wide cloud banks slide past each other rather than barely bobbing in place.
    A soft alpha mask hides the old asset's rough upper cutout edge. */
-.nb-background__clouds,.nb-background__clouds-back { position:absolute; left:-30vw; right:-30vw; bottom:-4vh; height:clamp(165px,53.333333vw,420px); background:url("https://gbrice.github.io/number-bluff/assets/cloud-foreground.webp") center bottom / cover no-repeat; -webkit-mask-image:linear-gradient(transparent 2%,#000 48%); mask-image:linear-gradient(transparent 2%,#000 48%); }
+.nb-background__clouds,.nb-background__clouds-back { position:absolute; left:-30vw; right:-30vw; bottom:-4vh; height:clamp(165px,53.333333vw,420px); background:url("https://gbaconrice.github.io/number-bluff/assets/cloud-foreground.webp") center bottom / cover no-repeat; -webkit-mask-image:linear-gradient(transparent 2%,#000 48%); mask-image:linear-gradient(transparent 2%,#000 48%); }
 .nb-background__clouds { opacity:.86; animation:nb-cloud-drift 14s ease-in-out -3.5s infinite alternate; }
 /* This elevated bank ends inside the viewport: fade BOTH edges, never expose
    the rectangular bottom of the source image over the distant sky. */
@@ -592,7 +592,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .nb-background[data-motion="paused"] *,.nb-background[data-motion="paused"] *::after { animation-play-state:paused; }
 .nb-background[data-static="true"] *,.nb-background[data-static="true"] *::after { animation:none; }
 
-.nb-background {--nb-optical-star:url("https://gbrice.github.io/number-bluff/assets/component-galaxy-star.png");}
+.nb-background {--nb-optical-star:url("https://gbaconrice.github.io/number-bluff/assets/component-galaxy-star.png");}
 
 /* Magic UI Meteors head/tail structure + React Bits Galaxy Star() optical sprite.
    Complete licenses are retained in background-motion.js / THIRD_PARTY_NOTICES. */

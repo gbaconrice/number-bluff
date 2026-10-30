@@ -9,7 +9,7 @@ GitHub側で36枚ルール、UI・素材・演出に加え、提供されたAgen
 ## 配布と原本
 
 - 入力は `ai-studio.html`。HTML/CSS/ゲーム・SDK連携JavaScriptは一体化され、外部JS・CSSは読み込みません。
-- 画像は `https://gbrice.github.io/number-bluff/assets/` の絶対URLです。配布先で最新素材がHTTP 200になることを確認してください。
+- 画像は `https://gbaconrice.github.io/number-bluff/assets/` の絶対URLです。配布先で最新素材がHTTP 200になることを確認してください。
 - 原本は `index.html`、`styles.css`、`engine.js`、`scheduler.js`、`background-motion.js/.css`、`card-presentation.js/.css`、`card-art.js/.css`、`game-audio.js`、`app.js`、`gravity-room-adapter.js`、`gravity-platform.js` です。
 - 原本を直し、`npm test` と `node tools/build-single-html.mjs` を実行して単一HTMLを再生成します。生成HTMLだけを修正して原本と分離しないでください。
 - 単体・通信模擬テストは実SDK通信を証明しません。実GRAVITY複数端末テストは未実施です。
