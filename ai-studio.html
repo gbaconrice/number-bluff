@@ -211,7 +211,7 @@ h3 { font-size: 12px; margin-bottom: 7px; }
   .example-cards .kind-reset { font-size: 8px; }
   .example-cards .kind-max0 { letter-spacing: -.08em; }
 }
-.home-icons .icon-caption { border-radius: 6px; padding: 3px 6px; color: #fff5e8; line-height: 1.3; }
+.home-icons .icon-caption { border-radius: 6px; padding: 3px 6px; color: #fff5e8; font-size: 12px; font-weight: 800; line-height: 1.3; }
 .wins-badge { position: absolute; right: 2px; top: 17px; z-index: 1; font-size: 8px; line-height: 1.2; padding: 2px 4px; background: #233357e8; color: #fff0bd; border-radius: 5px; font-weight: 800; }
 .battle-player { position: relative; }
 /* Keep turn announcements legible over the bright decorative cloud bank. */
@@ -233,7 +233,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .lobby-grid { gap: 6px; }
 .lobby-seat { min-height: 105px; }
 .lobby-seat strong { font-size: 11px; }
-.lobby-seat .person-placeholder, .lobby-seat img.avatar { height: 49px; width: 49px; margin: 0 auto 3px; }
+.lobby-seat .person-placeholder, .lobby-seat img.avatar, .lobby-seat .bot-avatar-missing { height: 49px; width: 49px; margin: 0 auto 3px; }
 .lobby-seat .profile-avatar { object-fit: cover; border-radius: 50%; border: 1px solid #eedab1; }
 .bot-config { padding: 10px; margin: 9px 0 12px; }
 .bot-footer { justify-content: flex-end; margin-top: 5px; }
@@ -249,9 +249,9 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .battle-grid { gap: 5px; margin: 0 0 5px; grid-template-columns: repeat(4,minmax(0,1fr)); }
 .battle-grid[data-count="2"] { grid-template-columns: repeat(2,minmax(0,1fr)); width: 54%; margin-left: auto; margin-right: auto; }
 .battle-grid[data-count="3"] { grid-template-columns: repeat(3,minmax(0,1fr)); width: 78%; margin-left: auto; margin-right: auto; }
-.player-info { height: 75px; margin-bottom: 5px; border-radius: 9px; padding: 4px 2px; }
+.player-info { display: grid; grid-template-columns: minmax(0,1fr); grid-template-rows: 15px 64px 12px; align-items: center; justify-items: center; height: 99px; margin-bottom: 5px; border-radius: 9px; padding: 3px 2px; }
 .player-name { font-size: 11px; line-height: 15px; font-weight: 800; }
-.player-info .person-placeholder, .player-info img.avatar { width: 35px; height: 35px; margin: 0 auto 3px; }
+.player-info .person-placeholder, .player-info img.avatar { width: 35px; height: 35px; margin: 0; }
 .hearts { font-size: 12px; letter-spacing: 0; line-height: 14px; }
 .battle-grid.many .player-card, .player-card { height: auto; aspect-ratio: 2 / 3; border-radius: 8px; font-size: clamp(30px,8vw,41px); padding-top: 13px; box-shadow: inset 0 0 0 2px #fff8e1aa,0 0 8px #cbb3ff55; }
 .battle-grid.many .player-card.hidden, .player-card.hidden { display: flex; align-items: center; justify-content: center; padding: 0; font-size: 40px; }
@@ -259,7 +259,7 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .battle-grid.many .player-card.kind-max0, .player-card.kind-max0 { font-size: clamp(12px,3.2vw,17px); }
 .battle-grid.many .player-card.kind-reset, .player-card.kind-reset { font-size: clamp(12px,3.2vw,17px); }
 .battle-grid.many { row-gap: 6px; }
-.battle-grid.many .player-info { height: 50px; display: grid; grid-template-columns: 26px 1fr; grid-template-rows: 11px 24px 10px; align-items: center; padding: 2px; margin-bottom: 3px; }
+.battle-grid.many .player-info { height: 89px; display: grid; grid-template-columns: minmax(0,1fr); grid-template-rows: 11px 64px 10px; align-items: center; justify-items: center; padding: 1px 2px; margin-bottom: 3px; }
 .battle-grid.many .player-name { font-size: 10px; line-height: 12px; grid-column: 1/-1; }
 .battle-grid.many .player-name { padding-right: 0; }
 .battle-grid.many .wins-badge { position:static;grid-column:1/-1;grid-row:3;line-height:10px;padding:0;background:transparent;white-space:nowrap; }
@@ -338,13 +338,13 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
   .home-art { height: 220px; }
   .pill { min-height: 49px; }
   .lobby-seat { min-height: 95px; }
-  .lobby-seat .person-placeholder, .lobby-seat img.avatar { width: 42px; height: 42px; }
+  .lobby-seat .person-placeholder, .lobby-seat img.avatar, .lobby-seat .bot-avatar-missing { width: 42px; height: 42px; }
   .lobby-seat strong { font-size: 10px; }
   .lobby-seat small { font-size: 8px; }
   .bot-config { margin: 7px 0 9px; }
   .bot-choices { gap: 6px; }
   .topbar { margin-bottom: 2px; }
-  .battle-grid.many .player-info { height: 49px; grid-template-rows: 11px 24px 10px; padding: 1px 2px; }
+  .battle-grid:not(.many) .emote-anchor{height:64px}.battle-grid:not(.many) .emote-slot{width:64px;height:64px}.battle-grid:not(.many) .player-info{height:99px;grid-template-rows:15px 64px 12px}.battle-grid.many .player-info { height: 89px; grid-template-rows: 11px 64px 10px; padding: 1px 2px; }
   .battle-grid.many { row-gap: 5px; }
   .battle-grid.many .player-card { padding-top: 10px; font-size: 29px; }
   .battle-grid.many .player-card.hidden { padding: 0; font-size: 38px; }
@@ -497,7 +497,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 .doubt-actor{animation:doubt-actor-pop .6s ease-out}
 @media (prefers-reduced-motion:reduce){.doubt-actor{animation:none}}
 
-.emote-bar{display:flex;justify-content:center;gap:.35rem;margin:.2rem auto}.emote-button{width:48px;height:48px;padding:2px;border-radius:10px}.emote-button img{width:100%;height:100%;object-fit:contain}.emote-button:disabled{opacity:1}.emote-anchor{position:relative;width:35px;height:35px;margin:0 auto 3px}.battle-grid.many .emote-anchor{width:24px;height:24px;margin:0 auto}.emote-slot{position:absolute;inset:0;pointer-events:none}.player-info .emote-slot .emote-stamp{position:absolute;inset:0;width:100%;height:100%;margin:0;object-fit:contain;filter:drop-shadow(0 2px 3px #000)}.emote-anchor:has(.emote-stamp)>.avatar,.emote-anchor:has(.emote-stamp)>.person-placeholder{visibility:hidden}
+.emote-bar{display:flex;justify-content:center;gap:.35rem;margin:.2rem auto}.emote-button{width:48px;height:48px;padding:2px;border-radius:10px}.emote-button img{width:100%;height:100%;object-fit:contain}.emote-button:disabled{opacity:1}.emote-anchor{position:relative;display:flex;grid-row:2;align-items:center;justify-content:center;width:100%;height:64px;margin:0}.battle-grid.many .emote-anchor{height:64px;margin:0}.emote-slot{position:absolute;z-index:2;top:50%;left:50%;display:grid;place-items:center;width:64px;height:64px;transform:translate(-50%,-50%);pointer-events:none}.battle-grid.many .emote-slot{width:64px;height:64px}.emote-slot:has(.emote-stamp)::before{content:"";position:absolute;inset:2px;border:2px solid #fff8e9;border-radius:48% 52% 45% 55%;background:radial-gradient(circle at 35% 25%,#fffaf0,#f5d8aa 52%,#d5c4ed);box-shadow:0 2px 7px #071332a8,inset 0 0 0 1px #fff;animation:emote-pop 2.2s ease-out both}.player-info .emote-slot .emote-stamp{position:relative;z-index:1;display:block;width:54px;height:54px;margin:0;object-fit:contain;filter:drop-shadow(0 1px 1px #122044);transform-origin:center;animation:emote-pop 2.2s ease-out both}@keyframes emote-pop{0%{opacity:0;transform:translateY(3px) scale(.72)}10%{opacity:1;transform:translateY(-1px) scale(.96)}18%{transform:translateY(0) scale(1)}84%{opacity:1;transform:scale(1)}100%{opacity:0;transform:translateY(-1px) scale(.96)}}.player-vitals{display:flex;grid-row:3;align-items:center;justify-content:center;gap:4px;width:100%;height:12px;min-width:0;white-space:nowrap}.player-vitals .wins-badge{position:static;top:auto;right:auto;display:flex;gap:3px;flex-shrink:0;margin:0;padding:0;background:transparent;line-height:1.1}.player-vitals .wins-badge span{display:inline}.battle-grid.many .player-vitals{height:10px;gap:2px}.battle-grid.many .hearts{font-size:10px;line-height:10px}.lobby-seat .bot-avatar-missing{background:transparent;border:0;border-radius:0;box-shadow:none}
 
 .battle-player.last-bidder .player-info,.bid-panel.has-bid{border-color:#ffd270;box-shadow:inset 0 0 0 1px #ffd270}.bid-panel.has-bid #bid,.battle-player.last-bidder .player-name{color:#ffe3a0}.player-card[data-detail-card]{cursor:pointer}.player-card[data-detail-card]:focus-visible{outline:3px solid #ffd270;outline-offset:2px}@keyframes turn-ready{50%{filter:brightness(1.3)}}.turn-ready{animation:turn-ready .55s ease-out}@media(prefers-reduced-motion:reduce){.turn-ready{animation:none}}
 
@@ -510,7 +510,7 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 
 
 
-@keyframes low-life-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}.hearts.low-life{color:#ca4050;animation:low-life-pulse 2.8s ease-in-out infinite}.bid-panel.bid-big strong{animation:bid-strong .38s ease-out}@keyframes bid-strong{40%{transform:scale(1.1)}100%{transform:scale(1)}}@media(prefers-reduced-motion:reduce){.hearts.low-life,.bid-panel.bid-big strong,.emote-stamp{animation:none}}
+@keyframes low-life-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}.hearts.low-life{color:#ca4050;animation:low-life-pulse 2.8s ease-in-out infinite}.bid-panel.bid-big strong{animation:bid-strong .38s ease-out}@keyframes bid-strong{40%{transform:scale(1.1)}100%{transform:scale(1)}}@media(prefers-reduced-motion:reduce){.hearts.low-life,.bid-panel.bid-big strong,.emote-slot:has(.emote-stamp)::before,.player-info .emote-slot .emote-stamp{animation:none}}
 
 .discard-button{min-width:48px;min-height:48px;padding:2px 4px;font-size:11px;border-radius:10px}#discardDetail{max-width:330px;width:90%;max-height:75dvh;overflow:auto;border:1px solid #ffe6b4;border-radius:18px;background:#fff0d0;color:#182b59;padding:18px}#discardDetail::backdrop{background:#050e2bbf}#closeDiscard{float:right;min-width:48px;min-height:44px}#discardDetail h2{font-size:18px}#discardDetail p{font-size:12px}#discardList{display:flex;flex-wrap:wrap;gap:6px;clear:both}.discard-item{min-width:38px;text-align:center;padding:6px;background:#fff8e8;border:1px solid #d5bfb5;border-radius:8px;font-weight:700}
 
@@ -914,18 +914,29 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
     const botSelection=defaultBotSelection(players,id),character=botCharacterById.get(botSelection);
     return {id,name:`BOT ${Number(String(id).replace(/\D/g,''))-1}`,kind:'bot',difficulty,botSelection,...(character?{botAvatar:character.avatarIndex}:{}),life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false};
   }
+  function canonicalLobbyIds(s,players=s.players) {
+    const ids=new Set(players.map(p=>p.id)),order=[];
+    if(Array.isArray(s.lobbyOrder))for(const id of s.lobbyOrder)if(ids.has(id)&&!order.includes(id))order.push(id);
+    for(const p of players)if(!order.includes(p.id))order.push(p.id);
+    return order;
+  }
+  function orderByLobbySeat(s,players=s.players) {
+    const rank=new Map(canonicalLobbyIds(s,players).map((id,index)=>[id,index]));
+    return players.slice().sort((a,b)=>rank.get(a.id)-rank.get(b.id));
+  }
   function createLobby({name='YOU',botCount=1,difficulty='normal'}={}) {
     if(!Number.isInteger(botCount)||botCount<0||botCount>7||!difficulties.includes(difficulty)) throw new RangeError('Use 0–7 bots and easy/normal/hard.');
     const players=[{id:'p1',name:String(name).slice(0,24)||'YOU',kind:'human',difficulty:null,life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false}];
     for(let i=0;i<botCount;i++){const id=`p${i+2}`;players.push(botPlayer(id,difficulty,players));}
-    return {phase:'lobby',revision:0,game:0,round:0,rankingEligible:false,players,deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,starter:'p1',result:null,history:[]};
+    return {phase:'lobby',revision:0,game:0,round:0,rankingEligible:false,players,lobbyOrder:players.map(p=>p.id),deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,starter:'p1',result:null,history:[]};
   }
   function addBot(s,difficulty='normal') {
     if(s.phase!=='lobby'||s.players.length>=8||!difficulties.includes(difficulty))return s;
     const seat=Array.from({length:7},(_,i)=>i+2).find(n=>!s.players.some(p=>p.id===`p${n}`));
-    return updated(s,{players:[...s.players,botPlayer(`p${seat}`,difficulty,s.players)]});
+    const bot=botPlayer(`p${seat}`,difficulty,s.players);
+    return updated(s,{players:[...s.players,bot],lobbyOrder:[...canonicalLobbyIds(s),bot.id]});
   }
-  function removeBot(s,id) {if(s.phase!=='lobby'||s.players.length<=1||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;return updated(s,{players:s.players.filter(p=>p.id!==id)});}
+  function removeBot(s,id) {if(s.phase!=='lobby'||s.players.length<=1||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;const players=s.players.filter(p=>p.id!==id);return updated(s,{players,lobbyOrder:canonicalLobbyIds(s,players)});}
   function setDifficulty(s,id,difficulty) {if(s.phase!=='lobby'||!difficulties.includes(difficulty)||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;return updated(s,{players:s.players.map(p=>p.id===id?{...p,difficulty}:p)});}
   function setBotSelection(s,id,selection){
     if(s.phase!=='lobby'||(selection!=='random'&&!mainCharacterIds.has(selection)))return s;
@@ -961,21 +972,23 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
       return resolved;
     });
   }
-  function startGame(s,rng,characterRng=independentRandom) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;const resolved=resolveBotCharacters(s.players,characterRng);if(!resolved)return s;const players=shuffle(resolved,rng);return deal({...s,players,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:players.filter(p=>p.kind==='human').length>=2||(players.filter(p=>p.kind==='human').length===1&&players.some(p=>p.kind==='bot'&&p.difficulty==='hard')),starter:players[0].id},rng);}
-  function rematch(s,rng,characterRng=independentRandom) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:s.players.map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng,characterRng);}
+  function startGame(s,rng,characterRng=independentRandom) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;const lobbyPlayers=orderByLobbySeat(s);const resolved=resolveBotCharacters(lobbyPlayers,characterRng);if(!resolved)return s;const players=shuffle(resolved,rng);return deal({...s,players,lobbyOrder:canonicalLobbyIds(s,lobbyPlayers),deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:players.filter(p=>p.kind==='human').length>=2||(players.filter(p=>p.kind==='human').length===1&&players.some(p=>p.kind==='bot'&&p.difficulty==='hard')),starter:players[0].id},rng);}
+  function rematch(s,rng,characterRng=independentRandom) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:orderByLobbySeat(s).map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng,characterRng);}
   // A room survives leaving a match. The UI must confirm abandoning active play;
   // no winner is awarded here. createLobby is reserved for a genuinely new room.
   function returnToLobby(s) {
     if(!['play','reveal','finished'].includes(s.phase))return s;
-    return updated(s,{phase:'lobby',round:0,rankingEligible:false,players:s.players.map(p=>{
+    const players=orderByLobbySeat(s).map(p=>{
       const reset={...p,life:3,eliminated:false};if(p.kind!=='bot')return reset;
       const selection=botCharacterSelection(p);reset.botSelection=selection;
       if(selection==='random'){delete reset.botCharacterId;delete reset.botAvatar;}
       else{reset.botCharacterId=selection;reset.botAvatar=botCharacterById.get(selection)?.avatarIndex;}
       return reset;
-    }),
+    });
+    const lobbyOrder=players.map(p=>p.id);
+    return updated(s,{phase:'lobby',round:0,rankingEligible:false,players,lobbyOrder,
       deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,
-      starter:s.players[0].id,result:null,history:[]});
+      starter:lobbyOrder[0],result:null,history:[]});
   }
   function nextRound(s,rng) {if(s.phase!=='reveal')return s;return deal(s,rng);}
   function declare(s,who,value) {
@@ -2361,8 +2374,8 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       const p = held ? presentationPrevious?.find(old => old.id === player.id) || player : player;
       const block = el('div', 'battle-player' + (view.phase === 'play' && p.id === view.last ? ' last-bidder' : '') + (p.id === human ? ' self' : '') + (p.id === view.turn ? ' active' : '') + (p.eliminated ? ' eliminated' : ''));
       block.dataset.player = p.id;
-      const info = el('div', 'player-info'); const playerName = el('div', 'player-name', name(p.id)); if(p.kind === 'human' && p.currentStreak >= 3) { const mark=el('span','streak-mark', p.currentStreak >= 5 ? ' ✦✦' : ' ✦'); mark.setAttribute('aria-label', p.currentStreak + '連勝'); playerName.append(mark); } const avatar=el('div','emote-anchor'); avatar.append(playerAvatar(p.id),el('div','emote-slot')); info.append(playerName, avatar);
-      const hearts = el('div', 'hearts' + (p.life === 1 && !p.eliminated ? ' low-life' : '')); for (let i = 0; i < 3; i++) { const heart = el('span', 'life-heart', i < p.life ? '♥' : '♡'); heart.setAttribute('aria-hidden', 'true'); hearts.append(heart); } hearts.setAttribute('aria-label', name(p.id) + 'のライフ ' + p.life + ' / 3'); info.append(hearts);
+      const info = el('div', 'player-info'); const playerName = el('div', 'player-name', name(p.id)); if(p.kind === 'human' && p.currentStreak >= 3) { const mark=el('span','streak-mark', p.currentStreak >= 5 ? ' ✦✦' : ' ✦'); mark.setAttribute('aria-label', p.currentStreak + '連勝'); playerName.append(mark); } const avatar=el('div','emote-anchor'); avatar.append(playerAvatar(p.id),el('div','emote-slot'));
+      const hearts = el('div', 'hearts' + (p.life === 1 && !p.eliminated ? ' low-life' : '')); for (let i = 0; i < 3; i++) { const heart = el('span', 'life-heart', i < p.life ? '♥' : '♡'); heart.setAttribute('aria-hidden', 'true'); hearts.append(heart); } hearts.setAttribute('aria-label', name(p.id) + 'のライフ ' + p.life + ' / 3'); const vitals=el('div','player-vitals'); vitals.append(hearts);
       const card = view.hands[p.id], out = !Object.prototype.hasOwnProperty.call(view.hands, p.id) && p.eliminated;
       const hidden = !out && ((view.phase === 'play' && p.id === human) || (presentationFrame && !presentationFrame.revealedIds.includes(card?.id)));
       const node = cardNode(card, hidden, out);
@@ -2371,7 +2384,8 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : hidden ? name(p.id) + 'の非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
       if (view.phase !== 'play' && card) { node.classList.add('presentation-card'); node.dataset.cardId = card.id; node.dataset.revealed = hidden ? 'back' : 'true'; }
       block.append(info, node);
-      if (p.wins > 0 || (p.kind === 'human' && p.currentStreak > 0)) { const badge=el('span','wins-badge'); if(p.wins > 0) badge.append(el('span','', '通算' + p.wins + '勝')); if(p.kind === 'human' && p.currentStreak > 0) badge.append(el('span','', p.currentStreak + '連勝')); info.append(badge); }
+      if (p.wins > 0 || (p.kind === 'human' && p.currentStreak > 0)) { const badge=el('span','wins-badge'); if(p.wins > 0) badge.append(el('span','', '通算' + p.wins + '勝')); if(p.kind === 'human' && p.currentStreak > 0) badge.append(el('span','', p.currentStreak + '連勝')); vitals.append(badge); }
+      info.append(playerName, avatar, vitals);
       grid.append(block);
     }
     grid.scrollTop = scrollTop; paintEmotes(); paintTurnDisplay();
@@ -2889,7 +2903,8 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       const active=state.phase!=='lobby';
       // Explicit abandonment policy: no fabricated move, life loss, bot takeover or win.
       if(active)state=G.returnToLobby(state);
-      state={...state,revision:state.revision+1,players:state.players.filter(p=>p.id!==seat.id)};
+      const players=state.players.filter(p=>p.id!==seat.id),lobbyOrder=(Array.isArray(state.lobbyOrder)?state.lobbyOrder:state.players.map(p=>p.id)).filter(id=>id!==seat.id);
+      state={...state,revision:state.revision+1,players,lobbyOrder};
       publish(active?'player-left-match-abandoned':'player-left');return true;
     }
     function emitEmote(event){for(const fn of emoteListeners)fn({...event});}

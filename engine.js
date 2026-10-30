@@ -56,18 +56,29 @@
     const botSelection=defaultBotSelection(players,id),character=botCharacterById.get(botSelection);
     return {id,name:`BOT ${Number(String(id).replace(/\D/g,''))-1}`,kind:'bot',difficulty,botSelection,...(character?{botAvatar:character.avatarIndex}:{}),life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false};
   }
+  function canonicalLobbyIds(s,players=s.players) {
+    const ids=new Set(players.map(p=>p.id)),order=[];
+    if(Array.isArray(s.lobbyOrder))for(const id of s.lobbyOrder)if(ids.has(id)&&!order.includes(id))order.push(id);
+    for(const p of players)if(!order.includes(p.id))order.push(p.id);
+    return order;
+  }
+  function orderByLobbySeat(s,players=s.players) {
+    const rank=new Map(canonicalLobbyIds(s,players).map((id,index)=>[id,index]));
+    return players.slice().sort((a,b)=>rank.get(a.id)-rank.get(b.id));
+  }
   function createLobby({name='YOU',botCount=1,difficulty='normal'}={}) {
     if(!Number.isInteger(botCount)||botCount<0||botCount>7||!difficulties.includes(difficulty)) throw new RangeError('Use 0–7 bots and easy/normal/hard.');
     const players=[{id:'p1',name:String(name).slice(0,24)||'YOU',kind:'human',difficulty:null,life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false}];
     for(let i=0;i<botCount;i++){const id=`p${i+2}`;players.push(botPlayer(id,difficulty,players));}
-    return {phase:'lobby',revision:0,game:0,round:0,rankingEligible:false,players,deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,starter:'p1',result:null,history:[]};
+    return {phase:'lobby',revision:0,game:0,round:0,rankingEligible:false,players,lobbyOrder:players.map(p=>p.id),deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,starter:'p1',result:null,history:[]};
   }
   function addBot(s,difficulty='normal') {
     if(s.phase!=='lobby'||s.players.length>=8||!difficulties.includes(difficulty))return s;
     const seat=Array.from({length:7},(_,i)=>i+2).find(n=>!s.players.some(p=>p.id===`p${n}`));
-    return updated(s,{players:[...s.players,botPlayer(`p${seat}`,difficulty,s.players)]});
+    const bot=botPlayer(`p${seat}`,difficulty,s.players);
+    return updated(s,{players:[...s.players,bot],lobbyOrder:[...canonicalLobbyIds(s),bot.id]});
   }
-  function removeBot(s,id) {if(s.phase!=='lobby'||s.players.length<=1||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;return updated(s,{players:s.players.filter(p=>p.id!==id)});}
+  function removeBot(s,id) {if(s.phase!=='lobby'||s.players.length<=1||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;const players=s.players.filter(p=>p.id!==id);return updated(s,{players,lobbyOrder:canonicalLobbyIds(s,players)});}
   function setDifficulty(s,id,difficulty) {if(s.phase!=='lobby'||!difficulties.includes(difficulty)||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;return updated(s,{players:s.players.map(p=>p.id===id?{...p,difficulty}:p)});}
   function setBotSelection(s,id,selection){
     if(s.phase!=='lobby'||(selection!=='random'&&!mainCharacterIds.has(selection)))return s;
@@ -103,21 +114,23 @@
       return resolved;
     });
   }
-  function startGame(s,rng,characterRng=independentRandom) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;const resolved=resolveBotCharacters(s.players,characterRng);if(!resolved)return s;const players=shuffle(resolved,rng);return deal({...s,players,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:players.filter(p=>p.kind==='human').length>=2||(players.filter(p=>p.kind==='human').length===1&&players.some(p=>p.kind==='bot'&&p.difficulty==='hard')),starter:players[0].id},rng);}
-  function rematch(s,rng,characterRng=independentRandom) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:s.players.map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng,characterRng);}
+  function startGame(s,rng,characterRng=independentRandom) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;const lobbyPlayers=orderByLobbySeat(s);const resolved=resolveBotCharacters(lobbyPlayers,characterRng);if(!resolved)return s;const players=shuffle(resolved,rng);return deal({...s,players,lobbyOrder:canonicalLobbyIds(s,lobbyPlayers),deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:players.filter(p=>p.kind==='human').length>=2||(players.filter(p=>p.kind==='human').length===1&&players.some(p=>p.kind==='bot'&&p.difficulty==='hard')),starter:players[0].id},rng);}
+  function rematch(s,rng,characterRng=independentRandom) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:orderByLobbySeat(s).map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng,characterRng);}
   // A room survives leaving a match. The UI must confirm abandoning active play;
   // no winner is awarded here. createLobby is reserved for a genuinely new room.
   function returnToLobby(s) {
     if(!['play','reveal','finished'].includes(s.phase))return s;
-    return updated(s,{phase:'lobby',round:0,rankingEligible:false,players:s.players.map(p=>{
+    const players=orderByLobbySeat(s).map(p=>{
       const reset={...p,life:3,eliminated:false};if(p.kind!=='bot')return reset;
       const selection=botCharacterSelection(p);reset.botSelection=selection;
       if(selection==='random'){delete reset.botCharacterId;delete reset.botAvatar;}
       else{reset.botCharacterId=selection;reset.botAvatar=botCharacterById.get(selection)?.avatarIndex;}
       return reset;
-    }),
+    });
+    const lobbyOrder=players.map(p=>p.id);
+    return updated(s,{phase:'lobby',round:0,rankingEligible:false,players,lobbyOrder,
       deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,
-      starter:s.players[0].id,result:null,history:[]});
+      starter:lobbyOrder[0],result:null,history:[]});
   }
   function nextRound(s,rng) {if(s.phase!=='reveal')return s;return deal(s,rng);}
   function declare(s,who,value) {

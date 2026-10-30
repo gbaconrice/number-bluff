@@ -118,6 +118,16 @@ test('guest departure during play abandons without a win and returns remaining s
  assert.equal(t.view(t.host).turn,'p2');t.host.removeMember('guest');t.flush();
  const v=t.view(t.host);assert.equal(v.phase,'lobby');assert.equal(v.players.length,1);assert.equal(v.players[0].wins,0);assert.equal(v.roomId,'room-1');assert.ok(t.statuses.host.some(s=>s.kind==='player-left-match-abandoned'));
 });
+test('shuffled turn order restores host-first lobby order through departures and joins',async()=>{
+ const t=setup(0);await act(t.host,t.view(t.host),'addBot');t.flush();
+ const original=t.view(t.host).players.map(p=>p.id);assert.deepEqual(original,['p1','p2','p3']);assert.equal(t.view(t.host).players[0].userId,'host');
+ await act(t.host,t.view(t.host),'startGame');t.flush();const firstTurnOrder=t.view(t.host).players.map(p=>p.id);assert.deepEqual(new Set(firstTurnOrder),new Set(original));assert.notDeepEqual(firstTurnOrder,original);
+ await act(t.host,t.view(t.host),'returnToLobby');t.flush();assert.deepEqual(t.view(t.host).players.map(p=>p.id),original);assert.equal(t.view(t.guest).players[0].userId,'host');
+ t.host.removeMember('guest');t.flush();assert.deepEqual(t.view(t.host).players.map(p=>p.id),['p1','p3']);
+ t.host.addMember({userId:'replacement',name:'replacement'});t.flush();const afterJoin=t.view(t.host).players.map(p=>p.id);assert.deepEqual(afterJoin,['p1','p3','p2']);assert.equal(t.view(t.host).players[0].userId,'host');
+ await act(t.host,t.view(t.host),'startGame');t.flush();const secondTurnOrder=t.view(t.host).players.map(p=>p.id);assert.deepEqual(new Set(secondTurnOrder),new Set(afterJoin));assert.notDeepEqual(secondTurnOrder,afterJoin);
+ await act(t.host,t.view(t.host),'returnToLobby');t.flush();assert.deepEqual(t.view(t.host).players.map(p=>p.id),afterJoin);assert.equal(t.view(t.host).players[0].userId,'host');
+});
 test('host departure freezes guest and requires explicit reconnection, no unsafe election',async()=>{
  const t=setup();t.guest.addMember({userId:'host',name:'host'});t.guest.removeMember('host');
  assert.equal(t.guest.getStatus().hostLost,true);await assert.rejects(t.guest.send({type:'startGame'}),/disconnected/);assert.ok(t.statuses.guest.some(s=>s.kind==='host-lost'));

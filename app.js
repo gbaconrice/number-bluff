@@ -325,8 +325,8 @@
       const p = held ? presentationPrevious?.find(old => old.id === player.id) || player : player;
       const block = el('div', 'battle-player' + (view.phase === 'play' && p.id === view.last ? ' last-bidder' : '') + (p.id === human ? ' self' : '') + (p.id === view.turn ? ' active' : '') + (p.eliminated ? ' eliminated' : ''));
       block.dataset.player = p.id;
-      const info = el('div', 'player-info'); const playerName = el('div', 'player-name', name(p.id)); if(p.kind === 'human' && p.currentStreak >= 3) { const mark=el('span','streak-mark', p.currentStreak >= 5 ? ' ✦✦' : ' ✦'); mark.setAttribute('aria-label', p.currentStreak + '連勝'); playerName.append(mark); } const avatar=el('div','emote-anchor'); avatar.append(playerAvatar(p.id),el('div','emote-slot')); info.append(playerName, avatar);
-      const hearts = el('div', 'hearts' + (p.life === 1 && !p.eliminated ? ' low-life' : '')); for (let i = 0; i < 3; i++) { const heart = el('span', 'life-heart', i < p.life ? '♥' : '♡'); heart.setAttribute('aria-hidden', 'true'); hearts.append(heart); } hearts.setAttribute('aria-label', name(p.id) + 'のライフ ' + p.life + ' / 3'); info.append(hearts);
+      const info = el('div', 'player-info'); const playerName = el('div', 'player-name', name(p.id)); if(p.kind === 'human' && p.currentStreak >= 3) { const mark=el('span','streak-mark', p.currentStreak >= 5 ? ' ✦✦' : ' ✦'); mark.setAttribute('aria-label', p.currentStreak + '連勝'); playerName.append(mark); } const avatar=el('div','emote-anchor'); avatar.append(playerAvatar(p.id),el('div','emote-slot'));
+      const hearts = el('div', 'hearts' + (p.life === 1 && !p.eliminated ? ' low-life' : '')); for (let i = 0; i < 3; i++) { const heart = el('span', 'life-heart', i < p.life ? '♥' : '♡'); heart.setAttribute('aria-hidden', 'true'); hearts.append(heart); } hearts.setAttribute('aria-label', name(p.id) + 'のライフ ' + p.life + ' / 3'); const vitals=el('div','player-vitals'); vitals.append(hearts);
       const card = view.hands[p.id], out = !Object.prototype.hasOwnProperty.call(view.hands, p.id) && p.eliminated;
       const hidden = !out && ((view.phase === 'play' && p.id === human) || (presentationFrame && !presentationFrame.revealedIds.includes(card?.id)));
       const node = cardNode(card, hidden, out);
@@ -335,7 +335,8 @@
       node.setAttribute('aria-label', out ? name(p.id) + ' 脱落' : hidden ? name(p.id) + 'の非公開カード' : name(p.id) + 'のカード ' + (card?.label || '?'));
       if (view.phase !== 'play' && card) { node.classList.add('presentation-card'); node.dataset.cardId = card.id; node.dataset.revealed = hidden ? 'back' : 'true'; }
       block.append(info, node);
-      if (p.wins > 0 || (p.kind === 'human' && p.currentStreak > 0)) { const badge=el('span','wins-badge'); if(p.wins > 0) badge.append(el('span','', '通算' + p.wins + '勝')); if(p.kind === 'human' && p.currentStreak > 0) badge.append(el('span','', p.currentStreak + '連勝')); info.append(badge); }
+      if (p.wins > 0 || (p.kind === 'human' && p.currentStreak > 0)) { const badge=el('span','wins-badge'); if(p.wins > 0) badge.append(el('span','', '通算' + p.wins + '勝')); if(p.kind === 'human' && p.currentStreak > 0) badge.append(el('span','', p.currentStreak + '連勝')); vitals.append(badge); }
+      info.append(playerName, avatar, vitals);
       grid.append(block);
     }
     grid.scrollTop = scrollTop; paintEmotes(); paintTurnDisplay();
