@@ -114,6 +114,10 @@ jobs:
           path: artifacts/scene-mobile-components.png
           if-no-files-found: ignore
           retention-days: 7
+      - name: Room list and draft state
+        run: node tools/room-list-state.mjs
+      - name: Card artwork loading fallback
+        run: node tools/art-fallback.mjs
       - name: Deal and turn readiness
         run: node tools/deal-timing.mjs
       - name: Home sound control position
