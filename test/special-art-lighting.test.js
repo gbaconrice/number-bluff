@@ -23,7 +23,7 @@ function fixture(kind, useCurrentSrc = true) {
   const attrs = () => ({ attributes: {}, setAttribute(k, v) { this.attributes[k] = v; } });
   let svg;
   const doc = {
-    baseURI: 'https://tanabe0422.github.io/number-bluff/', hidden: false,
+    baseURI: 'https://gbrice.github.io/number-bluff/', hidden: false,
     addEventListener() {}, removeEventListener() {}, querySelector() { return null; },
     createElement() { return { dataset: {}, style: { setProperty(k,v) { this[k]=v; } }, setAttribute() {}, removeAttribute() {}, append(child) { this.child=child; }, remove() {} }; },
     createElementNS() { svg = { ...attrs(), images: [], set innerHTML(value) { this.markup=value; this.images=[...value.matchAll(/<image\b[^>]*>/g)].map(() => attrs()); }, querySelectorAll(selector) { return selector==='image'?this.images:[]; } }; return svg; }
@@ -32,7 +32,7 @@ function fixture(kind, useCurrentSrc = true) {
     classList: { add() {}, remove() {}, contains(name) { return name==='card-content'; } },
     closest() { return null; }, append(node) { this.layer=node; }, getBoundingClientRect() { return {left:0,top:0,right:180,bottom:270,width:180,height:270}; }
   };
-  const originalURL = `https://tanabe0422.github.io/number-bluff/assets/card-${kind}.webp`;
+  const originalURL = `https://gbrice.github.io/number-bluff/assets/card-${kind}.webp`;
   const image = { parentElement: face, currentSrc: useCurrentSrc?originalURL:'', src: originalURL, closest() { return face; } };
   const win = { addEventListener() {}, removeEventListener() {} };
   vm.runInNewContext(source, { window: win, document: doc, URL, innerWidth: 390, innerHeight: 844,

@@ -51,7 +51,7 @@ node tools/build-single-html.mjs
 python3 -m http.server 8000
 ```
 
-ビルダーは `index.html` に記載されたCSSと実行JavaScriptを順序どおりインライン化し、`ai-studio.html` を生成します。ゲーム、スケジューラー、背景・カード演出、画面、SDKアダプター、プラットフォーム連携を含み、外部JSの読み込みは残しません。画像は `https://tanabe0422.github.io/number-bluff/assets/` の絶対URLです。SDK提供のプロフィール画像だけは動的なHTTPS URLを使用します。
+ビルダーは `index.html` に記載されたCSSと実行JavaScriptを順序どおりインライン化し、`ai-studio.html` を生成します。ゲーム、スケジューラー、背景・カード演出、画面、SDKアダプター、プラットフォーム連携を含み、外部JSの読み込みは残しません。画像は `https://gbrice.github.io/number-bluff/assets/` の絶対URLです。SDK提供のプロフィール画像だけは動的なHTTPS URLを使用します。
 
 原本を編集し、テスト・再ビルド・ブラウザ確認を行ってください。単体テスト、ブラウザの表示・操作、模擬SDK接続、公開素材のHTTP配信、実GRAVITY接続は別工程です。素材来歴は `assets/provenance.json` を参照してください。文字はシステムフォントを使用し、外部フォントは配布しません。外部バックエンド、APIキー、新規サービス契約は使用していません。
 

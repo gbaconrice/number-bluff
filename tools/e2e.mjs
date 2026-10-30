@@ -291,7 +291,7 @@ async function setup(width,packaged=false,initialize=null){
  const context=await browser.newContext({viewport:{width,height:width===320?640:width===844?390:844},serviceWorkers:'block',reducedMotion:'no-preference'});const page=await context.newPage();page.setDefaultTimeout(10_000);page.setDefaultNavigationTimeout(15_000);const errors=[],external=[],mapped=[];
  page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
  await context.route('**/*',async route=>{const u=new URL(route.request().url());if(u.origin===origin||u.origin===assetOrigin)return route.continue();
-  if(packaged&&u.href.startsWith('https://tanabe0422.github.io/number-bluff/assets/')){const p='/assets/'+u.pathname.split('/assets/')[1],f=files.get(p);assert.ok(f,'unrecognized packaged asset');mapped.push(u.href);return route.fulfill({status:302,headers:{location:assetOrigin+p,'access-control-allow-origin':'*'}});}
+  if(packaged&&u.href.startsWith('https://gbrice.github.io/number-bluff/assets/')){const p='/assets/'+u.pathname.split('/assets/')[1],f=files.get(p);assert.ok(f,'unrecognized packaged asset');mapped.push(u.href);return route.fulfill({status:302,headers:{location:assetOrigin+p,'access-control-allow-origin':'*'}});}
   external.push(u.href);return route.abort('blockedbyclient');});
  await page.addInitScript(()=>{let seed=30;Math.random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
   // Observe the real special SVG manager without replacing rendering or gameplay.
