@@ -48,9 +48,12 @@ h3 { font-size: 12px; margin-bottom: 7px; }
 .lobby-seat.empty small { font-size: 9px; }
 .bot-config h2 { margin-bottom: 8px; }
 .bot-config h2 small { font-size: 10px; font-weight: 400; color: #d1dbf4; }
-.bot-choices { display: flex; }
-.bot-choices button { width: 49px; height: 45px; min-height: 45px; padding: 0; border-radius: 10px; }
-.bot-choices img { width: 42px; height: 42px; object-fit: contain; }
+.bot-choices { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 8px; }
+.bot-choices button { min-width: 0; width: 100%; height: 45px; min-height: 45px; padding: 0; border-radius: 10px; }
+.bot-choices img { display: block; width: min(100%,42px); height: auto; max-height: 42px; margin: auto; object-fit: contain; }
+.bot-choices button.is-taken { filter: grayscale(1); opacity: .55; }
+.bot-choices #randomBot { font-size: 24px; }
+.bot-avatar-missing { display: grid; place-items: center; background: #172d59; border: 1px solid #8ba4dc; color: #fff3d6; font-size: 25px; font-weight: 900; }
 .difficulty button[aria-pressed="true"], .bot-choices button[aria-pressed="true"] { border-color: #d3deff; background: #5070d5; box-shadow: 0 0 9px #a8baff; }
 .cool { filter: hue-rotate(27deg); }
 .difficulty { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
@@ -235,7 +238,6 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
 .bot-config { padding: 10px; margin: 9px 0 12px; }
 .bot-footer { justify-content: flex-end; margin-top: 5px; }
 .bot-footer button { background: none; box-shadow: none; border: 0; color: #e6e6ff; font-size: 11px; padding: 0 5px; }
-.bot-choices { gap: 8px; }
 .bot-config h2 { font-size: 13px; }
 .bot-config h2 small { display: none; }
 .difficulty { margin-top: 8px; }
@@ -341,7 +343,6 @@ main { max-width: 440px; padding: 7px max(7px,env(safe-area-inset-right)) max(8p
   .lobby-seat small { font-size: 8px; }
   .bot-config { margin: 7px 0 9px; }
   .bot-choices { gap: 6px; }
-  .bot-choices button { width: 45px; }
   .topbar { margin-bottom: 2px; }
   .battle-grid.many .player-info { height: 49px; grid-template-rows: 11px 24px 10px; padding: 1px 2px; }
   .battle-grid.many { row-gap: 5px; }
@@ -372,11 +373,11 @@ main { position: relative; z-index: 1; }
 .topbar>button:last-child:not(:first-child) { grid-column: 3; }
 #battleScreen .topbar { grid-template-columns: 40px minmax(0,1fr) 40px 40px; gap: 4px; }
 #battleScreen .topbar .circle { position: relative; width: 100%; min-height: 40px; }
-#homeSoundToggle::before, #battleScreen .topbar .circle::before { content: ""; position: absolute; inset: -3px; }
+#battleScreen .topbar .circle::before { content: ""; position: absolute; inset: -3px; }
 .sound-toggle { position: relative; }
 .sound-toggle.is-muted::after { content: ""; position: absolute; width: 23px; height: 2px; top: 50%; left: 50%; background: currentColor; transform: translate(-50%,-50%) rotate(-45deg); pointer-events: none; }
+#homeSoundToggle.is-muted::after { top: 22px; }
 #homeSoundToggle, #battleSoundToggle { font-size: 21px; }
-#homeSoundToggle { position: absolute; top: 2px; right: 44px; width: 40px; min-height: 40px; z-index: 2; }
 #battleSoundToggle { grid-column: 3; }
 #battleScreen .topbar #rulesBtn { grid-column: 4; }
 .room-status { font-size: 12px; line-height: 1.5; margin: 5px 0 0; text-align: center; color: #fff2d6; }
@@ -849,8 +850,8 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
 }
 
 </style></head><body><main>
-<section id="homeScreen" class="screen home"><button id="homeSoundToggle" class="circle sound-toggle" data-sound-toggle aria-label="音をオフにする" aria-pressed="false">♪</button><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""></div><div class="home-actions"><label class="private-room-option"><input id="privateRoom" type="checkbox"><span>プライベートルームにする</span></label><button id="startGame" data-intent="createRoom" class="pill gold">ルームを作成</button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button></nav></section>
-<section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><h1 id="lobbyTitle"></h1><button id="copyRoomId" class="room-copy hide" type="button" aria-label="ルームIDをコピー">コピー</button><span id="lobbyHeaderSpacer" class="topbar-spacer" aria-hidden="true"></span></header><p id="roomIdentity" class="room-identity hide"></p><p id="roomCopyStatus" class="room-status hide" role="status" aria-live="polite"></p><input id="roomCopyFallback" class="room-copy-fallback hide" readonly aria-label="コピーするルームID"><p id="onlineLobbyStatus" class="room-status hide" role="status" aria-live="polite"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button><footer class="screen-return-bar"><button id="lobbyRules" class="screen-return" type="button">遊び方</button><button id="lobbyBack" class="screen-return" aria-label="ホームへ戻る">ホームへ戻る</button></footer></section>
+<section id="homeScreen" class="screen home"><h1 class="sr-only">ナンバーブラフ</h1><img class="home-brand" src="https://tanabe0422.github.io/number-bluff/assets/home-logo.webp" alt="" aria-hidden="true"><div class="home-art" aria-hidden="true"><img class="home-scene" src="https://tanabe0422.github.io/number-bluff/assets/home-hero.webp" alt=""></div><div class="home-actions"><label class="private-room-option"><input id="privateRoom" type="checkbox"><span>プライベートルームにする</span></label><button id="startGame" data-intent="createRoom" class="pill gold">ルームを作成</button><button id="joinGame" class="pill blue">ルームに参加</button><p id="roomCreateStatus" class="room-status" role="status" aria-live="polite"></p></div><nav class="home-icons" aria-label="案内"><button id="homeRules"><b aria-hidden="true">?</b><span class="icon-caption">遊び方</span></button><button id="homeSoundToggle" class="sound-toggle" data-sound-toggle aria-label="音をオフにする" aria-pressed="false"><b aria-hidden="true">♪</b><span class="icon-caption">音</span></button></nav></section>
+<section id="lobbyScreen" class="screen hide" aria-label="ロビー"><header class="topbar"><h1 id="lobbyTitle"></h1><button id="copyRoomId" class="room-copy hide" type="button" aria-label="ルームIDをコピー">コピー</button><span id="lobbyHeaderSpacer" class="topbar-spacer" aria-hidden="true"></span></header><p id="roomIdentity" class="room-identity hide"></p><p id="roomCopyStatus" class="room-status hide" role="status" aria-live="polite"></p><input id="roomCopyFallback" class="room-copy-fallback hide" readonly aria-label="コピーするルームID"><p id="onlineLobbyStatus" class="room-status hide" role="status" aria-live="polite"></p><p id="lobbyError" class="error" role="alert"></p><section class="glass lobby-box"><h2>プレイヤー <span id="playerCount">4/8</span></h2><div id="lobbyPlayers" class="lobby-grid"></div></section><section class="glass bot-config"><h2>BOTの追加・設定 <small id="selectedBotLabel"></small></h2><div class="bot-choices" id="avatarChoices"><button data-avatar="0" aria-label="ほしもち"><img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt=""></button><button data-avatar="1" aria-label="ほしねこ"><img src="https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp" alt=""></button><button data-avatar="2" aria-label="もふうさ"><img src="https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp" alt=""></button><button data-avatar="3" aria-label="くもまる"><img src="https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp" alt=""></button><button id="randomBot" aria-label="ランダムなキャラクターを選ぶ" aria-pressed="false">？</button><button id="addBot" aria-label="BOTを追加">＋</button></div><div class="difficulty" aria-label="BOTの難易度"><button data-difficulty="easy">やさしい</button><button data-difficulty="normal">普通</button><button data-difficulty="hard">強い</button></div><div class="bot-footer"><button id="removeBot">選択BOTを外す</button></div></section><button id="beginGame" data-intent="startGame" class="pill lavender">ゲームを開始する <span>›</span></button><footer class="screen-return-bar"><button id="lobbyRules" class="screen-return" type="button">遊び方</button><button id="lobbyBack" class="screen-return" aria-label="ホームへ戻る">ホームへ戻る</button></footer></section>
 <section id="battleScreen" class="screen hide" aria-label="対戦"><header class="topbar"><button id="homeBtn" class="circle battle-exit" aria-label="対戦を終了してホームへ" aria-controls="restartConfirm" aria-expanded="false">終了</button><h1 id="battleTitle"><span id="battlePhase" class="hide"></span><span class="battle-meta"><span id="roundLabel"></span><span id="survivorCount"></span></span></h1><button id="battleSoundToggle" class="circle sound-toggle" data-sound-toggle aria-label="音をオフにする" aria-pressed="false">♪</button><button id="rulesBtn" class="circle" aria-label="遊び方">?</button></header><p id="onlineBattleStatus" class="room-status hide" role="status" aria-live="polite"></p><section id="restartConfirm" class="exit-overlay hide" role="dialog" aria-modal="true" aria-labelledby="restartTitle"><div class="glass exit-confirm"><h2 id="restartTitle"></h2><p id="restartText"></p><div class="button-row"><button id="cancelRestart">続ける</button><button id="confirmRestart" class="gold">終了して戻る</button></div></div></section><div id="playerGrid" class="battle-grid" tabindex="0" aria-label="プレイヤーとカード（上下にスクロール）"></div><section id="gamePanel"><div class="bid-panel glass"><div id="bidActor" aria-hidden="true"></div><span>現在の宣言</span><strong id="bid">—</strong><span id="lastBidder"></span></div><div id="emoteBar" class="emote-bar" role="group" aria-label="リアクションと捨て札"></div><div id="status" class="sr-only" role="status" aria-live="polite" tabindex="-1"></div><div class="input-console glass"><div class="controls"><div id="keypad" class="keypad" role="group" aria-label="数字入力"><button data-digit="1">1</button><button data-digit="2">2</button><button data-digit="3">3</button><button data-digit="4">4</button><button data-digit="5">5</button><button data-digit="6">6</button><button data-digit="7">7</button><button data-digit="8">8</button><button data-digit="9">9</button><button class="zero" data-digit="0">0</button><button id="backspace" aria-label="最後の1文字を消す">⌫</button><div id="deckIndicator" class="deck-indicator" role="status"><div class="player-card hidden deck-stack" aria-hidden="true">?</div><span id="deckCount"></span></div></div><div class="decisions"><button id="declare" class="declare-region gold" aria-describedby="inputHint inputError"><span id="number" aria-label="宣言する数字"></span><span class="declare-label">宣言</span></button><button id="challenge" class="lavender">グラビティ！<img src="https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp" alt="" aria-hidden="true"></button></div></div><p id="inputHint" class="sr-only">前より大きな1以上の整数を宣言</p><p id="inputError" role="alert" class="error"></p></div></section><div id="resultAnnouncement" class="sr-only" role="status" aria-live="polite"></div><section id="result" class="hide"><h2 id="resultTitle" class="sr-only" tabindex="-1">ラウンド結果</h2><section class="calculation glass" aria-live="off"><div><h3 id="calculationHeading">計算の流れ</h3><div id="calculationSteps"></div></div><div class="final-total"><span id="totalLabel">最終合計</span><strong id="finalTotal"></strong></div></section><div class="result-message glass"><div id="resultAvatar" aria-hidden="true"></div><div><p id="resultText"></p><p id="streakSummary"></p></div></div><button id="next" class="pill gold">次のラウンドへ <span>›</span></button><button id="returnRoomLobby" class="pill blue hide" type="button">ルームロビーに戻る</button></section></section>
 <section id="guidePanel" class="screen hide" aria-label="ゲームガイド"><header class="topbar"><h1 id="guideTitle" class="sr-only">遊び方</h1></header><div class="guide-tabs" role="tablist" aria-label="ガイド"><button data-tab="rules" role="tab">遊び方</button><button data-tab="cards" role="tab">カード図鑑</button><button data-tab="bots" role="tab">BOT</button><button data-tab="examples" role="tab">計算例</button></div><article id="guideContent" tabindex="-1"></article><footer class="screen-return-bar"><button id="closeGuide" class="screen-return" aria-label="ガイドを閉じる">閉じる</button></footer></section>
 <section id="joinPanel" class="screen hide" aria-labelledby="joinTitle"><header class="topbar"><h1 id="joinTitle">ルームに参加</h1></header><form id="joinForm" class="join-form glass"><label class="sr-only" for="roomId">ルームID</label><input id="roomId" name="roomId" placeholder="ルームID" autocomplete="off" maxlength="64" required><button id="joinRoom" data-intent="joinRoom" class="pill blue" type="submit">参加する</button><p id="roomJoinStatus" class="room-status" role="status" aria-live="polite"></p></form><section id="joinPublicPanel" class="public-room-panel glass" aria-labelledby="publicRoomsTitle"><div class="public-room-heading"><h2 id="publicRoomsTitle">公開ルーム一覧</h2><button id="refreshPublicRooms" type="button">更新</button></div><p id="publicRoomsStatus" class="room-status" role="status" aria-live="polite">公開ルーム一覧は準備中です。ルームIDで参加できます。</p><div id="publicRoomsList" class="public-room-list"></div></section><footer class="screen-return-bar"><button id="closeJoin" class="screen-return" aria-label="ホームへ戻る">ホームへ戻る</button></footer></section>
@@ -866,6 +867,26 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
   for (const [kind,label] of [['double','×2'],['max0','MAX→0'],['extra','?'],['reset','0↻']]) cards.push(Object.freeze({id:kind,kind,value:0,label}));
   const FULL_DECK = Object.freeze(cards);
   const difficulties = ['easy','normal','hard'];
+  const MAIN_BOT_CHARACTERS = Object.freeze([
+    Object.freeze({id:'star-mochi',name:'ほしもち',image:'https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp',avatarIndex:0}),
+    Object.freeze({id:'moon-cat',name:'ほしねこ',image:'https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp',avatarIndex:1}),
+    Object.freeze({id:'cloud-bunny',name:'もふうさ',image:'https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp',avatarIndex:2}),
+    Object.freeze({id:'cloud-maru',name:'くもまる',image:'https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp',avatarIndex:3})
+  ]);
+  const EXTRA_BOT_CHARACTERS = Object.freeze([
+    ['crowned-black-cat','くろもち'],['amber-fox','こはく'],['sleepy-bear','ねむくま'],['moon-owl','ふくまる'],
+    ['tanuki','ぽんまる'],['hedgehog','ころはり'],['sheep','わたもこ'],['squirrel','くるり'],
+    ['chick','ぴよもち'],['deer','すずしか'],['seal','ぷくまる'],['otter','すいまる'],
+    ['dog','ゆきいぬ'],['panda','まめぱん'],['penguin','ぺんころ'],['moon-spirit','つきもち']
+  ].map(([id,name])=>Object.freeze({id,name,image:`https://tanabe0422.github.io/number-bluff/assets/bot-${id}.webp`,randomOnly:true})));
+  const BOT_CHARACTERS = Object.freeze([...MAIN_BOT_CHARACTERS,...EXTRA_BOT_CHARACTERS]);
+  const botCharacterById = new Map(BOT_CHARACTERS.map(character=>[character.id,character]));
+  const mainCharacterIds = new Set(MAIN_BOT_CHARACTERS.map(character=>character.id));
+  function independentRandom(){
+    const cryptoApi=typeof globalThis==='object'?globalThis.crypto:null;
+    if(cryptoApi?.getRandomValues){const value=new Uint32Array(1);cryptoApi.getRandomValues(value);return value[0]/4294967296;}
+    return Math.random();
+  }
   function random(rng) {
     if(typeof rng !== 'function') throw new TypeError('Inject an RNG function returning [0,1).');
     const n = rng(); if(!Number.isFinite(n)||n<0||n>=1) throw new RangeError('RNG must return [0,1).'); return n;
@@ -874,30 +895,85 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
   const alive = s => s.players.filter(p=>p.life>0);
   function nextSeat(s,id) { const i=s.players.findIndex(p=>p.id===id);for(let n=1;n<=s.players.length;n++){const p=s.players[(i+n)%s.players.length];if(p.life>0)return p.id;} return null; }
   function updated(s,patch) { return {...s,...patch,revision:s.revision+1}; }
+  function botCharacterSelection(player){
+    if(player?.botSelection!==undefined)return player.botSelection==='random'||mainCharacterIds.has(player.botSelection)?player.botSelection:null;
+    if(Number.isInteger(player?.botAvatar)&&player.botAvatar>=0&&player.botAvatar<4)return MAIN_BOT_CHARACTERS[player.botAvatar].id;
+    const seat=Number(String(player?.id||'').replace(/\D/g,''));
+    return MAIN_BOT_CHARACTERS[Math.max(0,seat-1)%4].id;
+  }
+  function defaultBotSelection(players,id){
+    const used=new Set(players.filter(p=>p.kind==='bot').map(botCharacterSelection).filter(value=>value&&value!=='random'));
+    const seat=Number(String(id).replace(/\D/g,''));
+    for(let offset=0;offset<MAIN_BOT_CHARACTERS.length;offset++){
+      const character=MAIN_BOT_CHARACTERS[(Math.max(0,seat-1)+offset)%MAIN_BOT_CHARACTERS.length];
+      if(!used.has(character.id))return character.id;
+    }
+    return 'random';
+  }
+  function botPlayer(id,difficulty,players){
+    const botSelection=defaultBotSelection(players,id),character=botCharacterById.get(botSelection);
+    return {id,name:`BOT ${Number(String(id).replace(/\D/g,''))-1}`,kind:'bot',difficulty,botSelection,...(character?{botAvatar:character.avatarIndex}:{}),life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false};
+  }
   function createLobby({name='YOU',botCount=1,difficulty='normal'}={}) {
     if(!Number.isInteger(botCount)||botCount<0||botCount>7||!difficulties.includes(difficulty)) throw new RangeError('Use 0–7 bots and easy/normal/hard.');
-    return {phase:'lobby',revision:0,game:0,round:0,rankingEligible:false,players:[{id:'p1',name:String(name).slice(0,24)||'YOU',kind:'human',difficulty:null,life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false},...Array.from({length:botCount},(_,i)=>({id:`p${i+2}`,name:`BOT ${i+1}`,kind:'bot',difficulty,life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false}))],deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,starter:'p1',result:null,history:[]};
+    const players=[{id:'p1',name:String(name).slice(0,24)||'YOU',kind:'human',difficulty:null,life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false}];
+    for(let i=0;i<botCount;i++){const id=`p${i+2}`;players.push(botPlayer(id,difficulty,players));}
+    return {phase:'lobby',revision:0,game:0,round:0,rankingEligible:false,players,deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,starter:'p1',result:null,history:[]};
   }
   function addBot(s,difficulty='normal') {
     if(s.phase!=='lobby'||s.players.length>=8||!difficulties.includes(difficulty))return s;
     const seat=Array.from({length:7},(_,i)=>i+2).find(n=>!s.players.some(p=>p.id===`p${n}`));
-    return updated(s,{players:[...s.players,{id:`p${seat}`,name:`BOT ${seat-1}`,kind:'bot',difficulty,life:3,wins:0,currentStreak:0,bestStreak:0,eliminated:false}]});
+    return updated(s,{players:[...s.players,botPlayer(`p${seat}`,difficulty,s.players)]});
   }
   function removeBot(s,id) {if(s.phase!=='lobby'||s.players.length<=1||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;return updated(s,{players:s.players.filter(p=>p.id!==id)});}
   function setDifficulty(s,id,difficulty) {if(s.phase!=='lobby'||!difficulties.includes(difficulty)||!s.players.some(p=>p.id===id&&p.kind==='bot'))return s;return updated(s,{players:s.players.map(p=>p.id===id?{...p,difficulty}:p)});}
+  function setBotSelection(s,id,selection){
+    if(s.phase!=='lobby'||(selection!=='random'&&!mainCharacterIds.has(selection)))return s;
+    const bot=s.players.find(p=>p.id===id&&p.kind==='bot');if(!bot)return s;
+    if(selection!=='random'&&s.players.some(p=>p.kind==='bot'&&p.id!==id&&botCharacterSelection(p)===selection))return s;
+    return updated(s,{players:s.players.map(p=>{
+      if(p.id!==id)return p;
+      const {botAvatar,botCharacterId,...rest}=p;
+      return selection==='random'?{...rest,botSelection:'random'}:{...rest,botSelection:selection,botAvatar:botCharacterById.get(selection).avatarIndex,botCharacterId:selection};
+    })});
+  }
   function draw(pool,rng) { if(!pool.deck.length){pool.deck=shuffle(pool.discard,rng);pool.discard=[];} if(!pool.deck.length)throw new Error('No available card');return pool.deck.pop(); }
   function deal(s,rng) {
     const pool={deck:s.deck.slice(),discard:s.discard.slice()},hands={};
     for(const p of alive(s)) hands[p.id]=draw(pool,rng);
     return updated(s,{...pool,hands,phase:'play',round:s.round+1,bid:null,last:null,turn:s.starter,result:null,history:[]});
   }
-  function startGame(s,rng) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;const players=shuffle(s.players,rng);return deal({...s,players,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:players.filter(p=>p.kind==='human').length>=2||(players.filter(p=>p.kind==='human').length===1&&players.some(p=>p.kind==='bot'&&p.difficulty==='hard')),starter:players[0].id},rng);}
-  function rematch(s,rng) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:s.players.map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng);}
+  function resolveBotCharacters(players,rng){
+    const bots=players.filter(p=>p.kind==='bot'),selections=bots.map(botCharacterSelection);
+    if(selections.some(selection=>!selection))return null;
+    const fixed=selections.filter(selection=>selection!=='random');
+    if(new Set(fixed).size!==fixed.length)return null;
+    const randomSeats=bots.filter(p=>botCharacterSelection(p)==='random');
+    const pool=BOT_CHARACTERS.filter(character=>!fixed.includes(character.id));
+    if(pool.length<randomSeats.length)return null;
+    const assigned=new Map();
+    for(const player of randomSeats){const index=Math.floor(random(rng)*pool.length);assigned.set(player.id,pool.splice(index,1)[0].id);}
+    return players.map(player=>{
+      if(player.kind!=='bot')return player;
+      const characterId=botCharacterSelection(player)==='random'?assigned.get(player.id):botCharacterSelection(player),character=botCharacterById.get(characterId);
+      const resolved={...player,botCharacterId:characterId};
+      if(character.avatarIndex===undefined)delete resolved.botAvatar;else resolved.botAvatar=character.avatarIndex;
+      return resolved;
+    });
+  }
+  function startGame(s,rng,characterRng=independentRandom) {if(s.phase!=='lobby'||s.players.length<2||s.players.length>8)return s;const resolved=resolveBotCharacters(s.players,characterRng);if(!resolved)return s;const players=shuffle(resolved,rng);return deal({...s,players,deck:shuffle(FULL_DECK,rng),discard:[],game:s.game+1,round:0,rankingEligible:players.filter(p=>p.kind==='human').length>=2||(players.filter(p=>p.kind==='human').length===1&&players.some(p=>p.kind==='bot'&&p.difficulty==='hard')),starter:players[0].id},rng);}
+  function rematch(s,rng,characterRng=independentRandom) {if(s.phase!=='finished')return s;return startGame({...s,phase:'lobby',players:s.players.map(p=>({...p,life:3,eliminated:false})),hands:{},result:null},rng,characterRng);}
   // A room survives leaving a match. The UI must confirm abandoning active play;
   // no winner is awarded here. createLobby is reserved for a genuinely new room.
   function returnToLobby(s) {
     if(!['play','reveal','finished'].includes(s.phase))return s;
-    return updated(s,{phase:'lobby',round:0,rankingEligible:false,players:s.players.map(p=>({...p,life:3,eliminated:false})),
+    return updated(s,{phase:'lobby',round:0,rankingEligible:false,players:s.players.map(p=>{
+      const reset={...p,life:3,eliminated:false};if(p.kind!=='bot')return reset;
+      const selection=botCharacterSelection(p);reset.botSelection=selection;
+      if(selection==='random'){delete reset.botCharacterId;delete reset.botAvatar;}
+      else{reset.botCharacterId=selection;reset.botAvatar=botCharacterById.get(selection)?.avatarIndex;}
+      return reset;
+    }),
       deck:FULL_DECK.slice(),discard:[],hands:{},bid:null,last:null,turn:null,
       starter:s.players[0].id,result:null,history:[]});
   }
@@ -990,10 +1066,16 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
     if(ids.length!==36||new Set(ids).size!==36||ids.some(id=>!FULL_DECK.some(c=>c.id===id)))throw new Error('Physical deck conservation violated');
     if(s.players.length<(s.phase==='lobby'?1:2)||s.players.length>8||new Set(s.players.map(p=>p.id)).size!==s.players.length)throw new Error('Invalid seats');
     if(s.players.some(p=>!Number.isInteger(p.life)||p.life<0||p.life>3||p.eliminated!==(p.life===0)))throw new Error('Invalid life');
+    const bots=s.players.filter(p=>p.kind==='bot'),selections=bots.map(botCharacterSelection),resolved=bots.filter(p=>p.botCharacterId!==undefined).map(p=>p.botCharacterId);
+    if(selections.some(selection=>!selection)||new Set(selections.filter(selection=>selection!=='random')).size!==selections.filter(selection=>selection!=='random').length)throw new Error('Invalid or duplicated BOT selection');
+    if(resolved.some(id=>!botCharacterById.has(id))||new Set(resolved).size!==resolved.length||bots.some(p=>p.botCharacterId!==undefined&&botCharacterSelection(p)!=='random'&&p.botCharacterId!==botCharacterSelection(p)))throw new Error('Invalid or duplicated BOT character');
+    if(s.players.some(p=>p.kind==='human'&&['botSelection','botCharacterId','botAvatar'].some(key=>p[key]!==undefined)))throw new Error('Human seat retains BOT selection data');
+    if(['play','reveal','finished'].includes(s.phase)&&bots.some(p=>p.botSelection!==undefined&&!p.botCharacterId))throw new Error('Unresolved BOT character in match');
+    if(s.phase==='lobby'&&bots.some(p=>p.botSelection==='random'&&p.botCharacterId!==undefined))throw new Error('Lobby random BOT still has a resolved character');
     if(s.phase==='play'&&(!alive(s).some(p=>p.id===s.turn)||Object.keys(s.hands).length!==alive(s).length))throw new Error('Invalid active turn/hands');
     return true;
   }
-  return {FULL_DECK,createLobby,addBot,removeBot,setDifficulty,startGame,nextRound,rematch,returnToLobby,declare,challenge,evaluateCards,publicView,botView,chooseBotAction,possibleTotals,parseBid,dispatch,assertInvariant,shuffle};
+  return {FULL_DECK,BOT_CHARACTERS,MAIN_BOT_CHARACTERS,createLobby,addBot,removeBot,setDifficulty,setBotSelection,botCharacterSelection,startGame,nextRound,rematch,returnToLobby,declare,challenge,evaluateCards,publicView,botView,chooseBotAction,possibleTotals,parseBid,dispatch,assertInvariant,shuffle,independentRandom};
 });
 
 </script><script>
@@ -2008,10 +2090,10 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   let human = 'p1', localProfile = { name: 'プレイヤー', avatarUrl: null };
   const safeAvatar = value => { try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password ? u.href : null; } catch { return null; } };
   const difficultyNames = { easy: 'やさしい', normal: '普通', hard: '強い' };
-  const avatars = ['https://tanabe0422.github.io/number-bluff/assets/star-sprite.webp', 'https://tanabe0422.github.io/number-bluff/assets/moon-cat.webp', 'https://tanabe0422.github.io/number-bluff/assets/cloud-bunny.webp', 'https://tanabe0422.github.io/number-bluff/assets/blue-cloud.webp'];
-  const avatarNames = ['ほしもち', 'ほしねこ', 'もふうさ', 'くもまる'];
+  const avatars = G.MAIN_BOT_CHARACTERS.map(character => character.image);
+  const botCharacterById = new Map(G.BOT_CHARACTERS.map(character => [character.id, character]));
   let state = null, view = null, screen = 'homeScreen', selectedBot = 'p2', nextDifficulty = 'normal';
-  let avatarChoice = {}, suggested = true, overlayReturn = null;
+  let suggested = true, overlayReturn = null;
   const localRoundClock = window.NumberBluffRoundAdvanceClock.create({expire(){if(!transport&&state?.phase==='reveal')apply(G.nextRound(state,Math.random));}});
   const localTurnClock = window.NumberBluffLocalTurnClock({ expire() {
     if (transport || state?.phase !== 'play' || state.turn !== human) return;
@@ -2042,10 +2124,19 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   }
   const el = (tag, cls, text) => { const node = document.createElement(tag); if (cls) node.className = cls; if (text !== undefined) node.textContent = text; return node; };
   const image = (src, cls = '') => { const node = el('img', cls); node.src = src; node.alt = ''; return node; };
-  const avatarIndex = id => { const p = view?.players.find(p => p.id === id); const value = p?.botAvatar ?? avatarChoice[id]; return Number.isInteger(value) && value >= 0 && value < 4 ? value : (Math.max(0, Number(String(id).replace(/\D/g, '')) - 1) % 4); };
+  const botSelection = player => G.botCharacterSelection(player);
+  function missingBotAvatar(){const fallback=el('span','avatar bot-avatar-missing','？');fallback.setAttribute('aria-hidden','true');return fallback;}
   function playerAvatar(id) {
     const p = view?.players.find(p => p.id === id);
-    if (p?.kind !== 'human') return image(avatars[avatarIndex(id)], 'avatar');
+    if (p?.kind !== 'human') {
+      const selection=botSelection(p);
+      if(selection==='random'&&!p.botCharacterId)return missingBotAvatar();
+      const character=botCharacterById.get(p.botCharacterId||selection);
+      if(!character)return missingBotAvatar();
+      const portrait=image(character.image,'avatar bot-character-avatar');
+      portrait.addEventListener('error',()=>portrait.replaceWith(missingBotAvatar()),{once:true});
+      return portrait;
+    }
     const url = safeAvatar(p.avatarUrl ?? (p.id === human ? localProfile.avatarUrl : null));
     const placeholder = () => { const n = el('span', 'avatar person-placeholder'); n.setAttribute('aria-hidden', 'true'); return n; };
     if (!url) return placeholder();
@@ -2055,8 +2146,12 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
     const player = view?.players.find(p => p.id === id);
     if (!player) return '';
     if (player.kind === 'human') return player.name || (player.id === human ? localProfile.name : 'プレイヤー');
-    const duplicate = view.players.filter(p => p.kind === 'bot' && avatarIndex(p.id) === avatarIndex(id)).length > 1;
-    return avatarNames[avatarIndex(id)] + (duplicate ? ' ' + id.slice(1) : '');
+    const selection=botSelection(player);
+    if(selection==='random'&&!player.botCharacterId)return 'ランダム';
+    const character=botCharacterById.get(player.botCharacterId||selection);
+    if(!character)return player.name||'BOT';
+    const duplicate=view.players.filter(p=>p.kind==='bot'&&(p.botCharacterId||botSelection(p))===character.id).length>1;
+    return character.name+(duplicate?' '+id.slice(1):'');
   };
   const emoteBar=$('emoteBar');
   function syncEmoteButtons(){const supported=transport?.supportsEmotes?.()!==false;emoteBar.querySelectorAll('.emote-button').forEach((button,index)=>{button.disabled=!supported||Date.now()<emoteCooldown;button.title=supported?'':'この部屋ではリアクションを利用できません';button.setAttribute('aria-label',emoteLabels[index]+'のリアクション'+(supported?'':'（この部屋では使えません）'));});}
@@ -2183,7 +2278,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   }
   function cancelRoomRequest() { ++roomRequest; ++listRequest; if (cancelRoomOperation) cancelRoomOperation(); $('startGame').disabled = false; $('joinRoom').disabled = false; $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = ''; }
   function createLocalHostRoom() {
-    $('roomId').value = ''; detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: localProfile.name, botCount: 0 }); state.players[0].avatarUrl = localProfile.avatarUrl; avatarChoice = {}; selectedBot = null;
+    $('roomId').value = ''; detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: localProfile.name, botCount: 0 }); state.players[0].avatarUrl = localProfile.avatarUrl; selectedBot = null;
     view = G.publicView(state, human); renderLobby(); show('lobbyScreen');
   }
   const canManageLobby = () => !connectionBlocked && (!transport || (typeof view?.hostId === 'string' && view.hostId === human));
@@ -2218,13 +2313,17 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       if (p.kind === 'bot') { slot.type = 'button'; slot.setAttribute('aria-pressed', String(p.id === selectedBot)); slot.onclick = () => { selectedBot = p.id; renderLobby(); }; }
       grid.append(slot);
     }
-    const bot = view.players.find(p => p.id === selectedBot);
+    const bot = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
     $('selectedBotLabel').textContent = bot ? ' — ' + name(bot.id) : '';
     $('addBot').disabled = !manage || view.players.length >= 8; $('removeBot').disabled = !manage || !bot;
     $('beginGame').disabled = !manage || view.players.length < 2;
-    document.querySelectorAll('[data-avatar]').forEach(button => { button.disabled = !manage || !bot; });
+    document.querySelectorAll('[data-avatar]').forEach(button => {
+      const character=G.MAIN_BOT_CHARACTERS[Number(button.dataset.avatar)],taken=!!character&&view.players.some(p=>p.kind==='bot'&&p.id!==bot?.id&&botSelection(p)===character.id);
+      button.disabled=!manage||!bot||taken;button.classList.toggle('is-taken',taken);
+      button.setAttribute('aria-pressed',String(!!character&&botSelection(bot)===character.id));
+    });
+    const randomChoice=$('randomBot');randomChoice.disabled=!manage||!bot;randomChoice.setAttribute('aria-pressed',String(!!bot&&botSelection(bot)==='random'));
     document.querySelectorAll('[data-difficulty]').forEach(button => { button.disabled = !manage || !bot; button.setAttribute('aria-pressed', String(button.dataset.difficulty === (bot?.difficulty || nextDifficulty))); });
-    document.querySelectorAll('[data-avatar]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.avatar) === avatarIndex(selectedBot || 'p2'))));
   }
   function addBot() { if (transport) { lobbyAction('addBot', { difficulty: nextDifficulty }); return; } if (!state) return; const next = G.addBot(state, nextDifficulty); if (next === state) return; selectedBot = next.players.find(p => !state.players.some(old => old.id === p.id)).id; state = next; view = G.publicView(state, human); renderLobby(); }
   function stopTurnDisplay() { if (turnDisplayTimer !== null) clearTimeout(turnDisplayTimer); turnDisplayTimer = null; }
@@ -2507,7 +2606,8 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); void $('refreshPublicRooms').onclick(); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
   $('addBot').onclick = addBot;
   $('removeBot').onclick = () => { if (transport) { lobbyAction('removeBot', { target: selectedBot }); return; } state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
-  document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { if (transport) { lobbyAction('setBotAvatar', { target: selectedBot, avatar: Number(button.dataset.avatar) }); return; } avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
+  document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { const character=G.MAIN_BOT_CHARACTERS[Number(button.dataset.avatar)];if(!character||button.disabled)return;if(transport){lobbyAction('setBotSelection',{target:selectedBot,selection:character.id});return;}state=G.setBotSelection(state,selectedBot,character.id);view=G.publicView(state,human);renderLobby(); }; });
+  $('randomBot').onclick = () => { if ($('randomBot').disabled) return; if (transport) { lobbyAction('setBotSelection',{target:selectedBot,selection:'random'}); return; } state=G.setBotSelection(state,selectedBot,'random');view=G.publicView(state,human);renderLobby(); };
   document.querySelectorAll('[data-difficulty]').forEach(button => { button.onclick = () => { nextDifficulty = button.dataset.difficulty; if (transport) lobbyAction('setDifficulty', { target: selectedBot, difficulty: nextDifficulty }); if (!transport) { state = G.setDifficulty(state, selectedBot, nextDifficulty); view = G.publicView(state, human); renderLobby(); } }; });
   $('beginGame').onclick = () => { if (transport) { lobbyAction('startGame'); return; } show('battleScreen'); apply(G.startGame(state, Math.random)); window.scrollTo(0, 0); $('status').focus({ preventScroll: true }); };
   $('declare').onclick = event => {
@@ -2561,6 +2661,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       const descriptions = ['判断にゆらぎが多め。','見えているカードと公開済みの情報からバランスよく判断。','公開情報から合計の可能性を比較し、慎重に挑戦します。'];
       ['easy','normal','hard'].forEach((d, i) => { const row = el('div', 'guide-bot'), copy = el('div'); copy.append(el('h3', '', difficultyNames[d]), el('p', '', descriptions[i])); row.append(image(avatars[i]), copy); container.append(row); });
       container.append(el('p', '', 'BOTも自分のカードや山札の中身は見ていません。難易度を変えても、見える情報は同じです。'));
+      container.append(el('p', '', 'ランダムを選ぶと、ゲーム開始時に20体から直接選択済みを除いて重複なく割り当てます。難易度は選んだままです。'));
     } else {
 
       const samples = [
@@ -2684,7 +2785,7 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
   function createSession(options){
     const {roomId,userId,hostUserId,sendMessage}=options;
     if(!id(roomId)||!id(userId)||!id(hostUserId)||typeof sendMessage!=='function')throw new TypeError('Verified room, user, host IDs and sendMessage are required.');
-    const isHost=userId===hostUserId, rng=options.rng||Math.random, emoteRng=options.emoteRng||Math.random;
+    const isHost=userId===hostUserId, rng=options.rng||Math.random, characterRng=options.characterRng||G.independentRandom, emoteRng=options.emoteRng||Math.random;
     const later=options.setTimeout||setTimeout, clear=options.clearTimeout||clearTimeout;
     const onStatus=typeof options.onStatus==='function'?options.onStatus:()=>{};
     const members=new Map(), listeners=new Set(), emoteListeners=new Set(), sequences=new Map(), seen=new Map(), emoteTimes=new Map(), emoteSequences=new Map(), emoteGenerations=new Map();
@@ -2772,7 +2873,11 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       if(state.phase!=='lobby'){status('join-waiting',{userId:p.userId});return false;}
       if(state.players.length>=8){const bot=state.players.find(x=>x.kind==='bot');if(bot)state=G.removeBot(state,bot.id);else {status('room-full');return false;}}
       const next=G.addBot(state);const added=next.players.find(x=>!state.players.some(y=>x.id===y.id));
-      state={...next,players:next.players.map(x=>x.id===added.id?{...x,kind:'human',difficulty:null,...p}:x)};
+       state={...next,players:next.players.map(x=>{
+         if(x.id!==added.id)return x;
+         const {botSelection,botCharacterId,botAvatar,...seat}=x;
+         return {...seat,kind:'human',difficulty:null,...p};
+       })};
       publish();return true;
     }
     function removeMember(uid){
@@ -2803,13 +2908,14 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       switch(action.type){
         case 'declare': case 'challenge': next=G.dispatch(state,{type:action.type,player:actor.id,value:action.value,revision:state.revision},rng);break;
         case 'nextRound': if(manages)next=G.nextRound(state,rng);break;
-        case 'rematch': if(manages)next=G.rematch(state,rng);break;
+        case 'rematch': if(manages)next=G.rematch(state,rng,characterRng);break;
         case 'returnToLobby': if(manages)next=G.returnToLobby(state);break;
-        case 'startGame': if(manages)next=G.startGame(state,rng);break;
+        case 'startGame': if(manages)next=G.startGame(state,rng,characterRng);break;
         case 'addBot': if(manages)next=G.addBot(state,action.difficulty||'normal');break;
         case 'removeBot': if(manages)next=G.removeBot(state,action.target);break;
         case 'setDifficulty': if(manages)next=G.setDifficulty(state,action.target,action.difficulty);break;
-        case 'setBotAvatar': if(manages&&state.phase==='lobby'&&Number.isInteger(action.avatar)&&action.avatar>=0&&action.avatar<4&&state.players.some(p=>p.id===action.target&&p.kind==='bot'))next={...state,revision:state.revision+1,players:state.players.map(p=>p.id===action.target?{...p,botAvatar:action.avatar}:p)};break;
+        case 'setBotAvatar': if(manages&&state.phase==='lobby'&&Number.isInteger(action.avatar)&&action.avatar>=0&&action.avatar<4)next=G.setBotSelection(state,action.target,G.MAIN_BOT_CHARACTERS[action.avatar].id);break;
+        case 'setBotSelection': if(manages&&state.phase==='lobby')next=G.setBotSelection(state,action.target,action.selection);break;
       }
       if(next===state)return false;if(state.phase==='finished'&&['rematch','returnToLobby'].includes(action.type))scoreCheckpoint={reason:action.type==='rematch'?'rematch-checkpoint':'lobby-checkpoint',game:state.game,userIds:state.players.filter(p=>p.kind==='human').map(p=>p.userId)};state=next;publish();return true;
     }
@@ -2823,6 +2929,18 @@ global.NumberBluffGameplayFeedback=Object.freeze({create});
       if('deck' in v||'rng' in v||!v.players.some(p=>p&&p.id===v.hostId&&p.userId===hostUserId&&p.kind==='human'))return false;
       if(new Set(v.players.map(p=>p?.id)).size!==v.players.length)return false;
       if(v.players.some(p=>!p||typeof p!=='object'||!/^p[1-8]$/.test(p.id)||!['human','bot'].includes(p.kind)||typeof p.name!=='string'||p.name.length>24||!Number.isInteger(p.life)||p.life<0||p.life>3||!Number.isSafeInteger(p.wins)||p.wins<0))return false;
+      const bots=v.players.filter(p=>p.kind==='bot'),mainIds=new Set(G.MAIN_BOT_CHARACTERS.map(c=>c.id)),allIds=new Set(G.BOT_CHARACTERS.map(c=>c.id));
+      if(v.players.some(p=>p.kind==='human'&&['botSelection','botCharacterId'].some(key=>p[key]!==undefined)))return false;
+      if(bots.some(p=>(p.botSelection!==undefined&&p.botSelection!=='random'&&!mainIds.has(p.botSelection))||(p.botAvatar!==undefined&&(!Number.isInteger(p.botAvatar)||p.botAvatar<0||p.botAvatar>3))||(p.botCharacterId!==undefined&&!allIds.has(p.botCharacterId))))return false;
+      const fixedChoices=bots.filter(p=>p.botSelection!==undefined&&p.botSelection!=='random').map(p=>p.botSelection);
+      if(new Set(fixedChoices).size!==fixedChoices.length)return false;
+      const resolved=bots.filter(p=>p.botCharacterId!==undefined).map(p=>p.botCharacterId);
+      if(new Set(resolved).size!==resolved.length)return false;
+      const inMatch=['play','reveal','finished'].includes(v.phase);
+      if(resolved.length&&inMatch&&resolved.length!==bots.length)return false;
+      if(bots.some(p=>p.botCharacterId!==undefined&&p.botSelection!==undefined&&p.botSelection!=='random'&&p.botCharacterId!==p.botSelection))return false;
+      if(inMatch&&bots.some(p=>p.botSelection!==undefined&&!p.botCharacterId))return false;
+      if(v.phase==='lobby'&&bots.some(p=>p.botSelection==='random'&&p.botCharacterId!==undefined))return false;
       if(v.players.some(p=>['currentStreak','bestStreak'].some(key=>p[key]!==undefined&&(!Number.isSafeInteger(p[key])||p[key]<0))||(p.currentStreak||0)>(p.bestStreak||0)))return false;
       if(!v.hands||typeof v.hands!=='object'||!Array.isArray(v.discard)||v.discard.length>36||!Array.isArray(v.history)||v.history.length>1000)return false;
       const validCard=c=>c===null||(typeof c==='object'&&G.FULL_DECK.some(x=>x.id===c?.id&&x.kind===c.kind&&x.value===c.value&&x.label===c.label));

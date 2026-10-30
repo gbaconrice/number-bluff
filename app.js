@@ -54,10 +54,10 @@
   let human = 'p1', localProfile = { name: 'プレイヤー', avatarUrl: null };
   const safeAvatar = value => { try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password ? u.href : null; } catch { return null; } };
   const difficultyNames = { easy: 'やさしい', normal: '普通', hard: '強い' };
-  const avatars = ['assets/star-sprite.webp', 'assets/moon-cat.webp', 'assets/cloud-bunny.webp', 'assets/blue-cloud.webp'];
-  const avatarNames = ['ほしもち', 'ほしねこ', 'もふうさ', 'くもまる'];
+  const avatars = G.MAIN_BOT_CHARACTERS.map(character => character.image);
+  const botCharacterById = new Map(G.BOT_CHARACTERS.map(character => [character.id, character]));
   let state = null, view = null, screen = 'homeScreen', selectedBot = 'p2', nextDifficulty = 'normal';
-  let avatarChoice = {}, suggested = true, overlayReturn = null;
+  let suggested = true, overlayReturn = null;
   const localRoundClock = window.NumberBluffRoundAdvanceClock.create({expire(){if(!transport&&state?.phase==='reveal')apply(G.nextRound(state,Math.random));}});
   const localTurnClock = window.NumberBluffLocalTurnClock({ expire() {
     if (transport || state?.phase !== 'play' || state.turn !== human) return;
@@ -88,10 +88,19 @@
   }
   const el = (tag, cls, text) => { const node = document.createElement(tag); if (cls) node.className = cls; if (text !== undefined) node.textContent = text; return node; };
   const image = (src, cls = '') => { const node = el('img', cls); node.src = src; node.alt = ''; return node; };
-  const avatarIndex = id => { const p = view?.players.find(p => p.id === id); const value = p?.botAvatar ?? avatarChoice[id]; return Number.isInteger(value) && value >= 0 && value < 4 ? value : (Math.max(0, Number(String(id).replace(/\D/g, '')) - 1) % 4); };
+  const botSelection = player => G.botCharacterSelection(player);
+  function missingBotAvatar(){const fallback=el('span','avatar bot-avatar-missing','？');fallback.setAttribute('aria-hidden','true');return fallback;}
   function playerAvatar(id) {
     const p = view?.players.find(p => p.id === id);
-    if (p?.kind !== 'human') return image(avatars[avatarIndex(id)], 'avatar');
+    if (p?.kind !== 'human') {
+      const selection=botSelection(p);
+      if(selection==='random'&&!p.botCharacterId)return missingBotAvatar();
+      const character=botCharacterById.get(p.botCharacterId||selection);
+      if(!character)return missingBotAvatar();
+      const portrait=image(character.image,'avatar bot-character-avatar');
+      portrait.addEventListener('error',()=>portrait.replaceWith(missingBotAvatar()),{once:true});
+      return portrait;
+    }
     const url = safeAvatar(p.avatarUrl ?? (p.id === human ? localProfile.avatarUrl : null));
     const placeholder = () => { const n = el('span', 'avatar person-placeholder'); n.setAttribute('aria-hidden', 'true'); return n; };
     if (!url) return placeholder();
@@ -101,8 +110,12 @@
     const player = view?.players.find(p => p.id === id);
     if (!player) return '';
     if (player.kind === 'human') return player.name || (player.id === human ? localProfile.name : 'プレイヤー');
-    const duplicate = view.players.filter(p => p.kind === 'bot' && avatarIndex(p.id) === avatarIndex(id)).length > 1;
-    return avatarNames[avatarIndex(id)] + (duplicate ? ' ' + id.slice(1) : '');
+    const selection=botSelection(player);
+    if(selection==='random'&&!player.botCharacterId)return 'ランダム';
+    const character=botCharacterById.get(player.botCharacterId||selection);
+    if(!character)return player.name||'BOT';
+    const duplicate=view.players.filter(p=>p.kind==='bot'&&(p.botCharacterId||botSelection(p))===character.id).length>1;
+    return character.name+(duplicate?' '+id.slice(1):'');
   };
   const emoteBar=$('emoteBar');
   function syncEmoteButtons(){const supported=transport?.supportsEmotes?.()!==false;emoteBar.querySelectorAll('.emote-button').forEach((button,index)=>{button.disabled=!supported||Date.now()<emoteCooldown;button.title=supported?'':'この部屋ではリアクションを利用できません';button.setAttribute('aria-label',emoteLabels[index]+'のリアクション'+(supported?'':'（この部屋では使えません）'));});}
@@ -229,7 +242,7 @@
   }
   function cancelRoomRequest() { ++roomRequest; ++listRequest; if (cancelRoomOperation) cancelRoomOperation(); $('startGame').disabled = false; $('joinRoom').disabled = false; $('roomCreateStatus').textContent = ''; $('roomJoinStatus').textContent = ''; }
   function createLocalHostRoom() {
-    $('roomId').value = ''; detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: localProfile.name, botCount: 0 }); state.players[0].avatarUrl = localProfile.avatarUrl; avatarChoice = {}; selectedBot = null;
+    $('roomId').value = ''; detachTransport(); human = 'p1'; timer.cancel(); state = G.createLobby({ name: localProfile.name, botCount: 0 }); state.players[0].avatarUrl = localProfile.avatarUrl; selectedBot = null;
     view = G.publicView(state, human); renderLobby(); show('lobbyScreen');
   }
   const canManageLobby = () => !connectionBlocked && (!transport || (typeof view?.hostId === 'string' && view.hostId === human));
@@ -264,13 +277,17 @@
       if (p.kind === 'bot') { slot.type = 'button'; slot.setAttribute('aria-pressed', String(p.id === selectedBot)); slot.onclick = () => { selectedBot = p.id; renderLobby(); }; }
       grid.append(slot);
     }
-    const bot = view.players.find(p => p.id === selectedBot);
+    const bot = view.players.find(p => p.id === selectedBot && p.kind === 'bot');
     $('selectedBotLabel').textContent = bot ? ' — ' + name(bot.id) : '';
     $('addBot').disabled = !manage || view.players.length >= 8; $('removeBot').disabled = !manage || !bot;
     $('beginGame').disabled = !manage || view.players.length < 2;
-    document.querySelectorAll('[data-avatar]').forEach(button => { button.disabled = !manage || !bot; });
+    document.querySelectorAll('[data-avatar]').forEach(button => {
+      const character=G.MAIN_BOT_CHARACTERS[Number(button.dataset.avatar)],taken=!!character&&view.players.some(p=>p.kind==='bot'&&p.id!==bot?.id&&botSelection(p)===character.id);
+      button.disabled=!manage||!bot||taken;button.classList.toggle('is-taken',taken);
+      button.setAttribute('aria-pressed',String(!!character&&botSelection(bot)===character.id));
+    });
+    const randomChoice=$('randomBot');randomChoice.disabled=!manage||!bot;randomChoice.setAttribute('aria-pressed',String(!!bot&&botSelection(bot)==='random'));
     document.querySelectorAll('[data-difficulty]').forEach(button => { button.disabled = !manage || !bot; button.setAttribute('aria-pressed', String(button.dataset.difficulty === (bot?.difficulty || nextDifficulty))); });
-    document.querySelectorAll('[data-avatar]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.avatar) === avatarIndex(selectedBot || 'p2'))));
   }
   function addBot() { if (transport) { lobbyAction('addBot', { difficulty: nextDifficulty }); return; } if (!state) return; const next = G.addBot(state, nextDifficulty); if (next === state) return; selectedBot = next.players.find(p => !state.players.some(old => old.id === p.id)).id; state = next; view = G.publicView(state, human); renderLobby(); }
   function stopTurnDisplay() { if (turnDisplayTimer !== null) clearTimeout(turnDisplayTimer); turnDisplayTimer = null; }
@@ -553,7 +570,8 @@
   $('joinGame').onclick = () => { cancelRoomRequest(); show('joinPanel', 'roomId'); void $('refreshPublicRooms').onclick(); }; $('closeJoin').onclick = () => { cancelRoomRequest(); show('homeScreen', 'joinGame'); };
   $('addBot').onclick = addBot;
   $('removeBot').onclick = () => { if (transport) { lobbyAction('removeBot', { target: selectedBot }); return; } state = G.removeBot(state, selectedBot); view = G.publicView(state, human); renderLobby(); };
-  document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { if (transport) { lobbyAction('setBotAvatar', { target: selectedBot, avatar: Number(button.dataset.avatar) }); return; } avatarChoice[selectedBot] = Number(button.dataset.avatar); renderLobby(); }; });
+  document.querySelectorAll('[data-avatar]').forEach(button => { button.onclick = () => { const character=G.MAIN_BOT_CHARACTERS[Number(button.dataset.avatar)];if(!character||button.disabled)return;if(transport){lobbyAction('setBotSelection',{target:selectedBot,selection:character.id});return;}state=G.setBotSelection(state,selectedBot,character.id);view=G.publicView(state,human);renderLobby(); }; });
+  $('randomBot').onclick = () => { if ($('randomBot').disabled) return; if (transport) { lobbyAction('setBotSelection',{target:selectedBot,selection:'random'}); return; } state=G.setBotSelection(state,selectedBot,'random');view=G.publicView(state,human);renderLobby(); };
   document.querySelectorAll('[data-difficulty]').forEach(button => { button.onclick = () => { nextDifficulty = button.dataset.difficulty; if (transport) lobbyAction('setDifficulty', { target: selectedBot, difficulty: nextDifficulty }); if (!transport) { state = G.setDifficulty(state, selectedBot, nextDifficulty); view = G.publicView(state, human); renderLobby(); } }; });
   $('beginGame').onclick = () => { if (transport) { lobbyAction('startGame'); return; } show('battleScreen'); apply(G.startGame(state, Math.random)); window.scrollTo(0, 0); $('status').focus({ preventScroll: true }); };
   $('declare').onclick = event => {
@@ -607,6 +625,7 @@
       const descriptions = ['判断にゆらぎが多め。','見えているカードと公開済みの情報からバランスよく判断。','公開情報から合計の可能性を比較し、慎重に挑戦します。'];
       ['easy','normal','hard'].forEach((d, i) => { const row = el('div', 'guide-bot'), copy = el('div'); copy.append(el('h3', '', difficultyNames[d]), el('p', '', descriptions[i])); row.append(image(avatars[i]), copy); container.append(row); });
       container.append(el('p', '', 'BOTも自分のカードや山札の中身は見ていません。難易度を変えても、見える情報は同じです。'));
+      container.append(el('p', '', 'ランダムを選ぶと、ゲーム開始時に20体から直接選択済みを除いて重複なく割り当てます。難易度は選んだままです。'));
     } else {
 
       const samples = [

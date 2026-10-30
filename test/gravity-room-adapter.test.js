@@ -76,6 +76,43 @@ test('host manages BOT count/difficulty; human joins replace a BOT at cap and ne
  t.host.addMember({userId:'third',name:'Third'});t.flush();assert.equal(t.view(t.host).players.length,8);assert.equal(t.view(t.host).players.filter(p=>p.kind==='human').length,3);
  await act(t.host,t.view(t.host),'setDifficulty',{target:'p4',difficulty:'hard'});assert.equal(t.view(t.host).players.find(p=>p.id==='p4').difficulty,'hard');
 });
+test('only the host selects random BOTs; one roster resolution reaches every client without deck RNG leakage',async()=>{
+ const t=setup();await act(t.host,t.view(t.host),'addBot',{difficulty:'hard'});t.flush();
+ const before=t.view(t.host);await act(t.guest,t.view(t.guest),'setBotSelection',{target:'p3',selection:'random'});t.flush();
+ assert.equal(t.view(t.host).players.find(p=>p.id==='p3').botSelection,before.players.find(p=>p.id==='p3').botSelection);
+ assert.equal(await act(t.host,t.view(t.host),'setBotSelection',{target:'p3',selection:'random'}),true);t.flush();
+ assert.equal(await act(t.host,t.view(t.host),'startGame'),true);t.flush();
+ const host=t.view(t.host),guest=t.view(t.guest),resolved=host.players.filter(p=>p.kind==='bot').map(p=>p.botCharacterId);
+ assert.equal(host.phase,'play');assert.deepEqual(guest.players.map(p=>[p.id,p.botCharacterId]),host.players.map(p=>[p.id,p.botCharacterId]));
+ assert.equal(new Set(resolved).size,resolved.length);assert.equal(host.players.find(p=>p.id==='p3').difficulty,'hard');
+ assert.equal(host.players.find(p=>p.id==='p3').botSelection,'random');
+ for(const sent of t.sent){const message=JSON.parse(sent.message);if(message.type==='snapshot'&&message.view){assert.equal('deck'in message.view,false);assert.equal('rng'in message.view,false);}}
+});
+test('host rejects invalid, repeated direct, and stale catalog choices; guests reject malformed roster snapshots',async()=>{
+ const t=setup();await act(t.host,t.view(t.host),'addBot');await act(t.host,t.view(t.host),'addBot');t.flush();
+ assert.equal(await act(t.host,t.view(t.host),'setBotSelection',{target:'p3',selection:'not-in-catalog'}),false);
+ const direct='star-mochi';assert.equal(await act(t.host,t.view(t.host),'setBotSelection',{target:'p3',selection:direct}),true);t.flush();
+ assert.equal(await act(t.host,t.view(t.host),'setBotSelection',{target:'p4',selection:direct}),false);
+ const baseline=JSON.parse(t.sent.findLast(item=>JSON.parse(item.message).type==='snapshot').message),before=t.view(t.guest);
+ for(const patch of [{players:baseline.view.players.map(p=>p.id==='p4'?{...p,botSelection:direct}:p)},{players:baseline.view.players.map(p=>p.id==='p3'?{...p,botSelection:'unknown'}:p)}]){
+  const packet={...baseline,sequence:baseline.sequence+100,view:{...baseline.view,revision:baseline.view.revision+1,...patch}};
+  assert.equal(t.guest.receive('host',JSON.stringify(packet)),false);assert.deepEqual(t.view(t.guest),before);
+ }
+ await act(t.host,t.view(t.host),'setBotSelection',{target:'p4',selection:'random'});t.flush();await act(t.host,t.view(t.host),'startGame');t.flush();
+ const gamePacket=JSON.parse(t.sent.findLast(item=>JSON.parse(item.message).type==='snapshot').message),invalid=[
+  gamePacket.view.players.map(p=>p.id==='p4'?{...p,botCharacterId:'not-in-catalog'}:p),
+  gamePacket.view.players.map(p=>p.id==='p3'?{...p,botCharacterId:undefined}:p),
+  gamePacket.view.players.map(p=>p.id==='p4'?{...p,botCharacterId:gamePacket.view.players.find(q=>q.id==='p3').botCharacterId}:p)
+ ];
+ for(const players of invalid){const packet={...gamePacket,sequence:gamePacket.sequence+100,view:{...gamePacket.view,revision:gamePacket.view.revision+1,players}};assert.equal(t.guest.receive('host',JSON.stringify(packet)),false);assert.equal(t.view(t.guest).phase,'play');}
+});
+test('replacing a random BOT with a joining human clears selection and resolved character metadata',async()=>{
+ const t=setup();for(let i=0;i<6;i++)await act(t.host,t.view(t.host),'addBot');await act(t.host,t.view(t.host),'setBotSelection',{target:'p3',selection:'random'});t.flush();
+ const third=t.make('third');third.addMember({userId:'host',name:'Host'});t.host.addMember({userId:'third',name:'Third'});t.flush();
+ const replaced=t.view(t.host).players.find(p=>p.id==='p3');assert.equal(replaced.kind,'human');
+ for(const key of ['botSelection','botCharacterId','botAvatar'])assert.equal(replaced[key],undefined);
+ assert.equal(replaced.difficulty,null);assert.ok(t.view(third),JSON.stringify(t.statuses.third));assert.equal(t.view(third).players.find(p=>p.id==='p3').kind,'human');
+});
 test('guest departure during play abandons without a win and returns remaining seats to same-room lobby',async()=>{
  const t=setup();await act(t.host,t.view(t.host),'startGame');t.flush();await act(t.host,t.view(t.host),'declare',{value:5});t.flush();
  assert.equal(t.view(t.host).turn,'p2');t.host.removeMember('guest');t.flush();
