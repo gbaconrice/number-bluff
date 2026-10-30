@@ -449,6 +449,8 @@ main { padding-top: var(--nb-top-gap); padding-bottom: var(--nb-bottom-gap); }
   #battleScreen:not(.is-result) .bid-panel strong { font-size: 24px; line-height: 22px; }
   #battleScreen:not(.is-result) .input-console { padding: 6px; }
   #battleScreen:not(.is-result) .keypad { gap: 3px; }
+  /* Keep a complete identity and card reachable below the native landscape header. */
+  #battleScreen:not(.is-result) .battle-grid:not(.many) .player-card { max-width: 90px; margin-inline: auto; }
 }
 /* Keep the lobby title centered without an unused settings control. */
 .topbar-spacer { width: 44px; flex-shrink: 0; }
