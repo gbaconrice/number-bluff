@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const ASSET_BASE = 'https://tanabe0422.github.io/number-bluff/';
+export const ASSET_BASE = 'https://gbrice.github.io/number-bluff/';
 const rootDefault = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 function localFile(root, reference) {
   if (/^(?:[a-z]+:|\/\/)/i.test(reference)) throw new Error(`External runtime dependency prohibited: ${reference}`);

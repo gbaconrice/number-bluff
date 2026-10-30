@@ -88,7 +88,7 @@ try {
     const context = await browser.newContext({ viewport: { width: mobile ? 390 : 1280, height: 844 }, isMobile: mobile, hasTouch: mobile, reducedMotion: 'no-preference' });
     const page = await context.newPage(); page.setDefaultTimeout(10_000);
     const errors = []; page.on('pageerror', error => errors.push(error.message));
-    await page.route('https://tanabe0422.github.io/number-bluff/assets/**', route => route.fulfill({ status: 302, headers: { location: origin + '/assets/' + new URL(route.request().url()).pathname.split('/assets/')[1] } }));
+    await page.route('https://gbrice.github.io/number-bluff/assets/**', route => route.fulfill({ status: 302, headers: { location: origin + '/assets/' + new URL(route.request().url()).pathname.split('/assets/')[1] } }));
     const evidence = { label, specials: {}, noGlare: true };
     try {
       await page.goto(origin + (mobile ? '/ai-studio.html' : '/'));  await page.locator('#homeRules').click(); await page.locator('[data-tab="cards"]').click();
