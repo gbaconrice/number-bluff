@@ -120,7 +120,8 @@
       const active=state.phase!=='lobby';
       // Explicit abandonment policy: no fabricated move, life loss, bot takeover or win.
       if(active)state=G.returnToLobby(state);
-      state={...state,revision:state.revision+1,players:state.players.filter(p=>p.id!==seat.id)};
+      const players=state.players.filter(p=>p.id!==seat.id),lobbyOrder=(Array.isArray(state.lobbyOrder)?state.lobbyOrder:state.players.map(p=>p.id)).filter(id=>id!==seat.id);
+      state={...state,revision:state.revision+1,players,lobbyOrder};
       publish(active?'player-left-match-abandoned':'player-left');return true;
     }
     function emitEmote(event){for(const fn of emoteListeners)fn({...event});}

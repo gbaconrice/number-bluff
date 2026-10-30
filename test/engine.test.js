@@ -149,6 +149,16 @@ test('returnToLobby preserves same-room seats, settings, wins and game count',()
  const rematched=E.rematch(s,seeded(57));assert.equal(rematched.players.find(p=>p.id==='p2').wins,1);assert.equal(rematched.players.find(p=>p.id==='p2').difficulty,'hard');assert.equal(rematched.game,game+1);
  assert.ok(E.createLobby().players.every(p=>p.wins===0));
 });
+test('match shuffles are temporary and lobby order returns with the host first',()=>{
+ let lobby=E.createLobby({name:'Host',botCount:3});
+ lobby=E.setBotSelection(lobby,'p2','random');lobby=E.setBotSelection(lobby,'p3','random');lobby=E.setDifficulty(lobby,'p4','hard');
+ const lobbyIds=lobby.players.map(p=>p.id);assert.deepEqual(lobby.lobbyOrder,lobbyIds);
+ const first=E.startGame(lobby,()=>0,()=>0.5);assert.deepEqual(first.players.map(p=>p.id),['p2','p3','p4','p1']);assert.deepEqual(first.lobbyOrder,lobbyIds);
+ const returned=E.returnToLobby(first);assert.deepEqual(returned.players.map(p=>p.id),lobbyIds);assert.deepEqual(returned.lobbyOrder,lobbyIds);assert.equal(returned.starter,'p1');
+ assert.equal(returned.players.find(p=>p.id==='p2').botSelection,'random');assert.equal(returned.players.find(p=>p.id==='p2').botCharacterId,undefined);assert.equal(returned.players.find(p=>p.id==='p3').botSelection,'random');assert.equal(returned.players.find(p=>p.id==='p4').difficulty,'hard');
+ const rematch=E.rematch({...first,phase:'finished'},()=>0.999999,()=>0.5);assert.deepEqual(rematch.players.map(p=>p.id),lobbyIds);assert.deepEqual(rematch.lobbyOrder,lobbyIds);assert.equal(rematch.starter,'p1');
+ assert.deepEqual(E.returnToLobby(rematch).players.map(p=>p.id),lobbyIds);
+});
 test('returnToLobby from active play or reveal never awards abandonment victory',()=>{
  for(const phase of ['play','reveal']){
   let s=fixture(['n1_1','n2_1'],{bid:100});if(phase==='reveal')s=E.challenge(s,'p2',seeded());
