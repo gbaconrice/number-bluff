@@ -18,7 +18,8 @@ test('reaction stickers read as independent pop stickers without changing player
  assert.match(css,/\.player-info \.emote-slot \.emote-stamp\{[^}]*animation:emote-pop 2\.2s ease-out both\}/);
  assert.doesNotMatch(css,/emote-anchor:has\(\.emote-stamp\).*visibility:hidden/);
  assert.match(css,/\.battle-grid\.many \.emote-slot\{width:64px;height:64px\}/);
- assert.match(css,/\.battle-grid\.many \.player-info \{ height: 89px;[^}]*grid-template-rows: 11px 64px 10px;/);
+ assert.match(css,/\.battle-grid\.many \.player-info \{ height: 99px;[^}]*grid-template-rows: 11px 64px 20px;/);
+ assert.match(css,/\.player-vitals\{display:grid;grid-row:3;grid-template-columns:minmax\(0,1fr\);grid-template-rows:14px 10px;/);
  assert.match(css,/\.battle-grid:not\(\.many\) \.emote-slot\{width:64px;height:64px\}/);
 });
 
