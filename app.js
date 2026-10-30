@@ -73,7 +73,7 @@
   let transport = null, unsubscribe = null, unsubscribeEmotes = null, turnDisplayTimer = null, pendingAction = null;
   function clearPendingAction(){if(pendingAction){clearTimeout(pendingAction.timer);pendingAction=null;}}
   const emoteImages = ['assets/emote-bunny-surprised.webp','assets/emote-cat-confident.webp','assets/emote-cloud-anxious.webp','assets/emote-star-skeptical.webp'];
-  const emoteLabels = ['驚き','喜び','不安','疑い'];
+  const emoteLabels = ['驚き','喜び','悲しみ','ニヤリ'];
   const emotes = new Map(); let emoteCooldown = 0, emoteTimer = null;
   function clearEmotes(){emotes.clear();clearTimeout(emoteTimer);emoteTimer=null;emoteCooldown=0;syncEmoteButtons();}
   function showEmote(event){

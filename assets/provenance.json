@@ -184,39 +184,43 @@
     },
     {
       "file": "emote-bunny-surprised.webp",
-      "width": 384,
-      "height": 384,
-      "bytes": 22206,
-      "sha256": "63c318d466425a2bb5614295fe4b54d3731bf91393a6f1daa92d92b00d3c0ce0",
-      "source": "Existing approved emote original restored without redrawing, per user request",
-      "encoding": "Transparent WebP, proportional fit; maximum dimension 384px"
+      "width": 512,
+      "height": 512,
+      "bytes": 42748,
+      "sha256": "0a2e70124935c51fca7ae4de163097ed9167ffb8ab23cc2f5b8d45cd2e41e570",
+      "source": "AI-generated expressive sticker; user-directed final revision 2026-10-30. Cat unchanged from accepted expressive version.",
+      "encoding": "Transparent WebP; complete effects fitted within 440px on a 512px square; no circular clipping",
+      "semantic_label": "驚き"
     },
     {
       "file": "emote-cat-confident.webp",
-      "width": 384,
-      "height": 384,
-      "bytes": 23636,
-      "sha256": "8fa1c8df4707ca81305432be13141ec98fa0509dd39ae63986e2a0e5c5b9c44c",
-      "source": "Existing approved emote original restored without redrawing, per user request",
-      "encoding": "Transparent WebP, proportional fit; maximum dimension 384px"
+      "width": 512,
+      "height": 512,
+      "bytes": 59988,
+      "sha256": "46d53716938cabec8fa3f951c643b9fd34516fc40aa7ed1a27dc18fe8b7d1736",
+      "source": "AI-generated expressive sticker; user-directed final revision 2026-10-30. Cat unchanged from accepted expressive version.",
+      "encoding": "Transparent WebP; complete effects fitted within 440px on a 512px square; no circular clipping",
+      "semantic_label": "喜び"
     },
     {
       "file": "emote-cloud-anxious.webp",
-      "width": 384,
-      "height": 384,
-      "bytes": 10184,
-      "sha256": "f132a854b00592ebf79adcd7dac86e08af9ca6363620b3bfcef215fab27a21e8",
-      "source": "Existing approved emote original restored without redrawing, per user request",
-      "encoding": "Transparent WebP, proportional fit; maximum dimension 384px"
+      "width": 512,
+      "height": 512,
+      "bytes": 32578,
+      "sha256": "5b02f315d525ca5b7928b5351de638b74cd66ff8eaeec5a5d4ab0213f0a8edd9",
+      "source": "AI-generated expressive sticker; user-directed final revision 2026-10-30. Cat unchanged from accepted expressive version.",
+      "encoding": "Transparent WebP; complete effects fitted within 440px on a 512px square; no circular clipping",
+      "semantic_label": "悲しみ"
     },
     {
       "file": "emote-star-skeptical.webp",
-      "width": 384,
-      "height": 384,
-      "bytes": 16522,
-      "sha256": "5683c6093b171e94103b6b586929ac2d703b020ce8897f4600a95868c21d24ca",
-      "source": "Existing approved emote original restored without redrawing, per user request",
-      "encoding": "Transparent WebP, proportional fit; maximum dimension 384px"
+      "width": 512,
+      "height": 512,
+      "bytes": 35690,
+      "sha256": "8046e564a9f515c5c92a6c266a82d22816e1c55effadf3fc9debc8e8a2ad3303",
+      "source": "AI-generated expressive sticker; user-directed final revision 2026-10-30. Cat unchanged from accepted expressive version.",
+      "encoding": "Transparent WebP; complete effects fitted within 440px on a 512px square; no circular clipping",
+      "semantic_label": "ニヤリ"
     },
     {
       "file": "home-hero.webp",
