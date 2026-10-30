@@ -114,6 +114,10 @@ jobs:
           path: artifacts/scene-mobile-components.png
           if-no-files-found: ignore
           retention-days: 7
+      - name: Deal and turn readiness
+        run: node tools/deal-timing.mjs
+      - name: Home sound control position
+        run: node tools/home-sound-position.mjs
       - name: Battle header consistency
         run: node tools/header-regression.mjs
       - name: Lobby guide synchronization

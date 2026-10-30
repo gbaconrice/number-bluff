@@ -4,14 +4,14 @@ import { chromium, webkit } from 'playwright';
 const browserName = process.env.AUDIO_BROWSER === 'webkit' ? 'webkit' : 'chromium';
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
-import { resolve, extname } from 'node:path';
+import { resolve, extname, sep } from 'node:path';
 import assert from 'node:assert/strict';
 const root = resolve('.');
 const server = createServer(async (req, res) => {
   try {
     const name = decodeURIComponent(new URL(req.url, 'http://local').pathname);
     const file = resolve(root, '.' + (name === '/' ? '/index.html' : name));
-    if (!file.startsWith(root + '/')) throw Error('bad path');
+    if (!file.startsWith(root + sep)) throw Error('bad path');
     const mime = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp','.png':'image/png'};
     res.setHeader('Content-Type', mime[extname(file)] || 'application/octet-stream');
     res.end(await readFile(file));
@@ -49,8 +49,7 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
   assert.equal(await page.evaluate(() => window.__audioStartCount), 0, 'no automatic sound before interaction');
   const button = page.locator('#homeSoundToggle');
-  assert.equal(await button.locator('b').count(),1,'HOME retains its circular sound icon');
-  assert.equal(await button.locator('.icon-caption').textContent(),'音');
+  assert.equal(await button.textContent(),'♪','HOME uses the same sound icon as the battle screen');
   const soundBox = await button.boundingBox(); assert.ok(soundBox.width>=40 && soundBox.height>=40,'sound target remains tappable');
   await button.tap(); // mute
   assert.equal(await button.getAttribute('aria-pressed'), 'true');
@@ -65,8 +64,7 @@ try {
   assert.equal(await button.getAttribute('aria-pressed'), 'false');
   await button.tap(); await page.reload();
   assert.equal(await button.getAttribute('aria-pressed'), 'true', 'mute preference survives reload');
-  assert.equal(await button.locator('b').count(),1);
-  assert.equal(await button.locator('.icon-caption').textContent(),'音');
+  assert.equal(await button.textContent(),'♪');
   assert.equal(await page.evaluate(() => window.__audioStartCount), 0, 'muted reload does not autoplay');
   await button.tap(); // restore sound after the persisted-muted reload
   await page.waitForFunction(() => window.__liveAudioPeak > .005);
