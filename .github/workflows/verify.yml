@@ -143,8 +143,6 @@ jobs:
           path: |
             artifacts/compact-compare/
             artifacts/art-glow-preview/
-            artifacts/hidden-card-back/
-            artifacts/special-render-benchmark/
             artifacts/*.png
             artifacts/*.json
           if-no-files-found: ignore
